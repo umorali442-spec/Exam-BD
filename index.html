@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Online Exam</title>
+
+<style>
+body{
+font-family:Arial,sans-serif;
+max-width:700px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+border:1px solid #ddd;
+padding:20px;
+border-radius:10px;
+}
+
+button{
+padding:10px 15px;
+margin:5px;
+cursor:pointer;
+}
+
+#timer{
+color:red;
+font-weight:bold;
+}
+
+.option{
+display:block;
+margin:10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>Online Exam System</h2>
+
+<p id="student"></p>
+
+<p id="timer">05:00</p>
+
+<h3 id="qno"></h3>
+
+<p id="question"></p>
+
+<div id="options"></div>
+
+<button onclick="prevQuestion()">Previous</button>
+<button onclick="nextQuestion()">Next</button>
+<button onclick="submitExam()">Submit</button>
+
+</div>
+
+<script>
+
+let username = prompt("Enter Your Name");
+
+if(!username){
+username = "Student";
+}
+
+document.getElementById("student").innerText =
+"Name: " + username;
+
+const quiz = [
+
+{
+q:"Bangladesh er capital ki?",
+options:["Dhaka","Khulna","Rajshahi","Barisal"],
+answer:"Dhaka"
+},
+
+{
+q:"2 + 2 = ?",
+options:["3","4","5","6"],
+answer:"4"
+},
+
+{
+q:"HTML er full form ki?",
+options:[
+"Hyper Text Markup Language",
+"High Text Machine Language",
+"Home Tool Markup Language",
+"Hyper Tool Machine Language"
+],
+answer:"Hyper Text Markup Language"
+},
+
+{
+q:"CSS use hoy?",
+options:[
+"Design",
+"Database",
+"Hardware",
+"Network"
+],
+answer:"Design"
+},
+
+{
+q:"JavaScript ki?",
+options:[
+"Programming Language",
+"Database",
+"Browser",
+"Operating System"
+],
+answer:"Programming Language"
+}
+
+];
+
+let current = 0;
+let score = 0;
+
+let answers = new Array(quiz.length).fill(null);
+
+function loadQuestion(){
+
+document.getElementById("qno").innerText =
+"Question " + (current+1) + " of " + quiz.length;
+
+document.getElementById("question").innerText =
+quiz[current].q;
+
+let html = "";
+
+quiz[current].options.forEach(option=>{
+
+html += `
+<label class="option">
+<input type="radio" name="ans"
+value="${option}"
+${answers[current]===option?"checked":""}>
+${option}
+</label>
+`;
+
+});
+
+document.getElementById("options").innerHTML = html;
+}
+
+function saveAnswer(){
+
+let selected =
+document.querySelector('input[name="ans"]:checked');
+
+if(selected){
+answers[current] = selected.value;
+}
+
+}
+
+function nextQuestion(){
+
+saveAnswer();
+
+if(current < quiz.length-1){
+current++;
+loadQuestion();
+}
+
+}
+
+function prevQuestion(){
+
+saveAnswer();
+
+if(current > 0){
+current--;
+loadQuestion();
+}
+
+}
+
+function submitExam(){
+
+saveAnswer();
+
+score = 0;
+
+for(let i=0;i<quiz.length;i++){
+
+if(answers[i]===quiz[i].answer){
+score++;
+}
+
+}
+
+document.body.innerHTML = `
+<div class="card">
+<h2>Exam Finished</h2>
+
+<h3>Name: ${username}</h3>
+
+<h3>Score: ${score}/${quiz.length}</h3>
+
+<p>Correct: ${score}</p>
+
+<p>Wrong: ${quiz.length-score}</p>
+</div>
+`;
+
+}
+
+loadQuestion();
+
+let timeLeft = 300;
+
+let timer = setInterval(()=>{
+
+let min = Math.floor(timeLeft/60);
+let sec = timeLeft%60;
+
+document.getElementById("timer").innerText =
+(min<10?"0":"")+min + ":" +
+(sec<10?"0":"")+sec;
+
+timeLeft--;
+
+if(timeLeft < 0){
+
+clearInterval(timer);
+
+submitExam();
+
+}
+
+},1000);
+
+</script>
+
+</body>
+</html>
