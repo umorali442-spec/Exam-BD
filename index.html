@@ -202,36 +202,75 @@ function studentLogin() {
 function startExam() {
   submitted = false;
   warn = 0;
-  examQuestions = examQuestions.sort(function(){ return Math.random()-0.5; });
+
+  examQuestions = examQuestions.sort(function(){
+    return Math.random() - 0.5;
+  });
 
   var html = "";
+
   examQuestions.forEach(function(x,i){
+
     html += '<div class="card"><p><strong>'+(i+1)+'. '+x.q+'</strong></p>';
-    x.a.forEach(function(o,j){
-      html += '<label class="radio-label"><input type="radio" name="q'+i+'" value="'+j+'"> '+o+'</label>';
+
+    var options = x.a.map(function(opt, idx){
+      return {
+        text: opt,
+        originalIndex: idx
+      };
     });
+
+    options.sort(function(){
+      return Math.random() - 0.5;
+    });
+
+    options.forEach(function(o){
+      html += '<label class="radio-label">';
+      html += '<input type="radio" name="q'+i+'" value="'+o.originalIndex+'"> ';
+      html += o.text;
+      html += '</label>';
+    });
+
     html += '</div>';
   });
 
   document.getElementById("quiz").innerHTML = html;
   document.getElementById("warnDiv").innerHTML = "";
+
   show("page3");
 
   timeLeft = examQuestions.length * 60;
   totalTime = timeLeft;
 
   if (timerInterval) clearInterval(timerInterval);
+
   timerInterval = setInterval(function(){
+
     timeLeft--;
+
     var m = Math.floor(timeLeft/60);
     var s = timeLeft%60;
-    document.getElementById("timer").innerText = "⏱ "+m+":"+(s<10?"0":"")+s;
+
+    document.getElementById("timer").innerText =
+      "⏱ " + m + ":" + (s<10?"0":"") + s;
+
     var p = (timeLeft/totalTime)*100;
-    document.getElementById("progress").style.width = p+"%";
-    document.getElementById("progress").style.background = p<30?"#ef4444":"#22c55e";
-    if (timeLeft<=0) submitExam();
-  }, 1000);
+
+    document.getElementById("progress").style.width = p + "%";
+
+    if (p < 30){
+      document.getElementById("progress").style.background = "#ef4444";
+    } else {
+      document.getElementById("progress").style.background = "#22c55e";
+    }
+
+    if(timeLeft <= 0){
+      submitExam();
+    }
+
+  },1000);
 }
+
 
 // ===== ANTI CHEAT =====
 document.addEventListener("visibilitychange", function(){
@@ -247,38 +286,95 @@ document.addEventListener("copy", function(e){ e.preventDefault(); });
 
 // ===== SUBMIT =====
 function submitExam() {
+
   if (submitted) return;
+
   submitted = true;
+
   if (timerInterval) clearInterval(timerInterval);
 
   var score = 0;
+
   examQuestions.forEach(function(x,i){
-    var ans = document.querySelector('input[name=q'+i+']:checked');
-    if (ans && parseInt(ans.value)===x.correct) score++;
+
+    var ans =
+      document.querySelector('input[name=q'+i+']:checked');
+
+    if(ans && parseInt(ans.value) === x.correct){
+      score++;
+    }
+
   });
 
-  var percent = Math.round((score/examQuestions.length)*100);
-  var grade = percent>=80?"A+":percent>=70?"A":percent>=60?"B":percent>=50?"C":percent>=40?"D":"F";
-  var pass = percent>=40;
+  var percent =
+    Math.round((score/examQuestions.length)*100);
 
-  fetch(DB+"/results.json", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({name:student, class:sClass, score:score, total:examQuestions.length, percent:percent, grade:grade, time:new Date().toLocaleString()})
+  var grade =
+    percent>=80?"A+":
+    percent>=70?"A":
+    percent>=60?"B":
+    percent>=50?"C":
+    percent>=40?"D":"F";
+
+  var pass = percent >= 40;
+
+  var badge = "";
+
+  if(percent === 100){
+    badge = "👑 LEGEND";
+  }
+  else if(percent >= 90){
+    badge = "🥇 GOLD MASTER";
+  }
+  else if(percent >= 70){
+    badge = "🥈 SILVER STAR";
+  }
+  else if(percent >= 50){
+    badge = "🥉 BRONZE HERO";
+  }
+  else{
+    badge = "📚 KEEP LEARNING";
+  }
+
+  fetch(DB+"/results.json",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      name:student,
+      class:sClass,
+      score:score,
+      total:examQuestions.length,
+      percent:percent,
+      grade:grade,
+      badge:badge,
+      time:new Date().toLocaleString()
+    })
   });
 
   document.getElementById("result").innerHTML =
     '<div class="card" style="text-align:center;">'+
-    '<div style="font-size:3rem;margin-bottom:8px;">'+(pass?"🎉":"😔")+'</div>'+
-    '<h2 style="margin-bottom:10px;">RESULT</h2>'+
-    '<p>👤 <strong>'+student+'</strong> | 🏫 Class '+sClass+'</p>'+
-    '<p style="font-size:2rem;font-weight:700;margin:10px 0;">'+score+'/'+examQuestions.length+' ('+percent+'%)</p>'+
-    '<p style="font-size:1.3rem;color:'+(pass?'#22c55e':'#ef4444')+';font-weight:700;">'+(pass?"✅ PASS":"❌ FAIL")+' | Grade: '+grade+'</p>'+
+    '<div style="font-size:3rem;">'+(pass?"🎉":"😔")+'</div>'+
+    '<h2>RESULT</h2>'+
+    '<p>👤 <strong>'+student+'</strong></p>'+
+    '<p>🏫 Class '+sClass+'</p>'+
+    '<p style="font-size:2rem;font-weight:bold;">'+
+    score+'/'+examQuestions.length+
+    ' ('+percent+'%)</p>'+
+    '<p style="font-size:1.3rem;color:'+
+    (pass?'#22c55e':'#ef4444')+
+    ';">'+
+    (pass?'✅ PASS':'❌ FAIL')+
+    ' | Grade: '+grade+
+    '</p>'+
+    '<p style="font-size:1.2rem;color:#f59e0b;font-weight:bold;">🏅 '+badge+'</p>'+
     '</div>';
 
   loadLeaderboard();
   show("page4");
 }
+
 
 // ===== LEADERBOARD =====
 function loadLeaderboard() {
