@@ -199,8 +199,8 @@ function addQuestion() {
       q: q,
       a: [o1,o2,o3,o4],
       correct: correct,
-      subject: document.getElementById("qSubject")?.value || "math"
-    })
+      subject: document.getElementById("qsub").value
+})
   }).then(() => {
     alert("✅ প্রশ্ন যোগ হয়েছে");
   });
@@ -454,4 +454,7 @@ function loadResults() {
           </div>`
         ).join("");
     });
+  </script>
+</body>
+</html>
                                                   
