@@ -2,39 +2,39 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Exam BD Pro</title>
+<title>Exam BD Admin Panel</title>
 
 <style>
 body{
   font-family: Arial;
-  background:#f4f4f4;
+  background:#eef6ff;
   padding:20px;
 }
 .container{
+  max-width:850px;
+  margin:auto;
   background:white;
   padding:20px;
-  border-radius:10px;
-  max-width:700px;
-  margin:auto;
+  border-radius:12px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.1);
 }
-.q{
-  margin-bottom:20px;
+input, select{
   padding:10px;
-  border-bottom:1px solid #ddd;
+  margin:5px 0;
+  width:90%;
 }
 button{
-  padding:10px 20px;
-  background:green;
-  color:white;
+  padding:10px 15px;
   border:none;
+  border-radius:6px;
   cursor:pointer;
-  border-radius:5px;
 }
-#timer{
-  font-size:20px;
-  color:red;
-  font-weight:bold;
-}
+#loginBtn{background:#007bff;color:white;}
+#addBtn{background:#28a745;color:white;}
+#startBtn{background:#ff9800;color:white;}
+#submitBtn{background:#dc3545;color:white;}
+.q{padding:10px;border-bottom:1px solid #ddd;}
+#timer{color:red;font-weight:bold;font-size:18px;}
 </style>
 
 </head>
@@ -43,87 +43,143 @@ button{
 
 <div class="container">
 
-<h2>📘 Exam BD Pro</h2>
-<div id="timer">Time: 60</div>
+<h2>📘 Exam BD Admin Panel</h2>
 
+<!-- LOGIN -->
+<div id="loginBox">
+  <h3>🔐 Admin Login</h3>
+  <input type="text" id="user" placeholder="Username"><br>
+  <input type="password" id="pass" placeholder="Password"><br>
+  <button id="loginBtn" onclick="login()">Login</button>
+  <p id="msg"></p>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="panel" style="display:none;">
+
+<h3>🧑‍🏫 Add Question</h3>
+
+<input type="text" id="q" placeholder="Question"><br>
+<input type="text" id="o1" placeholder="Option 1"><br>
+<input type="text" id="o2" placeholder="Option 2"><br>
+<input type="text" id="o3" placeholder="Option 3"><br>
+<input type="text" id="o4" placeholder="Option 4"><br>
+
+<select id="correct">
+  <option value="0">Option 1</option>
+  <option value="1">Option 2</option>
+  <option value="2">Option 3</option>
+  <option value="3">Option 4</option>
+</select><br>
+
+<button id="addBtn" onclick="addQuestion()">Add Question</button>
+<button id="startBtn" onclick="startExam()">Start Exam</button>
+
+<hr>
+
+<div id="timer">Time: 60</div>
 <div id="quiz"></div>
 
-<button onclick="submitExam()">Submit Exam</button>
+<button id="submitBtn" onclick="submitExam()">Submit Exam</button>
 
 <h3 id="result"></h3>
 
 </div>
 
+</div>
+
 <script>
 
-// TIMER
-let time = 60;
-let timer = setInterval(()=>{
-  time--;
-  document.getElementById("timer").innerText = "Time: " + time + "s";
-
-  if(time <= 0){
-    submitExam();
-  }
-},1000);
-
-// QUESTIONS
-const questions = [
-  {
-    q: "What is 2 + 2?",
-    a: ["3","4","5","6"],
-    correct: 1
-  },
-  {
-    q: "Capital of Bangladesh?",
-    a: ["Dhaka","Chittagong","Khulna","Rajshahi"],
-    correct: 0
-  },
-  {
-    q: "HTML stands for?",
-    a: ["Hyper Text Markup Language","Home Tool Markup Language","Hot Mail","None"],
-    correct: 0
-  }
+let questions = JSON.parse(localStorage.getItem("questions")) || [
+  {q:"2+2=?",a:["3","4","5","6"],correct:1},
+  {q:"Capital of BD?",a:["Dhaka","Delhi","Khulna","Paris"],correct:0}
 ];
 
-// LOAD QUIZ
-function loadQuiz(){
-  let html = "";
+let time=60;
+let timer;
+
+// LOGIN
+function login(){
+  let u=document.getElementById("user").value;
+  let p=document.getElementById("pass").value;
+
+  if(u==="admin" && p==="1234"){
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("panel").style.display="block";
+  }else{
+    document.getElementById("msg").innerText="❌ Wrong username or password!";
+  }
+}
+
+// ADD QUESTION
+function addQuestion(){
+
+  let q=document.getElementById("q").value;
+  let o1=document.getElementById("o1").value;
+  let o2=document.getElementById("o2").value;
+  let o3=document.getElementById("o3").value;
+  let o4=document.getElementById("o4").value;
+  let c=parseInt(document.getElementById("correct").value);
+
+  if(!q || !o1 || !o2 || !o3 || !o4){
+    alert("Fill all fields!");
+    return;
+  }
+
+  questions.push({
+    q:q,
+    a:[o1,o2,o3,o4],
+    correct:c
+  });
+
+  localStorage.setItem("questions",JSON.stringify(questions));
+
+  alert("Question Added!");
+}
+
+// START EXAM
+function startExam(){
+
+  let html="";
 
   questions.forEach((x,i)=>{
-    html += `<div class="q">
+    html+=`
+    <div class="q">
       <h4>${i+1}. ${x.q}</h4>
-      ${x.a.map((opt,j)=>
-        `<label>
-          <input type="radio" name="q${i}" value="${j}">
-          ${opt}
-        </label><br>`
+      ${x.a.map((o,j)=>
+        `<label><input type="radio" name="q${i}" value="${j}"> ${o}</label><br>`
       ).join("")}
     </div>`;
   });
 
-  document.getElementById("quiz").innerHTML = html;
+  document.getElementById("quiz").innerHTML=html;
+
+  timer=setInterval(()=>{
+    time--;
+    document.getElementById("timer").innerText="Time: "+time+"s";
+    if(time<=0) submitExam();
+  },1000);
 }
 
 // SUBMIT
 function submitExam(){
   clearInterval(timer);
 
-  let score = 0;
+  let score=0;
 
   questions.forEach((x,i)=>{
-    let ans = document.querySelector(`input[name=q${i}]:checked`);
-    if(ans && parseInt(ans.value) === x.correct){
+    let ans=document.querySelector(`input[name=q${i}]:checked`);
+    if(ans && parseInt(ans.value)===x.correct){
       score++;
     }
   });
 
-  document.getElementById("result").innerHTML =
-    "🎯 Your Score: " + score + " / " + questions.length;
-}
+  let percent=Math.round((score/questions.length)*100);
 
-// INIT
-loadQuiz();
+  document.getElementById("result").innerHTML=
+  `🎯 Score: ${score}/${questions.length}<br>
+   📊 Percentage: ${percent}%`;
+}
 
 </script>
 
