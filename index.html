@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Exam BD Full System Step 1</title>
+<title>Exam BD Pro Full System</title>
 
 <style>
 body{
@@ -10,6 +10,7 @@ body{
   background:#eef6ff;
   padding:20px;
 }
+
 .container{
   max-width:850px;
   margin:auto;
@@ -17,23 +18,42 @@ body{
   padding:20px;
   border-radius:12px;
 }
+
 input, select{
   padding:10px;
   margin:5px 0;
   width:90%;
 }
+
 button{
   padding:10px 15px;
   border:none;
   border-radius:6px;
   cursor:pointer;
 }
+
 #loginBtn{background:#007bff;color:white;}
 #addBtn{background:#28a745;color:white;}
 #startBtn{background:#ff9800;color:white;}
 #submitBtn{background:#dc3545;color:white;}
-.q{padding:10px;border-bottom:1px solid #ddd;}
-#timer{color:red;font-weight:bold;}
+
+.q{
+  padding:15px;
+  margin:10px 0;
+  border-radius:10px;
+  background:#f9f9f9;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+#timer{
+  color:red;
+  font-weight:bold;
+  font-size:18px;
+}
+
+h2{
+  text-align:center;
+}
 </style>
 
 </head>
@@ -42,7 +62,7 @@ button{
 
 <div class="container">
 
-<h2>📘 Exam BD Full System</h2>
+<h2>📘 Exam BD Pro System</h2>
 
 <!-- 👨‍🎓 STUDENT LOGIN -->
 <div id="studentBox">
@@ -60,7 +80,7 @@ button{
   <p id="msg"></p>
 </div>
 
-<!-- PANEL -->
+<!-- ADMIN PANEL -->
 <div id="panel" style="display:none;">
 
 <h3>🧑‍🏫 Add Question</h3>
@@ -84,6 +104,12 @@ button{
 <hr>
 
 <div id="timer">Time: 60</div>
+
+<!-- PROGRESS BAR -->
+<div style="width:100%;background:#ddd;border-radius:10px;margin:10px 0;">
+  <div id="progress" style="height:10px;width:100%;background:#4caf50;border-radius:10px;"></div>
+</div>
+
 <div id="quiz"></div>
 
 <button id="submitBtn" onclick="submitExam()">Submit Exam</button>
@@ -104,10 +130,12 @@ let questions = JSON.parse(localStorage.getItem("questions")) || [
 let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
 
 let time=60;
+let totalTime=60;
 let timer;
 
 let currentStudent="";
 let currentUser="";
+let warningCount=0;
 
 // 👨‍🎓 STUDENT LOGIN
 function studentLogin(){
@@ -174,10 +202,36 @@ function startExam(){
 
   timer=setInterval(()=>{
     time--;
+
     document.getElementById("timer").innerText="Time: "+time+"s";
+
+    let percent=(time/totalTime)*100;
+    document.getElementById("progress").style.width=percent+"%";
+
     if(time<=0) submitExam();
   },1000);
 }
+
+// 🛡️ ANTI CHEAT
+document.addEventListener("visibilitychange", function(){
+  if(document.hidden){
+    warningCount++;
+    alert("⚠️ Tab switch detected!");
+
+    if(warningCount>=3){
+      alert("❌ Exam auto submitted!");
+      submitExam();
+    }
+  }
+});
+
+document.addEventListener("contextmenu", e=>{
+  e.preventDefault();
+});
+
+document.addEventListener("copy", e=>{
+  e.preventDefault();
+});
 
 // SUBMIT + RANK
 function submitExam(){
@@ -195,8 +249,13 @@ function submitExam(){
   let percent=Math.round((score/questions.length)*100);
 
   document.getElementById("result").innerHTML=
-  `🎯 Score: ${score}/${questions.length}<br>
-   📊 Percentage: ${percent}%<br>`;
+  `
+  <div style="padding:15px;background:#e8f5e9;border-radius:10px;">
+  🎯 Score: ${score}/${questions.length}<br>
+  📊 Percentage: ${percent}%<br>
+  👤 Student: ${currentStudent}
+  </div>
+  `;
 
   leaderboard.push({
     name: currentStudent,
