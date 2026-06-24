@@ -209,7 +209,8 @@ function studentLogin() {
 function startExam() {
   submitted = false;
   warn = 0;
-
+var score = 0;
+var review = "";
   examQuestions = examQuestions.sort(function(){
     return Math.random() - 0.5;
   });
@@ -234,9 +235,11 @@ function startExam() {
     options.forEach(function(o){
       html += '<label class="radio-label">';
       html += '<input type="radio" name="q'+i+'" value="'+o.originalIndex+'"> ';
+      html += '<input type="radio" name="q'+i+'" value="'+o.originalIndex+'" onclick="lockOptions('+i+')"> ';
       html += o.text;
       html += '</label>';
     });
+   
 
     html += '</div>';
   });
@@ -482,8 +485,16 @@ function loadLeaderboard() {
       document.getElementById("hallOfFame").innerHTML = html;
 
     });
-
-                                            }
+//===loack option=====
+ function loadHallOfFame() {
+ ...  
+ } 
+ function lockOptions(qIndex){
+  var options = document.querySelectorAll('input[name="q'+qIndex+'"]');
+  options.forEach(function(opt){
+    opt.disabled = true;
+  });
+ }}
 </script>
 </body>
 </html>
