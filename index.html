@@ -2,12 +2,12 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Exam BD Full Pro + Rank</title>
+<title>Exam BD Fixed Full System</title>
 
 <style>
 body{
   font-family: Arial;
-  background: linear-gradient(135deg,#e3f2fd,#ffffff);
+  background:#eef6ff;
   padding:20px;
 }
 .container{
@@ -42,7 +42,7 @@ button{
 
 <div class="container">
 
-<h2>📘 Exam BD Full System + Rank</h2>
+<h2>📘 Exam BD Fixed System</h2>
 
 <!-- LOGIN -->
 <div id="loginBox">
@@ -53,7 +53,7 @@ button{
   <p id="msg"></p>
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- PANEL -->
 <div id="panel" style="display:none;">
 
 <h3>🧑‍🏫 Add Question</h3>
@@ -107,11 +107,10 @@ function login(){
 
   if(u==="admin" && p==="1234"){
     currentUser=u;
-
     document.getElementById("loginBox").style.display="none";
     document.getElementById("panel").style.display="block";
   }else{
-    document.getElementById("msg").innerText="❌ Wrong username or password!";
+    document.getElementById("msg").innerText="❌ Wrong login!";
   }
 }
 
@@ -125,29 +124,42 @@ function addQuestion(){
   let o4=document.getElementById("o4").value;
   let c=parseInt(document.getElementById("correct").value);
 
-  questions.push({q:q,a:[o1,o2,o3,o4],correct:c});
+  questions.push({
+    q:q,
+    a:[o1,o2,o3,o4],
+    correct:c
+  });
 
   localStorage.setItem("questions",JSON.stringify(questions));
 
   alert("Question Added!");
 }
 
-// START EXAM
+// START EXAM (FIXED OPTIONS)
 function startExam(){
 
   let html="";
 
   questions.forEach((x,i)=>{
-    html+=`
+
+    html += `
     <div class="q">
       <h4>${i+1}. ${x.q}</h4>
-      ${x.a.map((o,j)=>
-        `<label><input type="radio" name="q${i}" value="${j}"> ${o}</label><br>`
-      ).join("")}
-    </div>`;
+    `;
+
+    for(let j=0;j<x.a.length;j++){
+      html += `
+        <label>
+          <input type="radio" name="q${i}" value="${j}">
+          ${x.a[j]}
+        </label><br>
+      `;
+    }
+
+    html += `</div>`;
   });
 
-  document.getElementById("quiz").innerHTML=html;
+  document.getElementById("quiz").innerHTML = html;
 
   timer=setInterval(()=>{
     time--;
@@ -156,7 +168,7 @@ function startExam(){
   },1000);
 }
 
-// SUBMIT + RANK SYSTEM
+// SUBMIT + RANK
 function submitExam(){
   clearInterval(timer);
 
@@ -175,7 +187,7 @@ function submitExam(){
   `🎯 Score: ${score}/${questions.length}<br>
    📊 Percentage: ${percent}%<br>`;
 
-  // 🏆 RANK SYSTEM
+  // RANK SYSTEM
   leaderboard.push({
     name: currentUser || "User",
     score: percent
