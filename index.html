@@ -63,12 +63,19 @@
         <option value="3">✅ Option 4 সঠিক</option>  
       </select>  
       <button class="btn-green" onclick="addQuestion()">প্রশ্ন যোগ করো ✚</button>  
+     <textarea id="bulkData" placeholder="এখানে JSON Paste করো"
+style="width:100%;height:150px;background:#1e293b;color:white;border:1px solid #334155;border-radius:8px;padding:10px;margin-top:10px;"></textarea>
+
+<button class="btn-yellow" onclick="bulkImport()">
+📥 Bulk Import Questions
+</button>
       <div id="qMsg" class="msg" style="display:none;"></div>  
     </div>  
     <button class="btn-gray" onclick="clearAllQuestions()" style="margin-top:6px;">🗑 সব প্রশ্ন মুছো</button>  
   </div>  
 <button class="btn-yellow" onclick="loadResults()">📊 All Results</button>  
-<div id="allResults"></div>  
+<div id="allResults"></div> 
+ 
   <!-- PAGE 3: EXAM -->  
   <div id="page3" style="display:none;">  
     <div id="timer">⏱ --</div>  
@@ -162,7 +169,53 @@ function addQuestion() {
   })  
   .catch(function(e){ showQMsg("❌ Error: "+e.message, "#7f1d1d"); });  
 }  
-  
+  function bulkImport(){
+
+  var txt = document.getElementById("bulkData").value.trim();
+
+  if(!txt){
+    alert("JSON Paste করো!");
+    return;
+  }
+
+  try{
+
+    var questions = JSON.parse(txt);
+
+    var requests = [];
+
+    Object.values(questions).forEach(function(q){
+
+      requests.push(
+        fetch(DB+"/questions.json",{
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify(q)
+        })
+      );
+
+    });
+
+    Promise.all(requests)
+    .then(function(){
+
+      alert("✅ সব প্রশ্ন Save হয়েছে");
+
+      document.getElementById("bulkData").value="";
+
+      loadQCount();
+
+    });
+
+  }catch(e){
+
+    alert("❌ Invalid JSON");
+
+  }
+
+   }
 // ===== CLEAR =====  
 function clearAllQuestions() {  
   if (!confirm("সব প্রশ্ন মুছে ফেলবে?")) return;  
