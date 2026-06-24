@@ -393,6 +393,7 @@ function submitExam() {
   
   var score = 0;  
 var review = "";  
+ var examSubject = document.getElementById("examSubject").value;
   
 examQuestions.forEach(function(x,i){  
   
@@ -438,23 +439,30 @@ examQuestions.forEach(function(x,i){
   else if(percent >= 50){  
     badge = "🥉 BRONZE HERO";  
   }  
-  else{  
-    badge = "📚 KEEP LEARNING";  
-  }  
-  y
-  
-      name:student,  
-      class:sClass,  
-      subject: examSubject,
-     
-      score:score,  
-      total:examQuestions.length,  
-      percent:percent,  
-      grade:grade,  
-      badge:badge,  
-      time:new Date().toLocaleString()  
-    })  
-  });  
+  else{
+  badge = "📚 KEEP LEARNING";
+}
+
+var examSubject =
+document.getElementById("examSubject").value;
+
+fetch(DB+"/results.json",{
+  method:"POST",
+  headers:{
+    "Content-Type":"application/json"
+  },
+  body:JSON.stringify({
+    name:student,
+    class:sClass,
+    subject:examSubject,
+    score:score,
+    total:examQuestions.length,
+    percent:percent,
+    grade:grade,
+    badge:badge,
+    time:new Date().toLocaleString()
+  })
+});
 document.getElementById("result").innerHTML =  
   '<div class="card" style="text-align:center;">'+  
   '<div style="font-size:3rem;">'+(pass?"🎉":"😔")+'</div>'+  
