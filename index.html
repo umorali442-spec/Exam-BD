@@ -1,7 +1,7 @@
 <!DOCTYPE html><html>
 <head>
 <meta charset="UTF-8">
-<title>Ultimate School Exam System</title><style>
+<title>School Exam System</title><style>
 body{
   font-family: Arial;
   background:#050816;
@@ -45,31 +45,23 @@ button{
   width:100%;
   height:10px;
   background:#334155;
-  border-radius:10px;
 }
 #progress{
   height:10px;
   background:#22c55e;
 }
 h2{text-align:center;}
-#leaderboard{
-  margin-top:10px;
-  background:#1e293b;
-  padding:10px;
-  border-radius:10px;
-}
-</style></head><body><div class="container"><h2>🏫 SCHOOL EXAM SYSTEM</h2><div id="studentBox">
-  <h3>👨‍🎓 Student Login</h3>
-  <input id="studentName" placeholder="Name">
-  <input id="studentClass" placeholder="Class">
-  <button onclick="studentLogin()">Start Exam</button>
+</style></head><body><div class="container"><h2>🏫 Exam System</h2><div id="studentBox">
+<h3>Student Login</h3>
+<input id="studentName" placeholder="Name">
+<input id="studentClass" placeholder="Class">
+<button onclick="studentLogin()">Start Exam</button>
 </div><div id="loginBox" style="display:none;">
-  <h3>🔐 Teacher Login</h3>
-  <input id="user">
-  <input type="password" id="pass">
-  <button onclick="login()">Login</button>
-</div><div id="panel" style="display:none;">
-<h3>🧑‍🏫 Admin Panel</h3><input id="q" placeholder="Question">
+<h3>Teacher Login</h3>
+<input id="user">
+<input type="password" id="pass">
+<button onclick="login()">Login</button>
+</div><div id="panel" style="display:none;"><h3>Admin Panel</h3><input id="q" placeholder="Question">
 <input id="o1" placeholder="Option 1">
 <input id="o2" placeholder="Option 2">
 <input id="o3" placeholder="Option 3">
@@ -81,13 +73,11 @@ h2{text-align:center;}
 </select><button onclick="addQuestion()">Add Question</button>
 <button onclick="startExam()">Start Exam</button>
 
-<div id="timer">Time: 60</div>
-<div id="progressBar"><div id="progress"></div></div><div id="quiz"></div>
-<button onclick="submitExam()">Submit</button><h3 id="result"></h3><div id="leaderboard">
-<h3>🏆 Leaderboard</h3>
-<div id="board"></div>
-</div></div>
-</div><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script><script>
+<hr><div id="timer">Time: 60</div>
+<div id="progressBar"><div id="progress"></div></div><div id="quiz"></div><button onclick="submitExam()">Submit</button>
+
+<h3 id="result"></h3><div id="board"></div></div></div><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script><script>
+
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -105,51 +95,54 @@ let questions = [];
 let student = "";
 let className = "";
 let time = 60;
-let total = 60;
 let timer;
-let warn = 0;
 
 function studentLogin(){
 student = document.getElementById("studentName").value;
 className = document.getElementById("studentClass").value;
 
-if(student==""||className=="") return alert("Fill all");
+if(!student || !className){
+  alert("Fill all");
+  return;
+}
 
 document.getElementById("studentBox").style.display="none";
 document.getElementById("loginBox").style.display="block";
 }
 
 function login(){
-let u = document.getElementById("user").value;
-let p = document.getElementById("pass").value;
+let u=document.getElementById("user").value;
+let p=document.getElementById("pass").value;
 
 if(u==="admin" && p==="1234"){
 document.getElementById("loginBox").style.display="none";
 document.getElementById("panel").style.display="block";
 loadQuestions();
-loadLeaderboard();
 }else alert("Wrong login");
 }
 
 function addQuestion(){
 db.ref("questions").push({
-q:document.getElementById("q").value,
-a:[o1.value,o2.value,o3.value,o4.value],
-correct:parseInt(document.getElementById("correct").value)
+q: q.value,
+a: [o1.value,o2.value,o3.value,o4.value],
+correct: parseInt(correct.value)
 });
-alert("Saved!");
+alert("Saved");
 }
 
 function loadQuestions(){
 db.ref("questions").on("value",snap=>{
 questions=[];
-snap.forEach(c=>questions.push(c.val()));
+snap.forEach(d=>questions.push(d.val()));
 });
 }
 
 function startExam(){
 
-questions.sort(()=>Math.random()-0.5);
+if(questions.length===0){
+alert("No questions found");
+return;
+}
 
 let html="";
 
@@ -163,12 +156,12 @@ ${x.a.map((o,j)=>
 </div>`;
 });
 
-document.getElementById("quiz").innerHTML = html;
+document.getElementById("quiz").innerHTML=html;
 
-timer = setInterval(()=>{
+timer=setInterval(()=>{
 time--;
 document.getElementById("timer").innerText="Time: "+time;
-document.getElementById("progress").style.width=(time/total)*100+"%";
+document.getElementById("progress").style.width=(time/60)*100+"%";
 if(time<=0) submitExam();
 },1000);
 }
@@ -180,17 +173,17 @@ let score=0;
 
 questions.forEach((x,i)=>{
 let ans=document.querySelector(`input[name=q${i}]:checked`);
-if(ans && parseInt(ans.value)==x.correct) score++;
+if(ans && ans.value==x.correct) score++;
 });
 
 let percent=Math.round((score/questions.length)*100);
 
 db.ref("results").push({
-name:student,
-class:className,
+name: student,
+class: className,
 score,
 percent,
-time:new Date().toLocaleString()
+time: new Date().toLocaleString()
 });
 
 document.getElementById("result").innerHTML=
@@ -200,19 +193,7 @@ document.getElementById("result").innerHTML=
 📊 ${score}/${questions.length}<br>
 📈 ${percent}%
 </div>`;
-
-loadLeaderboard();
 }
 
-function loadLeaderboard(){
-db.ref("results").limitToLast(5).on("value",snap=>{
-let html="";
-snap.forEach(c=>{
-let d=c.val();
-html+=`<div class="card">${d.name} - ${d.percent}%</div>`;
-});
-document.getElementById("board").innerHTML=html;
-});
-}
 </script></body>
 </html>
