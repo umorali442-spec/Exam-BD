@@ -2,12 +2,12 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Exam BD Clean Fix</title>
+<title>Exam BD Full Pro + Rank</title>
 
 <style>
 body{
   font-family: Arial;
-  background:#eef6ff;
+  background: linear-gradient(135deg,#e3f2fd,#ffffff);
   padding:20px;
 }
 .container{
@@ -42,7 +42,7 @@ button{
 
 <div class="container">
 
-<h2>📘 Exam BD Fixed System</h2>
+<h2>📘 Exam BD Full System + Rank</h2>
 
 <!-- LOGIN -->
 <div id="loginBox">
@@ -94,8 +94,11 @@ let questions = JSON.parse(localStorage.getItem("questions")) || [
   {q:"Capital of BD?",a:["Dhaka","Delhi","Khulna","Paris"],correct:0}
 ];
 
+let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+
 let time=60;
 let timer;
+let currentUser="";
 
 // LOGIN
 function login(){
@@ -103,6 +106,8 @@ function login(){
   let p=document.getElementById("pass").value;
 
   if(u==="admin" && p==="1234"){
+    currentUser=u;
+
     document.getElementById("loginBox").style.display="none";
     document.getElementById("panel").style.display="block";
   }else{
@@ -120,23 +125,14 @@ function addQuestion(){
   let o4=document.getElementById("o4").value;
   let c=parseInt(document.getElementById("correct").value);
 
-  if(!q || !o1 || !o2 || !o3 || !o4){
-    alert("Fill all fields!");
-    return;
-  }
-
-  questions.push({
-    q:q,
-    a:[o1,o2,o3,o4],
-    correct:c
-  });
+  questions.push({q:q,a:[o1,o2,o3,o4],correct:c});
 
   localStorage.setItem("questions",JSON.stringify(questions));
 
   alert("Question Added!");
 }
 
-// START EXAM (FIXED CLEAN VIEW)
+// START EXAM
 function startExam(){
 
   let html="";
@@ -146,19 +142,12 @@ function startExam(){
     <div class="q">
       <h4>${i+1}. ${x.q}</h4>
       ${x.a.map((o,j)=>
-        `<label>
-          <input type="radio" name="q${i}" value="${j}">
-          ${o}
-        </label><br>`
+        `<label><input type="radio" name="q${i}" value="${j}"> ${o}</label><br>`
       ).join("")}
     </div>`;
   });
 
   document.getElementById("quiz").innerHTML=html;
-
-  // hide add panel buttons (FIX FIX FIX)
-  document.getElementById("addBtn").style.display="none";
-  document.getElementById("startBtn").style.display="none";
 
   timer=setInterval(()=>{
     time--;
@@ -167,7 +156,7 @@ function startExam(){
   },1000);
 }
 
-// SUBMIT
+// SUBMIT + RANK SYSTEM
 function submitExam(){
   clearInterval(timer);
 
@@ -184,7 +173,31 @@ function submitExam(){
 
   document.getElementById("result").innerHTML=
   `🎯 Score: ${score}/${questions.length}<br>
-   📊 Percentage: ${percent}%`;
+   📊 Percentage: ${percent}%<br>`;
+
+  // 🏆 RANK SYSTEM
+  leaderboard.push({
+    name: currentUser || "User",
+    score: percent
+  });
+
+  leaderboard.sort((a,b)=>b.score-a.score);
+  leaderboard = leaderboard.slice(0,5);
+
+  localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+
+  showRank();
+}
+
+// SHOW RANK
+function showRank(){
+  let html="<h3>🏆 Top 5 Rank</h3>";
+
+  leaderboard.forEach((x,i)=>{
+    html+=`<p>${i+1}. ${x.name} - ${x.score}%</p>`;
+  });
+
+  document.getElementById("result").innerHTML += html;
 }
 
 </script>
