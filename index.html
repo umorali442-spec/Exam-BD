@@ -271,7 +271,13 @@ function startExam() {
     if (timeLeft<=0) submitExam();
   }, 1000);
 }
-
+// ===== LOCK OPTIONS =====
+function lockOptions(qIndex){
+  var options = document.querySelectorAll('input[name="q'+qIndex+'"]');
+  options.forEach(function(opt){
+    opt.disabled = true;
+  });
+}
 // ===== ANTI CHEAT =====
 document.addEventListener("visibilitychange", function(){
   if (document.hidden && !submitted && timerInterval) {
@@ -351,13 +357,7 @@ function loadLeaderboard() {
     });
 }
 
-// ===== LOCK OPTIONS =====
-function lockOptions(qIndex){
-  var options = document.querySelectorAll('input[name="q'+qIndex+'"]');
-  options.forEach(function(opt){
-    opt.disabled = true;
-  });
-}
+
 
 // ===== HALL OF FAME =====
 function loadHallOfFame() {
