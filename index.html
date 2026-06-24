@@ -2,62 +2,78 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Exam BD Ultimate System</title>
+<title>Ultimate School Exam System</title>
 
 <style>
 body{
   font-family: Arial;
-  background:#eef6ff;
+  background:#050816;
+  color:white;
   padding:20px;
 }
 
 .container{
-  max-width:850px;
+  max-width:900px;
   margin:auto;
-  background:white;
+  background:#0f172a;
   padding:20px;
   border-radius:12px;
 }
 
 input, select{
+  width:95%;
   padding:10px;
   margin:5px 0;
-  width:90%;
+  border:none;
+  border-radius:6px;
 }
 
 button{
-  padding:10px 15px;
+  width:100%;
+  padding:10px;
+  margin-top:8px;
   border:none;
   border-radius:6px;
   cursor:pointer;
-  width:100%;
-  margin-top:5px;
 }
 
-#loginBtn{background:#007bff;color:white;}
-#addBtn{background:#28a745;color:white;}
-#startBtn{background:#ff9800;color:white;}
-#submitBtn{background:#dc3545;color:white;}
+#loginBtn{background:#2563eb;color:white;}
+#addBtn{background:#22c55e;color:white;}
+#startBtn{background:#f59e0b;color:black;}
+#submitBtn{background:#ef4444;color:white;}
 
-.q{
+.card{
+  background:#1e293b;
   padding:15px;
   margin:10px 0;
-  background:#f9f9f9;
   border-radius:10px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
 
 #timer{
-  color:red;
-  font-weight:bold;
   font-size:18px;
+  font-weight:bold;
+  color:#f87171;
+}
+
+#progressBar{
+  width:100%;
+  height:10px;
+  background:#334155;
+  border-radius:10px;
 }
 
 #progress{
   height:10px;
-  background:#4caf50;
+  background:#22c55e;
+}
+
+h2{text-align:center;}
+
+#leaderboard{
+  margin-top:10px;
+  background:#1e293b;
+  padding:10px;
   border-radius:10px;
-  width:100%;
 }
 </style>
 
@@ -67,57 +83,61 @@ button{
 
 <div class="container">
 
-<h2>📘 Exam BD Ultimate (Full System)</h2>
+<h2>🏫 SCHOOL EXAM SYSTEM (FINAL MASTER)</h2>
 
-<!-- STUDENT LOGIN -->
+<!-- STUDENT -->
 <div id="studentBox">
   <h3>👨‍🎓 Student Login</h3>
-  <input type="text" id="studentName" placeholder="Enter Your Name"><br>
+  <input id="studentName" placeholder="Name">
+  <input id="studentClass" placeholder="Class">
   <button onclick="studentLogin()">Start Exam</button>
 </div>
 
-<!-- ADMIN LOGIN -->
+<!-- TEACHER LOGIN -->
 <div id="loginBox" style="display:none;">
-  <h3>🔐 Admin Login</h3>
-  <input type="text" id="user"><br>
-  <input type="password" id="pass"><br>
-  <button id="loginBtn" onclick="login()">Login</button>
+  <h3>🔐 Teacher Login</h3>
+  <input id="user">
+  <input type="password" id="pass">
+  <button onclick="login()">Login</button>
 </div>
 
-<!-- PANEL -->
+<!-- ADMIN PANEL -->
 <div id="panel" style="display:none;">
 
 <h3>🧑‍🏫 Admin Panel</h3>
 
-<input type="text" id="q" placeholder="Question"><br>
-<input type="text" id="o1" placeholder="Option 1"><br>
-<input type="text" id="o2" placeholder="Option 2"><br>
-<input type="text" id="o3" placeholder="Option 3"><br>
-<input type="text" id="o4" placeholder="Option 4"><br>
+<input id="q" placeholder="Question">
+<input id="o1" placeholder="Option 1">
+<input id="o2" placeholder="Option 2">
+<input id="o3" placeholder="Option 3">
+<input id="o4" placeholder="Option 4">
 
 <select id="correct">
   <option value="0">Option 1</option>
   <option value="1">Option 2</option>
   <option value="2">Option 3</option>
   <option value="3">Option 4</option>
-</select><br>
+</select>
 
-<button id="addBtn" onclick="addQuestion()">Add Question</button>
-<button id="startBtn" onclick="startExam()">Start Exam</button>
+<button onclick="addQuestion()">Add Question</button>
+<button onclick="startExam()">Start Exam</button>
 
 <hr>
 
 <div id="timer">Time: 60</div>
 
-<div style="width:100%;background:#ddd;border-radius:10px;">
-  <div id="progress"></div>
-</div>
+<div id="progressBar"><div id="progress"></div></div>
 
 <div id="quiz"></div>
 
-<button id="submitBtn" onclick="submitExam()">Submit</button>
+<button onclick="submitExam()">Submit</button>
 
 <h3 id="result"></h3>
+
+<div id="leaderboard">
+  <h3>🏆 Leaderboard</h3>
+  <div id="board"></div>
+</div>
 
 </div>
 
@@ -129,7 +149,7 @@ button{
 
 <script>
 
-// 🔥 Firebase config (replace)
+// ================= FIREBASE =================
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -143,80 +163,74 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// DATA
+// ================= DATA =================
 let questions = [];
+let student = "";
+let className = "";
 let time = 60;
-let totalTime = 60;
+let total = 60;
 let timer;
+let warn = 0;
 
-let currentStudent="";
-let currentUser="";
-let warningCount=0;
-
-// 👨‍🎓 STUDENT LOGIN
+// ================= STUDENT LOGIN =================
 function studentLogin(){
-  let name=document.getElementById("studentName").value;
-  if(name.trim()===""){ alert("Enter name"); return; }
+  student = document.getElementById("studentName").value;
+  className = document.getElementById("studentClass").value;
 
-  currentStudent=name;
+  if(student==""||className=="") return alert("Fill all");
 
   document.getElementById("studentBox").style.display="none";
   document.getElementById("loginBox").style.display="block";
-
-  loadQuestions();
 }
 
-// 🔐 ADMIN LOGIN
+// ================= TEACHER LOGIN =================
 function login(){
-  let u=document.getElementById("user").value;
-  let p=document.getElementById("pass").value;
+  let u = document.getElementById("user").value;
+  let p = document.getElementById("pass").value;
 
   if(u==="admin" && p==="1234"){
-    currentUser=u;
     document.getElementById("loginBox").style.display="none";
     document.getElementById("panel").style.display="block";
-  }else{
-    alert("Wrong login");
-  }
+
+    loadQuestions();
+    loadLeaderboard();
+  }else alert("Wrong login");
 }
 
-// ☁️ ADD QUESTION (FIREBASE)
+// ================= ADD QUESTION =================
 function addQuestion(){
-
-  let q=document.getElementById("q").value;
-  let o1=document.getElementById("o1").value;
-  let o2=document.getElementById("o2").value;
-  let o3=document.getElementById("o3").value;
-  let o4=document.getElementById("o4").value;
-  let c=parseInt(document.getElementById("correct").value);
-
   db.ref("questions").push({
-    q:q,
-    a:[o1,o2,o3,o4],
-    correct:c
+    q:document.getElementById("q").value,
+    a:[
+      document.getElementById("o1").value,
+      document.getElementById("o2").value,
+      document.getElementById("o3").value,
+      document.getElementById("o4").value
+    ],
+    correct:parseInt(document.getElementById("correct").value)
   });
 
-  alert("Saved to Firebase!");
+  alert("Saved!");
 }
 
-// 📥 LOAD QUESTIONS
+// ================= LOAD QUESTIONS =================
 function loadQuestions(){
-  db.ref("questions").on("value", snap=>{
-    questions=[];
-    snap.forEach(child=>{
-      questions.push(child.val());
-    });
+  db.ref("questions").on("value",snap=>{
+    questions = [];
+    snap.forEach(c=>questions.push(c.val()));
   });
 }
 
-// START EXAM
+// ================= START EXAM =================
 function startExam(){
 
-  let html="";
+  questions.sort(()=>Math.random()-0.5);
+
+  let html = "";
 
   questions.forEach((x,i)=>{
-    html+=`
-    <div class="q">
+    html += `
+    <div class="card">
       <h4>${i+1}. ${x.q}</h4>
       ${x.a.map((o,j)=>
         `<label><input type="radio" name="q${i}" value="${j}"> ${o}</label><br>`
@@ -224,58 +238,76 @@ function startExam(){
     </div>`;
   });
 
-  document.getElementById("quiz").innerHTML=html;
+  document.getElementById("quiz").innerHTML = html;
 
-  timer=setInterval(()=>{
+  timer = setInterval(()=>{
     time--;
-    document.getElementById("timer").innerText="Time: "+time;
+    document.getElementById("timer").innerText = "Time: " + time;
 
-    let percent=(time/totalTime)*100;
-    document.getElementById("progress").style.width=percent+"%";
+    let p = (time / total) * 100;
+    document.getElementById("progress").style.width = p + "%";
 
-    if(time<=0) submitExam();
+    if(time <= 0) submitExam();
   },1000);
 }
 
-// 🛡️ ANTI CHEAT
-document.addEventListener("visibilitychange", function(){
+// ================= ANTI CHEAT =================
+document.addEventListener("visibilitychange",()=>{
   if(document.hidden){
-    warningCount++;
-    alert("⚠️ Tab switch detected!");
-
-    if(warningCount>=3){
-      submitExam();
-    }
+    warn++;
+    if(warn >= 3) submitExam();
   }
 });
 
-document.addEventListener("contextmenu", e=>e.preventDefault());
-document.addEventListener("copy", e=>e.preventDefault());
+document.addEventListener("contextmenu",e=>e.preventDefault());
+document.addEventListener("copy",e=>e.preventDefault());
 
-// 📊 SUBMIT
+// ================= SUBMIT =================
 function submitExam(){
 
   clearInterval(timer);
 
-  let score=0;
+  let score = 0;
 
   questions.forEach((x,i)=>{
-    let ans=document.querySelector(`input[name=q${i}]:checked`);
-    if(ans && parseInt(ans.value)===x.correct){
-      score++;
-    }
+    let ans = document.querySelector(`input[name=q${i}]:checked`);
+    if(ans && parseInt(ans.value) == x.correct) score++;
   });
 
-  let percent=Math.round((score/questions.length)*100);
+  let percent = Math.round((score/questions.length)*100);
 
-  document.getElementById("result").innerHTML=
-  `
-  <div style="padding:15px;background:#e8f5e9;border-radius:10px;">
-  🎯 Score: ${score}/${questions.length}<br>
-  📊 Percentage: ${percent}%<br>
-  👤 Student: ${currentStudent}
+  db.ref("results").push({
+    name: student,
+    class: className,
+    score: score,
+    percent: percent,
+    time: new Date().toLocaleString()
+  });
+
+  document.getElementById("result").innerHTML = `
+  <div class="card">
+    🎓 RESULT CARD<br>
+    👤 ${student}<br>
+    🏫 Class ${className}<br>
+    📊 ${score}/${questions.length}<br>
+    📈 ${percent}%<br>
+    🏆 ${percent>=40?"PASS":"FAIL"}
   </div>
   `;
+
+  loadLeaderboard();
+}
+
+// ================= LEADERBOARD =================
+function loadLeaderboard(){
+  db.ref("results").limitToLast(5).on("value",snap=>{
+    let html = "";
+    snap.forEach(c=>{
+      let d = c.val();
+      html += `<div class="card">${d.name} - ${d.percent}%</div>`;
+    });
+    document.getElementById("board").innerHTML = html;
+  });
 }
 
 </script>
