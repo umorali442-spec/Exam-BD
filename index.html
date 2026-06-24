@@ -1,174 +1,313 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Exam BD Final</title>
+<meta charset="UTF-8">
+<title>Ultimate School Exam System</title>
 
 <style>
 body{
-    font-family: Arial;
-    background:#eef2f3;
-    text-align:center;
+  font-family: Arial;
+  background:#050816;
+  color:white;
+  padding:20px;
 }
 
 .container{
-    width:380px;
-    margin:40px auto;
-    background:white;
-    padding:20px;
-    border-radius:10px;
+  max-width:900px;
+  margin:auto;
+  background:#0f172a;
+  padding:20px;
+  border-radius:12px;
 }
 
-input{
-    width:90%;
-    padding:10px;
-    margin:8px 0;
+input, select{
+  width:95%;
+  padding:10px;
+  margin:5px 0;
+  border:none;
+  border-radius:6px;
 }
 
 button{
-    padding:10px;
-    background:green;
-    color:white;
-    border:none;
-    cursor:pointer;
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
 }
 
-.question{
-    text-align:left;
-    margin:10px 0;
+#loginBtn{background:#2563eb;color:white;}
+#addBtn{background:#22c55e;color:white;}
+#startBtn{background:#f59e0b;color:black;}
+#submitBtn{background:#ef4444;color:white;}
+
+.card{
+  background:#1e293b;
+  padding:15px;
+  margin:10px 0;
+  border-radius:10px;
+}
+
+#timer{
+  font-size:18px;
+  font-weight:bold;
+  color:#f87171;
+}
+
+#progressBar{
+  width:100%;
+  height:10px;
+  background:#334155;
+  border-radius:10px;
+}
+
+#progress{
+  height:10px;
+  background:#22c55e;
+}
+
+h2{text-align:center;}
+
+#leaderboard{
+  margin-top:10px;
+  background:#1e293b;
+  padding:10px;
+  border-radius:10px;
 }
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<!-- LOGIN -->
-<div id="login">
-    <h2>Exam BD</h2>
+<h2>🏫 SCHOOL EXAM SYSTEM (FINAL MASTER)</h2>
 
-    <input type="text" id="name" placeholder="Name">
-    <input type="text" id="id" placeholder="ID">
-
-    <button onclick="start()">Start Exam</button>
+<!-- STUDENT -->
+<div id="studentBox">
+  <h3>👨‍🎓 Student Login</h3>
+  <input id="studentName" placeholder="Name">
+  <input id="studentClass" placeholder="Class">
+  <button onclick="studentLogin()">Start Exam</button>
 </div>
 
-<!-- EXAM -->
-<div id="exam" style="display:none">
+<!-- TEACHER LOGIN -->
+<div id="loginBox" style="display:none;">
+  <h3>🔐 Teacher Login</h3>
+  <input id="user">
+  <input type="password" id="pass">
+  <button onclick="login()">Login</button>
+</div>
 
-    <h2>MCQ Exam</h2>
+<!-- ADMIN PANEL -->
+<div id="panel" style="display:none;">
 
-    <p id="user"></p>
-    <h3 id="time">60</h3>
+<h3>🧑‍🏫 Admin Panel</h3>
 
-    <div id="quiz"></div>
+<input id="q" placeholder="Question">
+<input id="o1" placeholder="Option 1">
+<input id="o2" placeholder="Option 2">
+<input id="o3" placeholder="Option 3">
+<input id="o4" placeholder="Option 4">
 
-    <button onclick="submit()">Submit</button>
+<select id="correct">
+  <option value="0">Option 1</option>
+  <option value="1">Option 2</option>
+  <option value="2">Option 3</option>
+  <option value="3">Option 4</option>
+</select>
 
-    <h2 id="result"></h2>
+<button onclick="addQuestion()">Add Question</button>
+<button onclick="startExam()">Start Exam</button>
+
+<hr>
+
+<div id="timer">Time: 60</div>
+
+<div id="progressBar"><div id="progress"></div></div>
+
+<div id="quiz"></div>
+
+<button onclick="submitExam()">Submit</button>
+
+<h3 id="result"></h3>
+
+<div id="leaderboard">
+  <h3>🏆 Leaderboard</h3>
+  <div id="board"></div>
 </div>
 
 </div>
+
+</div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
 
 <script>
 
-// ================= QUESTIONS =================
-let questions = [
-    {q:"HTML full form?", options:["Hyper Text Markup Language","Home Tool","Hello Text"], answer:0},
-    {q:"CSS used for?", options:["Styling","Cooking","Driving"], answer:0},
-    {q:"JS is?", options:["Language","Car","Food"], answer:0},
-    {q:"RAM is?", options:["Memory","Mouse","Screen"], answer:0}
-];
+// ================= FIREBASE =================
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "XXXX",
+  appId: "XXXX"
+};
 
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ================= DATA =================
+let questions = [];
+let student = "";
+let className = "";
 let time = 60;
+let total = 60;
 let timer;
+let warn = 0;
 
-// ================= START =================
-function start(){
+// ================= STUDENT LOGIN =================
+function studentLogin(){
+  student = document.getElementById("studentName").value;
+  className = document.getElementById("studentClass").value;
 
-    let name = document.getElementById("name").value;
-    let id = document.getElementById("id").value;
+  if(student==""||className=="") return alert("Fill all");
 
-    if(!name || !id){
-        alert("Fill Name & ID");
-        return;
-    }
-
-    localStorage.setItem("name",name);
-    localStorage.setItem("id",id);
-
-    document.getElementById("login").style.display="none";
-    document.getElementById("exam").style.display="block";
-
-    load();
-    startTimer();
+  document.getElementById("studentBox").style.display="none";
+  document.getElementById("loginBox").style.display="block";
 }
 
-// ================= LOAD =================
-function load(){
+// ================= TEACHER LOGIN =================
+function login(){
+  let u = document.getElementById("user").value;
+  let p = document.getElementById("pass").value;
 
-    document.getElementById("user").innerText =
-    "Name: "+localStorage.getItem("name")+" | ID: "+localStorage.getItem("id");
+  if(u==="admin" && p==="1234"){
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("panel").style.display="block";
 
-    let quiz=document.getElementById("quiz");
-    quiz.innerHTML="";
-
-    questions.forEach((q,i)=>{
-
-        let div=document.createElement("div");
-        div.className="question";
-
-        let html="<p>"+q.q+"</p>";
-
-        q.options.forEach((o,j)=>{
-            html+=`
-            <label>
-            <input type="radio" name="q${i}" value="${j}">
-            ${o}
-            </label><br>`;
-        });
-
-        div.innerHTML=html;
-        quiz.appendChild(div);
-    });
+    loadQuestions();
+    loadLeaderboard();
+  }else alert("Wrong login");
 }
 
-// ================= TIMER =================
-function startTimer(){
+// ================= ADD QUESTION =================
+function addQuestion(){
+  db.ref("questions").push({
+    q:document.getElementById("q").value,
+    a:[
+      document.getElementById("o1").value,
+      document.getElementById("o2").value,
+      document.getElementById("o3").value,
+      document.getElementById("o4").value
+    ],
+    correct:parseInt(document.getElementById("correct").value)
+  });
 
-    timer=setInterval(()=>{
-
-        time--;
-        document.getElementById("time").innerText=time;
-
-        if(time<=0){
-            submit();
-        }
-
-    },1000);
+  alert("Saved!");
 }
+
+// ================= LOAD QUESTIONS =================
+function loadQuestions(){
+  db.ref("questions").on("value",snap=>{
+    questions = [];
+    snap.forEach(c=>questions.push(c.val()));
+  });
+}
+
+// ================= START EXAM =================
+function startExam(){
+
+  questions.sort(()=>Math.random()-0.5);
+
+  let html = "";
+
+  questions.forEach((x,i)=>{
+    html += `
+    <div class="card">
+      <h4>${i+1}. ${x.q}</h4>
+      ${x.a.map((o,j)=>
+        `<label><input type="radio" name="q${i}" value="${j}"> ${o}</label><br>`
+      ).join("")}
+    </div>`;
+  });
+
+  document.getElementById("quiz").innerHTML = html;
+
+  timer = setInterval(()=>{
+    time--;
+    document.getElementById("timer").innerText = "Time: " + time;
+
+    let p = (time / total) * 100;
+    document.getElementById("progress").style.width = p + "%";
+
+    if(time <= 0) submitExam();
+  },1000);
+}
+
+// ================= ANTI CHEAT =================
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){
+    warn++;
+    if(warn >= 3) submitExam();
+  }
+});
+
+document.addEventListener("contextmenu",e=>e.preventDefault());
+document.addEventListener("copy",e=>e.preventDefault());
 
 // ================= SUBMIT =================
-function submit(){
+function submitExam(){
 
-    clearInterval(timer);
+  clearInterval(timer);
 
-    let score=0;
+  let score = 0;
 
-    questions.forEach((q,i)=>{
+  questions.forEach((x,i)=>{
+    let ans = document.querySelector(`input[name=q${i}]:checked`);
+    if(ans && parseInt(ans.value) == x.correct) score++;
+  });
 
-        let ans=document.querySelector(`input[name="q${i}"]:checked`);
+  let percent = Math.round((score/questions.length)*100);
 
-        if(ans && parseInt(ans.value)===q.answer){
-            score++;
-        }
+  db.ref("results").push({
+    name: student,
+    class: className,
+    score: score,
+    percent: percent,
+    time: new Date().toLocaleString()
+  });
 
+  document.getElementById("result").innerHTML = `
+  <div class="card">
+    🎓 RESULT CARD<br>
+    👤 ${student}<br>
+    🏫 Class ${className}<br>
+    📊 ${score}/${questions.length}<br>
+    📈 ${percent}%<br>
+    🏆 ${percent>=40?"PASS":"FAIL"}
+  </div>
+  `;
+
+  loadLeaderboard();
+}
+
+// ================= LEADERBOARD =================
+function loadLeaderboard(){
+  db.ref("results").limitToLast(5).on("value",snap=>{
+    let html = "";
+    snap.forEach(c=>{
+      let d = c.val();
+      html += `<div class="card">${d.name} - ${d.percent}%</div>`;
     });
-
-    document.getElementById("quiz").style.display="none";
-
-    document.getElementById("result").innerText=
-    "Score: "+score+" / "+questions.length;
+    document.getElementById("board").innerHTML = html;
+  });
 }
 
 </script>
