@@ -382,8 +382,6 @@ function submitExam() {
 loadHallOfFame();
 show("page4");
 }
-
-
 // ===== LEADERBOARD =====
 function loadLeaderboard() {
   fetch(DB+"/results.json")
@@ -424,15 +422,14 @@ function loadLeaderboard() {
         '🏆 Grade: '+r.grade+'<br>' +
         '🕒 '+r.time +
         '</div>';
-       <div class="leaderboard">
-  <h3>👑 Hall of Fame</h3>
-  <div id="hallOfFame">লোড হচ্ছে...</div>
-</div>
+       
       });
 
       document.getElementById("allResults").innerHTML = html;
     });
-      }
+     }
+
+
  function loadHallOfFame() {
 
   fetch(DB+"/results.json")
