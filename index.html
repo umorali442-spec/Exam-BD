@@ -74,7 +74,8 @@
     </div>
     <button class="btn-gray" onclick="clearAllQuestions()" style="margin-top:6px;">🗑 সব প্রশ্ন মুছো</button>
   </div>
-
+<button class="btn-yellow" onclick="loadResults()">📊 All Results</button>
+<div id="allResults"></div>
   <!-- PAGE 3: EXAM -->
   <div id="page3" style="display:none;">
     <div id="timer">⏱ --</div>
@@ -296,6 +297,34 @@ function loadLeaderboard() {
       document.getElementById("board").innerHTML = html;
     });
 }
+ function loadResults() {
+  fetch(DB+"/results.json")
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+
+      if(!data){
+        document.getElementById("allResults").innerHTML =
+        "<div class='card'>কোনো Result নেই</div>";
+        return;
+      }
+
+      var html = "";
+
+      Object.values(data).reverse().forEach(function(r){
+        html +=
+        '<div class="card">' +
+        '<b>👤 '+r.name+'</b><br>' +
+        '🏫 Class: '+r.class+'<br>' +
+        '📊 Score: '+r.score+'/'+r.total+'<br>' +
+        '🎯 '+r.percent+'%<br>' +
+        '🏆 Grade: '+r.grade+'<br>' +
+        '🕒 '+r.time +
+        '</div>';
+      });
+
+      document.getElementById("allResults").innerHTML = html;
+    });
+      }
 </script>
 </body>
 </html>
