@@ -1,345 +1,174 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>School Exam System FIXED</title>
+<title>Exam BD Final</title>
 
 <style>
 body{
-  font-family: Arial;
-  background:#050816;
-  color:white;
-  padding:20px;
+    font-family: Arial;
+    background:#eef2f3;
+    text-align:center;
 }
 
 .container{
-  max-width:900px;
-  margin:auto;
-  background:#0f172a;
-  padding:20px;
-  border-radius:12px;
+    width:380px;
+    margin:40px auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
 }
 
-input, select{
-  width:95%;
-  padding:10px;
-  margin:5px 0;
-  border:none;
-  border-radius:6px;
+input{
+    width:90%;
+    padding:10px;
+    margin:8px 0;
 }
 
 button{
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
+    padding:10px;
+    background:green;
+    color:white;
+    border:none;
+    cursor:pointer;
 }
 
-.card{
-  background:#1e293b;
-  padding:15px;
-  margin:10px 0;
-  border-radius:10px;
-}
-
-#timer{
-  font-size:18px;
-  font-weight:bold;
-  color:#f87171;
-}
-
-#progressBar{
-  width:100%;
-  height:10px;
-  background:#334155;
-  border-radius:10px;
-}
-
-#progress{
-  height:10px;
-  background:#22c55e;
-  width:100%;
-}
-
-h2{text-align:center;}
-
-#leaderboard{
-  margin-top:10px;
-  background:#1e293b;
-  padding:10px;
-  border-radius:10px;
+.question{
+    text-align:left;
+    margin:10px 0;
 }
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
 
-<h2>🏫 FIXED SCHOOL EXAM SYSTEM</h2>
+<!-- LOGIN -->
+<div id="login">
+    <h2>Exam BD</h2>
 
-<!-- STUDENT -->
-<div id="studentBox">
-  <h3>👨‍🎓 Student Login</h3>
-  <input id="studentName" placeholder="Name">
-  <input id="studentClass" placeholder="Class">
-  <button onclick="studentLogin()">Start Exam</button>
+    <input type="text" id="name" placeholder="Name">
+    <input type="text" id="id" placeholder="ID">
+
+    <button onclick="start()">Start Exam</button>
 </div>
 
-<!-- TEACHER LOGIN -->
-<div id="loginBox" style="display:none;">
-  <h3>🔐 Teacher Login</h3>
-  <input id="user">
-  <input type="password" id="pass">
-  <button onclick="login()">Login</button>
-</div>
+<!-- EXAM -->
+<div id="exam" style="display:none">
 
-<!-- PANEL -->
-<div id="panel" style="display:none;">
+    <h2>MCQ Exam</h2>
 
-<h3>🧑‍🏫 Admin Panel</h3>
+    <p id="user"></p>
+    <h3 id="time">60</h3>
 
-<input id="q" placeholder="Question">
-<input id="o1" placeholder="Option 1">
-<input id="o2" placeholder="Option 2">
-<input id="o3" placeholder="Option 3">
-<input id="o4" placeholder="Option 4">
+    <div id="quiz"></div>
 
-<select id="correct">
-  <option value="0">Option 1</option>
-  <option value="1">Option 2</option>
-  <option value="2">Option 3</option>
-  <option value="3">Option 4</option>
-</select>
+    <button onclick="submit()">Submit</button>
 
-<button onclick="addQuestion()">Add Question</button>
-<button onclick="startExam()">Start Exam</button>
-
-<hr>
-
-<div id="timer">Time: 60</div>
-
-<div id="progressBar"><div id="progress"></div></div>
-
-<div id="quiz"></div>
-
-<button onclick="submitExam()">Submit</button>
-
-<h3 id="result"></h3>
-
-<div id="leaderboard">
-  <h3>🏆 Leaderboard</h3>
-  <div id="board"></div>
+    <h2 id="result"></h2>
 </div>
 
 </div>
 
-</div>
+<script>
 
-<!-- FIREBASE MODULAR -->
-<script type="module">
+// ================= QUESTIONS =================
+let questions = [
+    {q:"HTML full form?", options:["Hyper Text Markup Language","Home Tool","Hello Text"], answer:0},
+    {q:"CSS used for?", options:["Styling","Cooking","Driving"], answer:0},
+    {q:"JS is?", options:["Language","Car","Food"], answer:0},
+    {q:"RAM is?", options:["Memory","Mouse","Screen"], answer:0}
+];
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-// 🔥 YOUR FIREBASE CONFIG
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXXX",
-  appId: "XXXX"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// ================= DATA =================
-let questions = [];
-let student = "";
-let className = "";
 let time = 60;
-let total = 60;
 let timer;
-let warn = 0;
 
-// expose for functions
-window.db = db;
-window.ref = ref;
-window.push = push;
-window.onValue = onValue;
+// ================= START =================
+function start(){
 
-// ================= STUDENT LOGIN =================
-window.studentLogin = function(){
-  student = document.getElementById("studentName").value;
-  className = document.getElementById("studentClass").value;
+    let name = document.getElementById("name").value;
+    let id = document.getElementById("id").value;
 
-  if(student==""||className==""){
-    alert("Fill all fields");
-    return;
-  }
-
-  document.getElementById("studentBox").style.display="none";
-  document.getElementById("loginBox").style.display="block";
-}
-
-// ================= TEACHER LOGIN =================
-window.login = function(){
-  let u = document.getElementById("user").value;
-  let p = document.getElementById("pass").value;
-
-  if(u==="admin" && p==="1234"){
-    document.getElementById("loginBox").style.display="none";
-    document.getElementById("panel").style.display="block";
-
-    loadQuestions();
-    loadLeaderboard();
-  }else alert("Wrong login");
-}
-
-// ================= ADD QUESTION =================
-window.addQuestion = function(){
-
-  const data = {
-    q: document.getElementById("q").value,
-    a: [
-      document.getElementById("o1").value,
-      document.getElementById("o2").value,
-      document.getElementById("o3").value,
-      document.getElementById("o4").value
-    ],
-    correct: parseInt(document.getElementById("correct").value)
-  };
-
-  push(ref(db, "questions"), data);
-
-  alert("Saved to Firebase!");
-}
-
-// ================= LOAD QUESTIONS =================
-function loadQuestions(){
-  onValue(ref(db,"questions"), (snap)=>{
-    questions = [];
-    snap.forEach(c=>{
-      questions.push(c.val());
-    });
-
-    console.log("Loaded:", questions);
-  });
-}
-
-// ================= START EXAM =================
-window.startExam = function(){
-
-  console.log("Start clicked");
-  console.log(questions);
-
-  if(!questions || questions.length === 0){
-    alert("No questions found!");
-    return;
-  }
-
-  time = total;
-
-  questions.sort(()=>Math.random()-0.5);
-
-  let html = "";
-
-  questions.forEach((x,i)=>{
-    html += `
-    <div class="card">
-      <h4>${i+1}. ${x.q}</h4>
-      ${x.a.map((o,j)=>
-        `<label><input type="radio" name="q${i}" value="${j}"> ${o}</label><br>`
-      ).join("")}
-    </div>`;
-  });
-
-  document.getElementById("quiz").innerHTML = html;
-
-  clearInterval(timer);
-
-  timer = setInterval(()=>{
-    time--;
-    document.getElementById("timer").innerText = "Time: " + time;
-
-    document.getElementById("progress").style.width = (time/total)*100 + "%";
-
-    if(time <= 0){
-      submitExam();
+    if(!name || !id){
+        alert("Fill Name & ID");
+        return;
     }
-  },1000);
+
+    localStorage.setItem("name",name);
+    localStorage.setItem("id",id);
+
+    document.getElementById("login").style.display="none";
+    document.getElementById("exam").style.display="block";
+
+    load();
+    startTimer();
 }
 
-// ================= ANTI CHEAT =================
-document.addEventListener("visibilitychange",()=>{
-  if(document.hidden){
-    warn++;
-    if(warn >= 3) submitExam();
-  }
-});
+// ================= LOAD =================
+function load(){
 
-document.addEventListener("contextmenu",e=>e.preventDefault());
-document.addEventListener("copy",e=>e.preventDefault());
+    document.getElementById("user").innerText =
+    "Name: "+localStorage.getItem("name")+" | ID: "+localStorage.getItem("id");
+
+    let quiz=document.getElementById("quiz");
+    quiz.innerHTML="";
+
+    questions.forEach((q,i)=>{
+
+        let div=document.createElement("div");
+        div.className="question";
+
+        let html="<p>"+q.q+"</p>";
+
+        q.options.forEach((o,j)=>{
+            html+=`
+            <label>
+            <input type="radio" name="q${i}" value="${j}">
+            ${o}
+            </label><br>`;
+        });
+
+        div.innerHTML=html;
+        quiz.appendChild(div);
+    });
+}
+
+// ================= TIMER =================
+function startTimer(){
+
+    timer=setInterval(()=>{
+
+        time--;
+        document.getElementById("time").innerText=time;
+
+        if(time<=0){
+            submit();
+        }
+
+    },1000);
+}
 
 // ================= SUBMIT =================
-window.submitExam = function(){
+function submit(){
 
-  clearInterval(timer);
+    clearInterval(timer);
 
-  let score = 0;
+    let score=0;
 
-  questions.forEach((x,i)=>{
-    let ans = document.querySelector(`input[name=q${i}]:checked`);
-    if(ans && parseInt(ans.value) === x.correct) score++;
-  });
+    questions.forEach((q,i)=>{
 
-  let percent = Math.round((score/questions.length)*100);
+        let ans=document.querySelector(`input[name="q${i}"]:checked`);
 
-  push(ref(db,"results"),{
-    name: student,
-    class: className,
-    score: score,
-    percent: percent,
-    time: new Date().toLocaleString()
-  });
+        if(ans && parseInt(ans.value)===q.answer){
+            score++;
+        }
 
-  document.getElementById("result").innerHTML = `
-  <div class="card">
-    🎓 RESULT<br>
-    👤 ${student}<br>
-    🏫 Class ${className}<br>
-    📊 ${score}/${questions.length}<br>
-    📈 ${percent}%<br>
-    🏆 ${percent>=40?"PASS":"FAIL"}
-  </div>
-  `;
-
-  loadLeaderboard();
-}
-
-// ================= LEADERBOARD =================
-function loadLeaderboard(){
-  onValue(ref(db,"results"), snap=>{
-    let arr = [];
-    snap.forEach(c=>{
-      arr.push(c.val());
     });
 
-    arr = arr.slice(-5);
+    document.getElementById("quiz").style.display="none";
 
-    let html = "";
-    arr.forEach(d=>{
-      html += `<div class="card">${d.name} - ${d.percent}%</div>`;
-    });
-
-    document.getElementById("board").innerHTML = html;
-  });
+    document.getElementById("result").innerText=
+    "Score: "+score+" / "+questions.length;
 }
 
 </script>
