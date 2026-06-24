@@ -2,241 +2,128 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Online Exam</title>
+<title>Exam BD Pro</title>
 
 <style>
 body{
-font-family:Arial,sans-serif;
-max-width:700px;
-margin:auto;
-padding:20px;
+  font-family: Arial;
+  background:#f4f4f4;
+  padding:20px;
 }
-
-.card{
-border:1px solid #ddd;
-padding:20px;
-border-radius:10px;
+.container{
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  max-width:700px;
+  margin:auto;
 }
-
+.q{
+  margin-bottom:20px;
+  padding:10px;
+  border-bottom:1px solid #ddd;
+}
 button{
-padding:10px 15px;
-margin:5px;
-cursor:pointer;
+  padding:10px 20px;
+  background:green;
+  color:white;
+  border:none;
+  cursor:pointer;
+  border-radius:5px;
 }
-
 #timer{
-color:red;
-font-weight:bold;
-}
-
-.option{
-display:block;
-margin:10px 0;
+  font-size:20px;
+  color:red;
+  font-weight:bold;
 }
 </style>
+
 </head>
 
 <body>
 
-<div class="card">
+<div class="container">
 
-<h2>Online Exam System</h2>
+<h2>📘 Exam BD Pro</h2>
+<div id="timer">Time: 60</div>
 
-<p id="student"></p>
+<div id="quiz"></div>
 
-<p id="timer">05:00</p>
+<button onclick="submitExam()">Submit Exam</button>
 
-<h3 id="qno"></h3>
-
-<p id="question"></p>
-
-<div id="options"></div>
-
-<button onclick="prevQuestion()">Previous</button>
-<button onclick="nextQuestion()">Next</button>
-<button onclick="submitExam()">Submit</button>
+<h3 id="result"></h3>
 
 </div>
 
 <script>
 
-let username = prompt("Enter Your Name");
+// TIMER
+let time = 60;
+let timer = setInterval(()=>{
+  time--;
+  document.getElementById("timer").innerText = "Time: " + time + "s";
 
-if(!username){
-username = "Student";
-}
+  if(time <= 0){
+    submitExam();
+  }
+},1000);
 
-document.getElementById("student").innerText =
-"Name: " + username;
-
-const quiz = [
-
-{
-q:"Bangladesh er capital ki?",
-options:["Dhaka","Khulna","Rajshahi","Barisal"],
-answer:"Dhaka"
-},
-
-{
-q:"2 + 2 = ?",
-options:["3","4","5","6"],
-answer:"4"
-},
-
-{
-q:"HTML er full form ki?",
-options:[
-"Hyper Text Markup Language",
-"High Text Machine Language",
-"Home Tool Markup Language",
-"Hyper Tool Machine Language"
-],
-answer:"Hyper Text Markup Language"
-},
-
-{
-q:"CSS use hoy?",
-options:[
-"Design",
-"Database",
-"Hardware",
-"Network"
-],
-answer:"Design"
-},
-
-{
-q:"JavaScript ki?",
-options:[
-"Programming Language",
-"Database",
-"Browser",
-"Operating System"
-],
-answer:"Programming Language"
-}
-
+// QUESTIONS
+const questions = [
+  {
+    q: "What is 2 + 2?",
+    a: ["3","4","5","6"],
+    correct: 1
+  },
+  {
+    q: "Capital of Bangladesh?",
+    a: ["Dhaka","Chittagong","Khulna","Rajshahi"],
+    correct: 0
+  },
+  {
+    q: "HTML stands for?",
+    a: ["Hyper Text Markup Language","Home Tool Markup Language","Hot Mail","None"],
+    correct: 0
+  }
 ];
 
-let current = 0;
-let score = 0;
+// LOAD QUIZ
+function loadQuiz(){
+  let html = "";
 
-let answers = new Array(quiz.length).fill(null);
+  questions.forEach((x,i)=>{
+    html += `<div class="q">
+      <h4>${i+1}. ${x.q}</h4>
+      ${x.a.map((opt,j)=>
+        `<label>
+          <input type="radio" name="q${i}" value="${j}">
+          ${opt}
+        </label><br>`
+      ).join("")}
+    </div>`;
+  });
 
-function loadQuestion(){
-
-document.getElementById("qno").innerText =
-"Question " + (current+1) + " of " + quiz.length;
-
-document.getElementById("question").innerText =
-quiz[current].q;
-
-let html = "";
-
-quiz[current].options.forEach(option=>{
-
-html += `
-<label class="option">
-<input type="radio" name="ans"
-value="${option}"
-${answers[current]===option?"checked":""}>
-${option}
-</label>
-`;
-
-});
-
-document.getElementById("options").innerHTML = html;
+  document.getElementById("quiz").innerHTML = html;
 }
 
-function saveAnswer(){
-
-let selected =
-document.querySelector('input[name="ans"]:checked');
-
-if(selected){
-answers[current] = selected.value;
-}
-
-}
-
-function nextQuestion(){
-
-saveAnswer();
-
-if(current < quiz.length-1){
-current++;
-loadQuestion();
-}
-
-}
-
-function prevQuestion(){
-
-saveAnswer();
-
-if(current > 0){
-current--;
-loadQuestion();
-}
-
-}
-
+// SUBMIT
 function submitExam(){
+  clearInterval(timer);
 
-saveAnswer();
+  let score = 0;
 
-score = 0;
+  questions.forEach((x,i)=>{
+    let ans = document.querySelector(`input[name=q${i}]:checked`);
+    if(ans && parseInt(ans.value) === x.correct){
+      score++;
+    }
+  });
 
-for(let i=0;i<quiz.length;i++){
-
-if(answers[i]===quiz[i].answer){
-score++;
+  document.getElementById("result").innerHTML =
+    "🎯 Your Score: " + score + " / " + questions.length;
 }
 
-}
-
-document.body.innerHTML = `
-<div class="card">
-<h2>Exam Finished</h2>
-
-<h3>Name: ${username}</h3>
-
-<h3>Score: ${score}/${quiz.length}</h3>
-
-<p>Correct: ${score}</p>
-
-<p>Wrong: ${quiz.length-score}</p>
-</div>
-`;
-
-}
-
-loadQuestion();
-
-let timeLeft = 300;
-
-let timer = setInterval(()=>{
-
-let min = Math.floor(timeLeft/60);
-let sec = timeLeft%60;
-
-document.getElementById("timer").innerText =
-(min<10?"0":"")+min + ":" +
-(sec<10?"0":"")+sec;
-
-timeLeft--;
-
-if(timeLeft < 0){
-
-clearInterval(timer);
-
-submitExam();
-
-}
-
-},1000);
+// INIT
+loadQuiz();
 
 </script>
 
