@@ -1,7 +1,10 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html>
 <head>
 <meta charset="UTF-8">
-<title>School Exam System</title><style>
+<title>School Exam System</title>
+
+<style>
 body{
   font-family: Arial;
   background:#050816;
@@ -49,60 +52,98 @@ button{
 #progress{
   height:10px;
   background:#22c55e;
+  width:0%;
 }
 h2{text-align:center;}
-</style></head><body><div class="container"><h2>🏫 Exam System</h2><div id="studentBox">
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🏫 Exam System</h2>
+
+<div id="studentBox">
 <h3>Student Login</h3>
 <input id="studentName" placeholder="Name">
 <input id="studentClass" placeholder="Class">
 <button onclick="studentLogin()">Start Exam</button>
-</div><div id="loginBox" style="display:none;">
+</div>
+
+<div id="loginBox" style="display:none;">
 <h3>Teacher Login</h3>
-<input id="user">
-<input type="password" id="pass">
+<input id="user" placeholder="Username">
+<input type="password" id="pass" placeholder="Password">
 <button onclick="login()">Login</button>
-</div><div id="panel" style="display:none;"><h3>Admin Panel</h3><input id="q" placeholder="Question">
+</div>
+
+<div id="panel" style="display:none;">
+
+<h3>Admin Panel</h3>
+
+<input id="q" placeholder="Question">
 <input id="o1" placeholder="Option 1">
 <input id="o2" placeholder="Option 2">
 <input id="o3" placeholder="Option 3">
-<input id="o4" placeholder="Option 4"><select id="correct">
+<input id="o4" placeholder="Option 4">
+
+<select id="correct">
 <option value="0">Option 1</option>
 <option value="1">Option 2</option>
 <option value="2">Option 3</option>
 <option value="3">Option 4</option>
-</select><button onclick="addQuestion()">Add Question</button>
+</select>
+
+<button onclick="addQuestion()">Add Question</button>
 <button onclick="startExam()">Start Exam</button>
 
-<hr><div id="timer">Time: 60</div>
-<div id="progressBar"><div id="progress"></div></div><div id="quiz"></div><button onclick="submitExam()">Submit</button>
+<hr>
 
-<h3 id="result"></h3><div id="board"></div></div></div><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script><script>
+<div id="timer">Time: 60</div>
+<div id="progressBar"><div id="progress"></div></div>
 
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXXX",
-  appId: "XXXX"
-};
+<div id="quiz"></div>
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+<button onclick="submitExam()">Submit</button>
 
-let questions = [];
+<h3 id="result"></h3>
+
+</div>
+
+</div>
+
+<script>
+/* =======================
+   DEMO QUESTIONS (SAFE)
+======================= */
+let questions = [
+  {
+    q: "2 + 2 কত?",
+    a: ["1","2","3","4"],
+    correct: 3
+  },
+  {
+    q: "বাংলাদেশের রাজধানী কোনটি?",
+    a: ["ঢাকা","চট্টগ্রাম","রাজশাহী","খুলনা"],
+    correct: 0
+  }
+];
+
 let student = "";
 let className = "";
 let time = 60;
 let timer;
 
+/* =======================
+   LOGIN
+======================= */
 function studentLogin(){
 student = document.getElementById("studentName").value;
 className = document.getElementById("studentClass").value;
 
 if(!student || !className){
-  alert("Fill all");
+  alert("Fill all fields");
   return;
 }
 
@@ -110,6 +151,9 @@ document.getElementById("studentBox").style.display="none";
 document.getElementById("loginBox").style.display="block";
 }
 
+/* =======================
+   ADMIN LOGIN
+======================= */
 function login(){
 let u=document.getElementById("user").value;
 let p=document.getElementById("pass").value;
@@ -117,37 +161,42 @@ let p=document.getElementById("pass").value;
 if(u==="admin" && p==="1234"){
 document.getElementById("loginBox").style.display="none";
 document.getElementById("panel").style.display="block";
-loadQuestions();
-}else alert("Wrong login");
+}
+else alert("Wrong login");
 }
 
+/* =======================
+   ADD QUESTION
+======================= */
 function addQuestion(){
-db.ref("questions").push({
-q: q.value,
-a: [o1.value,o2.value,o3.value,o4.value],
-correct: parseInt(correct.value)
+questions.push({
+  q: document.getElementById("q").value,
+  a: [
+    document.getElementById("o1").value,
+    document.getElementById("o2").value,
+    document.getElementById("o3").value,
+    document.getElementById("o4").value
+  ],
+  correct: parseInt(document.getElementById("correct").value)
 });
-alert("Saved");
+
+alert("Question Added!");
 }
 
-function loadQuestions(){
-db.ref("questions").on("value",snap=>{
-questions=[];
-snap.forEach(d=>questions.push(d.val()));
-});
-}
-
+/* =======================
+   START EXAM
+======================= */
 function startExam(){
 
-if(questions.length===0){
-alert("No questions found");
-return;
+if(questions.length === 0){
+  alert("No questions found");
+  return;
 }
 
-let html="";
+document.getElementById("quiz").innerHTML="";
 
 questions.forEach((x,i)=>{
-html += `
+document.getElementById("quiz").innerHTML += `
 <div class="card">
 <h4>${i+1}. ${x.q}</h4>
 ${x.a.map((o,j)=>
@@ -156,16 +205,21 @@ ${x.a.map((o,j)=>
 </div>`;
 });
 
-document.getElementById("quiz").innerHTML=html;
+clearInterval(timer);
+time = 60;
 
 timer=setInterval(()=>{
 time--;
 document.getElementById("timer").innerText="Time: "+time;
 document.getElementById("progress").style.width=(time/60)*100+"%";
+
 if(time<=0) submitExam();
 },1000);
 }
 
+/* =======================
+   SUBMIT
+======================= */
 function submitExam(){
 clearInterval(timer);
 
@@ -173,27 +227,20 @@ let score=0;
 
 questions.forEach((x,i)=>{
 let ans=document.querySelector(`input[name=q${i}]:checked`);
-if(ans && ans.value==x.correct) score++;
+if(ans && parseInt(ans.value)===x.correct) score++;
 });
 
 let percent=Math.round((score/questions.length)*100);
 
-db.ref("results").push({
-name: student,
-class: className,
-score,
-percent,
-time: new Date().toLocaleString()
-});
-
 document.getElementById("result").innerHTML=
 `<div class="card">
-🎓 ${student}<br>
-🏫 ${className}<br>
-📊 ${score}/${questions.length}<br>
-📈 ${percent}%
+🎓 Name: ${student}<br>
+🏫 Class: ${className}<br>
+📊 Score: ${score}/${questions.length}<br>
+📈 Result: ${percent}%
 </div>`;
 }
+</script>
 
-</script></body>
+</body>
 </html>
