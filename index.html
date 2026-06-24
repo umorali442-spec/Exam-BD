@@ -2,314 +2,300 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GOD++ School Exam System</title>
-
 <style>
-body{
-  font-family: Arial;
-  background:#050816;
-  color:white;
-  padding:20px;
-}
-
-.container{
-  max-width:950px;
-  margin:auto;
-  background:#0f172a;
-  padding:20px;
-  border-radius:12px;
-}
-
-input, select{
-  width:95%;
-  padding:10px;
-  margin:5px 0;
-  border:none;
-  border-radius:6px;
-}
-
-button{
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-#loginBtn{background:#2563eb;color:white;}
-#addBtn{background:#22c55e;color:white;}
-#startBtn{background:#f59e0b;color:black;}
-#submitBtn{background:#ef4444;color:white;}
-
-.card{
-  background:#1e293b;
-  padding:15px;
-  margin:10px 0;
-  border-radius:10px;
-}
-
-#timer{
-  font-size:18px;
-  color:#f87171;
-  font-weight:bold;
-}
-
-#progressBar{
-  width:100%;
-  height:10px;
-  background:#334155;
-  border-radius:10px;
-}
-
-#progress{
-  height:10px;
-  background:#22c55e;
-}
-
-h2{text-align:center;}
-
-#leaderboard{
-  margin-top:15px;
-  padding:10px;
-  background:#1e293b;
-  border-radius:10px;
-}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:Arial,sans-serif;background:#050816;color:white;padding:16px;min-height:100vh;}
+  .container{max-width:900px;margin:auto;background:#0f172a;padding:24px;border-radius:16px;}
+  h2{text-align:center;font-size:1.4rem;margin-bottom:20px;}
+  h3{margin-bottom:10px;font-size:1rem;}
+  input,select{width:100%;padding:10px;margin:5px 0;border:1px solid #334155;border-radius:8px;background:#1e293b;color:white;font-size:14px;outline:none;}
+  input::placeholder{color:#64748b;}
+  button{width:100%;padding:11px;margin-top:8px;border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;}
+  .btn-blue{background:#2563eb;color:white;}
+  .btn-green{background:#22c55e;color:white;}
+  .btn-yellow{background:#f59e0b;color:#111;}
+  .btn-red{background:#ef4444;color:white;}
+  .btn-gray{background:#475569;color:white;}
+  .card{background:#1e293b;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #334155;}
+  #timer{font-size:22px;color:#f87171;font-weight:bold;margin:10px 0;}
+  #progressBar{width:100%;height:8px;background:#334155;border-radius:10px;margin-bottom:12px;}
+  #progress{height:8px;background:#22c55e;border-radius:10px;width:100%;transition:width .5s;}
+  .radio-label{display:flex;align-items:center;gap:8px;padding:7px 0;cursor:pointer;font-size:14px;}
+  .radio-label input{width:auto;margin:0;}
+  .warn{background:#7f1d1d;padding:10px;border-radius:8px;margin:8px 0;text-align:center;font-weight:600;}
+  .msg{padding:10px;border-radius:8px;margin:8px 0;font-size:13px;text-align:center;}
+  hr{border:none;border-top:1px solid #334155;margin:16px 0;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  @media(max-width:500px){.two-col{grid-template-columns:1fr;}}
+  .leaderboard{margin-top:20px;padding:16px;background:#1e293b;border-radius:10px;}
 </style>
-
 </head>
-
 <body>
-
 <div class="container">
+  <h2>🏫 GOD++ SCHOOL EXAM SYSTEM</h2>
 
-<h2>🏫 GOD++ SCHOOL EXAM SYSTEM</h2>
+  <!-- PAGE 1: LOGIN -->
+  <div id="page1">
+    <div class="card">
+      <h3>👨‍🎓 Student Login</h3>
+      <input id="studentName" placeholder="তোমার নাম লেখো">
+      <input id="studentClass" placeholder="তোমার ক্লাস লেখো">
+      <button class="btn-blue" onclick="studentLogin()">Exam দিতে চাই ▶</button>
+    </div>
+    <div class="card" style="margin-top:10px;">
+      <h3>🔐 Teacher Login</h3>
+      <input id="user" placeholder="Username">
+      <input type="password" id="pass" placeholder="Password">
+      <button class="btn-blue" onclick="teacherLogin()">Login</button>
+    </div>
+  </div>
 
-<!-- STUDENT -->
-<div id="studentBox">
-  <h3>👨‍🎓 Student Login</h3>
-  <input id="studentName" placeholder="Name">
-  <input id="studentClass" placeholder="Class">
-  <button onclick="studentLogin()">Enter Exam</button>
+  <!-- PAGE 2: TEACHER PANEL -->
+  <div id="page2" style="display:none;">
+    <div class="card">
+      <h3>➕ নতুন প্রশ্ন যোগ করো</h3>
+      <input id="q" placeholder="প্রশ্ন লেখো">
+      <div class="two-col">
+        <input id="o1" placeholder="Option 1">
+        <input id="o2" placeholder="Option 2">
+        <input id="o3" placeholder="Option 3">
+        <input id="o4" placeholder="Option 4">
+      </div>
+      <select id="correct">
+        <option value="0">✅ Option 1 সঠিক</option>
+        <option value="1">✅ Option 2 সঠিক</option>
+        <option value="2">✅ Option 3 সঠিক</option>
+        <option value="3">✅ Option 4 সঠিক</option>
+      </select>
+      <button class="btn-green" onclick="addQuestion()">প্রশ্ন যোগ করো ✚</button>
+      <div id="qMsg" class="msg" style="display:none;"></div>
+    </div>
+    <button class="btn-gray" onclick="clearAllQuestions()" style="margin-top:6px;">🗑 সব প্রশ্ন মুছো</button>
+  </div>
+
+  <!-- PAGE 3: EXAM -->
+  <div id="page3" style="display:none;">
+    <div id="timer">⏱ --</div>
+    <div id="progressBar"><div id="progress"></div></div>
+    <div id="warnDiv"></div>
+    <div id="quiz"></div>
+    <button class="btn-red" onclick="submitExam()">✅ Submit করো</button>
+  </div>
+
+  <!-- PAGE 4: RESULT -->
+  <div id="page4" style="display:none;">
+    <div id="result"></div>
+    <div class="leaderboard">
+      <h3>🏆 Leaderboard</h3>
+      <div id="board">লোড হচ্ছে...</div>
+    </div>
+    <button class="btn-blue" onclick="show('page1')" style="margin-top:12px;">🔄 আবার Exam দাও</button>
+  </div>
+
 </div>
-
-<!-- TEACHER -->
-<div id="loginBox" style="display:none;">
-  <h3>🔐 Teacher Login</h3>
-  <input id="user">
-  <input type="password" id="pass">
-  <button onclick="login()">Login</button>
-</div>
-
-<!-- PANEL -->
-<div id="panel" style="display:none;">
-
-<h3>🧑‍🏫 Admin Panel</h3>
-
-<input id="q" placeholder="Question">
-<input id="o1" placeholder="Option 1">
-<input id="o2" placeholder="Option 2">
-<input id="o3" placeholder="Option 3">
-<input id="o4" placeholder="Option 4">
-
-<select id="correct">
-  <option value="0">Option 1</option>
-  <option value="1">Option 2</option>
-  <option value="2">Option 3</option>
-  <option value="3">Option 4</option>
-</select>
-
-<button onclick="addQuestion()">Add Question</button>
-<button onclick="startExam()">Start Exam</button>
-
-<hr>
-
-<div id="timer">Time: 60</div>
-
-<div id="progressBar"><div id="progress"></div></div>
-
-<div id="quiz"></div>
-
-<button onclick="submitExam()">Submit</button>
-
-<h3 id="result"></h3>
-
-<div id="leaderboard">
-  <h3>🏆 Leaderboard</h3>
-  <div id="board"></div>
-</div>
-
-</div>
-
-</div>
-
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
 
 <script>
+var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";
+var student = "";
+var sClass = "";
+var examQuestions = [];
+var timeLeft = 0;
+var totalTime = 0;
+var timerInterval = null;
+var warn = 0;
+var submitted = false;
 
-// ================= FIREBASE =================
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXXX",
-  appId: "XXXX"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// ================= DATA =================
-let questions=[];
-let student="";
-let className="";
-let time=60;
-let total=60;
-let timer;
-let warn=0;
-
-// ================= LOGIN =================
-function studentLogin(){
-  student=document.getElementById("studentName").value;
-  className=document.getElementById("studentClass").value;
-
-  if(student==""||className=="") return alert("Fill all");
-
-  document.getElementById("studentBox").style.display="none";
-  document.getElementById("loginBox").style.display="block";
+function show(id) {
+  ["page1","page2","page3","page4"].forEach(function(p){
+    document.getElementById(p).style.display="none";
+  });
+  document.getElementById(id).style.display="block";
+  window.scrollTo(0,0);
 }
 
-function login(){
-  let u=document.getElementById("user").value;
-  let p=document.getElementById("pass").value;
-
-  if(u=="admin" && p=="1234"){
-    document.getElementById("loginBox").style.display="none";
-    document.getElementById("panel").style.display="block";
-    loadQuestions();
-    loadLeaderboard();
-  }else alert("Wrong login");
+function showQMsg(text, bg) {
+  var el = document.getElementById("qMsg");
+  el.style.display = "block";
+  el.style.background = bg || "#1e3a5f";
+  el.innerHTML = text;
 }
 
-// ================= ADD QUESTION =================
-function addQuestion(){
-  db.ref("questions").push({
-    q:document.getElementById("q").value,
-    a:[
-      document.getElementById("o1").value,
-      document.getElementById("o2").value,
-      document.getElementById("o3").value,
-      document.getElementById("o4").value
-    ],
-    correct:parseInt(document.getElementById("correct").value)
+// ===== TEACHER LOGIN =====
+function teacherLogin() {
+  var u = document.getElementById("user").value;
+  var p = document.getElementById("pass").value;
+  if (u==="admin" && p==="1234") {
+    show("page2");
+    loadQCount();
+  } else {
+    alert("❌ ভুল username বা password!");
+  }
+}
+
+function loadQCount() {
+  fetch(DB+"/questions.json")
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var count = data ? Object.keys(data).length : 0;
+      showQMsg("✅ Firebase-এ মোট "+count+"টি প্রশ্ন আছে।", "#14532d");
+    })
+    .catch(function(e){ showQMsg("❌ Error: "+e.message, "#7f1d1d"); });
+}
+
+// ===== ADD QUESTION =====
+function addQuestion() {
+  var q = document.getElementById("q").value.trim();
+  var o1 = document.getElementById("o1").value.trim();
+  var o2 = document.getElementById("o2").value.trim();
+  var o3 = document.getElementById("o3").value.trim();
+  var o4 = document.getElementById("o4").value.trim();
+  var correct = parseInt(document.getElementById("correct").value);
+  if (!q||!o1||!o2||!o3||!o4) { alert("সব field পূরণ করো!"); return; }
+
+  showQMsg("⏳ Save হচ্ছে...", "#1e3a5f");
+
+  fetch(DB+"/questions.json", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({q:q, a:[o1,o2,o3,o4], correct:correct})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (data.error) {
+      showQMsg("❌ Error: "+data.error, "#7f1d1d");
+    } else {
+      ["q","o1","o2","o3","o4"].forEach(function(id){ document.getElementById(id).value=""; });
+      loadQCount();
+    }
+  })
+  .catch(function(e){ showQMsg("❌ Error: "+e.message, "#7f1d1d"); });
+}
+
+// ===== CLEAR =====
+function clearAllQuestions() {
+  if (!confirm("সব প্রশ্ন মুছে ফেলবে?")) return;
+  fetch(DB+"/questions.json", {method:"DELETE"})
+    .then(function(){ showQMsg("🗑 সব প্রশ্ন মুছে গেছে।", "#7f1d1d"); })
+    .catch(function(e){ showQMsg("❌ Error: "+e.message, "#7f1d1d"); });
+}
+
+// ===== STUDENT LOGIN =====
+function studentLogin() {
+  student = document.getElementById("studentName").value.trim();
+  sClass = document.getElementById("studentClass").value.trim();
+  if (!student||!sClass) { alert("নাম ও ক্লাস লেখো!"); return; }
+
+  fetch(DB+"/questions.json")
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data) { alert("❌ কোনো প্রশ্ন নেই! Teacher আগে প্রশ্ন add করুক।"); return; }
+      examQuestions = Object.values(data);
+      startExam();
+    })
+    .catch(function(e){ alert("❌ Error: "+e.message); });
+}
+
+// ===== START EXAM =====
+function startExam() {
+  submitted = false;
+  warn = 0;
+  examQuestions = examQuestions.sort(function(){ return Math.random()-0.5; });
+
+  var html = "";
+  examQuestions.forEach(function(x,i){
+    html += '<div class="card"><p><strong>'+(i+1)+'. '+x.q+'</strong></p>';
+    x.a.forEach(function(o,j){
+      html += '<label class="radio-label"><input type="radio" name="q'+i+'" value="'+j+'"> '+o+'</label>';
+    });
+    html += '</div>';
   });
 
-  alert("Saved!");
+  document.getElementById("quiz").innerHTML = html;
+  document.getElementById("warnDiv").innerHTML = "";
+  show("page3");
+
+  timeLeft = examQuestions.length * 60;
+  totalTime = timeLeft;
+
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(function(){
+    timeLeft--;
+    var m = Math.floor(timeLeft/60);
+    var s = timeLeft%60;
+    document.getElementById("timer").innerText = "⏱ "+m+":"+(s<10?"0":"")+s;
+    var p = (timeLeft/totalTime)*100;
+    document.getElementById("progress").style.width = p+"%";
+    document.getElementById("progress").style.background = p<30?"#ef4444":"#22c55e";
+    if (timeLeft<=0) submitExam();
+  }, 1000);
 }
 
-// ================= LOAD QUESTIONS =================
-function loadQuestions(){
-  db.ref("questions").on("value",snap=>{
-    questions=[];
-    snap.forEach(c=>questions.push(c.val()));
-  });
-}
-
-// ================= START EXAM =================
-function startExam(){
-
-  questions.sort(()=>Math.random()-0.5);
-
-  let html="";
-
-  questions.forEach((x,i)=>{
-    html+=`
-    <div class="card">
-      <h4>${i+1}. ${x.q}</h4>
-      ${x.a.map((o,j)=>
-        `<label><input type="radio" name="q${i}" value="${j}"> ${o}</label><br>`
-      ).join("")}
-    </div>`;
-  });
-
-  document.getElementById("quiz").innerHTML=html;
-
-  timer=setInterval(()=>{
-    time--;
-    document.getElementById("timer").innerText="Time: "+time;
-
-    let p=(time/total)*100;
-    document.getElementById("progress").style.width=p+"%";
-
-    if(time<=0) submitExam();
-  },1000);
-}
-
-// ================= ANTI CHEAT =================
-document.addEventListener("visibilitychange",()=>{
-  if(document.hidden){
+// ===== ANTI CHEAT =====
+document.addEventListener("visibilitychange", function(){
+  if (document.hidden && !submitted && timerInterval) {
     warn++;
-    if(warn>=3) submitExam();
+    document.getElementById("warnDiv").innerHTML =
+      '<div class="warn">⚠️ সতর্কতা '+warn+'/3 — বারবার করলে Exam বাতিল!</div>';
+    if (warn>=3) submitExam();
   }
 });
+document.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+document.addEventListener("copy", function(e){ e.preventDefault(); });
 
-document.addEventListener("contextmenu",e=>e.preventDefault());
-document.addEventListener("copy",e=>e.preventDefault());
+// ===== SUBMIT =====
+function submitExam() {
+  if (submitted) return;
+  submitted = true;
+  if (timerInterval) clearInterval(timerInterval);
 
-// ================= SUBMIT =================
-function submitExam(){
-
-  clearInterval(timer);
-
-  let score=0;
-
-  questions.forEach((x,i)=>{
-    let ans=document.querySelector(`input[name=q${i}]:checked`);
-    if(ans && parseInt(ans.value)==x.correct) score++;
+  var score = 0;
+  examQuestions.forEach(function(x,i){
+    var ans = document.querySelector('input[name=q'+i+']:checked');
+    if (ans && parseInt(ans.value)===x.correct) score++;
   });
 
-  let percent=Math.round((score/questions.length)*100);
+  var percent = Math.round((score/examQuestions.length)*100);
+  var grade = percent>=80?"A+":percent>=70?"A":percent>=60?"B":percent>=50?"C":percent>=40?"D":"F";
+  var pass = percent>=40;
 
-  db.ref("results").push({
-    name:student,
-    class:className,
-    score:score,
-    percent:percent,
-    time:new Date().toLocaleString()
+  fetch(DB+"/results.json", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({name:student, class:sClass, score:score, total:examQuestions.length, percent:percent, grade:grade, time:new Date().toLocaleString()})
   });
 
-  document.getElementById("result").innerHTML=`
-  <div class="card">
-    🎓 RESULT<br>
-    👤 ${student}<br>
-    🏫 Class ${className}<br>
-    📊 ${score}/${questions.length}<br>
-    📈 ${percent}%<br>
-    🏆 ${percent>=40?"PASS":"FAIL"}
-  </div>
-  `;
+  document.getElementById("result").innerHTML =
+    '<div class="card" style="text-align:center;">'+
+    '<div style="font-size:3rem;margin-bottom:8px;">'+(pass?"🎉":"😔")+'</div>'+
+    '<h2 style="margin-bottom:10px;">RESULT</h2>'+
+    '<p>👤 <strong>'+student+'</strong> | 🏫 Class '+sClass+'</p>'+
+    '<p style="font-size:2rem;font-weight:700;margin:10px 0;">'+score+'/'+examQuestions.length+' ('+percent+'%)</p>'+
+    '<p style="font-size:1.3rem;color:'+(pass?'#22c55e':'#ef4444')+';font-weight:700;">'+(pass?"✅ PASS":"❌ FAIL")+' | Grade: '+grade+'</p>'+
+    '</div>';
 
   loadLeaderboard();
+  show("page4");
 }
 
-// ================= LEADERBOARD =================
-function loadLeaderboard(){
-  db.ref("results").limitToLast(5).on("value",snap=>{
-    let html="";
-    snap.forEach(c=>{
-      let d=c.val();
-      html+=`<div class="card">${d.name} - ${d.percent}%</div>`;
+// ===== LEADERBOARD =====
+function loadLeaderboard() {
+  fetch(DB+"/results.json")
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data) { document.getElementById("board").innerHTML="কোনো result নেই।"; return; }
+      var entries = Object.values(data).sort(function(a,b){ return b.percent-a.percent; });
+      var medals = ["🥇","🥈","🥉"];
+      var html = entries.slice(0,10).map(function(d,i){
+        return '<div class="card" style="display:flex;justify-content:space-between;align-items:center;">'+
+          '<span>'+(medals[i]||(i+1)+'.')+'  <strong>'+d.name+'</strong> ('+d.class+')</span>'+
+          '<span style="color:#f59e0b;font-weight:700;">'+d.percent+'% '+d.grade+'</span>'+
+          '</div>';
+      }).join("");
+      document.getElementById("board").innerHTML = html;
     });
-
-    document.getElementById("board").innerHTML=html;
-  });
 }
-
 </script>
-
 </body>
 </html>
