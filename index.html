@@ -233,6 +233,9 @@ function startExam() {
   warn = 0;
 
   examQuestions = examQuestions.sort(function(){ return Math.random()-0.5; });
+ document.querySelectorAll('input[type=radio]').forEach(function(r){
+  r.disabled = true;
+});
 
   var html = "";
   examQuestions.forEach(function(x,i){
@@ -244,6 +247,7 @@ function startExam() {
         lockOptions(i);
       });
       html += '<label class="radio-label"><input type="radio" name="q'+i+'" value="'+o.originalIndex+'"> '+o.text+'</label>';
+     onclick="lockOptions('+i+')"> ';
     });
     html += '</div>';
   });
