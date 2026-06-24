@@ -87,15 +87,22 @@
 
   <!-- PAGE 4: RESULT -->
   <div id="page4" style="display:none;">
-    <div id="result"></div>
-    <div class="leaderboard">
-      <h3>🏆 Leaderboard</h3>
-      <div id="board">লোড হচ্ছে...</div>
-    </div>
-    <button class="btn-blue" onclick="show('page1')" style="margin-top:12px;">🔄 আবার Exam দাও</button>
+  <div id="result"></div>
+
+  <div class="leaderboard">
+    <h3>🏆 Leaderboard</h3>
+    <div id="board">লোড হচ্ছে...</div>
   </div>
 
-</div>
+  <div class="leaderboard">
+    <h3>👑 Hall Of Fame</h3>
+    <div id="hallOfFame">লোড হচ্ছে...</div>
+  </div>
+
+  <button class="btn-blue" onclick="show('page1')" style="margin-top:12px;">
+    🔄 আবার Exam দাও
+  </button>
+  </div>
 
 <script>
 var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";
@@ -372,7 +379,8 @@ function submitExam() {
     '</div>';
 
   loadLeaderboard();
-  show("page4");
+loadHallOfFame();
+show("page4");
 }
 
 
@@ -416,11 +424,60 @@ function loadLeaderboard() {
         '🏆 Grade: '+r.grade+'<br>' +
         '🕒 '+r.time +
         '</div>';
+       <div class="leaderboard">
+  <h3>👑 Hall of Fame</h3>
+  <div id="hallOfFame">লোড হচ্ছে...</div>
+</div>
       });
 
       document.getElementById("allResults").innerHTML = html;
     });
       }
+ function loadHallOfFame() {
+
+  fetch(DB+"/results.json")
+    .then(function(r){
+      return r.json();
+    })
+    .then(function(data){
+
+      if(!data){
+        document.getElementById("hallOfFame").innerHTML =
+          "কোনো Legend নেই";
+        return;
+      }
+
+      var legends = Object.values(data)
+        .filter(function(x){
+          return x.percent >= 90;
+        })
+        .sort(function(a,b){
+          return b.percent - a.percent;
+        });
+
+      if(legends.length === 0){
+        document.getElementById("hallOfFame").innerHTML =
+          "এখনো কোনো Legend নেই 👑";
+        return;
+      }
+
+      var html = "";
+
+      legends.slice(0,10).forEach(function(x,i){
+
+        html +=
+          '<div class="card">' +
+          '👑 <strong>'+x.name+'</strong> ('+x.class+')' +
+          '<br>🏆 '+x.percent+'% | '+x.grade+
+          '</div>';
+
+      });
+
+      document.getElementById("hallOfFame").innerHTML = html;
+
+    });
+
+                                            }
 </script>
 </body>
 </html>
