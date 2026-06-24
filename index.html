@@ -489,51 +489,83 @@ loadHallOfFame();
 show("page4");  
 }  
 // ===== LEADERBOARD =====  
-function loadLeaderboard() {  
-  fetch(DB+"/results.json")  
-    .then(function(r){ return r.json(); })  
-    .then(function(data){  
-      if (!data) { document.getElementById("board").innerHTML="কোনো result নেই।"; return; }  
-      var entries = Object.values(data).sort(function(a,b){ return b.percent-a.percent; });  
-      var medals = ["🥇","🥈","🥉"];  
-      var html = entries.slice(0,10).map(function(d,i){  
-        return '<div class="card" style="display:flex;justify-content:space-between;align-items:center;">'+  
-          '<span>'+(medals[i]||(i+1)+'.')+'  <strong>'+d.name+'</strong> ('+d.class+')</span>'+  
-          '<span style="color:#f59e0b;font-weight:700;">'+d.percent+'% '+d.grade+'</span>'+  
-          '</div>';  
-      }).join("");  
-      document.getElementById("board").innerHTML = html;  
-    });  
-}  
- function loadResults() {  
-  fetch(DB+"/results.json")  
-    .then(function(r){ return r.json(); })  
-    .then(function(data){  
-  
-      if(!data){  
-        document.getElementById("allResults").innerHTML =  
-        "<div class='card'>কোনো Result নেই</div>";  
-        return;  
-      }  
-  
-      var html = "";  
-  
-      Object.values(data).reverse().forEach(function(r){  
-        html +=  
-        '<div class="card">' +  
-        '<b>👤 '+r.name+'</b><br>' +  
-        '🏫 Class: '+r.class+'<br>' +  
-        '📊 Score: '+r.score+'/'+r.total+'<br>' +  
-        '🎯 '+r.percent+'%<br>' +  
-        '🏆 Grade: '+r.grade+'<br>' +  
-        '🕒 '+r.time +  
-        '</div>';  
-         
-      });  
-  
-      document.getElementById("allResults").innerHTML = html;  
-    });  
-     }  
+function loadLeaderboard() {
+
+  fetch(DB + "/results.json")
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+
+      if (!data) {
+        document.getElementById("board").innerHTML = "কোনো result নেই।";
+        return;
+      }
+
+      var subject = document.getElementById("examSubject").value;
+      var results = Object.values(data);
+
+      // SUBJECT FILTER
+      if (subject !== "All Subject") {
+        results = results.filter(function(x){
+          return x.subject === subject;
+        });
+      }
+
+      results.sort(function(a,b){
+        return b.percent - a.percent;
+      });
+
+      var medals = ["🥇","🥈","🥉"];
+
+      var html = results.slice(0,10).map(function(d,i){
+        return `
+          <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>${medals[i] || (i+1)+'.'} <strong>${d.name}</strong> (${d.class})</span>
+            <span style="color:#f59e0b;font-weight:700;">
+              ${d.percent}% ${d.grade}
+            </span>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("board").innerHTML = html;
+    });
+}
+
+
+// ===== ALL RESULTS =====
+function loadResults() {
+
+  fetch(DB + "/results.json")
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+
+      if (!data) {
+        document.getElementById("allResults").innerHTML =
+        "<div class='card'>কোনো Result নেই</div>";
+        return;
+      }
+
+      var html = "";
+      var results = Object.values(data).reverse();
+
+      results.forEach(function(r){
+
+        html += `
+          <div class="card">
+            <b>👤 ${r.name}</b><br>
+            🏫 Class: ${r.class}<br>
+            📚 Subject: ${r.subject}<br>
+            📊 Score: ${r.score}/${r.total}<br>
+            🎯 ${r.percent}%<br>
+            🏆 Grade: ${r.grade}<br>
+            🕒 ${r.time}
+          </div>
+        `;
+      });
+
+      document.getElementById("allResults").innerHTML = html;
+    });
+}
   
 //=====load Hallo fame====  
  function loadHallOfFame() {  
