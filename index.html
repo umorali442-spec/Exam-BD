@@ -240,6 +240,9 @@ function startExam() {
     var options = x.a.map(function(opt,idx){ return {text:opt, originalIndex:idx}; });
     options.sort(function(){ return Math.random()-0.5; });
     options.forEach(function(o){
+      o.addEventListener('click', function(){
+        lockOptions(i);
+      });
       html += '<label class="radio-label"><input type="radio" name="q'+i+'" value="'+o.originalIndex+'"> '+o.text+'</label>';
     });
     html += '</div>';
