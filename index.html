@@ -73,9 +73,10 @@
       <div id="qMsg" class="msg" style="display:none;"></div>
     </div>
     <button class="btn-gray" onclick="clearAllQuestions()" style="margin-top:6px;">🗑 সব প্রশ্ন মুছো</button>
+    <button class="btn-yellow" onclick="loadResults()" style="margin-top:6px;">📊 All Results দেখো</button>
+    <div id="allResults"></div>
   </div>
-<button class="btn-yellow" onclick="loadResults()">📊 All Results</button>
-<div id="allResults"></div>
+
   <!-- PAGE 3: EXAM -->
   <div id="page3" style="display:none;">
     <div id="timer">⏱ --</div>
@@ -87,22 +88,19 @@
 
   <!-- PAGE 4: RESULT -->
   <div id="page4" style="display:none;">
-  <div id="result"></div>
-
-  <div class="leaderboard">
-    <h3>🏆 Leaderboard</h3>
-    <div id="board">লোড হচ্ছে...</div>
+    <div id="result"></div>
+    <div class="leaderboard">
+      <h3>🏆 Leaderboard</h3>
+      <div id="board">লোড হচ্ছে...</div>
+    </div>
+    <div class="leaderboard">
+      <h3>👑 Hall Of Fame</h3>
+      <div id="hallOfFame">লোড হচ্ছে...</div>
+    </div>
+    <button class="btn-blue" onclick="show('page1')" style="margin-top:12px;">🔄 আবার Exam দাও</button>
   </div>
 
-  <div class="leaderboard">
-    <h3>👑 Hall Of Fame</h3>
-    <div id="hallOfFame">লোড হচ্ছে...</div>
-  </div>
-
-  <button class="btn-blue" onclick="show('page1')" style="margin-top:12px;">
-    🔄 আবার Exam দাও
-  </button>
-  </div>
+</div>
 
 <script>
 var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";
@@ -189,6 +187,30 @@ function clearAllQuestions() {
     .catch(function(e){ showQMsg("❌ Error: "+e.message, "#7f1d1d"); });
 }
 
+// ===== ALL RESULTS =====
+function loadResults() {
+  fetch(DB+"/results.json")
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data) {
+        document.getElementById("allResults").innerHTML = "<div class='card'>কোনো Result নেই</div>";
+        return;
+      }
+      var html = "";
+      Object.values(data).reverse().forEach(function(r){
+        html += '<div class="card">'+
+          '<b>👤 '+r.name+'</b><br>'+
+          '🏫 Class: '+r.class+'<br>'+
+          '📊 Score: '+r.score+'/'+r.total+'<br>'+
+          '🎯 '+r.percent+'%<br>'+
+          '🏆 Grade: '+r.grade+'<br>'+
+          '🕒 '+r.time+
+          '</div>';
+      });
+      document.getElementById("allResults").innerHTML = html;
+    });
+}
+
 // ===== STUDENT LOGIN =====
 function studentLogin() {
   student = document.getElementById("studentName").value.trim();
@@ -209,78 +231,39 @@ function studentLogin() {
 function startExam() {
   submitted = false;
   warn = 0;
-var score = 0;
-var review = "";
-  examQuestions = examQuestions.sort(function(){
-    return Math.random() - 0.5;
-  });
+
+  examQuestions = examQuestions.sort(function(){ return Math.random()-0.5; });
 
   var html = "";
-
   examQuestions.forEach(function(x,i){
-
     html += '<div class="card"><p><strong>'+(i+1)+'. '+x.q+'</strong></p>';
-
-    var options = x.a.map(function(opt, idx){
-      return {
-        text: opt,
-        originalIndex: idx
-      };
-    });
-
-    options.sort(function(){
-      return Math.random() - 0.5;
-    });
-
+    var options = x.a.map(function(opt,idx){ return {text:opt, originalIndex:idx}; });
+    options.sort(function(){ return Math.random()-0.5; });
     options.forEach(function(o){
-      html += '<label class="radio-label">';
-      html += '<input type="radio" name="q'+i+'" value="'+o.originalIndex+'"> ';
-      html += '<input type="radio" name="q'+i+'" value="'+o.originalIndex+'" onclick="lockOptions('+i+')"> ';
-      html += o.text;
-      html += '</label>';
+      html += '<label class="radio-label"><input type="radio" name="q'+i+'" value="'+o.originalIndex+'"> '+o.text+'</label>';
     });
-   
-
     html += '</div>';
   });
 
   document.getElementById("quiz").innerHTML = html;
   document.getElementById("warnDiv").innerHTML = "";
-
   show("page3");
 
   timeLeft = examQuestions.length * 60;
   totalTime = timeLeft;
 
   if (timerInterval) clearInterval(timerInterval);
-
   timerInterval = setInterval(function(){
-
     timeLeft--;
-
     var m = Math.floor(timeLeft/60);
     var s = timeLeft%60;
-
-    document.getElementById("timer").innerText =
-      "⏱ " + m + ":" + (s<10?"0":"") + s;
-
+    document.getElementById("timer").innerText = "⏱ "+m+":"+(s<10?"0":"")+s;
     var p = (timeLeft/totalTime)*100;
-
-    document.getElementById("progress").style.width = p + "%";
-
-    if (p < 30){
-      document.getElementById("progress").style.background = "#ef4444";
-    } else {
-      document.getElementById("progress").style.background = "#22c55e";
-    }
-
-    if(timeLeft <= 0){
-      submitExam();
-    }
-
-  },1000);
+    document.getElementById("progress").style.width = p+"%";
+    document.getElementById("progress").style.background = p<30?"#ef4444":"#22c55e";
+    if (timeLeft<=0) submitExam();
+  }, 1000);
 }
-
 
 // ===== ANTI CHEAT =====
 document.addEventListener("visibilitychange", function(){
@@ -296,104 +279,53 @@ document.addEventListener("copy", function(e){ e.preventDefault(); });
 
 // ===== SUBMIT =====
 function submitExam() {
-
   if (submitted) return;
-
   submitted = true;
-
   if (timerInterval) clearInterval(timerInterval);
 
   var score = 0;
-var review = "";
+  var review = "";
 
-examQuestions.forEach(function(x,i){
-
-  var ans = document.querySelector('input[name=q'+i+']:checked');
-
-  if(ans){
-    if(parseInt(ans.value) === x.correct){
-      score++;
+  examQuestions.forEach(function(x,i){
+    var ans = document.querySelector('input[name=q'+i+']:checked');
+    if (ans) {
+      if (parseInt(ans.value)===x.correct) {
+        score++;
+      } else {
+        review += '<div class="card" style="border:2px solid #ef4444">❌ Q: '+x.q+'<br>✔ Correct: '+x.a[x.correct]+'</div>';
+      }
     } else {
-      review += "<div class='card' style='border:2px solid #ef4444'>"+
-        "❌ Q: "+x.q+"<br>✔ Correct: "+x.a[x.correct]+
-      "</div>";
+      review += '<div class="card">⚠️ উত্তর দাওনি: '+x.q+'</div>';
     }
-  } else {
-    review += "<div class='card'>⚠️ Not answered: "+x.q+"</div>";
-  }
-
-});
-
-  var percent =
-    Math.round((score/examQuestions.length)*100);
-
-  var grade =
-    percent>=80?"A+":
-    percent>=70?"A":
-    percent>=60?"B":
-    percent>=50?"C":
-    percent>=40?"D":"F";
-
-  var pass = percent >= 40;
-
-  var badge = "";
-
-  if(percent === 100){
-    badge = "👑 LEGEND";
-  }
-  else if(percent >= 90){
-    badge = "🥇 GOLD MASTER";
-  }
-  else if(percent >= 70){
-    badge = "🥈 SILVER STAR";
-  }
-  else if(percent >= 50){
-    badge = "🥉 BRONZE HERO";
-  }
-  else{
-    badge = "📚 KEEP LEARNING";
-  }
-
-  fetch(DB+"/results.json",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({
-      name:student,
-      class:sClass,
-      score:score,
-      total:examQuestions.length,
-      percent:percent,
-      grade:grade,
-      badge:badge,
-      time:new Date().toLocaleString()
-    })
   });
-document.getElementById("result").innerHTML =
-  '<div class="card" style="text-align:center;">'+
-  '<div style="font-size:3rem;">'+(pass?"🎉":"😔")+'</div>'+
-  '<h2>RESULT</h2>'+
-  '<p>👤 <strong>'+student+'</strong></p>'+
-  '<p>🏫 Class '+sClass+'</p>'+
-  '<p style="font-size:2rem;font-weight:bold;">'+
-  score+'/'+examQuestions.length+
-  ' ('+percent+'%)</p>'+
-  '<p style="font-size:1.3rem;color:'+
-  (pass?'#22c55e':'#ef4444')+
-  ';">'+
-  (pass?'✅ PASS':'❌ FAIL')+
-  ' | Grade: '+grade+
-  '</p>'+
-  '<p style="font-size:1.2rem;color:#f59e0b;font-weight:bold;">🏅 '+badge+'</p>'+
-  '</div>'+
-  "<hr><h3>📚 Review</h3>"+review;
-  
+
+  var percent = Math.round((score/examQuestions.length)*100);
+  var grade = percent>=80?"A+":percent>=70?"A":percent>=60?"B":percent>=50?"C":percent>=40?"D":"F";
+  var pass = percent>=40;
+  var badge = percent===100?"👑 LEGEND":percent>=90?"🥇 GOLD MASTER":percent>=70?"🥈 SILVER STAR":percent>=50?"🥉 BRONZE HERO":"📚 KEEP LEARNING";
+
+  fetch(DB+"/results.json", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({name:student, class:sClass, score:score, total:examQuestions.length, percent:percent, grade:grade, badge:badge, time:new Date().toLocaleString()})
+  });
+
+  document.getElementById("result").innerHTML =
+    '<div class="card" style="text-align:center;">'+
+    '<div style="font-size:3rem;">'+(pass?"🎉":"😔")+'</div>'+
+    '<h2>RESULT</h2>'+
+    '<p>👤 <strong>'+student+'</strong> | 🏫 Class '+sClass+'</p>'+
+    '<p style="font-size:2rem;font-weight:bold;">'+score+'/'+examQuestions.length+' ('+percent+'%)</p>'+
+    '<p style="font-size:1.3rem;color:'+(pass?'#22c55e':'#ef4444')+';font-weight:700;">'+(pass?"✅ PASS":"❌ FAIL")+' | Grade: '+grade+'</p>'+
+    '<p style="font-size:1.2rem;color:#f59e0b;font-weight:bold;">🏅 '+badge+'</p>'+
+    '</div>'+
+    '<hr><h3 style="margin:10px 0;">📚 Review</h3>'+review;
 
   loadLeaderboard();
-loadHallOfFame();
-show("page4");
+  loadHallOfFame();
+  show("page4");
 }
+
 // ===== LEADERBOARD =====
 function loadLeaderboard() {
   fetch(DB+"/results.json")
@@ -411,90 +343,29 @@ function loadLeaderboard() {
       document.getElementById("board").innerHTML = html;
     });
 }
- function loadResults() {
-  fetch(DB+"/results.json")
-    .then(function(r){ return r.json(); })
-    .then(function(data){
 
-      if(!data){
-        document.getElementById("allResults").innerHTML =
-        "<div class='card'>কোনো Result নেই</div>";
-        return;
-      }
-
-      var html = "";
-
-      Object.values(data).reverse().forEach(function(r){
-        html +=
-        '<div class="card">' +
-        '<b>👤 '+r.name+'</b><br>' +
-        '🏫 Class: '+r.class+'<br>' +
-        '📊 Score: '+r.score+'/'+r.total+'<br>' +
-        '🎯 '+r.percent+'%<br>' +
-        '🏆 Grade: '+r.grade+'<br>' +
-        '🕒 '+r.time +
-        '</div>';
-       
-      });
-
-      document.getElementById("allResults").innerHTML = html;
-    });
-     }
-
-//=====load Hallo fame====
- function loadHallOfFame() {
-
-  fetch(DB+"/results.json")
-    .then(function(r){
-      return r.json();
-    })
-    .then(function(data){
-
-      if(!data){
-        document.getElementById("hallOfFame").innerHTML =
-          "কোনো Legend নেই";
-        return;
-      }
-
-      var legends = Object.values(data)
-        .filter(function(x){
-          return x.percent >= 90;
-        })
-        .sort(function(a,b){
-          return b.percent - a.percent;
-        });
-
-      if(legends.length === 0){
-        document.getElementById("hallOfFame").innerHTML =
-          "এখনো কোনো Legend নেই 👑";
-        return;
-      }
-
-      var html = "";
-
-      legends.slice(0,10).forEach(function(x,i){
-
-        html +=
-          '<div class="card">' +
-          '👑 <strong>'+x.name+'</strong> ('+x.class+')' +
-          '<br>🏆 '+x.percent+'% | '+x.grade+
-          '</div>';
-
-      });
-
-      document.getElementById("hallOfFame").innerHTML = html;
-
-    });
-//===loack option=====
- function loadHallOfFame() {
- ...  
- } 
- function lockOptions(qIndex){
+// ===== LOCK OPTIONS =====
+function lockOptions(qIndex){
   var options = document.querySelectorAll('input[name="q'+qIndex+'"]');
   options.forEach(function(opt){
     opt.disabled = true;
   });
- }}
+}
+
+// ===== HALL OF FAME =====
+function loadHallOfFame() {
+  fetch(DB+"/results.json")
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data) { document.getElementById("hallOfFame").innerHTML="কোনো Legend নেই।"; return; }
+      var legends = Object.values(data).filter(function(x){ return x.percent>=90; }).sort(function(a,b){ return b.percent-a.percent; });
+      if (legends.length===0) { document.getElementById("hallOfFame").innerHTML="এখনো কোনো Legend নেই 👑"; return; }
+      var html = legends.slice(0,10).map(function(x){
+        return '<div class="card">👑 <strong>'+x.name+'</strong> ('+x.class+')<br>🏆 '+x.percent+'% | '+x.grade+'</div>';
+      }).join("");
+      document.getElementById("hallOfFame").innerHTML = html;
+    });
+}
 </script>
 </body>
 </html>
