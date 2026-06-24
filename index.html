@@ -114,36 +114,23 @@ h2{text-align:center;}
 </div>
 
 <script>
-/* =======================
-   DEMO QUESTIONS (SAFE)
-======================= */
-let questions = [
-  {
-    q: "2 + 2 কত?",
-    a: ["1","2","3","4"],
-    correct: 3
-  },
-  {
-    q: "বাংলাদেশের রাজধানী কোনটি?",
-    a: ["ঢাকা","চট্টগ্রাম","রাজশাহী","খুলনা"],
-    correct: 0
-  }
-];
 
+/* ===== QUESTIONS ===== */
+let questions = [];
+
+/* ===== USER DATA ===== */
 let student = "";
 let className = "";
 let time = 60;
 let timer;
 
-/* =======================
-   LOGIN
-======================= */
+/* ===== STUDENT LOGIN ===== */
 function studentLogin(){
 student = document.getElementById("studentName").value;
 className = document.getElementById("studentClass").value;
 
 if(!student || !className){
-  alert("Fill all fields");
+  alert("সব fill করো");
   return;
 }
 
@@ -151,9 +138,7 @@ document.getElementById("studentBox").style.display="none";
 document.getElementById("loginBox").style.display="block";
 }
 
-/* =======================
-   ADMIN LOGIN
-======================= */
+/* ===== TEACHER LOGIN ===== */
 function login(){
 let u=document.getElementById("user").value;
 let p=document.getElementById("pass").value;
@@ -165,27 +150,38 @@ document.getElementById("panel").style.display="block";
 else alert("Wrong login");
 }
 
-/* =======================
-   ADD QUESTION
-======================= */
+/* ===== ADD QUESTION (FIXED) ===== */
 function addQuestion(){
-questions.push({
-  q: document.getElementById("q").value,
-  a: [
-    document.getElementById("o1").value,
-    document.getElementById("o2").value,
-    document.getElementById("o3").value,
-    document.getElementById("o4").value
-  ],
-  correct: parseInt(document.getElementById("correct").value)
-});
 
-alert("Question Added!");
+let q = document.getElementById("q").value;
+let o1 = document.getElementById("o1").value;
+let o2 = document.getElementById("o2").value;
+let o3 = document.getElementById("o3").value;
+let o4 = document.getElementById("o4").value;
+let correct = document.getElementById("correct").value;
+
+if(!q || !o1 || !o2 || !o3 || !o4){
+  alert("সব field fill করো");
+  return;
 }
 
-/* =======================
-   START EXAM
-======================= */
+questions.push({
+  q:q,
+  a:[o1,o2,o3,o4],
+  correct: parseInt(correct)
+});
+
+alert("Question Added ✔");
+
+// clear inputs
+document.getElementById("q").value="";
+document.getElementById("o1").value="";
+document.getElementById("o2").value="";
+document.getElementById("o3").value="";
+document.getElementById("o4").value="";
+}
+
+/* ===== START EXAM ===== */
 function startExam(){
 
 if(questions.length === 0){
@@ -193,10 +189,10 @@ if(questions.length === 0){
   return;
 }
 
-document.getElementById("quiz").innerHTML="";
+let html="";
 
 questions.forEach((x,i)=>{
-document.getElementById("quiz").innerHTML += `
+html += `
 <div class="card">
 <h4>${i+1}. ${x.q}</h4>
 ${x.a.map((o,j)=>
@@ -204,6 +200,8 @@ ${x.a.map((o,j)=>
 ).join("")}
 </div>`;
 });
+
+document.getElementById("quiz").innerHTML=html;
 
 clearInterval(timer);
 time = 60;
@@ -217,9 +215,7 @@ if(time<=0) submitExam();
 },1000);
 }
 
-/* =======================
-   SUBMIT
-======================= */
+/* ===== SUBMIT ===== */
 function submitExam(){
 clearInterval(timer);
 
@@ -230,16 +226,14 @@ let ans=document.querySelector(`input[name=q${i}]:checked`);
 if(ans && parseInt(ans.value)===x.correct) score++;
 });
 
-let percent=Math.round((score/questions.length)*100);
-
 document.getElementById("result").innerHTML=
 `<div class="card">
-🎓 Name: ${student}<br>
-🏫 Class: ${className}<br>
-📊 Score: ${score}/${questions.length}<br>
-📈 Result: ${percent}%
+🎓 ${student}<br>
+🏫 ${className}<br>
+📊 Score: ${score}/${questions.length}
 </div>`;
 }
+
 </script>
 
 </body>
