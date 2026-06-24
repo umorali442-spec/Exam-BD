@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Exam BD Admin Panel</title>
+<title>Exam BD Clean Fix</title>
 
 <style>
 body{
@@ -16,7 +16,6 @@ body{
   background:white;
   padding:20px;
   border-radius:12px;
-  box-shadow:0 5px 20px rgba(0,0,0,0.1);
 }
 input, select{
   padding:10px;
@@ -34,7 +33,7 @@ button{
 #startBtn{background:#ff9800;color:white;}
 #submitBtn{background:#dc3545;color:white;}
 .q{padding:10px;border-bottom:1px solid #ddd;}
-#timer{color:red;font-weight:bold;font-size:18px;}
+#timer{color:red;font-weight:bold;}
 </style>
 
 </head>
@@ -43,7 +42,7 @@ button{
 
 <div class="container">
 
-<h2>📘 Exam BD Admin Panel</h2>
+<h2>📘 Exam BD Fixed System</h2>
 
 <!-- LOGIN -->
 <div id="loginBox">
@@ -137,7 +136,7 @@ function addQuestion(){
   alert("Question Added!");
 }
 
-// START EXAM
+// START EXAM (FIXED CLEAN VIEW)
 function startExam(){
 
   let html="";
@@ -147,12 +146,19 @@ function startExam(){
     <div class="q">
       <h4>${i+1}. ${x.q}</h4>
       ${x.a.map((o,j)=>
-        `<label><input type="radio" name="q${i}" value="${j}"> ${o}</label><br>`
+        `<label>
+          <input type="radio" name="q${i}" value="${j}">
+          ${o}
+        </label><br>`
       ).join("")}
     </div>`;
   });
 
   document.getElementById("quiz").innerHTML=html;
+
+  // hide add panel buttons (FIX FIX FIX)
+  document.getElementById("addBtn").style.display="none";
+  document.getElementById("startBtn").style.display="none";
 
   timer=setInterval(()=>{
     time--;
