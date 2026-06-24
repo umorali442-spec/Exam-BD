@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Exam BD Fixed Full System</title>
+<title>Exam BD Full System Step 1</title>
 
 <style>
 body{
@@ -42,10 +42,17 @@ button{
 
 <div class="container">
 
-<h2>📘 Exam BD Fixed System</h2>
+<h2>📘 Exam BD Full System</h2>
 
-<!-- LOGIN -->
-<div id="loginBox">
+<!-- 👨‍🎓 STUDENT LOGIN -->
+<div id="studentBox">
+  <h3>👨‍🎓 Student Login</h3>
+  <input type="text" id="studentName" placeholder="Enter Your Name"><br>
+  <button onclick="studentLogin()">Start Exam</button>
+</div>
+
+<!-- 🔐 ADMIN LOGIN -->
+<div id="loginBox" style="display:none;">
   <h3>🔐 Admin Login</h3>
   <input type="text" id="user" placeholder="Username"><br>
   <input type="password" id="pass" placeholder="Password"><br>
@@ -98,9 +105,26 @@ let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
 
 let time=60;
 let timer;
+
+let currentStudent="";
 let currentUser="";
 
-// LOGIN
+// 👨‍🎓 STUDENT LOGIN
+function studentLogin(){
+  let name=document.getElementById("studentName").value;
+
+  if(name.trim()===""){
+    alert("Enter your name!");
+    return;
+  }
+
+  currentStudent=name;
+
+  document.getElementById("studentBox").style.display="none";
+  document.getElementById("loginBox").style.display="block";
+}
+
+// 🔐 ADMIN LOGIN
 function login(){
   let u=document.getElementById("user").value;
   let p=document.getElementById("pass").value;
@@ -124,42 +148,29 @@ function addQuestion(){
   let o4=document.getElementById("o4").value;
   let c=parseInt(document.getElementById("correct").value);
 
-  questions.push({
-    q:q,
-    a:[o1,o2,o3,o4],
-    correct:c
-  });
+  questions.push({q:q,a:[o1,o2,o3,o4],correct:c});
 
   localStorage.setItem("questions",JSON.stringify(questions));
 
   alert("Question Added!");
 }
 
-// START EXAM (FIXED OPTIONS)
+// START EXAM
 function startExam(){
 
   let html="";
 
   questions.forEach((x,i)=>{
-
-    html += `
+    html+=`
     <div class="q">
       <h4>${i+1}. ${x.q}</h4>
-    `;
-
-    for(let j=0;j<x.a.length;j++){
-      html += `
-        <label>
-          <input type="radio" name="q${i}" value="${j}">
-          ${x.a[j]}
-        </label><br>
-      `;
-    }
-
-    html += `</div>`;
+      ${x.a.map((o,j)=>
+        `<label><input type="radio" name="q${i}" value="${j}"> ${o}</label><br>`
+      ).join("")}
+    </div>`;
   });
 
-  document.getElementById("quiz").innerHTML = html;
+  document.getElementById("quiz").innerHTML=html;
 
   timer=setInterval(()=>{
     time--;
@@ -187,16 +198,15 @@ function submitExam(){
   `🎯 Score: ${score}/${questions.length}<br>
    📊 Percentage: ${percent}%<br>`;
 
-  // RANK SYSTEM
   leaderboard.push({
-    name: currentUser || "User",
+    name: currentStudent,
     score: percent
   });
 
   leaderboard.sort((a,b)=>b.score-a.score);
   leaderboard = leaderboard.slice(0,5);
 
-  localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+  localStorage.setItem("leaderboard",JSON.stringify(leaderboard));
 
   showRank();
 }
