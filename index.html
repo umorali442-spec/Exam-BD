@@ -133,292 +133,324 @@ cursor:pointer;font-weight:600;
 </div>
 
 <script>
-   var DB="https://exam-bd-b9668-default-rtdb.firebaseio.com";
+   }
+var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";
 
-var student="", sClass="", subject="";
-var examQuestions=[];
-var timer=null;
-var timeLeft=0;
-var totalTime=0;
-var warn=0;
-var submitted=false;
+var student = "";
+var sClass = "";
+var selectedSubject = "";
+var examQuestions = [];
+var timeLeft = 0;
+var totalTime = 0;
+var timerInterval = null;
+var warn = 0;
+var submitted = false;
 
 // ===== PAGE SWITCH =====
-function show(id){
-  ["page1","page2","page3","page4"].forEach(p=>{
-    document.getElementById(p).style.display="none";
+function show(id) {
+  ["page1","page2","page3","page4"].forEach(function(p){
+    document.getElementById(p).style.display = "none";
   });
-  document.getElementById(id).style.display="block";
+  document.getElementById(id).style.display = "block";
   window.scrollTo(0,0);
 }
 
 // ===== TEACHER LOGIN =====
-function teacherLogin(){
-  let u=document.getElementById("user").value;
-  let p=document.getElementById("pass").value;
+function teacherLogin() {
+  var u = document.getElementById("user").value;
+  var p = document.getElementById("pass").value;
 
-  if(u==="admin" && p==="1234"){
+  if (u === "admin" && p === "1234") {
     show("page2");
+    loadQCount();
   } else {
-    alert("❌ Wrong login");
+    alert("❌ ভুল username বা password!");
   }
 }
 
-// ===== ADD QUESTION (SUBJECT INCLUDED) =====
-function addQuestion(){
-  let q=document.getElementById("q").value.trim();
-  let o1=document.getElementById("o1").value.trim();
-  let o2=document.getElementById("o2").value.trim();
-  let o3=document.getElementById("o3").value.trim();
-  let o4=document.getElementById("o4").value.trim();
-  let correct=parseInt(document.getElementById("correct").value);
-  let subjectAdd=document.getElementById("subjectAdd").value.trim();
+function loadQCount() {
+  fetch(DB + "/questions.json")
+    .then(r => r.json())
+    .then(data => {
+      var count = data ? Object.keys(data).length : 0;
+      alert("✅ মোট প্রশ্ন: " + count);
+    });
+}
 
-  if(!q||!o1||!o2||!o3||!o4||!subjectAdd){
-    alert("সব field fill করো!");
+// ===== ADD QUESTION (SUBJECT FIXED) =====
+function addQuestion() {
+  var q = document.getElementById("q").value.trim();
+  var o1 = document.getElementById("o1").value.trim();
+  var o2 = document.getElementById("o2").value.trim();
+  var o3 = document.getElementById("o3").value.trim();
+  var o4 = document.getElementById("o4").value.trim();
+  var correct = parseInt(document.getElementById("correct").value);
+
+  if (!q || !o1 || !o2 || !o3 || !o4) {
+    alert("সব field পূরণ করো!");
     return;
   }
 
-  fetch(DB+"/questions.json",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      q,
-      a:[o1,o2,o3,o4],
-      correct,
-      subject:subjectAdd
+  fetch(DB + "/questions.json", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      q: q,
+      a: [o1,o2,o3,o4],
+      correct: correct,
+      subject: document.getElementById("qSubject")?.value || "math"
     })
+  }).then(() => {
+    alert("✅ প্রশ্ন যোগ হয়েছে");
   });
-
-  alert("✅ Question Added");
 }
 
-// ===== DELETE ALL QUESTIONS =====
-function clearAll(){
-  if(confirm("সব question delete?")){
-    fetch(DB+"/questions.json",{method:"DELETE"});
-  }
+// ===== CLEAR QUESTIONS =====
+function clearAllQuestions() {
+  if (!confirm("সব প্রশ্ন মুছে ফেলবে?")) return;
+
+  fetch(DB + "/questions.json", { method: "DELETE" })
+    .then(() => alert("🗑 সব প্রশ্ন মুছে গেছে"));
 }
 
 // ===== STUDENT LOGIN =====
-function studentLogin(){
-  student=document.getElementById("studentName").value.trim();
-  sClass=document.getElementById("studentClass").value.trim();
-  subject=document.getElementById("subject").value;
+function studentLogin() {
+  student = document.getElementById("studentName").value.trim();
+  sClass = document.getElementById("studentClass").value.trim();
+  selectedSubject = document.getElementById("subject").value;
 
-  if(!student||!sClass){
-    alert("Name & Class required");
+  if (!student || !sClass) {
+    alert("নাম ও ক্লাস লেখো!");
     return;
   }
 
-  fetch(DB+"/questions.json")
-  .then(r=>r.json())
-  .then(data=>{
+  fetch(DB + "/questions.json")
+    .then(r => r.json())
+    .then(data => {
 
-    if(!data){
-      alert("No questions found");
-      return;
-    }
+      if (!data) {
+        alert("❌ কোনো প্রশ্ন নেই");
+        return;
+      }
 
-    // ⭐ SUBJECT FILTER (MAIN FEATURE)
-    examQuestions=Object.values(data)
-      .filter(q=>q.subject===subject);
+      examQuestions = Object.values(data).filter(q =>
+        q.subject === selectedSubject
+      );
 
-    if(examQuestions.length===0){
-      alert("No exam for this subject");
-      return;
-    }
+      if (examQuestions.length === 0) {
+        alert("❌ এই subject এ প্রশ্ন নেই");
+        return;
+      }
 
-    startExam();
-  });
+      startExam();
+    });
 }
 
 // ===== START EXAM =====
-function startExam(){
-  submitted=false;
-  warn=0;
+function startExam() {
+  submitted = false;
+  warn = 0;
 
-  examQuestions=examQuestions.sort(()=>Math.random()-0.5);
+  examQuestions = examQuestions.sort(() => Math.random() - 0.5);
 
-  let html="";
+  var html = "";
 
-  examQuestions.forEach((q,i)=>{
+  examQuestions.forEach((x,i) => {
+    html += `<div class="card"><p><b>${i+1}. ${x.q}</b></p>`;
 
-    let opts=q.a.map((x,j)=>({x,j}))
-      .sort(()=>Math.random()-0.5);
+    var options = x.a.map((opt, idx) => ({
+      text: opt,
+      originalIndex: idx
+    }));
 
-    html+=`<div class="card"><b>${i+1}. ${q.q}</b><br>`;
+    options.sort(() => Math.random() - 0.5);
 
-    opts.forEach(o=>{
-      html+=`
-      <label>
-        <input type="radio" name="q${i}" value="${o.j}">
-        ${o.x}
-      </label><br>`;
+    options.forEach(o => {
+      html += `
+        <label class="radio-label">
+          <input type="radio" name="q${i}" value="${o.originalIndex}">
+          ${o.text}
+        </label>`;
     });
 
-    html+="</div>";
+    html += `</div>`;
   });
 
-  document.getElementById("quiz").innerHTML=html;
+  document.getElementById("quiz").innerHTML = html;
 
   show("page3");
 
-  timeLeft=examQuestions.length*60;
-  totalTime=timeLeft;
+  timeLeft = examQuestions.length * 60;
+  totalTime = timeLeft;
 
-  clearInterval(timer);
+  clearInterval(timerInterval);
 
-  timer=setInterval(()=>{
+  timerInterval = setInterval(() => {
     timeLeft--;
 
-    let m=Math.floor(timeLeft/60);
-    let s=timeLeft%60;
+    let m = Math.floor(timeLeft / 60);
+    let s = timeLeft % 60;
 
-    document.getElementById("timer").innerHTML=
-      `⏱ ${m}:${s<10?"0":""}${s}`;
+    document.getElementById("timer").innerText =
+      `⏱ ${m}:${s < 10 ? "0" : ""}${s}`;
 
-    if(timeLeft<=0) submitExam();
-  },1000);
+    let p = (timeLeft / totalTime) * 100;
+
+    document.getElementById("progress").style.width = p + "%";
+
+    document.getElementById("progress").style.background =
+      p < 30 ? "#ef4444" : "#22c55e";
+
+    if (timeLeft <= 0) submitExam();
+
+  }, 1000);
 }
 
 // ===== ANTI CHEAT =====
-document.addEventListener("visibilitychange",()=>{
-  if(document.hidden && !submitted){
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && !submitted) {
     warn++;
-    document.getElementById("warnDiv").innerHTML=
-      "⚠️ Warning "+warn+"/3";
+    document.getElementById("warnDiv").innerHTML =
+      `⚠️ Warning ${warn}/3`;
 
-    if(warn>=3) submitExam();
+    if (warn >= 3) submitExam();
   }
 });
 
-document.addEventListener("copy",e=>e.preventDefault());
-document.addEventListener("contextmenu",e=>e.preventDefault());
+// ===== SUBMIT =====
+function submitExam() {
+  if (submitted) return;
+  submitted = true;
 
-// ===== SUBMIT EXAM =====
-function submitExam(){
-  if(submitted) return;
-  submitted=true;
+  clearInterval(timerInterval);
 
-  clearInterval(timer);
+  let score = 0;
+  let review = "";
 
-  let score=0;
-  let review="";
+  examQuestions.forEach((x,i) => {
+    let ans = document.querySelector(`input[name=q${i}]:checked`);
 
-  examQuestions.forEach((q,i)=>{
-    let ans=document.querySelector(`input[name=q${i}]:checked`);
-
-    if(ans && parseInt(ans.value)===q.correct){
-      score++;
+    if (ans) {
+      if (parseInt(ans.value) === x.correct) {
+        score++;
+      } else {
+        review += `<div class="card">❌ ${x.q}<br>✔ ${x.a[x.correct]}</div>`;
+      }
     } else {
-      review+=`<div class="card">❌ ${q.q}<br>✔ Correct: ${q.a[q.correct]}</div>`;
+      review += `<div class="card">⚠️ Unanswered: ${x.q}</div>`;
     }
   });
 
-  let percent=Math.round((score/examQuestions.length)*100);
+  let percent = Math.round((score / examQuestions.length) * 100);
 
-  let grade=
-    percent>=80?"A+":
-    percent>=70?"A":
-    percent>=60?"B":
-    percent>=50?"C":
-    percent>=40?"D":"F";
+  let grade =
+    percent >= 80 ? "A+" :
+    percent >= 70 ? "A" :
+    percent >= 60 ? "B" :
+    percent >= 50 ? "C" :
+    percent >= 40 ? "D" : "F";
 
-  let badge=
-    percent===100?"👑 LEGEND":
-    percent>=90?"🥇 GOLD MASTER":
-    percent>=70?"🥈 SILVER STAR":
-    percent>=50?"🥉 BRONZE HERO":
+  let badge =
+    percent === 100 ? "👑 LEGEND" :
+    percent >= 90 ? "🥇 MASTER" :
+    percent >= 70 ? "🥈 STAR" :
+    percent >= 50 ? "🥉 HERO" :
     "📚 TRY AGAIN";
 
-  // SAVE RESULT
-  fetch(DB+"/results.json",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      name:student,
-      class:sClass,
-      subject,
+  fetch(DB + "/results.json", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      name: student,
+      class: sClass,
+      subject: selectedSubject,
       score,
-      total:examQuestions.length,
+      total: examQuestions.length,
       percent,
       grade,
       badge,
-      time:new Date().toLocaleString()
+      time: new Date().toLocaleString()
     })
   });
 
-  document.getElementById("result").innerHTML=`
-    <div class="card">
-      <h2>🎯 RESULT</h2>
-      <p>👤 ${student}</p>
-      <p>🏫 ${sClass}</p>
-      <p>📊 ${score}/${examQuestions.length}</p>
-      <p>🎯 ${percent}%</p>
-      <p>🏆 ${grade}</p>
+  document.getElementById("result").innerHTML =
+    `<div class="card">
+      <h2>RESULT</h2>
+      <p>${student} | ${sClass}</p>
+      <h1>${score}/${examQuestions.length}</h1>
+      <p>${percent}%</p>
+      <p>${grade}</p>
       <p>${badge}</p>
     </div>
-  `;
+    <hr>
+    ${review}`;
 
-  loadBoard();
-  loadHall();
-  loadAllResults();
-
+  loadLeaderboard();
+  loadHallOfFame();
   show("page4");
 }
 
-// ===== LEADERBOARD (TOP 10) =====
-function loadBoard(){
-  fetch(DB+"/results.json")
-  .then(r=>r.json())
-  .then(data=>{
+// ===== LEADERBOARD =====
+function loadLeaderboard() {
+  fetch(DB + "/results.json")
+    .then(r => r.json())
+    .then(data => {
 
-    let arr=Object.values(data||{})
-      .sort((a,b)=>b.percent-a.percent);
+      if (!data) return;
 
-    document.getElementById("board").innerHTML=
-    arr.slice(0,10).map((x,i)=>
-      `<div class="card">${i+1}. ${x.name} (${x.subject}) - ${x.percent}%</div>`
-    ).join("");
-  });
+      let arr = Object.values(data)
+        .sort((a,b) => b.percent - a.percent)
+        .slice(0,10);
+
+      document.getElementById("board").innerHTML =
+        arr.map((x,i) =>
+          `<div class="card">
+            ${i+1}. ${x.name} (${x.class})
+            <br>🏆 ${x.percent}% ${x.grade}
+          </div>`
+        ).join("");
+    });
 }
 
-// ===== HALL OF FAME (90%+) =====
-function loadHall(){
-  fetch(DB+"/results.json")
-  .then(r=>r.json())
-  .then(data=>{
+// ===== HALL OF FAME =====
+function loadHallOfFame() {
+  fetch(DB + "/results.json")
+    .then(r => r.json())
+    .then(data => {
 
-    let arr=Object.values(data||{})
-      .filter(x=>x.percent>=90)
-      .sort((a,b)=>b.percent-a.percent);
+      if (!data) return;
 
-    document.getElementById("hallOfFame").innerHTML=
-    arr.length
-    ? arr.map(x=>`<div class="card">👑 ${x.name} (${x.subject}) - ${x.percent}%</div>`).join("")
-    : "No Legend Yet 👑";
-  });
+      let legends = Object.values(data)
+        .filter(x => x.percent >= 90)
+        .sort((a,b) => b.percent - a.percent)
+        .slice(0,10);
+
+      document.getElementById("hallOfFame").innerHTML =
+        legends.map(x =>
+          `<div class="card">👑 ${x.name} (${x.class})<br>🏆 ${x.percent}%</div>`
+        ).join("");
+    });
 }
 
-// ===== ALL RESULTS =====
-function loadAllResults(){
-  fetch(DB+"/results.json")
-  .then(r=>r.json())
-  .then(data=>{
+// ===== RESULTS LIST =====
+function loadResults() {
+  fetch(DB + "/results.json")
+    .then(r => r.json())
+    .then(data => {
 
-    if(!data){
-      document.getElementById("allResults").innerHTML="No data";
-      return;
-    }
+      if (!data) {
+        document.getElementById("allResults").innerHTML =
+          "<div class='card'>No Result</div>";
+        return;
+      }
 
-    document.getElementById("allResults").innerHTML=
-    Object.values(data).reverse().map(r=>
-      `<div class="card">
-        👤 ${r.name} | ${r.class} | ${r.subject}<br>
-        📊 ${r.score}/${r.total} | ${r.percent}%<br>
-        🏆 ${r.grade}
-      </div>`
-    ).join("");
-  });
- }
+      document.getElementById("allResults").innerHTML =
+        Object.values(data).map(r =>
+          `<div class="card">
+            ${r.name} | ${r.class}
+            <br>${r.score}/${r.total}
+            <br>${r.percent}%
+          </div>`
+        ).join("");
+    });
+                                                   }
