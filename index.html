@@ -115,17 +115,24 @@ h2{text-align:center;}
 
 <script>
 
-/* ===== QUESTIONS ===== */
-let questions = [];
+/* ======================
+   STORAGE QUESTIONS
+====================== */
+let questions = JSON.parse(localStorage.getItem("questions")) || [];
 
-/* ===== USER DATA ===== */
+/* ======================
+   USER INFO
+====================== */
 let student = "";
 let className = "";
 let time = 60;
 let timer;
 
-/* ===== STUDENT LOGIN ===== */
+/* ======================
+   STUDENT LOGIN
+====================== */
 function studentLogin(){
+
 student = document.getElementById("studentName").value;
 className = document.getElementById("studentClass").value;
 
@@ -138,8 +145,11 @@ document.getElementById("studentBox").style.display="none";
 document.getElementById("loginBox").style.display="block";
 }
 
-/* ===== TEACHER LOGIN ===== */
+/* ======================
+   TEACHER LOGIN
+====================== */
 function login(){
+
 let u=document.getElementById("user").value;
 let p=document.getElementById("pass").value;
 
@@ -150,7 +160,9 @@ document.getElementById("panel").style.display="block";
 else alert("Wrong login");
 }
 
-/* ===== ADD QUESTION (FIXED) ===== */
+/* ======================
+   ADD QUESTION (FIXED)
+====================== */
 function addQuestion(){
 
 let q = document.getElementById("q").value;
@@ -171,6 +183,8 @@ questions.push({
   correct: parseInt(correct)
 });
 
+localStorage.setItem("questions", JSON.stringify(questions));
+
 alert("Question Added ✔");
 
 // clear inputs
@@ -181,8 +195,12 @@ document.getElementById("o3").value="";
 document.getElementById("o4").value="";
 }
 
-/* ===== START EXAM ===== */
+/* ======================
+   START EXAM (FIXED)
+====================== */
 function startExam(){
+
+questions = JSON.parse(localStorage.getItem("questions")) || [];
 
 if(questions.length === 0){
   alert("No questions found");
@@ -215,7 +233,9 @@ if(time<=0) submitExam();
 },1000);
 }
 
-/* ===== SUBMIT ===== */
+/* ======================
+   SUBMIT EXAM
+====================== */
 function submitExam(){
 clearInterval(timer);
 
