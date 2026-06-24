@@ -90,12 +90,7 @@
     <input id="o4" placeholder="Option 4">
   </div>
       
-      <div class="two-col">  
-        <input id="o1" placeholder="Option 1">  
-        <input id="o2" placeholder="Option 2">  
-        <input id="o3" placeholder="Option 3">  
-        <input id="o4" placeholder="Option 4">  
-      </div>  
+      
       <select id="correct">  
         <option value="0">✅ Option 1 সঠিক</option>  
         <option value="1">✅ Option 2 সঠিক</option>  
@@ -202,7 +197,8 @@ function addQuestion() {
   q: q,
   a: [o1,o2,o3,o4],
   correct: correct
-})
+    })
+  })
   .then(function(r){ return r.json(); })  
   .then(function(data){  
     if (data.error) {  
