@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Exam BD Pro Full System</title>
+<title>Exam BD Ultimate System</title>
 
 <style>
 body{
@@ -30,6 +30,8 @@ button{
   border:none;
   border-radius:6px;
   cursor:pointer;
+  width:100%;
+  margin-top:5px;
 }
 
 #loginBtn{background:#007bff;color:white;}
@@ -40,8 +42,8 @@ button{
 .q{
   padding:15px;
   margin:10px 0;
-  border-radius:10px;
   background:#f9f9f9;
+  border-radius:10px;
   box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
 
@@ -51,8 +53,11 @@ button{
   font-size:18px;
 }
 
-h2{
-  text-align:center;
+#progress{
+  height:10px;
+  background:#4caf50;
+  border-radius:10px;
+  width:100%;
 }
 </style>
 
@@ -62,28 +67,27 @@ h2{
 
 <div class="container">
 
-<h2>📘 Exam BD Pro System</h2>
+<h2>📘 Exam BD Ultimate (Full System)</h2>
 
-<!-- 👨‍🎓 STUDENT LOGIN -->
+<!-- STUDENT LOGIN -->
 <div id="studentBox">
   <h3>👨‍🎓 Student Login</h3>
   <input type="text" id="studentName" placeholder="Enter Your Name"><br>
   <button onclick="studentLogin()">Start Exam</button>
 </div>
 
-<!-- 🔐 ADMIN LOGIN -->
+<!-- ADMIN LOGIN -->
 <div id="loginBox" style="display:none;">
   <h3>🔐 Admin Login</h3>
-  <input type="text" id="user" placeholder="Username"><br>
-  <input type="password" id="pass" placeholder="Password"><br>
+  <input type="text" id="user"><br>
+  <input type="password" id="pass"><br>
   <button id="loginBtn" onclick="login()">Login</button>
-  <p id="msg"></p>
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- PANEL -->
 <div id="panel" style="display:none;">
 
-<h3>🧑‍🏫 Add Question</h3>
+<h3>🧑‍🏫 Admin Panel</h3>
 
 <input type="text" id="q" placeholder="Question"><br>
 <input type="text" id="o1" placeholder="Option 1"><br>
@@ -105,14 +109,13 @@ h2{
 
 <div id="timer">Time: 60</div>
 
-<!-- PROGRESS BAR -->
-<div style="width:100%;background:#ddd;border-radius:10px;margin:10px 0;">
-  <div id="progress" style="height:10px;width:100%;background:#4caf50;border-radius:10px;"></div>
+<div style="width:100%;background:#ddd;border-radius:10px;">
+  <div id="progress"></div>
 </div>
 
 <div id="quiz"></div>
 
-<button id="submitBtn" onclick="submitExam()">Submit Exam</button>
+<button id="submitBtn" onclick="submitExam()">Submit</button>
 
 <h3 id="result"></h3>
 
@@ -120,17 +123,30 @@ h2{
 
 </div>
 
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+
 <script>
 
-let questions = JSON.parse(localStorage.getItem("questions")) || [
-  {q:"2+2=?",a:["3","4","5","6"],correct:1},
-  {q:"Capital of BD?",a:["Dhaka","Delhi","Khulna","Paris"],correct:0}
-];
+// 🔥 Firebase config (replace)
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "XXXX",
+  appId: "XXXX"
+};
 
-let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-let time=60;
-let totalTime=60;
+// DATA
+let questions = [];
+let time = 60;
+let totalTime = 60;
 let timer;
 
 let currentStudent="";
@@ -140,16 +156,14 @@ let warningCount=0;
 // 👨‍🎓 STUDENT LOGIN
 function studentLogin(){
   let name=document.getElementById("studentName").value;
-
-  if(name.trim()===""){
-    alert("Enter your name!");
-    return;
-  }
+  if(name.trim()===""){ alert("Enter name"); return; }
 
   currentStudent=name;
 
   document.getElementById("studentBox").style.display="none";
   document.getElementById("loginBox").style.display="block";
+
+  loadQuestions();
 }
 
 // 🔐 ADMIN LOGIN
@@ -162,11 +176,11 @@ function login(){
     document.getElementById("loginBox").style.display="none";
     document.getElementById("panel").style.display="block";
   }else{
-    document.getElementById("msg").innerText="❌ Wrong login!";
+    alert("Wrong login");
   }
 }
 
-// ADD QUESTION
+// ☁️ ADD QUESTION (FIREBASE)
 function addQuestion(){
 
   let q=document.getElementById("q").value;
@@ -176,11 +190,23 @@ function addQuestion(){
   let o4=document.getElementById("o4").value;
   let c=parseInt(document.getElementById("correct").value);
 
-  questions.push({q:q,a:[o1,o2,o3,o4],correct:c});
+  db.ref("questions").push({
+    q:q,
+    a:[o1,o2,o3,o4],
+    correct:c
+  });
 
-  localStorage.setItem("questions",JSON.stringify(questions));
+  alert("Saved to Firebase!");
+}
 
-  alert("Question Added!");
+// 📥 LOAD QUESTIONS
+function loadQuestions(){
+  db.ref("questions").on("value", snap=>{
+    questions=[];
+    snap.forEach(child=>{
+      questions.push(child.val());
+    });
+  });
 }
 
 // START EXAM
@@ -202,8 +228,7 @@ function startExam(){
 
   timer=setInterval(()=>{
     time--;
-
-    document.getElementById("timer").innerText="Time: "+time+"s";
+    document.getElementById("timer").innerText="Time: "+time;
 
     let percent=(time/totalTime)*100;
     document.getElementById("progress").style.width=percent+"%";
@@ -219,22 +244,17 @@ document.addEventListener("visibilitychange", function(){
     alert("⚠️ Tab switch detected!");
 
     if(warningCount>=3){
-      alert("❌ Exam auto submitted!");
       submitExam();
     }
   }
 });
 
-document.addEventListener("contextmenu", e=>{
-  e.preventDefault();
-});
+document.addEventListener("contextmenu", e=>e.preventDefault());
+document.addEventListener("copy", e=>e.preventDefault());
 
-document.addEventListener("copy", e=>{
-  e.preventDefault();
-});
-
-// SUBMIT + RANK
+// 📊 SUBMIT
 function submitExam(){
+
   clearInterval(timer);
 
   let score=0;
@@ -256,29 +276,6 @@ function submitExam(){
   👤 Student: ${currentStudent}
   </div>
   `;
-
-  leaderboard.push({
-    name: currentStudent,
-    score: percent
-  });
-
-  leaderboard.sort((a,b)=>b.score-a.score);
-  leaderboard = leaderboard.slice(0,5);
-
-  localStorage.setItem("leaderboard",JSON.stringify(leaderboard));
-
-  showRank();
-}
-
-// SHOW RANK
-function showRank(){
-  let html="<h3>🏆 Top 5 Rank</h3>";
-
-  leaderboard.forEach((x,i)=>{
-    html+=`<p>${i+1}. ${x.name} - ${x.score}%</p>`;
-  });
-
-  document.getElementById("result").innerHTML += html;
 }
 
 </script>
