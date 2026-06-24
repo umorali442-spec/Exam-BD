@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Ultimate School Exam System</title>
+<title>School Exam System FIXED</title>
 
 <style>
 body{
@@ -37,11 +37,6 @@ button{
   cursor:pointer;
 }
 
-#loginBtn{background:#2563eb;color:white;}
-#addBtn{background:#22c55e;color:white;}
-#startBtn{background:#f59e0b;color:black;}
-#submitBtn{background:#ef4444;color:white;}
-
 .card{
   background:#1e293b;
   padding:15px;
@@ -65,6 +60,7 @@ button{
 #progress{
   height:10px;
   background:#22c55e;
+  width:100%;
 }
 
 h2{text-align:center;}
@@ -83,7 +79,7 @@ h2{text-align:center;}
 
 <div class="container">
 
-<h2>🏫 SCHOOL EXAM SYSTEM (FINAL MASTER)</h2>
+<h2>🏫 FIXED SCHOOL EXAM SYSTEM</h2>
 
 <!-- STUDENT -->
 <div id="studentBox">
@@ -101,7 +97,7 @@ h2{text-align:center;}
   <button onclick="login()">Login</button>
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- PANEL -->
 <div id="panel" style="display:none;">
 
 <h3>🧑‍🏫 Admin Panel</h3>
@@ -143,13 +139,13 @@ h2{text-align:center;}
 
 </div>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+<!-- FIREBASE MODULAR -->
+<script type="module">
 
-<script>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// ================= FIREBASE =================
+// 🔥 YOUR FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -160,8 +156,8 @@ const firebaseConfig = {
   appId: "XXXX"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 // ================= DATA =================
 let questions = [];
@@ -172,19 +168,28 @@ let total = 60;
 let timer;
 let warn = 0;
 
+// expose for functions
+window.db = db;
+window.ref = ref;
+window.push = push;
+window.onValue = onValue;
+
 // ================= STUDENT LOGIN =================
-function studentLogin(){
+window.studentLogin = function(){
   student = document.getElementById("studentName").value;
   className = document.getElementById("studentClass").value;
 
-  if(student==""||className=="") return alert("Fill all");
+  if(student==""||className==""){
+    alert("Fill all fields");
+    return;
+  }
 
   document.getElementById("studentBox").style.display="none";
   document.getElementById("loginBox").style.display="block";
 }
 
 // ================= TEACHER LOGIN =================
-function login(){
+window.login = function(){
   let u = document.getElementById("user").value;
   let p = document.getElementById("pass").value;
 
@@ -198,31 +203,48 @@ function login(){
 }
 
 // ================= ADD QUESTION =================
-function addQuestion(){
-  db.ref("questions").push({
-    q:document.getElementById("q").value,
-    a:[
+window.addQuestion = function(){
+
+  const data = {
+    q: document.getElementById("q").value,
+    a: [
       document.getElementById("o1").value,
       document.getElementById("o2").value,
       document.getElementById("o3").value,
       document.getElementById("o4").value
     ],
-    correct:parseInt(document.getElementById("correct").value)
-  });
+    correct: parseInt(document.getElementById("correct").value)
+  };
 
-  alert("Saved!");
+  push(ref(db, "questions"), data);
+
+  alert("Saved to Firebase!");
 }
 
 // ================= LOAD QUESTIONS =================
 function loadQuestions(){
-  db.ref("questions").on("value",snap=>{
+  onValue(ref(db,"questions"), (snap)=>{
     questions = [];
-    snap.forEach(c=>questions.push(c.val()));
+    snap.forEach(c=>{
+      questions.push(c.val());
+    });
+
+    console.log("Loaded:", questions);
   });
 }
 
 // ================= START EXAM =================
-function startExam(){
+window.startExam = function(){
+
+  console.log("Start clicked");
+  console.log(questions);
+
+  if(!questions || questions.length === 0){
+    alert("No questions found!");
+    return;
+  }
+
+  time = total;
 
   questions.sort(()=>Math.random()-0.5);
 
@@ -240,14 +262,17 @@ function startExam(){
 
   document.getElementById("quiz").innerHTML = html;
 
+  clearInterval(timer);
+
   timer = setInterval(()=>{
     time--;
     document.getElementById("timer").innerText = "Time: " + time;
 
-    let p = (time / total) * 100;
-    document.getElementById("progress").style.width = p + "%";
+    document.getElementById("progress").style.width = (time/total)*100 + "%";
 
-    if(time <= 0) submitExam();
+    if(time <= 0){
+      submitExam();
+    }
   },1000);
 }
 
@@ -263,7 +288,7 @@ document.addEventListener("contextmenu",e=>e.preventDefault());
 document.addEventListener("copy",e=>e.preventDefault());
 
 // ================= SUBMIT =================
-function submitExam(){
+window.submitExam = function(){
 
   clearInterval(timer);
 
@@ -271,12 +296,12 @@ function submitExam(){
 
   questions.forEach((x,i)=>{
     let ans = document.querySelector(`input[name=q${i}]:checked`);
-    if(ans && parseInt(ans.value) == x.correct) score++;
+    if(ans && parseInt(ans.value) === x.correct) score++;
   });
 
   let percent = Math.round((score/questions.length)*100);
 
-  db.ref("results").push({
+  push(ref(db,"results"),{
     name: student,
     class: className,
     score: score,
@@ -286,7 +311,7 @@ function submitExam(){
 
   document.getElementById("result").innerHTML = `
   <div class="card">
-    🎓 RESULT CARD<br>
+    🎓 RESULT<br>
     👤 ${student}<br>
     🏫 Class ${className}<br>
     📊 ${score}/${questions.length}<br>
@@ -300,12 +325,19 @@ function submitExam(){
 
 // ================= LEADERBOARD =================
 function loadLeaderboard(){
-  db.ref("results").limitToLast(5).on("value",snap=>{
-    let html = "";
+  onValue(ref(db,"results"), snap=>{
+    let arr = [];
     snap.forEach(c=>{
-      let d = c.val();
+      arr.push(c.val());
+    });
+
+    arr = arr.slice(-5);
+
+    let html = "";
+    arr.forEach(d=>{
       html += `<div class="card">${d.name} - ${d.percent}%</div>`;
     });
+
     document.getElementById("board").innerHTML = html;
   });
 }
