@@ -735,7 +735,7 @@ function loadQuestions(){
   });
 
 }
-}
+
 
 function deleteQuestion(id){
 
@@ -757,7 +757,7 @@ function editQuestion(id){
 
   fetch(DB+"/questions/"+id+".json")
   .then(function(r){
-    return r.json();
+    return r.json(); 
   })
   .then(function(oldData){
 
