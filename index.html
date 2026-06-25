@@ -679,84 +679,74 @@ var search =
 });
    
 
-function loadQuestions(){
+function loadQuestions() {
 
   var search =
-  (document.getElementById("searchQuestion")?.value || "")
-  .toLowerCase();
+    (document.getElementById("searchQuestion")?.value || "")
+    .toLowerCase();
 
   fetch(DB + "/questions.json")
-    .then(function(r){
-      return r.json();
-    })
-    .then(function(data){
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
 
-      if(!data){
+      if (!data) {
         document.getElementById("questionList").innerHTML =
-        "<div class='card'>কোনো প্রশ্ন নেই</div>";
+          "<div class='card'>কোনো প্রশ্ন নেই</div>";
         return;
       }
 
       var html = "";
 
-      Object.keys(data).forEach(function(key){
+      Object.keys(data).forEach(function(key) {
 
         var q = data[key];
 
-        if(!q || !q.q) return; 
+        if (!q || !q.q) return;
 
-if(
-  search &&
-  !q.q.toLowerCase().includes(search)
-){
-  return;
-}
-        ){
+        // 🔍 SEARCH FILTER (FIXED)
+        if (
+          search &&
+          !q.q.toLowerCase().includes(search)
+        ) {
           return;
         }
 
-        html +=
-        '<div class="card">' +
-        '<b>📚 ' + (q.subject || "No Subject") + '</b><br>' +
-        '❓ ' + q.q + '<br><br>' +
-
-        '<button class="btn-yellow" onclick="editQuestion(\''+key+'\')">✏ Edit</button> ' +
-
-        '<button class="btn-red" onclick="deleteQuestion(\''+key+'\')">🗑 Delete</button>' +
-
-        '</div>';
-
+        html += `
+          <div class="card">
+            <b>Q:</b> ${q.q}<br>
+            <b>Subject:</b> ${q.subject}<br>
+            <b>Options:</b><br>
+            1) ${q.a[0]}<br>
+            2) ${q.a[1]}<br>
+            3) ${q.a[2]}<br>
+            4) ${q.a[3]}<br>
+            <button class="btn-red" onclick="deleteQuestion('${key}')">Delete</button>
+          </div>
+        `;
       });
 
-      document.getElementById("questionList").innerHTML = html;
-
-    })
-    .catch(function(error){
-
       document.getElementById("questionList").innerHTML =
-      "<div class='card'>❌ Error Loading Questions</div>";
-
-      console.log(error);
-
+        html || "<div class='card'>No matching questions</div>";
     });
-
 }
-
 function deleteQuestion(id){
 
   if(!confirm("Question delete করবে?")){
     return;
   }
 
-  fetch(DB + "/questions/" + id + ".json",{
-    method:"DELETE"
+  fetch(DB + "/questions/" + id + ".json", {
+    method: "DELETE"
   })
   .then(function(){
-    loadQuestions();
-    loadQCount();
+    loadQuestions();  // list refresh
+    loadQCount();     // count update
+  })
+  .catch(function(e){
+    alert("Error: " + e.message);
   });
 
-}
+   }
 
 
 function editQuestion(id){
