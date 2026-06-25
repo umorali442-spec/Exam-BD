@@ -679,137 +679,148 @@ var search =
 });
    
 function loadQuestions(){
+function loadQuestions(){
 
   var search =
   (document.getElementById("searchQuestion")?.value || "")
   .toLowerCase();
 
-  fetch(DB+"/questions.json")
-  .then(function(r){
-    return r.json();
-  })
-  .then(function(data){
+  fetch(DB + "/questions.json")
+    .then(function(r){
+      return r.json();
+    })
+    .then(function(data){
 
-    if(!data){
-      document.getElementById("questionList").innerHTML =
-      "<div class='card'>কোনো প্রশ্ন নেই</div>";
-      return;
-    }
-
-    var html = "";
-
-    Object.keys(data).forEach(function(key){
-
-      var q = data[key];
-
-      if(
-        search &&
-        !q.q.toLowerCase().includes(search)
-      ){
+      if(!data){
+        document.getElementById("questionList").innerHTML =
+        "<div class='card'>কোনো প্রশ্ন নেই</div>";
         return;
       }
 
-      html +=
-      '<div class="card">' +
-      '<b>📚 ' + (q.subject || "No Subject") + '</b><br>' +
-      '❓ ' + q.q + '<br><br>' +
+      var html = "";
 
-      '<button class="btn-yellow" onclick="editQuestion(\''+key+'\')">✏ Edit</button> ' +
+      Object.keys(data).forEach(function(key){
 
-      '<button class="btn-red" onclick="deleteQuestion(\''+key+'\')">🗑 Delete</button>' +
+        var q = data[key];
 
-      '</div>';
+        if(!q || !q.q) return; // ✅ safety fix
+
+        if(
+          search &&
+          !q.q.toLowerCase().includes(search)
+        ){
+          return;
+        }
+
+        html +=
+        '<div class="card">' +
+        '<b>📚 ' + (q.subject || "No Subject") + '</b><br>' +
+        '❓ ' + q.q + '<br><br>' +
+
+        '<button class="btn-yellow" onclick="editQuestion(\''+key+'\')">✏ Edit</button> ' +
+
+        '<button class="btn-red" onclick="deleteQuestion(\''+key+'\')">🗑 Delete</button>' +
+
+        '</div>';
+
+      });
+
+      document.getElementById("questionList").innerHTML = html;
+
+    })
+    .catch(function(error){
+
+      document.getElementById("questionList").innerHTML =
+      "<div class='card'>❌ Error Loading Questions</div>";
+
+      console.log(error);
 
     });
 
-    document.getElementById("questionList").innerHTML = html;
+}
 
+function deleteQuestion(id){
+
+  if(!confirm("Question delete করবে?")){
+    return;
+  }
+
+  fetch(DB + "/questions/" + id + ".json",{
+    method:"DELETE"
   })
-  .catch(function(error){
-
-    document.getElementById("questionList").innerHTML =
-    "<div class='card'>❌ Error Loading Questions</div>";
-
-    console.log(error);
-
+  .then(function(){
+    loadQuestions();
+    loadQCount();
   });
 
 }
 
 
-function deleteQuestion(id){
-
-if(!confirm("Question delete করবে?")){
-return;
-}
-
-fetch(DB+"/questions/"+id+".json",{
-method:"DELETE"
-})
-.then(function(){
-loadQuestions();
-loadQCount();
-});
-
-}
-
 function editQuestion(id){
 
-  fetch(DB+"/questions/"+id+".json")
-  .then(function(r){
-    return r.json(); 
-  })
-  .then(function(oldData){
-
-    if(!oldData){
-      alert("❌ Question পাওয়া যায়নি");
-      return;
-    }
-
-    var newQ = prompt(
-      "নতুন প্রশ্ন লেখো:",
-      oldData.q
-    );
-
-    if(newQ === null) return;
-
-    newQ = newQ.trim();
-
-    if(newQ === ""){
-      alert("❌ প্রশ্ন খালি রাখা যাবে না");
-      return;
-    }
-
-    oldData.q = newQ;
-
-    fetch(DB+"/questions/"+id+".json",{
-      method:"PUT",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify(oldData)
+  fetch(DB + "/questions/" + id + ".json")
+    .then(function(r){
+      return r.json(); 
     })
-    .then(function(){
-      alert("✅ Question Updated");
-      loadQuestions();
+    .then(function(oldData){
+
+      if(!oldData){
+        alert("❌ Question পাওয়া যায়নি");
+        return;
+      }
+
+      var newQ = prompt(
+        "নতুন প্রশ্ন লেখো:",
+        oldData.q
+      );
+
+      if(newQ === null) return;
+
+      newQ = newQ.trim();
+
+      if(newQ === ""){
+        alert("❌ প্রশ্ন খালি রাখা যাবে না");
+        return;
+      }
+
+      oldData.q = newQ;
+
+      fetch(DB + "/questions/" + id + ".json",{
+        method:"PUT",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify(oldData)
+      })
+      .then(function(){
+        alert("✅ Question Updated");
+        loadQuestions();
+      })
+      .catch(function(error){
+        alert("❌ Error: " + error.message);
+      });
+
     })
     .catch(function(error){
       alert("❌ Error: " + error.message);
     });
 
-  })
-  .catch(function(error){
-    alert("❌ Error: " + error.message);
-  });
-
 }
-});
-
-   }    </script>
- setInterval(function(){
+ window.onload = function(){
+  loadQuestions();
   loadLeaderboard();
   loadResults();
-}, 5000);}  
-</script>  </body>  
-</html>  
+};
+
+
+// ===== AUTO REFRESH =====
+setInterval(function(){
+  loadLeaderboard();
+  loadResults();
+}, 5000);
+
+</script>
+
+</body>
+</html>
 
