@@ -1,824 +1,567 @@
-<!DOCTYPE html>  <html>  
-<head>  
-<meta charset="UTF-8">  
-<meta name="viewport" content="width=device-width, initial-scale=1.0">  
-<title>Smart Online Exam System</title>  
-<style>  
-  *{box-sizing:border-box;margin:0;padding:0;}  
-  body{font-family:Arial,sans-serif;background:#050816;color:white;padding:16px;min-height:100vh;}  
-  .container{max-width:900px;margin:auto;background:#0f172a;padding:24px;border-radius:16px;}  
-  h2{text-align:center;font-size:1.4rem;margin-bottom:20px;}  
-  h3{margin-bottom:10px;font-size:1rem;}  
-  input,select{width:100%;padding:10px;margin:5px 0;border:1px solid #334155;border-radius:8px;background:#1e293b;color:white;font-size:14px;outline:none;}  
-  input::placeholder{color:#64748b;}  
-  button{width:100%;padding:11px;margin-top:8px;border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;}  
-  .btn-blue{background:#2563eb;color:white;}  
-  .btn-green{background:#22c55e;color:white;}  
-  .btn-yellow{background:#f59e0b;color:#111;}  
-  .btn-red{background:#ef4444;color:white;}  
-  .btn-gray{background:#475569;color:white;}  
-  .card{background:#1e293b;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #334155;}  
-  #timer{font-size:22px;color:#f87171;font-weight:bold;margin:10px 0;}  
-  #progressBar{width:100%;height:8px;background:#334155;border-radius:10px;margin-bottom:12px;}  
-  #progress{height:8px;background:#22c55e;border-radius:10px;width:100%;transition:width .5s;}  
-  .radio-label{display:flex;align-items:center;gap:8px;padding:7px 0;cursor:pointer;font-size:14px;}  
-  .radio-label input{width:auto;margin:0;}  
-  .warn{background:#7f1d1d;padding:10px;border-radius:8px;margin:8px 0;text-align:center;font-weight:600;}  
-  .msg{padding:10px;border-radius:8px;margin:8px 0;font-size:13px;text-align:center;}  
-  hr{border:none;border-top:1px solid #334155;margin:16px 0;}  
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}  
-  @media(max-width:500px){.two-col{grid-template-columns:1fr;}}  
-  .leaderboard{margin-top:20px;padding:16px;background:#1e293b;border-radius:10px;}  
-</style>  
-</head>  
-<body>  
-<div class="container">  
-  <h2>🏫 GOD++ SCHOOL EXAM SYSTEM</h2>    <!-- PAGE 1: LOGIN -->    <div id="page1">  
-    <div class="card">  
-      <h3>👨‍🎓 Student Login</h3>  
-      <input id="studentName" placeholder="তোমার নাম লেখো">  
-      <input id="studentClass" placeholder="তোমার ক্লাস লেখো"> 
-     <select id="examSubject">
-  <option value="All Subject">All Subject</option>
-  <option value="Physics">Physics</option>
-  <option value="Chemistry">Chemistry</option>
-  <option value="Biology">Biology</option>
-  <option value="Higher Math">Higher Math</option>
-  <option value="Bangla 1st">Bangla 1st Paper</option>
-  <option value="Bangla 2nd">Bangla 2nd Paper</option>
-  <option value="English 1st">English 1st Paper</option>
-  <option value="English 2nd">English 2nd Paper</option>
-  <option value="ICT">ICT</option>
-     </select>
-      <button class="btn-blue" onclick="studentLogin()">Exam দিতে চাই ▶</button> 
-     
+<!DOCTYPE html>  <html>    <head>    
+<meta charset="UTF-8">    
+<meta name="viewport" content="width=device-width, initial-scale=1.0">    
+<title>Smart Online Exam System</title>    
+<style>    
+  *{box-sizing:border-box;margin:0;padding:0;}    
+  body{font-family:Arial,sans-serif;background:#050816;color:white;padding:16px;min-height:100vh;}    
+  .container{max-width:900px;margin:auto;background:#0f172a;padding:24px;border-radius:16px;}    
+  h2{text-align:center;font-size:1.4rem;margin-bottom:20px;}    
+  h3{margin-bottom:10px;font-size:1rem;}    
+  input,select{width:100%;padding:10px;margin:5px 0;border:1px solid #334155;border-radius:8px;background:#1e293b;color:white;font-size:14px;outline:none;}    
+  input::placeholder{color:#64748b;}    
+  button{width:100%;padding:11px;margin-top:8px;border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;}    
+  .btn-blue{background:#2563eb;color:white;}    
+  .btn-green{background:#22c55e;color:white;}    
+  .btn-yellow{background:#f59e0b;color:#111;}    
+  .btn-red{background:#ef4444;color:white;}    
+  .btn-gray{background:#475569;color:white;}    
+  .card{background:#1e293b;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #334155;}    
+  #timer{font-size:22px;color:#f87171;font-weight:bold;margin:10px 0;}    
+  #progressBar{width:100%;height:8px;background:#334155;border-radius:10px;margin-bottom:12px;}    
+  #progress{height:8px;background:#22c55e;border-radius:10px;width:100%;transition:width .5s;}    
+  .radio-label{display:flex;align-items:center;gap:8px;padding:7px 0;cursor:pointer;font-size:14px;}    
+  .radio-label input{width:auto;margin:0;}    
+  .warn{background:#7f1d1d;padding:10px;border-radius:8px;margin:8px 0;text-align:center;font-weight:600;}    
+  .msg{padding:10px;border-radius:8px;margin:8px 0;font-size:13px;text-align:center;}    
+  hr{border:none;border-top:1px solid #334155;margin:16px 0;}    
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}    
+  @media(max-width:500px){.two-col{grid-template-columns:1fr;}}    
+  .leaderboard{margin-top:20px;padding:16px;background:#1e293b;border-radius:10px;}    
+</style>    
+</head>    
+<body>    
+<div class="container">    
+  <h2>🏫 GOD++ SCHOOL EXAM SYSTEM</h2>    <!-- PAGE 1: LOGIN -->    <div id="page1">    
+    <div class="card">    
+      <h3>👨‍🎓 Student Login</h3>    
+      <input id="studentName" placeholder="তোমার নাম লেখো">    
+      <input id="studentClass" placeholder="তোমার ক্লাস লেখো">   
+     <select id="examSubject">  
+  <option value="All Subject">All Subject</option>  
+  <option value="Physics">Physics</option>  
+  <option value="Chemistry">Chemistry</option>  
+  <option value="Biology">Biology</option>  
+  <option value="Higher Math">Higher Math</option>  
+  <option value="Bangla 1st">Bangla 1st Paper</option>  
+  <option value="Bangla 2nd">Bangla 2nd Paper</option>  
+  <option value="English 1st">English 1st Paper</option>  
+  <option value="English 2nd">English 2nd Paper</option>  
+  <option value="ICT">ICT</option>  
+     </select>  
+      <button class="btn-blue" onclick="studentLogin()">Exam দিতে চাই ▶</button>   </div>  
+<div class="card" style="margin-top:10px;">    
+  <h3>🔐 Teacher Login</h3>    
+  <input id="user" placeholder="Username">    
+  <input type="password" id="pass" placeholder="Password">    
+  <button class="btn-blue" onclick="teacherLogin()">Login</button>    
+</div>
 
-      
-    </div>
-    <div class="card" style="margin-top:10px;">  
-      <h3>🔐 Teacher Login</h3>  
-      <input id="user" placeholder="Username">  
-      <input type="password" id="pass" placeholder="Password">  
-      <button class="btn-blue" onclick="teacherLogin()">Login</button>  
-    </div>  
-  </div>    
-   <!-- PAGE 2: TEACHER PANEL -->    <div id="page2" style="display:none;">  
-    <div class="card">  
-      <h3>➕ নতুন প্রশ্ন যোগ করো</h3> 
-     
-  
-      <select id="subject">
-  <option value="All Subject">All Subject</option>
-  <option value="Physics">Physics</option>
-  <option value="Chemistry">Chemistry</option>
-  <option value="Biology">Biology</option>
-  <option value="Higher Math">Higher Math</option>
-  <option value="Bangla 1st">Bangla 1st Paper</option>
-  <option value="Bangla 2nd">Bangla 2nd Paper</option>
-  <option value="English 1st">English 1st Paper</option>
-  <option value="English 2nd">English 2nd Paper</option>
-  <option value="ICT">ICT</option>
-      </select>
+  </div>      
+   <!-- PAGE 2: TEACHER PANEL -->    <div id="page2" style="display:none;">    
+    <div class="card">    
+      <h3>➕ নতুন প্রশ্ন যোগ করো</h3>   <select id="subject">
 
-  
+  <option value="All Subject">All Subject</option>  
+  <option value="Physics">Physics</option>  
+  <option value="Chemistry">Chemistry</option>  
+  <option value="Biology">Biology</option>  
+  <option value="Higher Math">Higher Math</option>  
+  <option value="Bangla 1st">Bangla 1st Paper</option>  
+  <option value="Bangla 2nd">Bangla 2nd Paper</option>  
+  <option value="English 1st">English 1st Paper</option>  
+  <option value="English 2nd">English 2nd Paper</option>  
+  <option value="ICT">ICT</option>  
+      </select>    <input id="q" placeholder="প্রশ্ন লেখো">    <div class="two-col">  
+    <input id="o1" placeholder="Option 1">  
+    <input id="o2" placeholder="Option 2">  
+    <input id="o3" placeholder="Option 3">  
+    <input id="o4" placeholder="Option 4">  
+  </div>  <select id="correct">    
+    <option value="0">✅ Option 1 সঠিক</option>    
+    <option value="1">✅ Option 2 সঠিক</option>    
+    <option value="2">✅ Option 3 সঠিক</option>    
+    <option value="3">✅ Option 4 সঠিক</option>    
+  </select>    
+  <button class="btn-green" onclick="addQuestion()">প্রশ্ন যোগ করো ✚</button>    
+ <textarea id="bulkData" placeholder="এখানে JSON Paste করো"
 
-  <input id="q" placeholder="প্রশ্ন লেখো">
-
-  <div class="two-col">
-    <input id="o1" placeholder="Option 1">
-    <input id="o2" placeholder="Option 2">
-    <input id="o3" placeholder="Option 3">
-    <input id="o4" placeholder="Option 4">
-  </div>
-      
-      
-      <select id="correct">  
-        <option value="0">✅ Option 1 সঠিক</option>  
-        <option value="1">✅ Option 2 সঠিক</option>  
-        <option value="2">✅ Option 3 সঠিক</option>  
-        <option value="3">✅ Option 4 সঠিক</option>  
-      </select>  
-      <button class="btn-green" onclick="addQuestion()">প্রশ্ন যোগ করো ✚</button>  
-     <textarea id="bulkData" placeholder="এখানে JSON Paste করো"
 style="width:100%;height:150px;background:#1e293b;color:white;border:1px solid #334155;border-radius:8px;padding:10px;margin-top:10px;"></textarea>
 
-<button class="btn-yellow" onclick="bulkImport()">
-📥 Bulk Import Questions
-</button>
-      <div id="qMsg" class="msg" style="display:none;"></div>  
-    </div>  
-    <button class="btn-gray" onclick="clearAllQuestions()" style="margin-top:6px;">🗑 সব প্রশ্ন মুছো</button>  
-  </div>  
- <div class="card">
-  <h3>📋 Question List</h3>
+<button class="btn-yellow" onclick="bulkImport()">  
+📥 Bulk Import Questions  
+</button>  
+      <div id="qMsg" class="msg" style="display:none;"></div>    
+    </div>    
+    <button class="btn-gray" onclick="clearAllQuestions()" style="margin-top:6px;">🗑 সব প্রশ্ন মুছো</button>    
+  </div>    
+<button class="btn-yellow" onclick="loadResults()">📊 All Results</button>    
+<div id="allResults"></div>     <!-- PAGE 3: EXAM -->      <div id="page3" style="display:none;">    
+    <div id="timer">⏱ --</div>    
+    <div id="progressBar"><div id="progress"></div></div>    
+    <div id="warnDiv"></div>    
+    <div id="quiz"></div>    
+    <button class="btn-red" onclick="submitExam()">✅ Submit করো</button>    
+  </div>    <!-- PAGE 4: RESULT -->    <div id="page4" style="display:none;">    
+  <div id="result"></div>    <div class="leaderboard">    
+    <h3>🏆 Leaderboard</h3>    
+    <div id="board">লোড হচ্ছে...</div>    
+  </div>    <div class="leaderboard">    
+    <h3>👑 Hall Of Fame</h3>    
+    <div id="hallOfFame">লোড হচ্ছে...</div>    
+  </div>    <button class="btn-blue" onclick="show('page1')" style="margin-top:12px;">    
+    🔄 আবার Exam দাও    
+  </button>    
+  </div>  <script>    
+var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";    
+var student = "";    
+var sClass = "";    
+var examQuestions = [];    
+var timeLeft = 0;    
+var totalTime = 0;    
+var timerInterval = null;    
+var warn = 0;    
+var submitted = false;    function show(id) {
+["page1","page2","page3","page4"].forEach(function(p){
+document.getElementById(p).style.display="none";
+});
+document.getElementById(id).style.display="block";
+window.scrollTo(0,0);
+}
 
-  <input
-  id="searchQuestion"
-  placeholder="🔍 প্রশ্ন খুঁজুন..."
-  onkeyup="loadQuestions()">
+function showQMsg(text, bg) {
+var el = document.getElementById("qMsg");
+el.style.display = "block";
+el.style.background = bg || "#1e3a5f";
+el.innerHTML = text;
+}
 
-  <button class="btn-blue" onclick="loadQuestions()">
-    Show Questions
-  </button>
+// ===== TEACHER LOGIN =====
+function teacherLogin() {
+var u = document.getElementById("user").value;
+var p = document.getElementById("pass").value;
+if (u==="admin" && p==="1234") {
+show("page2");
+loadQCount();
+} else {
+alert("❌ ভুল username বা password!");
+}
+}
 
-  <div id="questionList"></div>
- </div>
- <input
-id="searchResult"
-placeholder="🔍 Student Name Search..."
-onkeyup="loadResults()">
-<button class="btn-yellow" onclick="loadResults()">📊 All Results</button>  
-<div id="allResults"></div> 
- 
-  <!-- PAGE 3: EXAM -->  
-  <div id="page3" style="display:none;">  
-    <div id="timer">⏱ --</div>  
-    <div id="progressBar"><div id="progress"></div></div>  
-    <div id="warnDiv"></div>  
-    <div id="quiz"></div>  
-    <button class="btn-red" onclick="submitExam()">✅ Submit করো</button>  
-  </div>    <!-- PAGE 4: RESULT -->    <div id="page4" style="display:none;">  
-  <div id="result"></div>    <div class="leaderboard">  
-    <h3>🏆 Leaderboard</h3>  
-    <div id="board">লোড হচ্ছে...</div>  
-  </div>    <div class="leaderboard">  
-    <h3>👑 Hall Of Fame</h3>  
-    <div id="hallOfFame">লোড হচ্ছে...</div>  
-  </div>    <button class="btn-blue" onclick="show('page1')" style="margin-top:12px;">  
-    🔄 আবার Exam দাও  
-  </button>  
-  </div>  <script>  
-var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";  
-var student = "";  
-var sClass = "";  
-var examQuestions = [];  
-var timeLeft = 0;  
-var totalTime = 0;  
-var timerInterval = null;  
-var warn = 0;  
-var submitted = false;  
-  
-function show(id) {  
-  ["page1","page2","page3","page4"].forEach(function(p){  
-    document.getElementById(p).style.display="none";  
-  });  
-  document.getElementById(id).style.display="block";  
-  window.scrollTo(0,0);  
-}  
-  
-function showQMsg(text, bg) {  
-  var el = document.getElementById("qMsg");  
-  el.style.display = "block";  
-  el.style.background = bg || "#1e3a5f";  
-  el.innerHTML = text;  
-}  
-  
-// ===== TEACHER LOGIN =====  
-function teacherLogin() {  
-  var u = document.getElementById("user").value;  
-  var p = document.getElementById("pass").value;  
-  if (u==="admin" && p==="1234") {  
-    show("page2");  
-    loadQCount();  
-  } else {  
-    alert("❌ ভুল username বা password!");  
-  }  
-}  
-  
-function loadQCount() {  
-  fetch(DB+"/questions.json")  
-    .then(function(r){ return r.json(); })  
-    .then(function(data){  
-      var count = data ? Object.keys(data).length : 0;  
-      showQMsg("✅ Firebase-এ মোট "+count+"টি প্রশ্ন আছে।", "#14532d");  
+function loadQCount() {
+fetch(DB+"/questions.json")
+.then(function(r){ return r.json(); })
+.then(function(data){
+var count = data ? Object.keys(data).length : 0;
+showQMsg("✅ Firebase-এ মোট "+count+"টি প্রশ্ন আছে।", "#14532d");
+})
+.catch(function(e){ showQMsg("❌ Error: "+e.message, "#7f1d1d"); });
+}
+
+// ===== ADD QUESTION =====
+function addQuestion() {
+var q = document.getElementById("q").value.trim();
+var o1 = document.getElementById("o1").value.trim();
+var o2 = document.getElementById("o2").value.trim();
+var o3 = document.getElementById("o3").value.trim();
+var o4 = document.getElementById("o4").value.trim();
+var correct = parseInt(document.getElementById("correct").value);
+var subject = document.getElementById("subject").value;
+if (!q||!o1||!o2||!o3||!o4) { alert("সব field পূরণ করো!"); return; }
+
+showQMsg("⏳ Save হচ্ছে...", "#1e3a5f");
+
+fetch(DB+"/questions.json", {
+method: "POST",
+headers: {"Content-Type":"application/json"},
+body: JSON.stringify({
+subject: subject,
+q: q,
+a: [o1,o2,o3,o4],
+correct: correct
+})
+})
+.then(function(r){ return r.json(); })
+.then(function(data){
+if (data.error) {
+showQMsg("❌ Error: "+data.error, "#7f1d1d");
+} else {
+["q","o1","o2","o3","o4"].forEach(function(id){ document.getElementById(id).value=""; });
+loadQCount();
+}
+})
+.catch(function(e){ showQMsg("❌ Error: "+e.message, "#7f1d1d"); });
+}
+function bulkImport(){
+
+var txt = document.getElementById("bulkData").value.trim();
+
+if(!txt){
+alert("JSON Paste করো!");
+return;
+}
+
+try{
+
+var questions = JSON.parse(txt);  
+
+var requests = [];  
+
+Object.values(questions).forEach(function(q){  
+
+  requests.push(  
+    fetch(DB+"/questions.json",{  
+      method:"POST",  
+      headers:{  
+        "Content-Type":"application/json"  
+      },  
+      body:JSON.stringify(q)  
     })  
-    .catch(function(e){ showQMsg("❌ Error: "+e.message, "#7f1d1d"); });  
-}  
-  
-// ===== ADD QUESTION =====  
-function addQuestion() {  
-  var q = document.getElementById("q").value.trim();  
-  var o1 = document.getElementById("o1").value.trim();  
-  var o2 = document.getElementById("o2").value.trim();  
-  var o3 = document.getElementById("o3").value.trim();  
-  var o4 = document.getElementById("o4").value.trim();  
-  var correct = parseInt(document.getElementById("correct").value); 
- var subject = document.getElementById("subject").value;
-  if (!q||!o1||!o2||!o3||!o4) { alert("সব field পূরণ করো!"); return; }  
-  
-  showQMsg("⏳ Save হচ্ছে...", "#1e3a5f");  
-  
-  fetch(DB+"/questions.json", {  
-    method: "POST",  
-    headers: {"Content-Type":"application/json"},  
-    body: JSON.stringify({
-  subject: subject,
-  q: q,
-  a: [o1,o2,o3,o4],
-  correct: correct
-    })
-  })
-  .then(function(r){ return r.json(); })  
-  .then(function(data){  
-    if (data.error) {  
-      showQMsg("❌ Error: "+data.error, "#7f1d1d");  
-    } else {  
-      ["q","o1","o2","o3","o4"].forEach(function(id){ document.getElementById(id).value=""; });  
-      loadQCount();  
-    }  
-  })  
-  .catch(function(e){ showQMsg("❌ Error: "+e.message, "#7f1d1d"); });  
-}  
-  function bulkImport(){
+  );  
 
-  var txt = document.getElementById("bulkData").value.trim();
+});  
 
-  if(!txt){
-    alert("JSON Paste করো!");
-    return;
-  }
+Promise.all(requests)  
+.then(function(){  
 
-  try{
+  alert("✅ সব প্রশ্ন Save হয়েছে");  
 
-    var questions = JSON.parse(txt);
+  document.getElementById("bulkData").value="";  
 
-    var requests = [];
+  loadQCount();  
 
-    Object.values(questions).forEach(function(q){
+});
 
-      requests.push(
-        fetch(DB+"/questions.json",{
-          method:"POST",
-          headers:{
-            "Content-Type":"application/json"
-          },
-          body:JSON.stringify(q)
-        })
-      );
+}catch(e){
 
-    });
+alert("❌ Invalid JSON");
 
-    Promise.all(requests)
-    .then(function(){
+}
 
-      alert("✅ সব প্রশ্ন Save হয়েছে");
+}
+// ===== CLEAR =====
+function clearAllQuestions() {
+if (!confirm("সব প্রশ্ন মুছে ফেলবে?")) return;
+fetch(DB+"/questions.json", {method:"DELETE"})
+.then(function(){ showQMsg("🗑 সব প্রশ্ন মুছে গেছে।", "#7f1d1d"); })
+.catch(function(e){ showQMsg("❌ Error: "+e.message, "#7f1d1d"); });
+}
 
-      document.getElementById("bulkData").value="";
+// ===== STUDENT LOGIN =====
+function studentLogin() {
+student = document.getElementById("studentName").value.trim();
+sClass = document.getElementById("studentClass").value.trim();
+if (!student||!sClass) { alert("নাম ও ক্লাস লেখো!"); return; }
 
-      loadQCount();
-
-    });
-
-  }catch(e){
-
-    alert("❌ Invalid JSON");
-
-  }
-
-   }
-// ===== CLEAR =====  
-function clearAllQuestions() {  
-  if (!confirm("সব প্রশ্ন মুছে ফেলবে?")) return;  
-  fetch(DB+"/questions.json", {method:"DELETE"})  
-    .then(function(){ showQMsg("🗑 সব প্রশ্ন মুছে গেছে।", "#7f1d1d"); })  
-    .catch(function(e){ showQMsg("❌ Error: "+e.message, "#7f1d1d"); });  
-}  
-  
-// ===== STUDENT LOGIN =====  
-function studentLogin() {  
-  student = document.getElementById("studentName").value.trim();  
-  sClass = document.getElementById("studentClass").value.trim();  
-  if (!student||!sClass) { alert("নাম ও ক্লাস লেখো!"); return; }  
-  
-  fetch(DB+"/questions.json")  
-    .then(function(r){ return r.json(); })  
-    .then(function(data){  
-      if (!data) { alert("❌ কোনো প্রশ্ন নেই! Teacher আগে প্রশ্ন add করুক।"); return; }  
-      var examSubject = document.getElementById("examSubject").value;
+fetch(DB+"/questions.json")
+.then(function(r){ return r.json(); })
+.then(function(data){
+if (!data) { alert("❌ কোনো প্রশ্ন নেই! Teacher আগে প্রশ্ন add করুক।"); return; }
+var examSubject = document.getElementById("examSubject").value;
 
 if(examSubject === "All Subject"){
-    examQuestions = Object.values(data);
+examQuestions = Object.values(data);
 } else {
-    examQuestions = Object.values(data).filter(function(q){
-        return q.subject === examSubject;
-    });
+examQuestions = Object.values(data).filter(function(q){
+return q.subject === examSubject;
+});
 }
 
 if(examQuestions.length === 0){
-    alert("এই Subject এর কোনো প্রশ্ন নেই!");
-    return;
+alert("এই Subject এর কোনো প্রশ্ন নেই!");
+return;
 }
 
 startExam();
-    })  
-    .catch(function(e){ alert("❌ Error: "+e.message); });  
-}  
-  
-// ===== START EXAM =====  
-function startExam() {  
-  submitted = false;  
-  warn = 0;  
-  
-  examQuestions = examQuestions.sort(function(){  
-    return Math.random() - 0.5;  
-  });  
-  
-  var html = "";  
-  
-  examQuestions.forEach(function(x,i){  
-  
-    html += '<div class="card"><p><strong>'+(i+1)+'. '+x.q+'</strong></p>';  
-  
-    var options = x.a.map(function(opt, idx){  
-      return {  
-        text: opt,  
-        originalIndex: idx  
-      };  
-    });  
-  
-    options.sort(function(){  
-      return Math.random() - 0.5;  
-    });  
-  
-    options.forEach(function(o){  
-      html += '<label class="radio-label">';  
-      html += '<input type="radio" name="q'+i+'" value="'+o.originalIndex+'"> ';  
-      html += o.text;  
-      html += '</label>';  
-    });  
-  
-    html += '</div>';  
-  });  
-  
-  document.getElementById("quiz").innerHTML = html;  
-  document.getElementById("warnDiv").innerHTML = "";  
-  
-  show("page3");  
-  
-  timeLeft = examQuestions.length * 60;  
-  totalTime = timeLeft;  
-  
-  if (timerInterval) clearInterval(timerInterval);  
-  
-  timerInterval = setInterval(function(){  
-  
-    timeLeft--;  
-  
-    var m = Math.floor(timeLeft/60);  
-    var s = timeLeft%60;  
-  
-    document.getElementById("timer").innerText =  
-      "⏱ " + m + ":" + (s<10?"0":"") + s;  
-  
-    var p = (timeLeft/totalTime)*100;  
-  
-    document.getElementById("progress").style.width = p + "%";  
-  
-    if (p < 30){  
-      document.getElementById("progress").style.background = "#ef4444";  
-    } else {  
-      document.getElementById("progress").style.background = "#22c55e";  
-    }  
-  
-    if(timeLeft <= 0){  
-      submitExam();  
-    }  
-  
-  },1000);  
-}  
-  
-  
-// ===== ANTI CHEAT =====  
-document.addEventListener("visibilitychange", function(){  
-  if (document.hidden && !submitted && timerInterval) {  
-    warn++;  
-    document.getElementById("warnDiv").innerHTML =  
-      '<div class="warn">⚠️ সতর্কতা '+warn+'/3 — বারবার করলে Exam বাতিল!</div>';  
-    if (warn>=3) submitExam();  
-  }  
-});  
-document.addEventListener("contextmenu", function(e){ e.preventDefault(); });  
-document.addEventListener("copy", function(e){ e.preventDefault(); });  
-  
-// ===== SUBMIT =====  
-function submitExam() {  
-  
-  if (submitted) return;  
-  
-  submitted = true;  
-  
-  if (timerInterval) clearInterval(timerInterval);  
-  
-  var score = 0;  
-var review = "";  
- var answered = 0;
- var examSubject = document.getElementById("examSubject").value;
-  
-examQuestions.forEach(function(x,i){  
-  
-  var ans = document.querySelector('input[name=q'+i+']:checked');  
-  
-  if(ans){  
-   answered++;
-    if(parseInt(ans.value) === x.correct){  
-      score++;  
-    } else {  
-      review += "<div class='card' style='border:2px solid #ef4444'>"+  
-        "❌ Q: "+x.q+"<br>✔ Correct: "+x.a[x.correct]+  
-      "</div>";  
-    }  
-  } else {  
-    review += "<div class='card'>⚠️ Not answered: "+x.q+"</div>";  
-  }  
-  
-});  
-  
-  var percent =  
-    Math.round((score/examQuestions.length)*100);  
- var rankText = "";
+})
+.catch(function(e){ alert("❌ Error: "+e.message); });
+}
 
-fetch(DB+"/results.json")
-  .then(function(r){
-    return r.json();
-  })
-  .then(function(data){
+// ===== START EXAM =====
+function startExam() {
+submitted = false;
+warn = 0;
 
-    if(!data) return;
+examQuestions = examQuestions.sort(function(){
+return Math.random() - 0.5;
+});
 
-    var results = Object.values(data);
+var html = "";
 
-    results.sort(function(a,b){
-      return b.percent - a.percent;
-    });
+examQuestions.forEach(function(x,i){
 
-    var rank = results.findIndex(function(x){
-      return x.name === student;
-    }) + 1;
+html += '<div class="card"><p><strong>'+(i+1)+'. '+x.q+'</strong></p>';    
 
-    document.getElementById("rankBox").innerHTML =
-      "🏆 Rank: #" + rank;
-  });
-  
-  var grade =  
-    percent>=80?"A+":  
-    percent>=70?"A":  
-    percent>=60?"B":  
-    percent>=50?"C":  
-    percent>=40?"D":"F";  
-  
-  var pass = percent >= 40;  
-  
-  var badge = "";  
-  
-  if(percent === 100){  
-    badge = "👑 LEGEND";  
-  }  
-  else if(percent >= 90){  
-    badge = "🥇 GOLD MASTER";  
-  }  
-  else if(percent >= 70){  
-    badge = "🥈 SILVER STAR";  
-  }  
-  else if(percent >= 50){  
-    badge = "🥉 BRONZE HERO";  
-  }  
-  else{
-  badge = "📚 KEEP LEARNING";
+var options = x.a.map(function(opt, idx){    
+  return {    
+    text: opt,    
+    originalIndex: idx    
+  };    
+});    
+
+options.sort(function(){    
+  return Math.random() - 0.5;    
+});    
+
+options.forEach(function(o){    
+  html += '<label class="radio-label">';    
+  html += '<input type="radio" name="q'+i+'" value="'+o.originalIndex+'"> ';    
+  html += o.text;    
+  html += '</label>';    
+});    
+
+html += '</div>';
+
+});
+
+document.getElementById("quiz").innerHTML = html;
+document.getElementById("warnDiv").innerHTML = "";
+
+show("page3");
+
+timeLeft = examQuestions.length * 60;
+totalTime = timeLeft;
+
+if (timerInterval) clearInterval(timerInterval);
+
+timerInterval = setInterval(function(){
+
+timeLeft--;    
+
+var m = Math.floor(timeLeft/60);    
+var s = timeLeft%60;    
+
+document.getElementById("timer").innerText =    
+  "⏱ " + m + ":" + (s<10?"0":"") + s;    
+
+var p = (timeLeft/totalTime)*100;    
+
+document.getElementById("progress").style.width = p + "%";    
+
+if (p < 30){    
+  document.getElementById("progress").style.background = "#ef4444";    
+} else {    
+  document.getElementById("progress").style.background = "#22c55e";    
+}    
+
+if(timeLeft <= 0){    
+  submitExam();    
+}
+
+},1000);
+}
+
+// ===== ANTI CHEAT =====
+document.addEventListener("visibilitychange", function(){
+if (document.hidden && !submitted && timerInterval) {
+warn++;
+document.getElementById("warnDiv").innerHTML =
+'<div class="warn">⚠️ সতর্কতা '+warn+'/3 — বারবার করলে Exam বাতিল!</div>';
+if (warn>=3) submitExam();
+}
+});
+document.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+document.addEventListener("copy", function(e){ e.preventDefault(); });
+
+// ===== SUBMIT =====
+function submitExam() {
+
+if (submitted) return;
+
+submitted = true;
+
+if (timerInterval) clearInterval(timerInterval);
+
+var score = 0;
+var review = "";
+var examSubject = document.getElementById("examSubject").value;
+
+examQuestions.forEach(function(x,i){
+
+var ans = document.querySelector('input[name=q'+i+']:checked');
+
+if(ans){
+if(parseInt(ans.value) === x.correct){
+score++;
+} else {
+review += "<div class='card' style='border:2px solid #ef4444'>"+
+"❌ Q: "+x.q+"<br>✔ Correct: "+x.a[x.correct]+
+"</div>";
+}
+} else {
+review += "<div class='card'>⚠️ Not answered: "+x.q+"</div>";
+}
+
+});
+
+var percent =
+Math.round((score/examQuestions.length)*100);
+
+var grade =
+percent>=80?"A+":
+percent>=70?"A":
+percent>=60?"B":
+percent>=50?"C":
+percent>=40?"D":"F";
+
+var pass = percent >= 40;
+
+var badge = "";
+
+if(percent === 100){
+badge = "👑 LEGEND";
+}
+else if(percent >= 90){
+badge = "🥇 GOLD MASTER";
+}
+else if(percent >= 70){
+badge = "🥈 SILVER STAR";
+}
+else if(percent >= 50){
+badge = "🥉 BRONZE HERO";
+}
+else{
+badge = "📚 KEEP LEARNING";
 }
 
 var examSubject =
 document.getElementById("examSubject").value;
 
 fetch(DB+"/results.json",{
-  method:"POST",
-  headers:{
-    "Content-Type":"application/json"
-  },
-  body:JSON.stringify({
-    name:student,
-    class:sClass,
-    subject:examSubject,
-    score:score,
-    total:examQuestions.length,
-    percent:percent,
-    grade:grade,
-    badge:badge,
-    time:new Date().toLocaleString()
-  })
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+name:student,
+class:sClass,
+subject:examSubject,
+score:score,
+total:examQuestions.length,
+percent:percent,
+grade:grade,
+badge:badge,
+time:new Date().toLocaleString()
+})
 });
-document.getElementById("result").innerHTML =  
-  '<div class="card" style="text-align:center;">'+  
-  '<div style="font-size:3rem;">'+(pass?"🎉":"😔")+'</div>'+  
-  '<h2>RESULT</h2>'+  
- '<div id="rankBox">🏆 Rank: Loading...</div>'+
-  '<p>👤 <strong>'+student+'</strong></p>'+  
-  '<p>🏫 Class '+sClass+'</p>'+
- '<p>📚 Total Questions: '+examQuestions.length+'</p>'+
- '<p>🏅 Badge: '+badge+'</p>'+
- '<p>📝 Answered: '+answered+'/'+examQuestions.length+'</p>'+
- '<p>📚 Subject: '+examSubject+'</p>'+
- '<p>🕒 '+new Date().toLocaleString()+'</p>'+
- 
-  '<p style="font-size:2rem;font-weight:bold;">'+  
-  score+'/'+examQuestions.length+  
-  ' ('+percent+'%)</p>'+  
-  '<p style="font-size:1.3rem;color:'+  
-  (pass?'#22c55e':'#ef4444')+  
-  ';">'+  
-  (pass?'✅ PASS':'❌ FAIL')+  
-  ' | Grade: '+grade+  
-  '</p>'+  
-  '<p style="font-size:1.2rem;color:#f59e0b;font-weight:bold;">🏅 '+badge+'</p>'+  
- '<p>📝 Attempted: '+answered+'/'+examQuestions.length+'</p>'+
-  '</div>'+  
-  "<hr><h3>📚 Review</h3>"+review;  
-    
-  
-  loadLeaderboard();  
-loadHallOfFame();  
-show("page4");  
-}  
-// ===== LEADERBOARD =====  
+document.getElementById("result").innerHTML =
+'<div class="card" style="text-align:center;">'+
+'<div style="font-size:3rem;">'+(pass?"🎉":"😔")+'</div>'+
+'<h2>RESULT</h2>'+
+'<p>👤 <strong>'+student+'</strong></p>'+
+'<p>🏫 Class '+sClass+'</p>'+
+'<p>📚 Subject: '+examSubject+'</p>'+
+'<p style="font-size:2rem;font-weight:bold;">'+
+score+'/'+examQuestions.length+
+' ('+percent+'%)</p>'+
+'<p style="font-size:1.3rem;color:'+    
+(pass?'#22c55e':'#ef4444')+    
+';">'+
+(pass?'✅ PASS':'❌ FAIL')+
+' | Grade: '+grade+
+'</p>'+
+'<p style="font-size:1.2rem;color:#f59e0b;font-weight:bold;">🏅 '+badge+'</p>'+
+'</div>'+
+"<hr><h3>📚 Review</h3>"+review;
+
+loadLeaderboard();
+loadHallOfFame();
+show("page4");
+}
+// ===== LEADERBOARD =====
 function loadLeaderboard() {
-
-  fetch(DB + "/results.json")
-    .then(r => r.json())
-    .then(function(data){
-
-      if (!data) {
-        document.getElementById("board").innerHTML = "কোনো result নেই।";
-        return;
-      }
-
-      var subject = document.getElementById("examSubject").value;
-      var results = Object.values(data);
-
-      if (subject !== "All Subject") {
-        results = results.filter(x => x.subject === subject);
-      }
-
-      results.sort((a,b) => b.percent - a.percent);
-
-      var html = results.slice(0,10).map(function(d,i){
-        return `
-          <div class="card">
-            🏅 ${i+1}. <b>${d.name}</b> (${d.class})<br>
-            📚 ${d.subject}<br>
-            📊 ${d.percent}% | ${d.grade}
-          </div>
-        `;
-      }).join("");
-
-      document.getElementById("board").innerHTML = html;
-    });
-}
-
-
-// ===== ALL RESULTS =====
-function loadResults() {
-
-  fetch(DB + "/results.json")
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-
-      if (!data) {
-        document.getElementById("allResults").innerHTML =
-        "<div class='card'>কোনো Result নেই</div>";
-        return;
-      }
-var search =
-(document.getElementById("searchResult")?.value || "")
-.toLowerCase();
-      var html = "";
-      var results = Object.values(data).reverse();
-
-      results.forEach(function(r){
-       if(search &&
-!r.name.toLowerCase().includes(search)){
-  return;
-       }
-
-        html += `
-          <div class="card">
-            <b>👤 ${r.name}</b><br>
-            🏫 Class: ${r.class}<br>
-            📚 Subject: ${r.subject}<br>
-            📊 Score: ${r.score}/${r.total}<br>
-            🎯 ${r.percent}%<br>
-            🏆 Grade: ${r.grade}<br>
-            🕒 ${r.time}
-          </div>
-        `;
-      });
-
-      document.getElementById("allResults").innerHTML = html;
-    });
-}
-  
-//=====load Hallo fame====  
- function loadHallOfFame() {
-
-  fetch(DB+"/results.json")
-    .then(function(r){
-      return r.json();
-    })
-    .then(function(data){
-
-      if(!data){
-        document.getElementById("hallOfFame").innerHTML =
-        "কোনো Legend নেই";
-        return;
-      }
-
-      var subject =
-      document.getElementById("examSubject").value;
-
-      var legends = Object.values(data);
-
-      if(subject !== "All Subject"){
-        legends = legends.filter(function(x){
-          return x.subject === subject;
-        });
-      }
-
-      legends = legends.filter(function(x){
-        return x.percent >= 90;
-      });
-
-      legends.sort(function(a,b){
-        return b.percent - a.percent;
-      });
-
-      if(legends.length === 0){
-        document.getElementById("hallOfFame").innerHTML =
-        "এখনো কোনো Legend নেই 👑";
-        return;
-      }
-
-      var html = "";
-
-      legends.slice(0,10).forEach(function(x){
-
-        html +=
-          '<div class="card">' +
-          '👑 <strong>'+x.name+'</strong> ('+x.class+')' +
-          '<br>📚 '+x.subject +
-          '<br>🏆 '+x.percent+'% | '+x.grade +
-          '</div>';
-
-      });
-
-      document.getElementById("hallOfFame").innerHTML = html;
-
-    });
- }
-  
-   
-  document.getElementById("questionList").innerHTML = html;
-
+fetch(DB+"/results.json")
+.then(function(r){ return r.json(); })
+.then(function(data){
+if (!data) { document.getElementById("board").innerHTML="কোনো result নেই।"; return; }
+var entries = Object.values(data).sort(function(a,b){ return b.percent-a.percent; });
+var medals = ["🥇","🥈","🥉"];
+var html = entries.slice(0,10).map(function(d,i){
+return '<div class="card" style="display:flex;justify-content:space-between;align-items:center;">'+
+'<span>'+(medals[i]||(i+1)+'.')+'  <strong>'+d.name+'</strong> ('+d.class+')</span>'+
+'<span style="color:#f59e0b;font-weight:700;">'+d.percent+'% '+d.grade+'</span>'+
+'</div>';
+}).join("");
+document.getElementById("board").innerHTML = html;
 });
-   
-
-function loadQuestions() {
-
-  var search =
-    (document.getElementById("searchQuestion")?.value || "")
-    .toLowerCase();
-
-  fetch(DB + "/questions.json")
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-
-      if (!data) {
-        document.getElementById("questionList").innerHTML =
-          "<div class='card'>কোনো প্রশ্ন নেই</div>";
-        return;
-      }
-
-      var html = "";
-
-      Object.keys(data).forEach(function(key) {
-
-        var q = data[key];
-
-        if (!q || !q.q) return;
-
-        // 🔍 SEARCH FILTER (FIXED)
-        if (
-          search &&
-          !q.q.toLowerCase().includes(search)
-        ) {
-          return;
-        }
-
-        html += `
-          <div class="card">
-            <b>Q:</b> ${q.q}<br>
-            <b>Subject:</b> ${q.subject}<br>
-            <b>Options:</b><br>
-            1) ${q.a[0]}<br>
-            2) ${q.a[1]}<br>
-            3) ${q.a[2]}<br>
-            4) ${q.a[3]}<br>
-            <button class="btn-red" onclick="deleteQuestion('${key}')">Delete</button>
-          </div>
-        `;
-      });
-
-      document.getElementById("questionList").innerHTML =
-        html || "<div class='card'>No matching questions</div>";
-    });
 }
-function deleteQuestion(id){
+function loadResults() {
+fetch(DB+"/results.json")
+.then(function(r){ return r.json(); })
+.then(function(data){
 
-  if(!confirm("Question delete করবে?")){
-    return;
-  }
+if(!data){    
+    document.getElementById("allResults").innerHTML =    
+    "<div class='card'>কোনো Result নেই</div>";    
+    return;    
+  }    
 
-  fetch(DB + "/questions/" + id + ".json", {
-    method: "DELETE"
-  })
-  .then(function(){
-    loadQuestions();  // list refresh
-    loadQCount();     // count update
-  })
-  .catch(function(e){
-    alert("Error: " + e.message);
-  });
+  var html = "";    
 
-   }
+  Object.values(data).reverse().forEach(function(r){    
+    html +=    
+    '<div class="card">' +    
+    '<b>👤 '+r.name+'</b><br>' +    
+    '🏫 Class: '+r.class+'<br>' +    
+    '📊 Score: '+r.score+'/'+r.total+'<br>' +    
+    '🎯 '+r.percent+'%<br>' +    
+    '🏆 Grade: '+r.grade+'<br>' +    
+    '🕒 '+r.time +    
+    '</div>';    
+       
+  });    
 
+  document.getElementById("allResults").innerHTML = html;    
+});    
+ }
 
-function editQuestion(id){
+//=====load Hallo fame====
+function loadHallOfFame() {
 
-  fetch(DB + "/questions/" + id + ".json")
-    .then(function(r){
-      return r.json(); 
-    })
-    .then(function(oldData){
+fetch(DB+"/results.json")
+.then(function(r){
+return r.json();
+})
+.then(function(data){
 
-      if(!oldData){
-        alert("❌ Question পাওয়া যায়নি");
-        return;
-      }
+if(!data){    
+    document.getElementById("hallOfFame").innerHTML =    
+      "কোনো Legend নেই";    
+    return;    
+  }    
 
-      var newQ = prompt(
-        "নতুন প্রশ্ন লেখো:",
-        oldData.q
-      );
+  var legends = Object.values(data)    
+    .filter(function(x){    
+      return x.percent >= 90;    
+    })    
+    .sort(function(a,b){    
+      return b.percent - a.percent;    
+    });    
 
-      if(newQ === null) return;
+  if(legends.length === 0){    
+    document.getElementById("hallOfFame").innerHTML =    
+      "এখনো কোনো Legend নেই 👑";    
+    return;    
+  }    
 
-      newQ = newQ.trim();
+  var html = "";    
 
-      if(newQ === ""){
-        alert("❌ প্রশ্ন খালি রাখা যাবে না");
-        return;
-      }
+  legends.slice(0,10).forEach(function(x,i){    
 
-      oldData.q = newQ;
+    html +=    
+      '<div class="card">' +    
+      '👑 <strong>'+x.name+'</strong> ('+x.class+')' +    
+      '<br>🏆 '+x.percent+'% | '+x.grade+    
+      '</div>';    
 
-      fetch(DB + "/questions/" + id + ".json",{
-        method:"PUT",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify(oldData)
-      })
-      .then(function(){
-        alert("✅ Question Updated");
-        loadQuestions();
-      })
-      .catch(function(error){
-        alert("❌ Error: " + error.message);
-      });
+  });    
 
-    })
-    .catch(function(error){
-      alert("❌ Error: " + error.message);
-    });
+  document.getElementById("hallOfFame").innerHTML = html;    
 
-}
- window.onload = function(){
-  loadQuestions();
-  loadLeaderboard();
-  loadResults();
-};
+});    
 
+                                        }
 
-// ===== AUTO REFRESH =====
-setInterval(function(){
-  loadLeaderboard();
-  loadResults();
-}, 5000);
-   
-   function test(){
-  alert("OK");
-}
-test();
+</script>  </body>
 
-</script>
-
-</body>
-</html>
-
+</html>  
