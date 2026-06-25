@@ -110,14 +110,18 @@ style="width:100%;height:150px;background:#1e293b;color:white;border:1px solid #
     <button class="btn-gray" onclick="clearAllQuestions()" style="margin-top:6px;">🗑 সব প্রশ্ন মুছো</button>  
   </div>  
  <div class="card">
-  <h3>📋 Question List</h3>  <button class="btn-blue" onclick="loadQuestions()">
-   <div id="questionList"></div>
-   <input
-id="searchQuestion"
-placeholder="🔍 প্রশ্ন খুঁজুন..."
-onkeyup="loadQuestions()">
+  <h3>📋 Question List</h3>
+
+  <input
+  id="searchQuestion"
+  placeholder="🔍 প্রশ্ন খুঁজুন..."
+  onkeyup="loadQuestions()">
+
+  <button class="btn-blue" onclick="loadQuestions()">
     Show Questions
-  </button>  <div id="questionList"></div>
+  </button>
+
+  <div id="questionList"></div>
  </div>
  <input
 id="searchResult"
@@ -669,46 +673,68 @@ var search =
     });
  }
   
-   function loadQuestions(){
-
-fetch(DB+"/questions.json")
-.then(function(r){
-return r.json();
-})
-.then(function(data){
-
-  if(!data){
-    document.getElementById("questionList").innerHTML =
-    "<div class='card'>কোনো প্রশ্ন নেই</div>";
-    return;
-  }
-
-  var html = "";
-
-  Object.keys(data).forEach(function(key){
-
-    var q = data[key];
-   if(search && !q.q.toLowerCase().includes(search)){
-  return;
-   }
-
-    html +=
-    '<div class="card">' +
-    '<b>📚 '+(q.subject || "No Subject")+'</b><br>' +
-    '❓ '+q.q+'<br><br>' +
-
-    '<button class="btn-yellow" onclick="editQuestion(\''+key+'\')">✏ Edit</button> ' +
-
-    '<button class="btn-red" onclick="deleteQuestion(\''+key+'\')">🗑 Delete</button>' +
-
-    '</div>';
-
-  });
-
+   
   document.getElementById("questionList").innerHTML = html;
 
 });
+   
+function loadQuestions(){
 
+  var search =
+  (document.getElementById("searchQuestion")?.value || "")
+  .toLowerCase();
+
+  fetch(DB+"/questions.json")
+  .then(function(r){
+    return r.json();
+  })
+  .then(function(data){
+
+    if(!data){
+      document.getElementById("questionList").innerHTML =
+      "<div class='card'>কোনো প্রশ্ন নেই</div>";
+      return;
+    }
+
+    var html = "";
+
+    Object.keys(data).forEach(function(key){
+
+      var q = data[key];
+
+      if(
+        search &&
+        !q.q.toLowerCase().includes(search)
+      ){
+        return;
+      }
+
+      html +=
+      '<div class="card">' +
+      '<b>📚 ' + (q.subject || "No Subject") + '</b><br>' +
+      '❓ ' + q.q + '<br><br>' +
+
+      '<button class="btn-yellow" onclick="editQuestion(\''+key+'\')">✏ Edit</button> ' +
+
+      '<button class="btn-red" onclick="deleteQuestion(\''+key+'\')">🗑 Delete</button>' +
+
+      '</div>';
+
+    });
+
+    document.getElementById("questionList").innerHTML = html;
+
+  })
+  .catch(function(error){
+
+    document.getElementById("questionList").innerHTML =
+    "<div class='card'>❌ Error Loading Questions</div>";
+
+    console.log(error);
+
+  });
+
+}
 }
 
 function deleteQuestion(id){
@@ -729,29 +755,54 @@ loadQCount();
 
 function editQuestion(id){
 
-var newQ = prompt("নতুন প্রশ্ন লেখো");
-
-if(!newQ) return;
-
-fetch(DB+"/questions/"+id+".json")
-.then(function(r){
-return r.json();
-})
-.then(function(oldData){
-
-  oldData.q = newQ;
-
-  fetch(DB+"/questions/"+id+".json",{
-    method:"PUT",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify(oldData)
+  fetch(DB+"/questions/"+id+".json")
+  .then(function(r){
+    return r.json();
   })
-  .then(function(){
-    loadQuestions();
+  .then(function(oldData){
+
+    if(!oldData){
+      alert("❌ Question পাওয়া যায়নি");
+      return;
+    }
+
+    var newQ = prompt(
+      "নতুন প্রশ্ন লেখো:",
+      oldData.q
+    );
+
+    if(newQ === null) return;
+
+    newQ = newQ.trim();
+
+    if(newQ === ""){
+      alert("❌ প্রশ্ন খালি রাখা যাবে না");
+      return;
+    }
+
+    oldData.q = newQ;
+
+    fetch(DB+"/questions/"+id+".json",{
+      method:"PUT",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify(oldData)
+    })
+    .then(function(){
+      alert("✅ Question Updated");
+      loadQuestions();
+    })
+    .catch(function(error){
+      alert("❌ Error: " + error.message);
+    });
+
+  })
+  .catch(function(error){
+    alert("❌ Error: " + error.message);
   });
 
+}
 });
 
    }    </script>
