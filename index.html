@@ -272,7 +272,6 @@ function studentLogin() {
   
   if (!student||!sClass) { alert("নাম ও ক্লাস লেখো!"); return; }  
   
-  // স্টুডেন্ট পাসওয়ার্ড চেক (god++)
   if (sPass !== "god++") {
       alert("❌ ভুল Exam Password! সঠিক পাসওয়ার্ড দিয়ে আবার চেষ্টা করো।");
       return;
@@ -379,7 +378,7 @@ function submitExam() {
   if (timerInterval) clearInterval(timerInterval);  
   
   var score = 0;  
-  var wrongAnswers = 0; // ভুল উত্তরের কাউন্টার
+  var wrongAnswers = 0; 
   var review = "";  
   var answered = 0;
   var examSubject = document.getElementById("examSubject").value;
@@ -391,7 +390,7 @@ function submitExam() {
       if(parseInt(ans.value) === x.correct){  
         score++;  
       } else {  
-        wrongAnswers++; // ভুল উত্তর দিলে কাউন্ট বাড়বে
+        wrongAnswers++; 
         review += "<div class='card' style='border:2px solid #ef4444'>"+  
           "❌ Q: "+x.q+"<br>✔ Correct: "+x.a[x.correct]+  
         "</div>";  
@@ -401,10 +400,9 @@ function submitExam() {
     }  
   });  
   
-  // নেগেটিভ মার্কিং হিসাব (প্রতি ভুলে ০.২৫ কাটা)
   var negativeMarks = wrongAnswers * 0.25;
   var finalScore = score - negativeMarks;
-  if(finalScore < 0) finalScore = 0; // স্কোর যেন মাইনাসে না যায়
+  if(finalScore < 0) finalScore = 0; 
   
   var percent = Math.round((finalScore/examQuestions.length)*100);  
   if(percent < 0) percent = 0;
@@ -472,7 +470,7 @@ function submitExam() {
 // ===== LEADERBOARD =====  
 function loadLeaderboard() {
   fetch(DB + "/results.json")
-    .then(r => r.json())
+    .then(function(r){ return r.json(); })
     .then(function(data){
       if (!data) {
         document.getElementById("board").innerHTML = "কোনো result নেই।";
@@ -481,17 +479,15 @@ function loadLeaderboard() {
       var subject = document.getElementById("examSubject").value;
       var results = Object.values(data);
       if (subject !== "All Subject") {
-        results = results.filter(x => x.subject === subject);
+        results = results.filter(function(x){ return x.subject === subject; });
       }
-      results.sort((a,b) => b.percent - a.percent);
+      results.sort(function(a,b){ return b.percent - a.percent; });
       var html = results.slice(0,10).map(function(d,i){
-        return `
-          <div class="card">
-            🏅 ${i+1}. <b>${d.name}</b> (${d.class})<br>
-            📚 ${d.subject}<br>
-            📊 ${d.percent}% | ${d.grade}
-          </div>
-        `;
+        return '<div class="card">' +
+            '🏅 ' + (i+1) + '. <b>' + d.name + '</b> (' + d.class + ')<br>' +
+            '📚 ' + d.subject + '<br>' +
+            '📊 ' + d.percent + '% | ' + d.grade +
+          '</div>';
       }).join("");
       document.getElementById("board").innerHTML = html;
     });
@@ -506,23 +502,23 @@ function loadResults() {
         document.getElementById("allResults").innerHTML = "<div class='card'>কোনো Result নেই</div>";
         return;
       }
-      var search = (document.getElementById("searchResult")?.value || "").toLowerCase();
+      var searchBox = document.getElementById("searchResult");
+      var search = (searchBox ? searchBox.value : "").toLowerCase();
+      
       var html = "";
       var results = Object.values(data).reverse();
 
       results.forEach(function(r){
        if(search && !r.name.toLowerCase().includes(search)){ return; }
-        html += `
-          <div class="card">
-            <b>👤 ${r.name}</b><br>
-            🏫 Class: ${r.class}<br>
-            📚 Subject: ${r.subject}<br>
-            📊 Score: ${r.score}/${r.total}<br>
-            🎯 ${r.percent}%<br>
-            🏆 Grade: ${r.grade}<br>
-            🕒 ${r.time}
-          </div>
-        `;
+        html += '<div class="card">' +
+            '<b>👤 ' + r.name + '</b><br>' +
+            '🏫 Class: ' + r.class + '<br>' +
+            '📚 Subject: ' + r.subject + '<br>' +
+            '📊 Score: ' + r.score + '/' + r.total + '<br>' +
+            '🎯 ' + r.percent + '%<br>' +
+            '🏆 Grade: ' + r.grade + '<br>' +
+            '🕒 ' + r.time +
+          '</div>';
       });
       document.getElementById("allResults").innerHTML = html;
     });
@@ -563,4 +559,83 @@ function loadHallOfFame() {
 }
 
 function loadQuestions() {
-  var search = (document.getElementById("searchQuestion"
+  var searchBox = document.getElementById("searchQuestion");
+  var search = (searchBox ? searchBox.value : "").toLowerCase();
+  
+  fetch(DB + "/questions.json")
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data) {
+        document.getElementById("questionList").innerHTML = "<div class='card'>কোনো প্রশ্ন নেই</div>";
+        return;
+      }
+      var html = "";
+      Object.keys(data).forEach(function(key) {
+        var q = data[key];
+        if (!q || !q.q) return;
+        if (search && !q.q.toLowerCase().includes(search)) { return; }
+        html += '<div class="card">' +
+            '<b>Q:</b> ' + q.q + '<br>' +
+            '<b>Subject:</b> ' + q.subject + '<br>' +
+            '<b>Options:</b><br>' +
+            '1) ' + q.a[0] + '<br>' +
+            '2) ' + q.a[1] + '<br>' +
+            '3) ' + q.a[2] + '<br>' +
+            '4) ' + q.a[3] + '<br>' +
+            '<button class="btn-red" onclick="deleteQuestion(\'' + key + '\')">Delete</button>' +
+          '</div>';
+      });
+      document.getElementById("questionList").innerHTML = html || "<div class='card'>No matching questions</div>";
+    });
+}
+
+function deleteQuestion(id){
+  if(!confirm("Question delete করবে?")){ return; }
+  fetch(DB + "/questions/" + id + ".json", { method: "DELETE" })
+  .then(function(){
+    loadQuestions();  
+    loadQCount();     
+  })
+  .catch(function(e){ alert("Error: " + e.message); });
+}
+
+function editQuestion(id){
+  fetch(DB + "/questions/" + id + ".json")
+    .then(function(r){ return r.json(); })
+    .then(function(oldData){
+      if(!oldData){ alert("❌ Question পাওয়া যায়নি"); return; }
+      var newQ = prompt("নতুন প্রশ্ন লেখো:", oldData.q);
+      if(newQ === null) return;
+      newQ = newQ.trim();
+      if(newQ === ""){ alert("❌ প্রশ্ন খালি রাখা যাবে না"); return; }
+      oldData.q = newQ;
+
+      fetch(DB + "/questions/" + id + ".json",{
+        method:"PUT",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(oldData)
+      })
+      .then(function(){
+        alert("✅ Question Updated");
+        loadQuestions();
+      })
+      .catch(function(error){ alert("❌ Error: " + error.message); });
+    })
+    .catch(function(error){ alert("❌ Error: " + error.message); });
+}
+
+window.onload = function(){
+  loadQuestions();
+  loadLeaderboard();
+  loadResults();
+};
+
+// ===== AUTO REFRESH =====
+setInterval(function(){
+  loadLeaderboard();
+  loadResults();
+}, 5000);
+
+</script>
+</body>
+</html>
