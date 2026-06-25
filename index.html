@@ -678,7 +678,7 @@ var search =
 
 });
    
-function loadQuestions(){
+
 function loadQuestions(){
 
   var search =
@@ -703,11 +703,14 @@ function loadQuestions(){
 
         var q = data[key];
 
-        if(!q || !q.q) return; // ✅ safety fix
+        if(!q || !q.q) return; 
 
-        if(
-          search &&
-          !q.q.toLowerCase().includes(search)
+if(
+  search &&
+  !q.q.toLowerCase().includes(search)
+){
+  return;
+}
         ){
           return;
         }
