@@ -20,7 +20,7 @@
   .btn-gray{background:#475569;color:white;}  
   .card{background:#1e293b;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #334155;}  
   
-  /* Image Responsive CSS - Added for Image Questions */
+  /* Image Responsive CSS */
   .card img {max-width: 100%; height: auto; border-radius: 6px; margin: 8px 0;} 
   
   #timer{font-size:22px;color:#f87171;font-weight:bold;margin:10px 0; text-align:center;}  
@@ -42,6 +42,7 @@
   .star-text{color:#f59e0b; font-size:14px;}
   .badge-adv{background:#ef4444; color:white; padding:2px 6px; border-radius:4px; font-size:11px; margin-left:6px;}
   .badge-ver{background:#3b82f6; color:white; padding:2px 6px; border-radius:4px; font-size:11px; margin-left:6px;}
+  .builder-box {border: 1px dashed #3b82f6; padding: 12px; border-radius: 8px; margin-top: 10px;}
 </style>  
 </head>  
 <body>  
@@ -54,21 +55,33 @@
       <input id="studentName" placeholder="Student Name (তোমার নাম লেখো)">  
       <input id="studentClass" placeholder="Class (তোমার ক্লাস লেখো)"> 
       
-      <div class="two-col">
-          <select id="examVersion">
-            <option value="Bengali">🟢 বাংলা ভার্সন (Bengali)</option>
-            <option value="English">🔵 English Version</option>
-          </select>
-          <select id="examSubject" onchange="updateChapters('examSubject', 'examChapter')">
-            <option value="">-- সাবজেক্ট সিলেক্ট করো --</option>
-          </select>
-      </div>
-      
-      <select id="examChapter">
-        <option value="All">All Chapters</option>
+      <select id="examVersion" style="margin-bottom: 12px;">
+        <option value="Bengali">🟢 বাংলা ভার্সন (Bengali)</option>
+        <option value="English">🔵 English Version</option>
       </select>
       
-      <button class="btn-blue" onclick="studentLogin()">Exam দিতে চাই ▶</button> 
+      <div class="builder-box">
+          <h3 style="color:#38bdf8;">⚙️ Custom Exam Builder (নিজেই প্রশ্ন সেট করো)</h3>
+          <p style="font-size:12px; color:#94a3b8; margin-bottom:10px;">একাধিক সাবজেক্ট বা চ্যাপ্টার সিলেক্ট করে Add বাটনে ক্লিক করো।</p>
+          
+          <div class="two-col">
+              <select id="examSubject" onchange="updateChapters('examSubject', 'examChapter')">
+                <option value="">-- সাবজেক্ট সিলেক্ট করো --</option>
+              </select>
+              <select id="examChapter">
+                <option value="All">All Chapters</option>
+              </select>
+          </div>
+          
+          <div class="two-col">
+              <input type="number" id="qLimit" placeholder="কয়টি প্রশ্ন চাও? (যেমন: 10)" min="1">
+              <button class="btn-yellow" onclick="addConfig()" style="margin-top:5px; padding: 9px;">➕ Add to Exam</button>
+          </div>
+          
+          <div id="configList" style="margin-top:12px;"></div>
+      </div>
+      
+      <button class="btn-blue" onclick="studentLogin()" style="margin-top:15px; font-size: 16px;">🚀 Start Exam</button> 
     </div>
     
     <div style="text-align:center; margin-top: 25px;">
@@ -100,7 +113,7 @@
 
       <div class="two-col" style="margin-top:8px;">
           <select id="subject" onchange="updateChapters('subject', 'chapter')">
-            </select>
+          </select>
           <select id="qDifficulty">
               <option value="1">⭐ 1 Star</option>
               <option value="2">⭐⭐ 2 Star</option>
@@ -130,12 +143,11 @@
         <option value="3">✅ Option 4 সঠিক</option>  
       </select>  
       
-      <input id="exp" placeholder="উত্তরের ব্যাখ্যা (Optional - কেন এটি সঠিক?)">
+      <input id="exp" placeholder="উত্তরের ব্যাখ্যা (Optional)">
       <button class="btn-green" onclick="addQuestion()">প্রশ্ন যোগ করো ✚</button>  
       
       <hr>
-      <h3>📥 Bulk Import Questions (Auto Filter)</h3>
-      <p style="font-size:12px; color:#94a3b8; margin-bottom:8px;">(উপরের ড্রপডাউন থেকে Version, Subject, Chapter, Star এবং Type সিলেক্ট করে JSON পেস্ট করো)</p>
+      <h3>📥 Bulk Import Questions</h3>
       <textarea id="bulkData" placeholder="এখানে JSON Paste করো"
         style="width:100%;height:150px;background:#1e293b;color:white;border:1px solid #334155;border-radius:8px;padding:10px;"></textarea>
       <button class="btn-yellow" onclick="bulkImport()">📥 Bulk Import Questions</button>
@@ -189,11 +201,11 @@
   <div id="page4" style="display:none;">  
     <div id="result"></div>    
     <div class="leaderboard">  
-      <h3>🏆 Exam Leaderboard (Subject/Chapter)</h3>  
+      <h3>🏆 Exam Leaderboard (Current Category)</h3>  
       <div id="board">লোড হচ্ছে...</div>  
     </div> 
     <div class="leaderboard">  
-      <h3>🌍 Global Points Leaderboard (Overall)</h3>  
+      <h3>🌍 Global Points Leaderboard (Overall XP)</h3>  
       <div id="globalBoard">লোড হচ্ছে...</div>  
     </div>       
     <button class="btn-blue" onclick="show('page1')" style="margin-top:12px;">  
@@ -207,8 +219,10 @@
 var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";  
 var student = "", sClass = "", examQuestions = [], timeLeft = 0, totalTime = 0, timerInterval = null, warn = 0, submitted = false;  
 var examVersion = "";
+var examConfig = []; 
+var examSubResult = ""; 
+var examChapResult = "";
 
-// Comprehensive HSC Subjects and Chapters Mapping
 const hscData = {
     "Physics 1st Paper": ["ভৌত জগত ও পরিমাপ", "ভেক্টর", "গতিবিদ্যা", "নিউটনিয়ান বলবিদ্যা", "কাজ, শক্তি ও ক্ষমতা", "মহাকর্ষ ও অভিকর্ষ", "পদার্থের গাঠনিক ধর্ম", "পর্যাবৃত্ত গতি", "তরঙ্গ", "আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব"],
     "Physics 2nd Paper": ["তাপগতিবিদ্যা", "স্থির তড়িৎ", "চল তড়িৎ", "তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব", "তাড়িতচৌম্বক আবেশ ও পরিবর্তী প্রবাহ", "জ্যামিতিক আলোকবিজ্ঞান", "ভৌত আলোকবিজ্ঞান", "আধুনিক পদার্থবিজ্ঞানের সূচনা", "পরমাণুর মডেল ও নিউক্লিয়ার পদার্থবিজ্ঞান", "সেমিকন্ডাক্টর ও ইলেকট্রনিক্স", "জ্যোতির্বিজ্ঞান"],
@@ -226,7 +240,7 @@ const hscData = {
 };
 
 function initDropdowns() {
-    let subjectHTML = '<option value="All">All Subjects</option>';
+    let subjectHTML = '<option value="">-- সাবজেক্ট সিলেক্ট করো --</option>';
     let filterSubjectHTML = '<option value="All">All Subjects</option>';
     
     for (let sub in hscData) {
@@ -266,6 +280,41 @@ function updateChapters(subId, chapId) {
         });
     }
     chapSelect.innerHTML = html;
+}
+
+// ===== EXAM BUILDER LOGIC =====
+function addConfig() {
+    let sub = document.getElementById("examSubject").value;
+    let chap = document.getElementById("examChapter").value;
+    let limit = parseInt(document.getElementById("qLimit").value);
+
+    if(!sub || !limit || limit <= 0) {
+        alert("❌ Subject এবং প্রশ্নের সংখ্যা (১ বা তার বেশি) ঠিকভাবে সিলেক্ট করো!");
+        return;
+    }
+    examConfig.push({sub: sub, chap: chap, limit: limit});
+    renderConfig();
+    
+    // Reset inputs
+    document.getElementById("examSubject").value = "";
+    document.getElementById("examChapter").innerHTML = '<option value="All">All Chapters</option>';
+    document.getElementById("qLimit").value = "";
+}
+
+function renderConfig() {
+    let html = "";
+    examConfig.forEach((c, i) => {
+        html += `<div style="background:#1e293b; padding:8px 12px; margin:5px 0; border:1px solid #3b82f6; border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-size:13px;">
+            <span>📚 <b>${c.sub}</b> (${c.chap}) - 🎯 ${c.limit} টি</span>
+            <span style="color:#ef4444; cursor:pointer; font-weight:bold; font-size:16px;" onclick="removeConfig(${i})">✖</span>
+        </div>`;
+    });
+    document.getElementById("configList").innerHTML = html;
+}
+
+function removeConfig(i) {
+    examConfig.splice(i, 1);
+    renderConfig();
 }
 
 function show(id) {  
@@ -391,30 +440,43 @@ function clearAllQuestions() {
 function studentLogin() {  
   student = document.getElementById("studentName").value.trim();  
   sClass = document.getElementById("studentClass").value.trim();  
-  var examSubject = document.getElementById("examSubject").value;
-  var examChapter = document.getElementById("examChapter").value; 
   examVersion = document.getElementById("examVersion").value; 
   
   if (!student||!sClass) { alert("নাম ও ক্লাস লেখো!"); return; }  
+  if (examConfig.length === 0) { alert("❌ Exam Builder-এ অন্তত একটি Subject/Chapter অ্যাড করো!"); return; }
   
   fetch(DB+"/questions.json").then(r => r.json()).then(data => {  
-      if (!data) { alert("❌ কোনো প্রশ্ন নেই!"); return; }  
+      if (!data) { alert("❌ ডাটাবেজে কোনো প্রশ্ন নেই!"); return; }  
       
-      examQuestions = Object.values(data);
-      
-      examQuestions = examQuestions.filter(q => q.version === examVersion || !q.version); 
+      let allDbQuestions = Object.values(data).filter(q => q.version === examVersion || !q.version); 
+      examQuestions = [];
 
-      if(examSubject !== "All" && examSubject !== ""){
-          examQuestions = examQuestions.filter(q => q.subject === examSubject);
-      }
-      if(examChapter !== "All"){
-          examQuestions = examQuestions.filter(q => q.chapter === examChapter);
-      }
+      // Logic to fetch and limit questions based on Builder configuration
+      examConfig.forEach(cfg => {
+          let matched = allDbQuestions.filter(q => q.subject === cfg.sub);
+          if (cfg.chap !== "All") {
+              matched = matched.filter(q => q.chapter === cfg.chap);
+          }
+          
+          if(matched.length > 0) {
+              matched = matched.sort(() => Math.random() - 0.5); // Randomize chapter questions
+              let selected = matched.slice(0, cfg.limit); // Take exactly what student asked for
+              examQuestions = examQuestions.concat(selected);
+          }
+      });
 
       if(examQuestions.length === 0){
-          alert("এই Subject/Chapter/Version এর কোনো প্রশ্ন পাওয়া যায়নি!");
+          alert("তোমার সিলেক্ট করা টপিকের কোনো প্রশ্ন ডাটাবেজে পাওয়া যায়নি!");
           return;
       }
+      
+      // Shuffle final mixed questions
+      examQuestions = examQuestions.sort(() => Math.random() - 0.5);  
+      
+      // Set Global Result Variables for Leaderboard mapping
+      examSubResult = examConfig.length === 1 ? examConfig[0].sub : "Mixed Subjects";
+      examChapResult = examConfig.length === 1 ? examConfig[0].chap : "Mixed Chapters";
+
       startExam();
     });  
 }  
@@ -432,7 +494,6 @@ function lockOptions(qIndex) {
 function startExam() {  
   submitted = false;  
   warn = 0;  
-  examQuestions = examQuestions.sort(() => Math.random() - 0.5);  
   
   var html = "";  
   examQuestions.forEach((x,i) => {  
@@ -453,7 +514,7 @@ function startExam() {
   document.getElementById("warnDiv").innerHTML = "";  
   show("page3");  
   
-  timeLeft = examQuestions.length * 60; 
+  timeLeft = examQuestions.length * 60; // 1 min per question
   totalTime = timeLeft;  
   if (timerInterval) clearInterval(timerInterval);  
   
@@ -486,8 +547,6 @@ function submitExam() {
   if (timerInterval) clearInterval(timerInterval);  
   
   var score = 0, wrongAnswers = 0, review = "", answered = 0;
-  var examSubject = document.getElementById("examSubject").value;
-  var examChapter = document.getElementById("examChapter").value;
   
   examQuestions.forEach((x,i) => {  
     var ans = document.querySelector(`input[name=q${i}]:checked`);  
@@ -519,7 +578,7 @@ function submitExam() {
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
-      name:student, class:sClass, version: examVersion, subject:examSubject, chapter:examChapter,
+      name:student, class:sClass, version: examVersion, subject:examSubResult, chapter:examChapResult,
       score:finalScore, displayScore: displayScore, total:examQuestions.length, percent:percent, grade:grade,
       time:new Date().toLocaleString()
     })
@@ -531,7 +590,7 @@ function submitExam() {
     <h2>RESULT</h2>
     <p>👤 <strong>${student}</strong> | Class: ${sClass}</p>
     <p>🌐 ${examVersion} Version</p>
-    <p>📚 Sub: ${examSubject} (${examChapter})</p>
+    <p>📚 Sub: ${examSubResult} (${examChapResult})</p>
     <p>✅ Correct: ${score} | ❌ Wrong: ${wrongAnswers} (Penalty: -${negativeMarks})</p>
     <p style="font-size:2rem;font-weight:bold;">Points: ${finalScore} / ${examQuestions.length} (${percent}%)</p>
     <p style="font-size:1.3rem;color:${pass?'#22c55e':'#ef4444'};">${pass?'✅ PASS':'❌ FAIL'} | Grade: ${grade}</p>
@@ -551,12 +610,8 @@ function loadLeaderboards() {
       
       var results = Object.values(data);
       
-      var filterSub = document.getElementById("examSubject").value;
-      var filterChap = document.getElementById("examChapter").value;
-      var examResults = results.filter(x => x.version === examVersion); 
-      
-      if (filterSub !== "All" && filterSub !== "") examResults = examResults.filter(x => x.subject === filterSub);
-      if (filterChap !== "All") examResults = examResults.filter(x => x.chapter === filterChap);
+      // Filter exactly for the category the student just took
+      var examResults = results.filter(x => x.version === examVersion && x.subject === examSubResult && x.chapter === examChapResult); 
       
       examResults.sort((a,b) => b.percent - a.percent);
       var htmlExam = examResults.slice(0,10).map((d,i) => {
@@ -569,8 +624,9 @@ function loadLeaderboards() {
             </div>
           </div>`;
       }).join("");
-      document.getElementById("board").innerHTML = htmlExam || "<div class='card'>No data for this subject/chapter</div>";
+      document.getElementById("board").innerHTML = htmlExam || "<div class='card'>No data for this category</div>";
 
+      // Global Points Logic
       var users = {};
       results.forEach(r => {
           if(!users[r.name]) users[r.name] = { name: r.name, class: r.class, totalPoints: 0, exams: 0 };
