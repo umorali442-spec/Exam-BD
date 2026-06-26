@@ -3,7 +3,7 @@
 <head>  
 <meta charset="UTF-8">  
 <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-<title>Pro Admission Platform - Ultimate Analytics Edition</title>  
+<title>Smart Online Exam</title>  
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>  
@@ -42,14 +42,12 @@
   .btn-lifeline {width: auto; padding: 6px 12px; font-size: 12px; margin: 0;}
   .top-rank-1 { border: 2px solid #f59e0b; background: linear-gradient(145deg, #1e293b, #78350f); }
   .flashcard-box {background: linear-gradient(135deg, #1e1b4b, #311042); border: 2px solid #a855f7; padding: 30px; border-radius: 12px; text-align: center; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; user-select: none; margin: 12px 0; transition: transform 0.2s;}
-  
-  /* Chart Canvas Size Wrapper */
   .chart-wrapper { position: relative; width: 100%; max-width: 400px; margin: 15px auto; }
 </style>  
 </head>  
 <body>  
 <div class="container">  
-  <h2>🏫 Pro Admission Platform</h2>    
+  <h2>🏫 Smart Online Exam</h2>    
   
   <div id="pageLogin">  
     <div class="card">  
@@ -83,7 +81,6 @@
           <option value="HSC 28">HSC 28</option>
           <option value="HSC 29">HSC 29</option>
       </select>
-      <input id="regPhone" type="number" placeholder="Mobile Number">  
       <input id="regEmail" type="email" placeholder="Email Address">  
       <input type="password" id="regPass" placeholder="Create a Password"> 
       
@@ -261,12 +258,12 @@
 emailjs.init("77p5rsvhYShAMlfXovHww"); 
 
 var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";  
-var studentName = "", studentClass = "", studentPhone = "", studentEmail = "", studentCleanEmail = "";
+var studentName = "", studentClass = "", studentEmail = "", studentCleanEmail = "";
 var studentCoins = 0, studentXP = 0;
 var examQuestions = [], timeLeft = 0, totalTime = 0, timerInterval = null, warn = 0, submitted = false;  
 var examVersion = "", examConfig = [], examSubResult = "", examChapResult = "", selectedMode = "Exam";
 var generatedOTP = null, globalNegMark = 0.25; 
-var myChartInstance = null; // Storing chart reference globally
+var myChartInstance = null; 
 
 const flashcards = [
     { q: "⏰ ভেক্টরের সামান্তরিক সূত্রানুযায়ী লব্ধির সর্বোচ্চ মান কখন হয়?", a: "যখন ভেক্টরদ্বয়ের মধ্যবর্তী কোণ 0° হয় (সর্বোচ্চ মান = P + Q)" },
@@ -316,9 +313,6 @@ function show(id) {
   document.getElementById(id).style.display="block";  
 }  
 
-// ==========================================
-// FLASHCARD MECHANISM
-// ==========================================
 function renderFlashcard() {
     isFlipped = false;
     document.getElementById("flashcardText").innerText = flashcards[currentCardIdx].q;
@@ -336,9 +330,6 @@ function flipFlashcard() {
 function nextFlashcard() { currentCardIdx = (currentCardIdx + 1) % flashcards.length; renderFlashcard(); }
 function prevFlashcard() { currentCardIdx = (currentCardIdx - 1 + flashcards.length) % flashcards.length; renderFlashcard(); }
 
-// ==========================================
-// PREMIUM SYSTEM CONTROL
-// ==========================================
 function checkPremiumLock() {
     let type = document.getElementById("premiumLock").value;
     if(type === "Premium") {
@@ -357,17 +348,13 @@ function checkPremiumLock() {
     }
 }
 
-// ==========================================
-// SECURE OTP REGISTRATION AND LOGIN
-// ==========================================
 function sendEmailOTP() {
     let name = document.getElementById('regName').value.trim();
     let batch = document.getElementById('regBatch').value;
-    let phone = document.getElementById('regPhone').value.trim();
     let email = document.getElementById('regEmail').value.trim();
     let pass = document.getElementById('regPass').value.trim();
 
-    if(!name || !batch || !phone || !email || !pass) { alert("সব ফিল্ড পূরণ করো!"); return; }
+    if(!name || !batch || !email || !pass) { alert("সব ফিল্ড পূরণ করো!"); return; }
     let cleanEmail = email.replace(/\./g, '_');
 
     fetch(DB + "/students_email/" + cleanEmail + ".json").then(r=>r.json()).then(data => {
@@ -396,14 +383,13 @@ function registerStudentWithOTP() {
 
     let name = document.getElementById('regName').value.trim();
     let batch = document.getElementById('regBatch').value;
-    let phone = document.getElementById('regPhone').value.trim();
     let email = document.getElementById('regEmail').value.trim();
     let pass = document.getElementById('regPass').value.trim();
     let cleanEmail = email.replace(/\./g, '_');
 
     fetch(DB + "/students_email/" + cleanEmail + ".json", {
         method: "PUT",
-        body: JSON.stringify({ name: name, class: batch, phone: phone, pass: pass, email: email, coins: 50, xp: 0 })
+        body: JSON.stringify({ name: name, class: batch, pass: pass, email: email, coins: 50, xp: 0 })
     }).then(() => { 
         alert("🎉 রেজিস্ট্রেশন সফল! বোনাস ৫০ কয়েন পেয়েছ।"); 
         show('pageLogin'); 
@@ -421,14 +407,13 @@ function loginStudent() {
         
         studentName = data.name;
         studentClass = data.class;
-        studentPhone = data.phone;
         studentCoins = data.coins || 0;
         studentXP = data.xp || 0;
         
         updateDashboardHeader();
         loadSystemSettings();
         loadDailyQuests();
-        loadStudentHistoryAndChart(); // Load history + Generate Live Chart
+        loadStudentHistoryAndChart();
         show('pageDashboard');
     });
 }
@@ -457,14 +442,11 @@ function loadDailyQuests() {
     `;
 }
 
-// ==========================================
-// VISUAL GRAPH AND CHAPTER BREAKDOWN SYSTEM
-// ==========================================
 function loadStudentHistoryAndChart() {
     fetch(DB + "/results.json").then(r => r.json()).then(data => {
         if(!data) { 
             document.getElementById('studentHistoryBox').innerHTML = "কোনো পরীক্ষার রেকর্ড নেই।"; 
-            renderChart(0, 0); // Empty graph
+            renderChart(0, 0);
             return; 
         }
         
@@ -473,8 +455,7 @@ function loadStudentHistoryAndChart() {
         let totalWrongQuestions = 0;
 
         Object.values(data).reverse().forEach(res => {
-            if(res.phone === studentPhone || res.name === studentName) {
-                // Approximate calculations based on dynamic score mapping
+            if(res.name === studentName) {
                 let totalQ = res.total || 10;
                 let cCount = Math.round((res.percent / 100) * totalQ);
                 let wCount = totalQ - cCount;
@@ -492,22 +473,14 @@ function loadStudentHistoryAndChart() {
         });
         
         document.getElementById('studentHistoryBox').innerHTML = html || "কোনো পরীক্ষার রেকর্ড নেই।";
-        
-        // Render or Update the visual graph canvas dynamically
         renderChart(totalCorrectQuestions, totalWrongQuestions);
     });
 }
 
 function renderChart(correct, wrong) {
     let ctx = document.getElementById('analyticsChart').getContext('2d');
-    
-    if(myChartInstance) {
-        myChartInstance.destroy(); // Destroy previous trace instance to avoid overlapping render
-    }
-    
-    if(correct === 0 && wrong === 0) {
-        correct = 1; // Default placeholders for new accounts
-    }
+    if(myChartInstance) { myChartInstance.destroy(); }
+    if(correct === 0 && wrong === 0) { correct = 1; }
 
     myChartInstance = new Chart(ctx, {
         type: 'doughnut',
@@ -532,9 +505,6 @@ function renderChart(correct, wrong) {
     });
 }
 
-// ==========================================
-// DYNAMIC QUIZ CORE AND MODES
-// ==========================================
 function addConfig() {
     let sub = document.getElementById("examSubject").value;
     let chap = document.getElementById("examChapter").value;
@@ -612,9 +582,6 @@ function handleAnswer(qIndex, selectedIdx) {
     }
 }
 
-// ==========================================
-// LIFELINES LOGIC
-// ==========================================
 function use5050() {
     if(studentCoins < 10) return alert("❌ পর্যাপ্ত কয়েন নেই!");
     let qIndex = -1;
@@ -665,9 +632,6 @@ function updateDataInFirebase() {
     }).then(() => updateDashboardHeader());
 }
 
-// ==========================================
-// SUBMISSION AND REALTIME COMPUTATION
-// ==========================================
 function submitExam() {  
   if (submitted) return; submitted = true;  
   if (timerInterval) clearInterval(timerInterval);  
@@ -679,11 +643,10 @@ function submitExam() {
       if(parseInt(ans.value) === x.correct){ score++; } 
       else { wrong++; }  
     } else {
-      wrong++; // Counted as incorrect if left blank
+      wrong++;
     }
   });  
   
-  var penalty = (wrong - (examQuestions.length - score)) * globalNegMark; // dynamic computation offset
   var fixedWrong = examQuestions.length - score;
   var finalScore = score - (fixedWrong * globalNegMark);
   var displayScore = finalScore < 0 ? 0 : finalScore;
@@ -702,12 +665,12 @@ function submitExam() {
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({ 
-        name:studentName, class:studentClass, phone:studentPhone, 
+        name:studentName, class:studentClass, 
         subject:examSubResult, chapter:examChapResult, score:finalScore, 
         total: examQuestions.length, percent:percent, grade:grade, time:new Date().toLocaleString() 
     })
   }).then(() => {
-      loadStudentHistoryAndChart(); // Live update dashboard behind scenes
+      loadStudentHistoryAndChart();
   });
 
   document.getElementById("result").innerHTML = `
@@ -735,9 +698,6 @@ function loadLeaderboards() {
     });
 }
 
-// ==========================================
-// ADMIN UTILITIES
-// ==========================================
 function exportResultsToCSV() {
     fetch(DB + "/results.json").then(r => r.json()).then(data => {
         if(!data) return alert("কোনো ডাটা নেই!");
