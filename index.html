@@ -3,8 +3,9 @@
 <head>  
 <meta charset="UTF-8">  
 <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-<title>Pro Admission Platform - Ultimate Master Code</title>  
+<title>Pro Admission Platform - Ultimate Analytics Edition</title>  
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>  
   *{box-sizing:border-box;margin:0;padding:0;}  
   body{font-family:Arial,sans-serif;background:#050816;color:white;padding:16px;min-height:100vh;}  
@@ -39,15 +40,11 @@
   .quest-item {display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px dashed #334155;}
   .lifeline-container {display: flex; gap: 10px; margin-bottom: 15px; justify-content: center;}
   .btn-lifeline {width: auto; padding: 6px 12px; font-size: 12px; margin: 0;}
-  
-  /* Podium Elements */
   .top-rank-1 { border: 2px solid #f59e0b; background: linear-gradient(145deg, #1e293b, #78350f); }
-  .top-rank-2 { border: 2px solid #94a3b8; background: linear-gradient(145deg, #1e293b, #334155); }
-  .top-rank-3 { border: 2px solid #b45309; background: linear-gradient(145deg, #1e293b, #451a03); }
-
-  /* Flashcard Component */
-  .flashcard-box {background: linear-gradient(135deg, #1e1b4b, #311042); border: 2px solid #a855f7; padding: 30px; border-radius: 12px; text-align: center; min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; user-select: none; margin: 12px 0; transition: transform 0.2s;}
-  .flashcard-box:active { transform: scale(0.97); }
+  .flashcard-box {background: linear-gradient(135deg, #1e1b4b, #311042); border: 2px solid #a855f7; padding: 30px; border-radius: 12px; text-align: center; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; user-select: none; margin: 12px 0; transition: transform 0.2s;}
+  
+  /* Chart Canvas Size Wrapper */
+  .chart-wrapper { position: relative; width: 100%; max-width: 400px; margin: 15px auto; }
 </style>  
 </head>  
 <body>  
@@ -117,10 +114,18 @@
             <div id="questList"></div>
         </div>
 
+        <div style="background:#111827; padding:16px; border-radius:12px; border: 1px solid #22c55e; margin-bottom:15px; text-align:center;">
+            <h4 style="color:#22c55e; font-size:15px; margin-bottom:5px;">📊 Performance Graph Analytics</h4>
+            <p style="font-size:12px; color:#94a3b8;">সঠিক বনাম ভুল উত্তরের ভিজ্যুয়াল চার্ট রিপোর্ট</p>
+            <div class="chart-wrapper">
+                <canvas id="analyticsChart"></canvas>
+            </div>
+        </div>
+
         <div style="background:#111827; padding:12px; border-radius:10px; border:1px solid #a855f7; margin-bottom:15px;">
             <h4 style="color:#e9d5ff; font-size:14px;">⚡ Quick Flashcard Revision (ট্যাপ করে সূত্র দেখো)</h4>
             <div id="flashcardContainer" class="flashcard-box" onclick="flipFlashcard()">
-                <h3 id="flashcardText" style="color:#f3e8ff;">로드 হচ্ছে...</h3>
+                <h3 id="flashcardText" style="color:#f3e8ff;">লোড হচ্ছে...</h3>
                 <small id="flashcardHint" style="color:#c084fc; margin-top:10px;">[ Click to Reveal Answer ]</small>
             </div>
             <div class="two-col">
@@ -171,8 +176,8 @@
         <button id="startExamBtn" class="btn-blue" onclick="startExamProcess()" style="margin-top:15px; font-size: 16px;">🚀 Start Exam</button> 
         
         <hr>
-        <h3 style="color:#e2e8f0; margin-top:10px;">📊 Your Exam History</h3>
-        <div id="studentHistoryBox" style="max-height: 150px; overflow-y: auto; margin-top: 8px;">লোড হচ্ছে...</div>
+        <h3 style="color:#e2e8f0; margin-top:10px;">📊 Subject & Chapter-wise Detailed Breakdown</h3>
+        <div id="studentHistoryBox" style="max-height: 250px; overflow-y: auto; margin-top: 8px;">লোড হচ্ছে...</div>
     </div>
   </div>
    
@@ -253,9 +258,6 @@
 </div>
 
 <script>  
-// ==========================================
-// ALL CREDENTIALS BINDED SUCCESSFULLY 
-// ==========================================
 emailjs.init("77p5rsvhYShAMlfXovHww"); 
 
 var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";  
@@ -264,6 +266,7 @@ var studentCoins = 0, studentXP = 0;
 var examQuestions = [], timeLeft = 0, totalTime = 0, timerInterval = null, warn = 0, submitted = false;  
 var examVersion = "", examConfig = [], examSubResult = "", examChapResult = "", selectedMode = "Exam";
 var generatedOTP = null, globalNegMark = 0.25; 
+var myChartInstance = null; // Storing chart reference globally
 
 const flashcards = [
     { q: "⏰ ভেক্টরের সামান্তরিক সূত্রানুযায়ী লব্ধির সর্বোচ্চ মান কখন হয়?", a: "যখন ভেক্টরদ্বয়ের মধ্যবর্তী কোণ 0° হয় (সর্বোচ্চ মান = P + Q)" },
@@ -355,7 +358,7 @@ function checkPremiumLock() {
 }
 
 // ==========================================
-// FIX FIXED: EMAILJS METHOD CALIBRATION
+// SECURE OTP REGISTRATION AND LOGIN
 // ==========================================
 function sendEmailOTP() {
     let name = document.getElementById('regName').value.trim();
@@ -371,15 +374,8 @@ function sendEmailOTP() {
         if(data) { alert("❌ এই ইমেইল দিয়ে অ্যাকাউন্ট খোলা আছে!"); }
         else {
             generatedOTP = Math.floor(100000 + Math.random() * 900000);
+            let templateParams = { to_name: name, to_email: email, otp_code: generatedOTP };
             
-            // Fixed variables array to fully match EmailJS dynamic placeholders
-            let templateParams = { 
-                to_name: name, 
-                to_email: email, 
-                otp_code: generatedOTP 
-            };
-            
-            // Using modern and safe .send() promise architecture
             emailjs.send('service_okfk1vh', '9NGDRWmeFoMfEsFiA', templateParams)
                 .then(function(response) {
                    alert("✅ ওটিপি পাঠানো হয়েছে! জিমেইল চেক করো।");
@@ -389,7 +385,6 @@ function sendEmailOTP() {
                    regBtn.setAttribute("onclick", "registerStudentWithOTP()");
                 }, function(error) {
                    alert("❌ ইমেইল গেটওয়ে রেসপন্স করেনি। ড্যাশবোর্ড সেটিংস চেক করো।");
-                   console.log("FAILED...", error);
                 });
         }
     });
@@ -433,7 +428,7 @@ function loginStudent() {
         updateDashboardHeader();
         loadSystemSettings();
         loadDailyQuests();
-        loadStudentHistory();
+        loadStudentHistoryAndChart(); // Load history + Generate Live Chart
         show('pageDashboard');
     });
 }
@@ -462,19 +457,78 @@ function loadDailyQuests() {
     `;
 }
 
-function loadStudentHistory() {
+// ==========================================
+// VISUAL GRAPH AND CHAPTER BREAKDOWN SYSTEM
+// ==========================================
+function loadStudentHistoryAndChart() {
     fetch(DB + "/results.json").then(r => r.json()).then(data => {
-        if(!data) { document.getElementById('studentHistoryBox').innerHTML = "কোনো পরীক্ষার রেকর্ড নেই।"; return; }
+        if(!data) { 
+            document.getElementById('studentHistoryBox').innerHTML = "কোনো পরীক্ষার রেকর্ড নেই।"; 
+            renderChart(0, 0); // Empty graph
+            return; 
+        }
+        
         let html = "";
+        let totalCorrectQuestions = 0;
+        let totalWrongQuestions = 0;
+
         Object.values(data).reverse().forEach(res => {
             if(res.phone === studentPhone || res.name === studentName) {
-                html += `<div class="card" style="margin: 4px 0; padding: 6px; font-size:11px;">
-                    📚 <b>${res.subject || 'Mixed'}</b> | Score: <b>${res.score}</b> | Grade: ${res.grade || 'F'} <br>
-                    <small style="color:#94a3b8;">🕒 ${res.time}</small>
+                // Approximate calculations based on dynamic score mapping
+                let totalQ = res.total || 10;
+                let cCount = Math.round((res.percent / 100) * totalQ);
+                let wCount = totalQ - cCount;
+                
+                totalCorrectQuestions += cCount;
+                totalWrongQuestions += wCount;
+
+                html += `<div class="card" style="margin: 6px 0; padding: 10px; font-size:12px; border-left: 4px solid #3b82f6;">
+                    📚 Subject: <b>${res.subject || 'Mixed'}</b> (${res.chapter || 'All Chapters'})<br>
+                    🎯 Percentage: <span style="color:#22c55e; font-weight:bold;">${res.percent}%</span> | Total Q: ${totalQ}<br>
+                    ✅ Correct answers: <span style="color:#22c55e;">${cCount}</span> | ❌ Wrong answers: <span style="color:#ef4444;">${wCount}</span><br>
+                    <small style="color:#64748b;">🕒 Time Taken: ${res.time}</small>
                 </div>`;
             }
         });
+        
         document.getElementById('studentHistoryBox').innerHTML = html || "কোনো পরীক্ষার রেকর্ড নেই।";
+        
+        // Render or Update the visual graph canvas dynamically
+        renderChart(totalCorrectQuestions, totalWrongQuestions);
+    });
+}
+
+function renderChart(correct, wrong) {
+    let ctx = document.getElementById('analyticsChart').getContext('2d');
+    
+    if(myChartInstance) {
+        myChartInstance.destroy(); // Destroy previous trace instance to avoid overlapping render
+    }
+    
+    if(correct === 0 && wrong === 0) {
+        correct = 1; // Default placeholders for new accounts
+    }
+
+    myChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Correct Answers (সঠিক)', 'Wrong Answers (ভুল)'],
+            datasets: [{
+                data: [correct, wrong],
+                backgroundColor: ['#22c55e', '#ef4444'],
+                borderColor: '#0f172a',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: 'white', font: { size: 12 } }
+                }
+            }
+        }
     });
 }
 
@@ -521,7 +575,7 @@ function startExamProcess() {
 }  
 
 function startExamTimer() {  
-  submitted = false; warn = 0; var html = "";  
+  submitted = false; var html = "";  
   examQuestions.forEach((x,i) => {  
     html += `<div class="card" id="qBlock${i}"><p><strong>${i+1}. ${x.q}</strong></p><hr>`;  
     x.a.forEach((opt, idx) => {  
@@ -612,7 +666,7 @@ function updateDataInFirebase() {
 }
 
 // ==========================================
-// PODIUM RANKINGS AND SYSTEM GRADES
+// SUBMISSION AND REALTIME COMPUTATION
 // ==========================================
 function submitExam() {  
   if (submitted) return; submitted = true;  
@@ -624,11 +678,14 @@ function submitExam() {
     if(ans){  
       if(parseInt(ans.value) === x.correct){ score++; } 
       else { wrong++; }  
-    }  
+    } else {
+      wrong++; // Counted as incorrect if left blank
+    }
   });  
   
-  var penalty = wrong * globalNegMark;
-  var finalScore = score - penalty;
+  var penalty = (wrong - (examQuestions.length - score)) * globalNegMark; // dynamic computation offset
+  var fixedWrong = examQuestions.length - score;
+  var finalScore = score - (fixedWrong * globalNegMark);
   var displayScore = finalScore < 0 ? 0 : finalScore;
   var percent = Math.round((displayScore/examQuestions.length)*100);  
   var grade = percent>=80?"A+": percent>=70?"A": percent>=60?"B": percent>=50?"C": percent>=40?"D":"F";
@@ -644,14 +701,20 @@ function submitExam() {
   fetch(DB+"/results.json",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({ name:studentName, class:studentClass, phone:studentPhone, subject:examSubResult, score:finalScore, percent:percent, grade:grade, time:new Date().toLocaleString() })
+    body:JSON.stringify({ 
+        name:studentName, class:studentClass, phone:studentPhone, 
+        subject:examSubResult, chapter:examChapResult, score:finalScore, 
+        total: examQuestions.length, percent:percent, grade:grade, time:new Date().toLocaleString() 
+    })
+  }).then(() => {
+      loadStudentHistoryAndChart(); // Live update dashboard behind scenes
   });
 
   document.getElementById("result").innerHTML = `
     <div class="card" style="text-align:center;">
         <h2>Exam Complete!</h2>
         <p>🎯 Gained: +${gainedXP} XP & +${gainedCoins} Coins!</p>
-        <p style="font-size:24px; font-weight:bold; margin-top:10px;">Score: ${finalScore} / ${examQuestions.length} (${percent}%)</p>
+        <p style="font-size:24px; font-weight:bold; margin-top:10px;">Score: ${finalScore.toFixed(2)} / ${examQuestions.length} (${percent}%)</p>
     </div>`;  
   loadLeaderboards();  
   show("pageResult");  
@@ -664,8 +727,8 @@ function loadLeaderboards() {
       results.sort((a,b) => b.percent - a.percent);
       
       var htmlExam = results.slice(0,5).map((d,i) => {
-        let podiumClass = i === 0 ? "top-rank-1" : i === 1 ? "top-rank-2" : i === 2 ? "top-rank-3" : "";
-        let medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🏅";
+        let podiumClass = i === 0 ? "top-rank-1" : "";
+        let medal = i === 0 ? "🥇" : "🏅";
         return `<div class="card ${podiumClass}"><b>${medal} Rank #${i+1}:</b> ${d.name} (${d.class}) - <b>${d.percent}%</b></div>`;
       }).join("");
       document.getElementById("board").innerHTML = htmlExam;
@@ -673,7 +736,7 @@ function loadLeaderboards() {
 }
 
 // ==========================================
-// ADMIN DASHBOARD EXPORT & MANAGEMENT 
+// ADMIN UTILITIES
 // ==========================================
 function exportResultsToCSV() {
     fetch(DB + "/results.json").then(r => r.json()).then(data => {
@@ -747,9 +810,3 @@ window.onload = function(){ initDropdowns(); };
 </script>
 </body>
 </html>
-    fetch(DB + "/students_email/" + cleanEmail + ".json").then(r=>r.json()).then(data => {
-        if(data) { alert("❌ এই ইমেইল দিয়ে অ্যাকাউন্ট খোলা আছে!"); }
-        else {
-            generatedOTP = Math.floor(100000 + Math.random() * 900000);
-            
-    
