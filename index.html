@@ -19,6 +19,10 @@
   .btn-red{background:#ef4444;color:white;}  
   .btn-gray{background:#475569;color:white;}  
   .card{background:#1e293b;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #334155;}  
+  
+  /* Image Responsive CSS - Added for Image Questions */
+  .card img {max-width: 100%; height: auto; border-radius: 6px; margin: 8px 0;} 
+  
   #timer{font-size:22px;color:#f87171;font-weight:bold;margin:10px 0; text-align:center;}  
   #progressBar{width:100%;height:8px;background:#334155;border-radius:10px;margin-bottom:12px;}  
   #progress{height:8px;background:#22c55e;border-radius:10px;width:100%;transition:width .5s;}  
@@ -110,7 +114,7 @@
         <option value="All">All Chapters</option>
       </select>
 
-      <input id="q" placeholder="প্রশ্ন লেখো">
+      <input id="q" placeholder="প্রশ্ন লেখো (HTML / Image Link support করে)">
 
       <div class="two-col">
         <input id="o1" placeholder="Option 1">
@@ -306,7 +310,7 @@ function addQuestion() {
   var subject = document.getElementById("subject").value;
   var chapter = document.getElementById("chapter").value; 
   var qType = document.getElementById("qType").value;
-  var qVersion = document.getElementById("qVersion").value; // VERSION
+  var qVersion = document.getElementById("qVersion").value; 
   var stars = parseInt(document.getElementById("qDifficulty").value);
   var exp = document.getElementById("exp").value.trim(); 
   
@@ -389,7 +393,7 @@ function studentLogin() {
   sClass = document.getElementById("studentClass").value.trim();  
   var examSubject = document.getElementById("examSubject").value;
   var examChapter = document.getElementById("examChapter").value; 
-  examVersion = document.getElementById("examVersion").value; // VERISON
+  examVersion = document.getElementById("examVersion").value; 
   
   if (!student||!sClass) { alert("নাম ও ক্লাস লেখো!"); return; }  
   
@@ -398,8 +402,7 @@ function studentLogin() {
       
       examQuestions = Object.values(data);
       
-      // Filter by Version
-      examQuestions = examQuestions.filter(q => q.version === examVersion || !q.version); // Fallback for old questions
+      examQuestions = examQuestions.filter(q => q.version === examVersion || !q.version); 
 
       if(examSubject !== "All" && examSubject !== ""){
           examQuestions = examQuestions.filter(q => q.subject === examSubject);
@@ -550,7 +553,7 @@ function loadLeaderboards() {
       
       var filterSub = document.getElementById("examSubject").value;
       var filterChap = document.getElementById("examChapter").value;
-      var examResults = results.filter(x => x.version === examVersion); // Filter by version
+      var examResults = results.filter(x => x.version === examVersion); 
       
       if (filterSub !== "All" && filterSub !== "") examResults = examResults.filter(x => x.subject === filterSub);
       if (filterChap !== "All") examResults = examResults.filter(x => x.chapter === filterChap);
@@ -605,7 +608,7 @@ function loadQuestions() {
         var q = data[key];
         if (!q || !q.q) return;
         
-        let qVer = q.version || "Bengali"; // Default for old questions
+        let qVer = q.version || "Bengali"; 
         if (searchVer !== "All" && qVer !== searchVer) return;
         if (searchSub !== "All" && q.subject !== searchSub) return;
         if (searchChap !== "All" && q.chapter !== searchChap) return;
