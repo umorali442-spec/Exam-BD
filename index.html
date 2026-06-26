@@ -4,7 +4,6 @@
 <meta charset="UTF-8">  
 <meta name="viewport" content="width=device-width, initial-scale=1.0">  
 <title>Smart Online Exam</title>  
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>  
   *{box-sizing:border-box;margin:0;padding:0;}  
@@ -52,7 +51,7 @@
   <div id="pageLogin">  
     <div class="card">  
       <h3 style="text-align:center; font-size:1.2rem;">👨‍🎓 Student Login</h3>  
-      <input id="loginEmail" type="email" placeholder="Enter Registered Email">  
+      <input id="loginId" type="text" placeholder="Enter Registered Gmail or Phone Number">  
       <input type="password" id="loginPass" placeholder="Password"> 
       <button class="btn-blue" onclick="loginStudent()">Login ▶</button> 
       <p class="link-text" onclick="show('pageRegister')">অ্যাকাউন্ট নেই? নতুন একাউন্ট খুলুন</p>
@@ -81,16 +80,11 @@
           <option value="HSC 28">HSC 28</option>
           <option value="HSC 29">HSC 29</option>
       </select>
-      <input id="regEmail" type="email" placeholder="Email Address">  
-      <input type="password" id="regPass" placeholder="Create a Password"> 
       
-      <div id="otpSection" style="margin-top: 10px; display:none;">
-          <hr>
-          <p style="font-size:13px; color:#f59e0b; margin-bottom:5px;">তোমার ইমেইলে একটি ওটিপি কোড পাঠানো হয়েছে।</p>
-          <input id="regOtp" type="number" placeholder="Enter 6-Digit OTP Code">
-      </div>
+      <input id="regId" type="text" placeholder="Enter Gmail OR Phone Number">  
+      <input type="password" id="regPass" placeholder="Create a Password"> 
 
-      <button id="mainRegBtn" class="btn-green" onclick="sendEmailOTP()">Send OTP to Email ✉</button> 
+      <button id="mainRegBtn" class="btn-green" onclick="registerStudentDirect()">Register Now 🚀</button> 
       <p class="link-text" onclick="show('pageLogin')">আগের একাউন্ট আছে? লগইন করো</p>
     </div>
   </div>
@@ -255,18 +249,12 @@
 </div>
 
 <script>  
-// ==========================================
-// ALL CREDENTIALS BINDED SUCCESSFULLY 
-// ==========================================
-// 🔑 মেইন চাবি (Public Key)
-emailjs.init("9NGDRWmeFoMfEsFiA"); 
-
 var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";  
-var studentName = "", studentClass = "", studentEmail = "", studentCleanEmail = "";
+var studentName = "", studentClass = "", studentCleanEmail = "";
 var studentCoins = 0, studentXP = 0;
 var examQuestions = [], timeLeft = 0, totalTime = 0, timerInterval = null, warn = 0, submitted = false;  
 var examVersion = "", examConfig = [], examSubResult = "", examChapResult = "", selectedMode = "Exam";
-var generatedOTP = null, globalNegMark = 0.25; 
+var globalNegMark = 0.25; 
 var myChartInstance = null; 
 
 const flashcards = [
@@ -352,63 +340,48 @@ function checkPremiumLock() {
     }
 }
 
-function sendEmailOTP() {
+// ==========================================
+// DIRECT REGISTRATION (No OTP)
+// ==========================================
+function registerStudentDirect() {
     let name = document.getElementById('regName').value.trim();
     let batch = document.getElementById('regBatch').value;
-    let email = document.getElementById('regEmail').value.trim();
+    let userId = document.getElementById('regId').value.trim(); // Can be Gmail or Phone
     let pass = document.getElementById('regPass').value.trim();
 
-    if(!name || !batch || !email || !pass) { alert("সব ফিল্ড পূরণ করো!"); return; }
-    let cleanEmail = email.replace(/\./g, '_');
+    if(!name || !batch || !userId || !pass) { 
+        alert("সব ফিল্ড পূরণ করো!"); 
+        return; 
+    }
+    
+    // Database safe ID (replaces dots with underscore if it's an email)
+    let cleanId = userId.replace(/\./g, '_');
 
-    fetch(DB + "/students_email/" + cleanEmail + ".json").then(r=>r.json()).then(data => {
-        if(data) { alert("❌ এই ইমেইল দিয়ে অ্যাকাউন্ট খোলা আছে!"); }
-        else {
-            generatedOTP = Math.floor(100000 + Math.random() * 900000);
-            let templateParams = { to_name: name, to_email: email, otp_code: generatedOTP };
-            
-            // 🎯 তোমার দেওয়া আসল Template ID বসানো হয়েছে
-            emailjs.send('service_v8kvekp', 'template_lj3iz1l', templateParams)
-                .then(function(response) {
-                   alert("✅ ওটিপি পাঠানো হয়েছে! জিমেইল চেক করো।");
-                   document.getElementById('otpSection').style.display = 'block';
-                   let regBtn = document.getElementById('mainRegBtn');
-                   regBtn.innerText = "Verify & Register ✔";
-                   regBtn.setAttribute("onclick", "registerStudentWithOTP()");
-                }, function(error) {
-                   alert("EmailJS Error: " + (error.text || JSON.stringify(error)));
-                });
+    fetch(DB + "/students_email/" + cleanId + ".json").then(r=>r.json()).then(data => {
+        if(data) { 
+            alert("❌ এই জিমেইল বা ফোন নাম্বার দিয়ে আগে থেকেই একটি অ্যাকাউন্ট খোলা আছে!"); 
+        } else {
+            fetch(DB + "/students_email/" + cleanId + ".json", {
+                method: "PUT",
+                body: JSON.stringify({ name: name, class: batch, pass: pass, contact: userId, coins: 50, xp: 0 })
+            }).then(() => { 
+                alert("🎉 রেজিস্ট্রেশন সফল! বোনাস ৫০ কয়েন পেয়েছ। এখন লগইন করো।"); 
+                show('pageLogin'); 
+            });
         }
     });
 }
 
-function registerStudentWithOTP() {
-    let userOTP = document.getElementById('regOtp').value.trim();
-    if(parseInt(userOTP) !== generatedOTP) { alert("❌ ভুল ওটিপি!"); return; }
-
-    let name = document.getElementById('regName').value.trim();
-    let batch = document.getElementById('regBatch').value;
-    let email = document.getElementById('regEmail').value.trim();
-    let pass = document.getElementById('regPass').value.trim();
-    let cleanEmail = email.replace(/\./g, '_');
-
-    fetch(DB + "/students_email/" + cleanEmail + ".json", {
-        method: "PUT",
-        body: JSON.stringify({ name: name, class: batch, pass: pass, email: email, coins: 50, xp: 0 })
-    }).then(() => { 
-        alert("🎉 রেজিস্ট্রেশন সফল! বোনাস ৫০ কয়েন পেয়েছ।"); 
-        show('pageLogin'); 
-    });
-}
-
 function loginStudent() {
-    let email = document.getElementById('loginEmail').value.trim();
+    let userId = document.getElementById('loginId').value.trim();
     let pass = document.getElementById('loginPass').value.trim();
-    if(!email || !pass) { alert("লগইন ডেটা দাও!"); return; }
-    studentCleanEmail = email.replace(/\./g, '_');
+    if(!userId || !pass) { alert("লগইন ডেটা দাও!"); return; }
+    
+    // Process the ID the same way we did in registration
+    studentCleanEmail = userId.replace(/\./g, '_');
 
     fetch(DB + "/students_email/" + studentCleanEmail + ".json").then(r=>r.json()).then(data => {
-        if(!data || data.pass !== pass) { alert("❌ লগইন ব্যর্থ!"); return; }
+        if(!data || data.pass !== pass) { alert("❌ লগইন ব্যর্থ! সঠিক জিমেইল/নাম্বার এবং পাসওয়ার্ড দাও।"); return; }
         
         studentName = data.name;
         studentClass = data.class;
