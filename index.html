@@ -35,6 +35,9 @@
   .top-rank-2{background: linear-gradient(45deg, #e2e8f0, #94a3b8); color: #000 !important; border: none;}
   .top-rank-3{background: linear-gradient(45deg, #fed7aa, #c2410c); color: #000 !important; border: none;}
   .q-actions{display: flex; gap: 8px; margin-top: 10px;}
+  .star-text{color:#f59e0b; font-size:14px;}
+  .badge-adv{background:#ef4444; color:white; padding:2px 6px; border-radius:4px; font-size:11px; margin-left:6px;}
+  .badge-ver{background:#3b82f6; color:white; padding:2px 6px; border-radius:4px; font-size:11px; margin-left:6px;}
 </style>  
 </head>  
 <body>  
@@ -47,9 +50,15 @@
       <input id="studentName" placeholder="Student Name (তোমার নাম লেখো)">  
       <input id="studentClass" placeholder="Class (তোমার ক্লাস লেখো)"> 
       
-      <select id="examSubject" onchange="updateChapters('examSubject', 'examChapter')">
-        <option value="">-- সাবজেক্ট সিলেক্ট করো --</option>
-      </select>
+      <div class="two-col">
+          <select id="examVersion">
+            <option value="Bengali">🟢 বাংলা ভার্সন (Bengali)</option>
+            <option value="English">🔵 English Version</option>
+          </select>
+          <select id="examSubject" onchange="updateChapters('examSubject', 'examChapter')">
+            <option value="">-- সাবজেক্ট সিলেক্ট করো --</option>
+          </select>
+      </div>
       
       <select id="examChapter">
         <option value="All">All Chapters</option>
@@ -73,9 +82,29 @@
   <div id="page2" style="display:none;">  
     <div class="card">  
       <h3>➕ নতুন প্রশ্ন যোগ করো</h3> 
-      <select id="subject" onchange="updateChapters('subject', 'chapter')">
-        <option value="">-- সাবজেক্ট সিলেক্ট করো --</option>
-      </select>
+      
+      <div class="two-col">
+          <select id="qVersion">
+              <option value="Bengali">🟢 বাংলা ভার্সন</option>
+              <option value="English">🔵 English Version</option>
+          </select>
+          <select id="qType" onchange="initAddQuestionSubjects()">
+              <option value="Academic">📚 Academic</option>
+              <option value="Advanced">🚀 Advanced</option>
+          </select>
+      </div>
+
+      <div class="two-col" style="margin-top:8px;">
+          <select id="subject" onchange="updateChapters('subject', 'chapter')">
+            </select>
+          <select id="qDifficulty">
+              <option value="1">⭐ 1 Star</option>
+              <option value="2">⭐⭐ 2 Star</option>
+              <option value="3">⭐⭐⭐ 3 Star</option>
+              <option value="4">⭐⭐⭐⭐ 4 Star</option>
+              <option value="5">⭐⭐⭐⭐⭐ 5 Star</option>
+          </select>
+      </div>
       
       <select id="chapter">
         <option value="All">All Chapters</option>
@@ -101,9 +130,10 @@
       <button class="btn-green" onclick="addQuestion()">প্রশ্ন যোগ করো ✚</button>  
       
       <hr>
-      <h3>📥 Bulk Import Questions</h3>
+      <h3>📥 Bulk Import Questions (Auto Filter)</h3>
+      <p style="font-size:12px; color:#94a3b8; margin-bottom:8px;">(উপরের ড্রপডাউন থেকে Version, Subject, Chapter, Star এবং Type সিলেক্ট করে JSON পেস্ট করো)</p>
       <textarea id="bulkData" placeholder="এখানে JSON Paste করো"
-        style="width:100%;height:150px;background:#1e293b;color:white;border:1px solid #334155;border-radius:8px;padding:10px;margin-top:5px;"></textarea>
+        style="width:100%;height:150px;background:#1e293b;color:white;border:1px solid #334155;border-radius:8px;padding:10px;"></textarea>
       <button class="btn-yellow" onclick="bulkImport()">📥 Bulk Import Questions</button>
       
       <div id="qMsg" class="msg" style="display:none; margin-top: 10px;"></div>  
@@ -113,10 +143,20 @@
       <h3>📋 Question List & Filter</h3>
       
       <div class="two-col">
-        <select id="filterSubject" onchange="loadQuestions()">
+        <select id="filterVersion" onchange="loadQuestions()">
+            <option value="All">All Versions</option>
+            <option value="Bengali">Bengali Version</option>
+            <option value="English">English Version</option>
+        </select>
+        <select id="filterSubject" onchange="updateChapters('filterSubject', 'filterChapter'); loadQuestions()">
             <option value="All">All Subjects</option>
         </select>
-        <input id="searchQuestion" placeholder="🔍 প্রশ্ন খুঁজুন..." onkeyup="loadQuestions()">
+      </div>
+      <div class="two-col">
+          <select id="filterChapter" onchange="loadQuestions()">
+              <option value="All">All Chapters</option>
+          </select>
+          <input id="searchQuestion" placeholder="🔍 প্রশ্ন খুঁজুন..." onkeyup="loadQuestions()">
       </div>
       
       <div id="questionList" style="margin-top: 10px; max-height: 400px; overflow-y: auto;"></div>
@@ -162,6 +202,7 @@
 <script>  
 var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";  
 var student = "", sClass = "", examQuestions = [], timeLeft = 0, totalTime = 0, timerInterval = null, warn = 0, submitted = false;  
+var examVersion = "";
 
 // Comprehensive HSC Subjects and Chapters Mapping
 const hscData = {
@@ -180,7 +221,6 @@ const hscData = {
     "English 2nd Paper": ["Grammar", "Composition"]
 };
 
-// Initialize Dropdowns
 function initDropdowns() {
     let subjectHTML = '<option value="All">All Subjects</option>';
     let filterSubjectHTML = '<option value="All">All Subjects</option>';
@@ -192,8 +232,23 @@ function initDropdowns() {
     }
     
     document.getElementById("examSubject").innerHTML = subjectHTML;
-    document.getElementById("subject").innerHTML = subjectHTML;
     document.getElementById("filterSubject").innerHTML = filterSubjectHTML;
+    initAddQuestionSubjects();
+}
+
+function initAddQuestionSubjects() {
+    let type = document.getElementById("qType").value;
+    let subSelect = document.getElementById("subject");
+    let html = '<option value="">-- সাবজেক্ট সিলেক্ট করো --</option>';
+    
+    for (let sub in hscData) {
+        if (type === "Advanced") {
+            if (!sub.includes("Physics") && !sub.includes("Chemistry") && !sub.includes("Math")) continue;
+        }
+        html += `<option value="${sub}">${sub}</option>`;
+    }
+    subSelect.innerHTML = html;
+    updateChapters('subject', 'chapter');
 }
 
 function updateChapters(subId, chapId) {
@@ -222,7 +277,6 @@ function showQMsg(text, bg) {
   el.innerHTML = text;  
 }  
   
-// ===== TEACHER LOGIN =====  
 function teacherLogin() {  
   var u = document.getElementById("user").value;  
   var p = document.getElementById("pass").value;  
@@ -242,7 +296,6 @@ function loadQCount() {
   });  
 }  
   
-// ===== ADD QUESTION =====  
 function addQuestion() {  
   var q = document.getElementById("q").value.trim();  
   var o1 = document.getElementById("o1").value.trim();  
@@ -252,6 +305,9 @@ function addQuestion() {
   var correct = parseInt(document.getElementById("correct").value); 
   var subject = document.getElementById("subject").value;
   var chapter = document.getElementById("chapter").value; 
+  var qType = document.getElementById("qType").value;
+  var qVersion = document.getElementById("qVersion").value; // VERSION
+  var stars = parseInt(document.getElementById("qDifficulty").value);
   var exp = document.getElementById("exp").value.trim(); 
   
   if (subject === "All" || subject === "") { alert("Subject সিলেক্ট করো!"); return; }
@@ -262,7 +318,10 @@ function addQuestion() {
   fetch(DB+"/questions.json", {  
     method: "POST",  
     headers: {"Content-Type":"application/json"},  
-    body: JSON.stringify({ subject: subject, chapter: chapter, q: q, a: [o1,o2,o3,o4], correct: correct, exp: exp })
+    body: JSON.stringify({ 
+        version: qVersion, subject: subject, chapter: chapter, q: q, a: [o1,o2,o3,o4], correct: correct, 
+        type: qType, stars: stars, exp: exp 
+    })
   }).then(() => {  
       ["q","o1","o2","o3","o4","exp"].forEach(id => document.getElementById(id).value="");  
       loadQCount();  
@@ -270,10 +329,20 @@ function addQuestion() {
   });  
 }  
 
-// ===== BULK IMPORT FUNCTION =====
 function bulkImport() {
   var txt = document.getElementById("bulkData").value.trim();
   if(!txt){ alert("JSON Paste করো!"); return; }
+  
+  var selectedVersion = document.getElementById("qVersion").value;
+  var selectedSubject = document.getElementById("subject").value;
+  var selectedChapter = document.getElementById("chapter").value;
+  var selectedType = document.getElementById("qType").value;
+  var selectedStars = parseInt(document.getElementById("qDifficulty").value);
+
+  if (selectedSubject === "All" || selectedSubject === "") { 
+      alert("❌ Bulk Import করার আগে অবশ্যই একটি Subject সিলেক্ট করো!"); 
+      return; 
+  }
   
   try {
     var questions = JSON.parse(txt);
@@ -281,6 +350,12 @@ function bulkImport() {
     
     var requests = [];
     questions.forEach(function(q) {
+      if(!q.version) q.version = selectedVersion;
+      if(!q.subject) q.subject = selectedSubject;
+      if(!q.chapter) q.chapter = selectedChapter;
+      if(!q.type) q.type = selectedType;
+      if(!q.stars) q.stars = selectedStars;
+
       requests.push(
         fetch(DB + "/questions.json", {
           method: "POST",
@@ -309,12 +384,12 @@ function clearAllQuestions() {
   });  
 }  
   
-// ===== STUDENT LOGIN =====  
 function studentLogin() {  
   student = document.getElementById("studentName").value.trim();  
   sClass = document.getElementById("studentClass").value.trim();  
   var examSubject = document.getElementById("examSubject").value;
   var examChapter = document.getElementById("examChapter").value; 
+  examVersion = document.getElementById("examVersion").value; // VERISON
   
   if (!student||!sClass) { alert("নাম ও ক্লাস লেখো!"); return; }  
   
@@ -323,6 +398,9 @@ function studentLogin() {
       
       examQuestions = Object.values(data);
       
+      // Filter by Version
+      examQuestions = examQuestions.filter(q => q.version === examVersion || !q.version); // Fallback for old questions
+
       if(examSubject !== "All" && examSubject !== ""){
           examQuestions = examQuestions.filter(q => q.subject === examSubject);
       }
@@ -331,14 +409,13 @@ function studentLogin() {
       }
 
       if(examQuestions.length === 0){
-          alert("এই Subject/Chapter এর কোনো প্রশ্ন পাওয়া যায়নি!");
+          alert("এই Subject/Chapter/Version এর কোনো প্রশ্ন পাওয়া যায়নি!");
           return;
       }
       startExam();
     });  
 }  
 
-// ===== OPTION LOCK FUNCTION =====
 function lockOptions(qIndex) {
     let radios = document.getElementsByName('q' + qIndex);
     radios.forEach(r => {
@@ -349,25 +426,22 @@ function lockOptions(qIndex) {
     });
 }
   
-// ===== START EXAM & ALL QUESTIONS LOAD =====  
 function startExam() {  
   submitted = false;  
   warn = 0;  
-  
-  // Shuffle questions randomly
   examQuestions = examQuestions.sort(() => Math.random() - 0.5);  
   
   var html = "";  
-  
   examQuestions.forEach((x,i) => {  
-    html += '<div class="card"><p><strong>'+(i+1)+'. '+x.q+'</strong></p><hr>';  
-    
-    // Shuffle options randomly
+    let starUI = `<span class="star-text">${"⭐".repeat(x.stars || 1)}</span>`;
+    let advUI = x.type === "Advanced" ? `<span class="badge-adv">ADVANCED</span>` : "";
+
+    html += `<div class="card"><p><strong>${i+1}. ${x.q} ${starUI} ${advUI}</strong></p><hr>`;  
     var options = x.a.map((opt, idx) => ({text: opt, originalIndex: idx}));  
     options.sort(() => Math.random() - 0.5);  
     
     options.forEach(o => {  
-      html += '<label class="radio-label"><input type="radio" name="q'+i+'" value="'+o.originalIndex+'" onchange="lockOptions('+i+')"> '+o.text+'</label>';  
+      html += `<label class="radio-label"><input type="radio" name="q${i}" value="${o.originalIndex}" onchange="lockOptions(${i})"> ${o.text}</label>`;  
     });  
     html += '</div>';  
   });  
@@ -376,7 +450,7 @@ function startExam() {
   document.getElementById("warnDiv").innerHTML = "";  
   show("page3");  
   
-  timeLeft = examQuestions.length * 60; // 1 min per question
+  timeLeft = examQuestions.length * 60; 
   totalTime = timeLeft;  
   if (timerInterval) clearInterval(timerInterval);  
   
@@ -392,7 +466,6 @@ function startExam() {
   },1000);  
 }  
   
-// ===== ANTI CHEAT =====  
 document.addEventListener("visibilitychange", function(){  
   if (document.hidden && !submitted && timerInterval) {  
     warn++;  
@@ -404,7 +477,6 @@ document.addEventListener("visibilitychange", function(){
 document.addEventListener("contextmenu", function(e){ e.preventDefault(); });  
 document.addEventListener("copy", function(e){ e.preventDefault(); });  
   
-// ===== SUBMIT & REVIEW =====  
 function submitExam() {  
   if (submitted) return;  
   submitted = true;  
@@ -415,20 +487,20 @@ function submitExam() {
   var examChapter = document.getElementById("examChapter").value;
   
   examQuestions.forEach((x,i) => {  
-    var ans = document.querySelector('input[name=q'+i+']:checked');  
-    var expHtml = (x.exp && x.exp !== "") ? "<br><br>💡 <b>ব্যাখ্যা:</b> " + x.exp : ""; 
+    var ans = document.querySelector(`input[name=q${i}]:checked`);  
+    var expHtml = (x.exp && x.exp !== "") ? `<br><br>💡 <b>ব্যাখ্যা:</b> ${x.exp}` : ""; 
     
     if(ans){  
       answered++;
       if(parseInt(ans.value) === x.correct){  
-        score++; // +1 for correct 
-        review += "<div class='card' style='border:2px solid #22c55e'>✔ Q: "+x.q+"<br>Your Ans: "+x.a[x.correct]+ expHtml + "</div>";
+        score++;
+        review += `<div class='card' style='border:2px solid #22c55e'>✔ Q: ${x.q}<br>Your Ans: ${x.a[x.correct]} ${expHtml} </div>`;
       } else {  
-        wrongAnswers++; // -0.25 for wrong
-        review += "<div class='card' style='border:2px solid #ef4444'>❌ Q: "+x.q+"<br>✔ Correct Ans: "+x.a[x.correct]+ expHtml + "</div>";  
+        wrongAnswers++;
+        review += `<div class='card' style='border:2px solid #ef4444'>❌ Q: ${x.q}<br>✔ Correct Ans: ${x.a[x.correct]} ${expHtml} </div>`;  
       }  
     } else {  
-      review += "<div class='card'>⚠️ Not answered: "+x.q+"<br>✔ Correct Ans: "+x.a[x.correct]+ expHtml +"</div>";  
+      review += `<div class='card'>⚠️ Not answered: ${x.q}<br>✔ Correct Ans: ${x.a[x.correct]} ${expHtml} </div>`;  
     }  
   });  
   
@@ -444,22 +516,23 @@ function submitExam() {
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
-      name:student, class:sClass, subject:examSubject, chapter:examChapter,
+      name:student, class:sClass, version: examVersion, subject:examSubject, chapter:examChapter,
       score:finalScore, displayScore: displayScore, total:examQuestions.length, percent:percent, grade:grade,
       time:new Date().toLocaleString()
     })
   });
 
   document.getElementById("result").innerHTML =  
-    '<div class="card" style="text-align:center;">'+  
-    '<div style="font-size:3rem;">'+(pass?"🎉":"😔")+'</div>'+  
-    '<h2>RESULT</h2>'+  
-    '<p>👤 <strong>'+student+'</strong> | Class: '+sClass+'</p>'+  
-    '<p>📚 Sub: '+examSubject+' ('+examChapter+')</p>'+
-    '<p>✅ Correct: '+score+' | ❌ Wrong: '+wrongAnswers+' (Penalty: -'+negativeMarks+')</p>'+
-    '<p style="font-size:2rem;font-weight:bold;">Points: '+ finalScore+' / '+examQuestions.length+ ' ('+percent+'%)</p>'+  
-    '<p style="font-size:1.3rem;color:'+(pass?'#22c55e':'#ef4444')+ ';">'+ (pass?'✅ PASS':'❌ FAIL')+ ' | Grade: '+grade+ '</p>'+  
-    '</div><hr><h3>📚 Review & Explanations</h3>'+review;  
+    `<div class="card" style="text-align:center;">
+    <div style="font-size:3rem;">${pass?"🎉":"😔"}</div>
+    <h2>RESULT</h2>
+    <p>👤 <strong>${student}</strong> | Class: ${sClass}</p>
+    <p>🌐 ${examVersion} Version</p>
+    <p>📚 Sub: ${examSubject} (${examChapter})</p>
+    <p>✅ Correct: ${score} | ❌ Wrong: ${wrongAnswers} (Penalty: -${negativeMarks})</p>
+    <p style="font-size:2rem;font-weight:bold;">Points: ${finalScore} / ${examQuestions.length} (${percent}%)</p>
+    <p style="font-size:1.3rem;color:${pass?'#22c55e':'#ef4444'};">${pass?'✅ PASS':'❌ FAIL'} | Grade: ${grade}</p>
+    </div><hr><h3>📚 Review & Explanations</h3>${review}`;  
     
   loadLeaderboards();  
   show("page4");  
@@ -475,10 +548,9 @@ function loadLeaderboards() {
       
       var results = Object.values(data);
       
-      // 1. Current Exam Leaderboard (Subject/Chapter Filtered)
       var filterSub = document.getElementById("examSubject").value;
       var filterChap = document.getElementById("examChapter").value;
-      var examResults = results;
+      var examResults = results.filter(x => x.version === examVersion); // Filter by version
       
       if (filterSub !== "All" && filterSub !== "") examResults = examResults.filter(x => x.subject === filterSub);
       if (filterChap !== "All") examResults = examResults.filter(x => x.chapter === filterChap);
@@ -496,7 +568,6 @@ function loadLeaderboards() {
       }).join("");
       document.getElementById("board").innerHTML = htmlExam || "<div class='card'>No data for this subject/chapter</div>";
 
-      // 2. Global Points Leaderboard
       var users = {};
       results.forEach(r => {
           if(!users[r.name]) users[r.name] = { name: r.name, class: r.class, totalPoints: 0, exams: 0 };
@@ -519,24 +590,33 @@ function loadLeaderboards() {
     });
 }
 
-// ===== TEACHER PANEL: LOAD & FILTER QUESTIONS =====
 function loadQuestions() {
   var searchText = document.getElementById("searchQuestion").value.toLowerCase();
+  var searchVer = document.getElementById("filterVersion").value;
   var searchSub = document.getElementById("filterSubject").value;
+  var searchChap = document.getElementById("filterChapter").value;
   
   fetch(DB + "/questions.json").then(r => r.json()).then(data => {
       if (!data) { document.getElementById("questionList").innerHTML = "<div class='card'>কোনো প্রশ্ন নেই</div>"; return; }
       
       var html = "";
+      let count = 1;
       Object.keys(data).forEach(key => {
         var q = data[key];
         if (!q || !q.q) return;
         
+        let qVer = q.version || "Bengali"; // Default for old questions
+        if (searchVer !== "All" && qVer !== searchVer) return;
         if (searchSub !== "All" && q.subject !== searchSub) return;
+        if (searchChap !== "All" && q.chapter !== searchChap) return;
         if (searchText && !q.q.toLowerCase().includes(searchText)) return;
         
+        let starUI = `<span class="star-text">${"⭐".repeat(q.stars || 1)}</span>`;
+        let advUI = q.type === "Advanced" ? `<span class="badge-adv">ADVANCED</span>` : "";
+        let verUI = `<span class="badge-ver">${qVer === "English" ? "EN" : "BN"}</span>`;
+
         html += `<div class="card">
-            <b>Q:</b> ${q.q}<br>
+            <b>Q${count}:</b> ${q.q} ${verUI} ${starUI} ${advUI}<br>
             <small><b>Sub:</b> ${q.subject} | <b>Chap:</b> ${q.chapter||'N/A'}</small><br>
             <b>Options:</b><br>
             1) ${q.a[0]} ${q.correct===0?"✅":""}<br>
@@ -548,12 +628,12 @@ function loadQuestions() {
                 <button class="btn-red" style="width:50%; margin:0;" onclick="deleteQuestion('${key}')">🗑 Delete</button>
             </div>
           </div>`;
+          count++;
       });
       document.getElementById("questionList").innerHTML = html || "<div class='card'>No matching questions</div>";
     });
 }
 
-// ===== EDIT QUESTION =====
 function editQuestion(id){
   fetch(DB + "/questions/" + id + ".json").then(r => r.json()).then(oldData => {
       if(!oldData) return;
@@ -591,7 +671,7 @@ function loadResults() {
       var html = "";
       Object.values(data).reverse().forEach(r => {
        if(search && !r.name.toLowerCase().includes(search)) return;
-        html += `<div class="card"><b>👤 ${r.name}</b> (Class: ${r.class})<br>📚 ${r.subject} - ${r.chapter}<br>📊 XP Score: ${r.score} | 🎯 ${r.percent}% | 🏆 ${r.grade}<br>🕒 ${r.time}</div>`;
+        html += `<div class="card"><b>👤 ${r.name}</b> (Class: ${r.class})<br>🌐 ${r.version || "Bengali"}<br>📚 ${r.subject} - ${r.chapter}<br>📊 XP Score: ${r.score} | 🎯 ${r.percent}% | 🏆 ${r.grade}<br>🕒 ${r.time}</div>`;
       });
       document.getElementById("allResults").innerHTML = html;
     });
