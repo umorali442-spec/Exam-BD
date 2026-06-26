@@ -255,6 +255,9 @@
 </div>
 
 <script>  
+// ==========================================
+// ALL CREDENTIALS BINDED SUCCESSFULLY 
+// ==========================================
 emailjs.init("77p5rsvhYShAMlfXovHww"); 
 
 var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";  
@@ -363,7 +366,6 @@ function sendEmailOTP() {
             generatedOTP = Math.floor(100000 + Math.random() * 900000);
             let templateParams = { to_name: name, to_email: email, otp_code: generatedOTP };
             
-            // Updated with new Service ID: service_v8kvekp
             emailjs.send('service_v8kvekp', '9NGDRWmeFoMfEsFiA', templateParams)
                 .then(function(response) {
                    alert("✅ ওটিপি পাঠানো হয়েছে! জিমেইল চেক করো।");
@@ -372,7 +374,8 @@ function sendEmailOTP() {
                    regBtn.innerText = "Verify & Register ✔";
                    regBtn.setAttribute("onclick", "registerStudentWithOTP()");
                 }, function(error) {
-                   alert("❌ ইমেইল গেটওয়ে রেসপন্স করেনি। ড্যাশবোর্ড সেটিংস চেক করো।");
+                   // ERROR DETECTOR LINE ADDED HERE:
+                   alert("EmailJS Error: " + (error.text || JSON.stringify(error)));
                 });
         }
     });
