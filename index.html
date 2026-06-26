@@ -19,10 +19,7 @@
   .btn-red{background:#ef4444;color:white;}  
   .btn-gray{background:#475569;color:white;}  
   .card{background:#1e293b;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #334155;}  
-  
-  /* Image Responsive CSS */
   .card img {max-width: 100%; height: auto; border-radius: 6px; margin: 8px 0;} 
-  
   #timer{font-size:22px;color:#f87171;font-weight:bold;margin:10px 0; text-align:center;}  
   #progressBar{width:100%;height:8px;background:#334155;border-radius:10px;margin-bottom:12px;}  
   #progress{height:8px;background:#22c55e;border-radius:10px;width:100%;transition:width .5s;}  
@@ -35,53 +32,25 @@
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}  
   @media(max-width:500px){.two-col{grid-template-columns:1fr;}}  
   .leaderboard{margin-top:20px;padding:16px;background:#1e293b;border-radius:10px;}  
-  .top-rank-1{background: linear-gradient(45deg, #fef08a, #ca8a04); color: #000 !important; border: none;}
-  .top-rank-2{background: linear-gradient(45deg, #e2e8f0, #94a3b8); color: #000 !important; border: none;}
-  .top-rank-3{background: linear-gradient(45deg, #fed7aa, #c2410c); color: #000 !important; border: none;}
   .q-actions{display: flex; gap: 8px; margin-top: 10px;}
   .star-text{color:#f59e0b; font-size:14px;}
   .badge-adv{background:#ef4444; color:white; padding:2px 6px; border-radius:4px; font-size:11px; margin-left:6px;}
   .badge-ver{background:#3b82f6; color:white; padding:2px 6px; border-radius:4px; font-size:11px; margin-left:6px;}
   .builder-box {border: 1px dashed #3b82f6; padding: 12px; border-radius: 8px; margin-top: 10px;}
+  .link-text {color: #3b82f6; text-align: center; margin-top: 10px; cursor: pointer; font-size: 14px; text-decoration: underline;}
 </style>  
 </head>  
 <body>  
 <div class="container">  
   <h2>🏫 Smart Online Exam</h2>    
   
-  <div id="page1">  
+  <div id="pageLogin">  
     <div class="card">  
-      <h3>👨‍🎓 Student Login</h3>  
-      <input id="studentName" placeholder="Student Name (তোমার নাম লেখো)">  
-      <input id="studentClass" placeholder="Class (তোমার ক্লাস লেখো)"> 
-      
-      <select id="examVersion" style="margin-bottom: 12px;">
-        <option value="Bengali">🟢 বাংলা ভার্সন (Bengali)</option>
-        <option value="English">🔵 English Version</option>
-      </select>
-      
-      <div class="builder-box">
-          <h3 style="color:#38bdf8;">⚙️ Custom Exam Builder (নিজেই প্রশ্ন সেট করো)</h3>
-          <p style="font-size:12px; color:#94a3b8; margin-bottom:10px;">একাধিক সাবজেক্ট বা চ্যাপ্টার সিলেক্ট করে Add বাটনে ক্লিক করো।</p>
-          
-          <div class="two-col">
-              <select id="examSubject" onchange="updateChapters('examSubject', 'examChapter')">
-                <option value="">-- সাবজেক্ট সিলেক্ট করো --</option>
-              </select>
-              <select id="examChapter">
-                <option value="All">All Chapters</option>
-              </select>
-          </div>
-          
-          <div class="two-col">
-              <input type="number" id="qLimit" placeholder="কয়টি প্রশ্ন চাও? (যেমন: 10)" min="1">
-              <button class="btn-yellow" onclick="addConfig()" style="margin-top:5px; padding: 9px;">➕ Add to Exam</button>
-          </div>
-          
-          <div id="configList" style="margin-top:12px;"></div>
-      </div>
-      
-      <button class="btn-blue" onclick="studentLogin()" style="margin-top:15px; font-size: 16px;">🚀 Start Exam</button> 
+      <h3 style="text-align:center; font-size:1.2rem;">👨‍🎓 Student Login</h3>  
+      <input id="loginPhone" type="number" placeholder="Mobile Number (Student ID)">  
+      <input type="password" id="loginPass" placeholder="Password"> 
+      <button class="btn-blue" onclick="loginStudent()">Login ▶</button> 
+      <p class="link-text" onclick="show('pageRegister')">অ্যাকাউন্ট নেই? নতুন একাউন্ট খুলুন</p>
     </div>
     
     <div style="text-align:center; margin-top: 25px;">
@@ -95,10 +64,59 @@
       <button class="btn-red" onclick="teacherLogin()">Login</button>  
     </div>  
   </div>    
+
+  <div id="pageRegister" style="display:none;">  
+    <div class="card">  
+      <h3 style="text-align:center; font-size:1.2rem;">📝 Student Registration</h3>  
+      <input id="regName" placeholder="Full Name (তোমার নাম)">  
+      <input id="regClass" placeholder="Class (ক্লাস)"> 
+      <input id="regPhone" type="number" placeholder="Mobile Number (এটি তোমার ID হবে)">  
+      <input type="password" id="regPass" placeholder="Create a Password"> 
+      <button class="btn-green" onclick="registerStudent()">Create Account ✚</button> 
+      <p class="link-text" onclick="show('pageLogin')">আগের একাউন্ট আছে? লগইন করো</p>
+    </div>
+  </div>
+
+  <div id="pageDashboard" style="display:none;">
+    <div class="card">
+        <h3 id="welcomeMsg" style="color:#22c55e;">Welcome!</h3>
+        <button class="btn-red" onclick="show('pageLogin')" style="width:auto; padding:5px 10px; font-size:12px; float:right; margin-top:-30px;">Logout</button>
+        <hr>
+
+        <select id="examVersion" style="margin-bottom: 12px;">
+            <option value="Bengali">🟢 বাংলা ভার্সন (Bengali)</option>
+            <option value="English">🔵 English Version</option>
+        </select>
+        
+        <div class="builder-box">
+            <h3 style="color:#38bdf8;">⚙️ Custom Exam Builder</h3>
+            <p style="font-size:12px; color:#94a3b8; margin-bottom:10px;">একাধিক সাবজেক্ট বা চ্যাপ্টার সিলেক্ট করে Add বাটনে ক্লিক করো।</p>
+            
+            <div class="two-col">
+                <select id="examSubject" onchange="updateChapters('examSubject', 'examChapter')">
+                  <option value="">-- সাবজেক্ট সিলেক্ট করো --</option>
+                </select>
+                <select id="examChapter">
+                  <option value="All">All Chapters</option>
+                </select>
+            </div>
+            
+            <div class="two-col">
+                <input type="number" id="qLimit" placeholder="কয়টি প্রশ্ন চাও? (যেমন: 10)" min="1">
+                <button class="btn-yellow" onclick="addConfig()" style="margin-top:5px; padding: 9px;">➕ Add to Exam</button>
+            </div>
+            
+            <div id="configList" style="margin-top:12px;"></div>
+        </div>
+        
+        <button class="btn-blue" onclick="startExamProcess()" style="margin-top:15px; font-size: 16px;">🚀 Start Exam</button> 
+    </div>
+  </div>
    
-  <div id="page2" style="display:none;">  
+  <div id="pageTeacher" style="display:none;">  
     <div class="card">  
       <h3>➕ নতুন প্রশ্ন যোগ করো</h3> 
+      <button class="btn-blue" onclick="show('pageLogin')" style="width:auto; padding:5px 10px; font-size:12px; float:right; margin-top:-30px;">Logout</button>
       
       <div class="two-col">
           <select id="qVersion">
@@ -112,8 +130,7 @@
       </div>
 
       <div class="two-col" style="margin-top:8px;">
-          <select id="subject" onchange="updateChapters('subject', 'chapter')">
-          </select>
+          <select id="subject" onchange="updateChapters('subject', 'chapter')"></select>
           <select id="qDifficulty">
               <option value="1">⭐ 1 Star</option>
               <option value="2">⭐⭐ 2 Star</option>
@@ -151,13 +168,11 @@
       <textarea id="bulkData" placeholder="এখানে JSON Paste করো"
         style="width:100%;height:150px;background:#1e293b;color:white;border:1px solid #334155;border-radius:8px;padding:10px;"></textarea>
       <button class="btn-yellow" onclick="bulkImport()">📥 Bulk Import Questions</button>
-      
       <div id="qMsg" class="msg" style="display:none; margin-top: 10px;"></div>  
     </div>  
   
     <div class="card">
       <h3>📋 Question List & Filter</h3>
-      
       <div class="two-col">
         <select id="filterVersion" onchange="loadQuestions()">
             <option value="All">All Versions</option>
@@ -174,7 +189,6 @@
           </select>
           <input id="searchQuestion" placeholder="🔍 প্রশ্ন খুঁজুন..." onkeyup="loadQuestions()">
       </div>
-      
       <div id="questionList" style="margin-top: 10px; max-height: 400px; overflow-y: auto;"></div>
     </div>
     
@@ -188,17 +202,15 @@
     </div>
   </div>
 
-  <div id="page3" style="display:none;">  
+  <div id="pageExam" style="display:none;">  
     <div id="timer">⏱ --</div>  
     <div id="progressBar"><div id="progress"></div></div>  
     <div id="warnDiv"></div>  
-    
     <div id="quiz"></div>  
-
     <button class="btn-red" onclick="submitExam()" style="margin-top:15px;">✅ Submit Exam</button>  
   </div>    
 
-  <div id="page4" style="display:none;">  
+  <div id="pageResult" style="display:none;">  
     <div id="result"></div>    
     <div class="leaderboard">  
       <h3>🏆 Exam Leaderboard (Current Category)</h3>  
@@ -208,20 +220,18 @@
       <h3>🌍 Global Points Leaderboard (Overall XP)</h3>  
       <div id="globalBoard">লোড হচ্ছে...</div>  
     </div>       
-    <button class="btn-blue" onclick="show('page1')" style="margin-top:12px;">  
-      🔄 Home / আবার Exam দাও  
+    <button class="btn-blue" onclick="show('pageDashboard')" style="margin-top:12px;">  
+      🔄 Back to Dashboard  
     </button>  
   </div>  
 
 </div>
 
 <script>  
-var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";  
-var student = "", sClass = "", examQuestions = [], timeLeft = 0, totalTime = 0, timerInterval = null, warn = 0, submitted = false;  
-var examVersion = "";
-var examConfig = []; 
-var examSubResult = ""; 
-var examChapResult = "";
+var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";  // Tomar Firebase link thik ache kina check kore nio
+var studentName = "", studentClass = "", studentPhone = "";
+var examQuestions = [], timeLeft = 0, totalTime = 0, timerInterval = null, warn = 0, submitted = false;  
+var examVersion = "", examConfig = [], examSubResult = "", examChapResult = "";
 
 const hscData = {
     "Physics 1st Paper": ["ভৌত জগত ও পরিমাপ", "ভেক্টর", "গতিবিদ্যা", "নিউটনিয়ান বলবিদ্যা", "কাজ, শক্তি ও ক্ষমতা", "মহাকর্ষ ও অভিকর্ষ", "পদার্থের গাঠনিক ধর্ম", "পর্যাবৃত্ত গতি", "তরঙ্গ", "আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব"],
@@ -231,24 +241,16 @@ const hscData = {
     "Higher Math 1st Paper": ["ম্যাট্রিক্স ও নির্ণায়ক", "ভেক্টর", "সরলরেখা", "বৃত্ত", "বিন্যাস ও সমাবেশ", "ত্রিকোণমিতিক অনুপাত", "সংযুক্ত কোণের ত্রিকোণমিতিক অনুপাত", "ফাংশন ও ফাংশনের লেখচিত্র", "অন্তরীকরণ", "যোগজীকরণ"],
     "Higher Math 2nd Paper": ["বাস্তব সংখ্যা ও অসমতা", "যোগাশ্রয়ী প্রোগ্রামিং", "জটিল সংখ্যা", "বহুপদী ও বহুপদী সমীকরণ", "দ্বিপদী বিস্তৃতি", "কনিক", "বিপরীত ত্রিকোণমিতিক ফাংশন ও ত্রিকোণমিতিক সমীকরণ", "স্থিতিবিদ্যা", "সমতলে বস্তুকণার গতি", "বিস্তার পরিমাপ ও সম্ভাবনা"],
     "Biology 1st Paper": ["কোষ ও এর গঠন", "কোষ বিভাজন", "কোষ রসায়ন", "অণুজীব", "শৈবাল ও ছত্রাক", "ব্রায়োফাইটা ও টেরিডোফাইটা", "নগ্নবীজী ও আবৃতবীজী উদ্ভিদ", "টিস্যু ও টিস্যুতন্ত্র", "উদ্ভিদ শারীরতত্ত্ব", "উদ্ভিদ প্রজনন", "জীবপ্রযুক্তি", "জীবের পরিবেশ ও বিস্তার"],
-    "Biology 2nd Paper": ["প্রাণীর বিভিন্নতা ও শ্রেণিবিন্যাস", "প্রাণীর পরিচিতি", "পরিপাক ও শোষণ", "রক্ত ও সঞ্চালন", "শ্বসন ও শ্বাসক্রিয়া", "বর্জ্য ও নিষ্কাশন", "চলন ও অঙ্গচালনা", "স্নায়বিক সমন্বয়", "রাসায়নিক সমন্বয়", "মানব জীবনের ধারাবাহিকতা", "মানবদেহের প্রতিরক্ষা", "জিনতত্ত্ব ও বিবর্তন", "প্রাণীর আচরণ"],
-    "ICT": ["তথ্য ও যোগাযোগ প্রযুক্তি বিশ্ব ও বাংলাদেশ", "কমিউনিকেশন সিস্টেমস ও নেটওয়ার্কিং", "সংখ্যা পদ্ধতি ও ডিজিটাল ডিভাইস", "ওয়েব ডিজাইন পরিচিতি এবং HTML", "প্রোগ্রামিং ভাষা (C)", "ডেটাবেজ ম্যানেজমেন্ট সিস্টেম"],
-    "Bangla 1st Paper": ["গদ্য", "পদ্য", "উপন্যাস", "নাটক"],
-    "Bangla 2nd Paper": ["ব্যাকরণ", "নির্মিতি"],
-    "English 1st Paper": ["Comprehension", "Vocabulary", "Writing"],
-    "English 2nd Paper": ["Grammar", "Composition"]
+    "Biology 2nd Paper": ["প্রাণীর বিভিন্নতা ও শ্রেণিবিন্যাস", "প্রাণীর পরিচিতি", "পরিপাক ও শোষণ", "রক্ত ও সঞ্চালন", "শ্বসন ও শ্বাসক্রিয়া", "বর্জ্য ও নিষ্কাশন", "চলন ও অঙ্গচালনা", "স্নায়বিক সমন্বয়", "রাসায়নিক সমন্বয়", "মানব জীবনের ধারাবাহিকতা", "মানবদেহের প্রতিরক্ষা", "জিনতত্ত্ব ও বিবর্তন", "প্রাণীর আচরণ"]
 };
 
 function initDropdowns() {
     let subjectHTML = '<option value="">-- সাবজেক্ট সিলেক্ট করো --</option>';
     let filterSubjectHTML = '<option value="All">All Subjects</option>';
-    
     for (let sub in hscData) {
-        let opt = `<option value="${sub}">${sub}</option>`;
-        subjectHTML += opt;
-        filterSubjectHTML += opt;
+        subjectHTML += `<option value="${sub}">${sub}</option>`;
+        filterSubjectHTML += `<option value="${sub}">${sub}</option>`;
     }
-    
     document.getElementById("examSubject").innerHTML = subjectHTML;
     document.getElementById("filterSubject").innerHTML = filterSubjectHTML;
     initAddQuestionSubjects();
@@ -258,11 +260,8 @@ function initAddQuestionSubjects() {
     let type = document.getElementById("qType").value;
     let subSelect = document.getElementById("subject");
     let html = '<option value="">-- সাবজেক্ট সিলেক্ট করো --</option>';
-    
     for (let sub in hscData) {
-        if (type === "Advanced") {
-            if (!sub.includes("Physics") && !sub.includes("Chemistry") && !sub.includes("Math")) continue;
-        }
+        if (type === "Advanced" && !sub.includes("Physics") && !sub.includes("Chemistry") && !sub.includes("Math")) continue;
         html += `<option value="${sub}">${sub}</option>`;
     }
     subSelect.innerHTML = html;
@@ -273,29 +272,67 @@ function updateChapters(subId, chapId) {
     let sub = document.getElementById(subId).value;
     let chapSelect = document.getElementById(chapId);
     let html = '<option value="All">All Chapters</option>';
-    
-    if (hscData[sub]) {
-        hscData[sub].forEach(c => {
-            html += `<option value="${c}">${c}</option>`;
-        });
-    }
+    if (hscData[sub]) hscData[sub].forEach(c => html += `<option value="${c}">${c}</option>`);
     chapSelect.innerHTML = html;
 }
 
-// ===== EXAM BUILDER LOGIC =====
+function show(id) {  
+  ["pageLogin","pageRegister","pageDashboard","pageTeacher","pageExam","pageResult"].forEach(p => document.getElementById(p).style.display="none");  
+  document.getElementById(id).style.display="block";  
+  window.scrollTo(0,0);  
+}  
+
+// ===== REGISTRATION & LOGIN =====
+function registerStudent() {
+    let name = document.getElementById('regName').value.trim();
+    let cls = document.getElementById('regClass').value.trim();
+    let phone = document.getElementById('regPhone').value.trim();
+    let pass = document.getElementById('regPass').value.trim();
+
+    if(!name || !cls || !phone || !pass) { alert("সব ফিল্ড পূরণ করো!"); return; }
+
+    fetch(DB + "/students/" + phone + ".json").then(r=>r.json()).then(data => {
+        if(data) { alert("❌ এই নাম্বার দিয়ে ইতিমধ্যে একাউন্ট খোলা আছে!"); }
+        else {
+            fetch(DB + "/students/" + phone + ".json", {
+                method: "PUT",
+                body: JSON.stringify({ name: name, class: cls, pass: pass })
+            }).then(() => { 
+                alert("✅ একাউন্ট তৈরি সফল হয়েছে! এবার লগইন করো।"); 
+                show('pageLogin'); 
+            });
+        }
+    });
+}
+
+function loginStudent() {
+    let phone = document.getElementById('loginPhone').value.trim();
+    let pass = document.getElementById('loginPass').value.trim();
+
+    if(!phone || !pass) { alert("নাম্বার এবং পাসওয়ার্ড দাও!"); return; }
+
+    fetch(DB + "/students/" + phone + ".json").then(r=>r.json()).then(data => {
+        if(!data) { alert("❌ এই নাম্বারে কোনো একাউন্ট পাওয়া যায়নি!"); }
+        else if(data.pass !== pass) { alert("❌ পাসওয়ার্ড ভুল হয়েছে!"); }
+        else {
+            studentName = data.name;
+            studentClass = data.class;
+            studentPhone = phone;
+            document.getElementById('welcomeMsg').innerText = "👨‍🎓 Welcome, " + studentName + "!";
+            show('pageDashboard');
+        }
+    });
+}
+
+// ===== EXAM BUILDER =====
 function addConfig() {
     let sub = document.getElementById("examSubject").value;
     let chap = document.getElementById("examChapter").value;
     let limit = parseInt(document.getElementById("qLimit").value);
 
-    if(!sub || !limit || limit <= 0) {
-        alert("❌ Subject এবং প্রশ্নের সংখ্যা (১ বা তার বেশি) ঠিকভাবে সিলেক্ট করো!");
-        return;
-    }
+    if(!sub || !limit || limit <= 0) { alert("❌ Subject এবং প্রশ্নের সংখ্যা ঠিকভাবে সিলেক্ট করো!"); return; }
     examConfig.push({sub: sub, chap: chap, limit: limit});
     renderConfig();
-    
-    // Reset inputs
     document.getElementById("examSubject").value = "";
     document.getElementById("examChapter").innerHTML = '<option value="All">All Chapters</option>';
     document.getElementById("qLimit").value = "";
@@ -312,138 +349,11 @@ function renderConfig() {
     document.getElementById("configList").innerHTML = html;
 }
 
-function removeConfig(i) {
-    examConfig.splice(i, 1);
-    renderConfig();
-}
+function removeConfig(i) { examConfig.splice(i, 1); renderConfig(); }
 
-function show(id) {  
-  ["page1","page2","page3","page4"].forEach(p => document.getElementById(p).style.display="none");  
-  document.getElementById(id).style.display="block";  
-  window.scrollTo(0,0);  
-}  
-  
-function showQMsg(text, bg) {  
-  var el = document.getElementById("qMsg");  
-  el.style.display = "block";  
-  el.style.background = bg || "#1e3a5f";  
-  el.innerHTML = text;  
-}  
-  
-function teacherLogin() {  
-  var u = document.getElementById("user").value;  
-  var p = document.getElementById("pass").value;  
-  if (u==="admin" && p==="1234") {  
-    show("page2");  
-    loadQCount();  
-    loadQuestions();
-  } else {  
-    alert("❌ ভুল username বা password!");  
-  }  
-}  
-  
-function loadQCount() {  
-  fetch(DB+"/questions.json").then(r => r.json()).then(data => {  
-      var count = data ? Object.keys(data).length : 0;  
-      showQMsg("✅ Firebase-এ মোট "+count+"টি প্রশ্ন আছে।", "#14532d");  
-  });  
-}  
-  
-function addQuestion() {  
-  var q = document.getElementById("q").value.trim();  
-  var o1 = document.getElementById("o1").value.trim();  
-  var o2 = document.getElementById("o2").value.trim();  
-  var o3 = document.getElementById("o3").value.trim();  
-  var o4 = document.getElementById("o4").value.trim();  
-  var correct = parseInt(document.getElementById("correct").value); 
-  var subject = document.getElementById("subject").value;
-  var chapter = document.getElementById("chapter").value; 
-  var qType = document.getElementById("qType").value;
-  var qVersion = document.getElementById("qVersion").value; 
-  var stars = parseInt(document.getElementById("qDifficulty").value);
-  var exp = document.getElementById("exp").value.trim(); 
-  
-  if (subject === "All" || subject === "") { alert("Subject সিলেক্ট করো!"); return; }
-  if (!q||!o1||!o2||!o3||!o4) { alert("সব field পূরণ করো!"); return; }  
-  
-  showQMsg("⏳ Save হচ্ছে...", "#1e3a5f");  
-  
-  fetch(DB+"/questions.json", {  
-    method: "POST",  
-    headers: {"Content-Type":"application/json"},  
-    body: JSON.stringify({ 
-        version: qVersion, subject: subject, chapter: chapter, q: q, a: [o1,o2,o3,o4], correct: correct, 
-        type: qType, stars: stars, exp: exp 
-    })
-  }).then(() => {  
-      ["q","o1","o2","o3","o4","exp"].forEach(id => document.getElementById(id).value="");  
-      loadQCount();  
-      loadQuestions();
-  });  
-}  
-
-function bulkImport() {
-  var txt = document.getElementById("bulkData").value.trim();
-  if(!txt){ alert("JSON Paste করো!"); return; }
-  
-  var selectedVersion = document.getElementById("qVersion").value;
-  var selectedSubject = document.getElementById("subject").value;
-  var selectedChapter = document.getElementById("chapter").value;
-  var selectedType = document.getElementById("qType").value;
-  var selectedStars = parseInt(document.getElementById("qDifficulty").value);
-
-  if (selectedSubject === "All" || selectedSubject === "") { 
-      alert("❌ Bulk Import করার আগে অবশ্যই একটি Subject সিলেক্ট করো!"); 
-      return; 
-  }
-  
-  try {
-    var questions = JSON.parse(txt);
-    if (!Array.isArray(questions)) { alert("❌ JSON টি Array [ ] ফরম্যাটে হতে হবে!"); return; }
-    
-    var requests = [];
-    questions.forEach(function(q) {
-      if(!q.version) q.version = selectedVersion;
-      if(!q.subject) q.subject = selectedSubject;
-      if(!q.chapter) q.chapter = selectedChapter;
-      if(!q.type) q.type = selectedType;
-      if(!q.stars) q.stars = selectedStars;
-
-      requests.push(
-        fetch(DB + "/questions.json", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(q)
-        })
-      );
-    });
-    
-    Promise.all(requests).then(function() {
-      alert("✅ সব প্রশ্ন Save হয়েছে");
-      document.getElementById("bulkData").value = "";
-      loadQCount();
-      loadQuestions();
-    });
-  } catch(e) { 
-      alert("❌ Invalid JSON ফরম্যাট। দয়া করে চেক করুন।"); 
-  }
-}
-
-function clearAllQuestions() {  
-  if (!confirm("সব প্রশ্ন মুছে ফেলবে?")) return;  
-  fetch(DB+"/questions.json", {method:"DELETE"}).then(() => { 
-      showQMsg("🗑 সব প্রশ্ন মুছে গেছে।", "#7f1d1d"); 
-      loadQuestions();
-  });  
-}  
-  
-function studentLogin() {  
-  student = document.getElementById("studentName").value.trim();  
-  sClass = document.getElementById("studentClass").value.trim();  
+function startExamProcess() {  
   examVersion = document.getElementById("examVersion").value; 
-  
-  if (!student||!sClass) { alert("নাম ও ক্লাস লেখো!"); return; }  
-  if (examConfig.length === 0) { alert("❌ Exam Builder-এ অন্তত একটি Subject/Chapter অ্যাড করো!"); return; }
+  if (examConfig.length === 0) { alert("❌ Exam Builder-এ অন্তত একটি Subject অ্যাড করো!"); return; }
   
   fetch(DB+"/questions.json").then(r => r.json()).then(data => {  
       if (!data) { alert("❌ ডাটাবেজে কোনো প্রশ্ন নেই!"); return; }  
@@ -451,73 +361,55 @@ function studentLogin() {
       let allDbQuestions = Object.values(data).filter(q => q.version === examVersion || !q.version); 
       examQuestions = [];
 
-      // Logic to fetch and limit questions based on Builder configuration
       examConfig.forEach(cfg => {
           let matched = allDbQuestions.filter(q => q.subject === cfg.sub);
-          if (cfg.chap !== "All") {
-              matched = matched.filter(q => q.chapter === cfg.chap);
-          }
-          
+          if (cfg.chap !== "All") matched = matched.filter(q => q.chapter === cfg.chap);
           if(matched.length > 0) {
-              matched = matched.sort(() => Math.random() - 0.5); // Randomize chapter questions
-              let selected = matched.slice(0, cfg.limit); // Take exactly what student asked for
+              matched = matched.sort(() => Math.random() - 0.5); 
+              let selected = matched.slice(0, cfg.limit); 
               examQuestions = examQuestions.concat(selected);
           }
       });
 
-      if(examQuestions.length === 0){
-          alert("তোমার সিলেক্ট করা টপিকের কোনো প্রশ্ন ডাটাবেজে পাওয়া যায়নি!");
-          return;
-      }
-      
-      // Shuffle final mixed questions
+      if(examQuestions.length === 0){ alert("তোমার সিলেক্ট করা টপিকের কোনো প্রশ্ন পাওয়া যায়নি!"); return; }
       examQuestions = examQuestions.sort(() => Math.random() - 0.5);  
       
-      // Set Global Result Variables for Leaderboard mapping
       examSubResult = examConfig.length === 1 ? examConfig[0].sub : "Mixed Subjects";
       examChapResult = examConfig.length === 1 ? examConfig[0].chap : "Mixed Chapters";
 
-      startExam();
+      startExamTimer();
     });  
 }  
 
 function lockOptions(qIndex) {
     let radios = document.getElementsByName('q' + qIndex);
     radios.forEach(r => {
-        if (!r.checked) {
-            r.disabled = true;
-            r.parentElement.classList.add("disabled");
-        }
+        if (!r.checked) { r.disabled = true; r.parentElement.classList.add("disabled"); }
     });
 }
   
-function startExam() {  
+function startExamTimer() {  
   submitted = false;  
   warn = 0;  
-  
   var html = "";  
   examQuestions.forEach((x,i) => {  
     let starUI = `<span class="star-text">${"⭐".repeat(x.stars || 1)}</span>`;
     let advUI = x.type === "Advanced" ? `<span class="badge-adv">ADVANCED</span>` : "";
-
     html += `<div class="card"><p><strong>${i+1}. ${x.q} ${starUI} ${advUI}</strong></p><hr>`;  
     var options = x.a.map((opt, idx) => ({text: opt, originalIndex: idx}));  
     options.sort(() => Math.random() - 0.5);  
-    
     options.forEach(o => {  
       html += `<label class="radio-label"><input type="radio" name="q${i}" value="${o.originalIndex}" onchange="lockOptions(${i})"> ${o.text}</label>`;  
     });  
     html += '</div>';  
   });  
-  
   document.getElementById("quiz").innerHTML = html;  
   document.getElementById("warnDiv").innerHTML = "";  
-  show("page3");  
+  show("pageExam");  
   
-  timeLeft = examQuestions.length * 60; // 1 min per question
+  timeLeft = examQuestions.length * 60; 
   totalTime = timeLeft;  
   if (timerInterval) clearInterval(timerInterval);  
-  
   timerInterval = setInterval(() => {  
     timeLeft--;  
     var m = Math.floor(timeLeft/60);  
@@ -529,37 +421,32 @@ function startExam() {
     if(timeLeft <= 0) submitExam();  
   },1000);  
 }  
-  
+
 document.addEventListener("visibilitychange", function(){  
-  if (document.hidden && !submitted && timerInterval) {  
+  if (document.hidden && !submitted && timerInterval && document.getElementById("pageExam").style.display === "block") {  
     warn++;  
-    document.getElementById("warnDiv").innerHTML =  
-      '<div class="warn">⚠️ সতর্কতা '+warn+'/3 — বারবার করলে Exam বাতিল!</div>';  
+    document.getElementById("warnDiv").innerHTML = '<div class="warn">⚠️ সতর্কতা '+warn+'/3 — বারবার করলে Exam বাতিল!</div>';  
     if (warn>=3) submitExam();  
   }  
 });  
 document.addEventListener("contextmenu", function(e){ e.preventDefault(); });  
 document.addEventListener("copy", function(e){ e.preventDefault(); });  
-  
+
 function submitExam() {  
   if (submitted) return;  
   submitted = true;  
   if (timerInterval) clearInterval(timerInterval);  
   
   var score = 0, wrongAnswers = 0, review = "", answered = 0;
-  
   examQuestions.forEach((x,i) => {  
     var ans = document.querySelector(`input[name=q${i}]:checked`);  
     var expHtml = (x.exp && x.exp !== "") ? `<br><br>💡 <b>ব্যাখ্যা:</b> ${x.exp}` : ""; 
-    
     if(ans){  
       answered++;
       if(parseInt(ans.value) === x.correct){  
-        score++;
-        review += `<div class='card' style='border:2px solid #22c55e'>✔ Q: ${x.q}<br>Your Ans: ${x.a[x.correct]} ${expHtml} </div>`;
+        score++; review += `<div class='card' style='border:2px solid #22c55e'>✔ Q: ${x.q}<br>Your Ans: ${x.a[x.correct]} ${expHtml} </div>`;
       } else {  
-        wrongAnswers++;
-        review += `<div class='card' style='border:2px solid #ef4444'>❌ Q: ${x.q}<br>✔ Correct Ans: ${x.a[x.correct]} ${expHtml} </div>`;  
+        wrongAnswers++; review += `<div class='card' style='border:2px solid #ef4444'>❌ Q: ${x.q}<br>✔ Correct Ans: ${x.a[x.correct]} ${expHtml} </div>`;  
       }  
     } else {  
       review += `<div class='card'>⚠️ Not answered: ${x.q}<br>✔ Correct Ans: ${x.a[x.correct]} ${expHtml} </div>`;  
@@ -570,7 +457,6 @@ function submitExam() {
   var finalScore = score - negativeMarks; 
   var displayScore = finalScore < 0 ? 0 : finalScore; 
   var percent = Math.round((displayScore/examQuestions.length)*100);  
-
   var grade = percent>=80?"A+": percent>=70?"A": percent>=60?"B": percent>=50?"C": percent>=40?"D":"F";  
   var pass = percent >= 40;  
 
@@ -578,7 +464,7 @@ function submitExam() {
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
-      name:student, class:sClass, version: examVersion, subject:examSubResult, chapter:examChapResult,
+      name:studentName, class:studentClass, phone:studentPhone, version: examVersion, subject:examSubResult, chapter:examChapResult,
       score:finalScore, displayScore: displayScore, total:examQuestions.length, percent:percent, grade:grade,
       time:new Date().toLocaleString()
     })
@@ -588,16 +474,15 @@ function submitExam() {
     `<div class="card" style="text-align:center;">
     <div style="font-size:3rem;">${pass?"🎉":"😔"}</div>
     <h2>RESULT</h2>
-    <p>👤 <strong>${student}</strong> | Class: ${sClass}</p>
-    <p>🌐 ${examVersion} Version</p>
-    <p>📚 Sub: ${examSubResult} (${examChapResult})</p>
+    <p>👤 <strong>${studentName}</strong> | Class: ${studentClass}</p>
+    <p>🌐 ${examVersion} Version | 📚 ${examSubResult}</p>
     <p>✅ Correct: ${score} | ❌ Wrong: ${wrongAnswers} (Penalty: -${negativeMarks})</p>
     <p style="font-size:2rem;font-weight:bold;">Points: ${finalScore} / ${examQuestions.length} (${percent}%)</p>
     <p style="font-size:1.3rem;color:${pass?'#22c55e':'#ef4444'};">${pass?'✅ PASS':'❌ FAIL'} | Grade: ${grade}</p>
     </div><hr><h3>📚 Review & Explanations</h3>${review}`;  
     
   loadLeaderboards();  
-  show("page4");  
+  show("pageResult");  
 }  
 
 function loadLeaderboards() {
@@ -607,10 +492,7 @@ function loadLeaderboards() {
           document.getElementById("globalBoard").innerHTML = "কোনো data নেই।";
           return; 
       }
-      
       var results = Object.values(data);
-      
-      // Filter exactly for the category the student just took
       var examResults = results.filter(x => x.version === examVersion && x.subject === examSubResult && x.chapter === examChapResult); 
       
       examResults.sort((a,b) => b.percent - a.percent);
@@ -619,19 +501,19 @@ function loadLeaderboards() {
         let medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🏅 " + (i+1)+".";
         return `<div class="card ${extraClass}">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div><span style="font-size:1.2rem; font-weight:bold;">${medal} ${d.name}</span> <small>(${d.class})</small><br><small>📚 ${d.subject} - ${d.chapter}</small></div>
+                <div><span style="font-size:1.2rem; font-weight:bold;">${medal} ${d.name}</span> <small>(${d.class})</small></div>
                 <div style="text-align:right; font-weight:bold;">${d.percent}%<br>${d.grade}</div>
             </div>
           </div>`;
       }).join("");
       document.getElementById("board").innerHTML = htmlExam || "<div class='card'>No data for this category</div>";
 
-      // Global Points Logic
       var users = {};
       results.forEach(r => {
-          if(!users[r.name]) users[r.name] = { name: r.name, class: r.class, totalPoints: 0, exams: 0 };
-          users[r.name].totalPoints += parseFloat(r.score || 0);
-          users[r.name].exams += 1;
+          let uniqueId = r.phone || r.name; // Use phone as unique ID if available
+          if(!users[uniqueId]) users[uniqueId] = { name: r.name, class: r.class, totalPoints: 0, exams: 0 };
+          users[uniqueId].totalPoints += parseFloat(r.score || 0);
+          users[uniqueId].exams += 1;
       });
       
       var globalResults = Object.values(users).sort((a,b) => b.totalPoints - a.totalPoints);
@@ -649,6 +531,14 @@ function loadLeaderboards() {
     });
 }
 
+// ===== TEACHER PANEL FUNCTIONS =====
+function teacherLogin() {  
+  var u = document.getElementById("user").value;  
+  var p = document.getElementById("pass").value;  
+  if (u==="admin" && p==="1234") { show("pageTeacher"); loadQCount(); loadQuestions(); } 
+  else { alert("❌ ভুল username বা password!"); }  
+} 
+function showQMsg(text, bg) { var el = document.getElementById("qMsg"); el.style.display = "block"; el.style.background = bg || "#1e3a5f"; el.innerHTML = text; }
 function loadQuestions() {
   var searchText = document.getElementById("searchQuestion").value.toLowerCase();
   var searchVer = document.getElementById("filterVersion").value;
@@ -657,31 +547,20 @@ function loadQuestions() {
   
   fetch(DB + "/questions.json").then(r => r.json()).then(data => {
       if (!data) { document.getElementById("questionList").innerHTML = "<div class='card'>কোনো প্রশ্ন নেই</div>"; return; }
-      
-      var html = "";
-      let count = 1;
+      var html = ""; let count = 1;
       Object.keys(data).forEach(key => {
-        var q = data[key];
-        if (!q || !q.q) return;
-        
+        var q = data[key]; if (!q || !q.q) return;
         let qVer = q.version || "Bengali"; 
         if (searchVer !== "All" && qVer !== searchVer) return;
         if (searchSub !== "All" && q.subject !== searchSub) return;
         if (searchChap !== "All" && q.chapter !== searchChap) return;
         if (searchText && !q.q.toLowerCase().includes(searchText)) return;
-        
         let starUI = `<span class="star-text">${"⭐".repeat(q.stars || 1)}</span>`;
         let advUI = q.type === "Advanced" ? `<span class="badge-adv">ADVANCED</span>` : "";
         let verUI = `<span class="badge-ver">${qVer === "English" ? "EN" : "BN"}</span>`;
-
         html += `<div class="card">
             <b>Q${count}:</b> ${q.q} ${verUI} ${starUI} ${advUI}<br>
             <small><b>Sub:</b> ${q.subject} | <b>Chap:</b> ${q.chapter||'N/A'}</small><br>
-            <b>Options:</b><br>
-            1) ${q.a[0]} ${q.correct===0?"✅":""}<br>
-            2) ${q.a[1]} ${q.correct===1?"✅":""}<br>
-            3) ${q.a[2]} ${q.correct===2?"✅":""}<br>
-            4) ${q.a[3]} ${q.correct===3?"✅":""}<br>
             <div class="q-actions">
                 <button class="btn-yellow" style="width:50%; margin:0;" onclick="editQuestion('${key}')">✏ Edit</button>
                 <button class="btn-red" style="width:50%; margin:0;" onclick="deleteQuestion('${key}')">🗑 Delete</button>
@@ -696,33 +575,20 @@ function loadQuestions() {
 function editQuestion(id){
   fetch(DB + "/questions/" + id + ".json").then(r => r.json()).then(oldData => {
       if(!oldData) return;
-      
-      var newQ = prompt("প্রশ্নটি এডিট করুন:", oldData.q);
-      if(newQ === null || newQ.trim() === "") return;
-      
-      var newO1 = prompt("Option 1:", oldData.a[0]);
-      var newO2 = prompt("Option 2:", oldData.a[1]);
-      var newO3 = prompt("Option 3:", oldData.a[2]);
-      var newO4 = prompt("Option 4:", oldData.a[3]);
+      var newQ = prompt("প্রশ্নটি এডিট করুন:", oldData.q); if(newQ === null || newQ.trim() === "") return;
+      var newO1 = prompt("Option 1:", oldData.a[0]); var newO2 = prompt("Option 2:", oldData.a[1]);
+      var newO3 = prompt("Option 3:", oldData.a[2]); var newO4 = prompt("Option 4:", oldData.a[3]);
       var newCor = prompt("কোনটি সঠিক উত্তর? (1, 2, 3, বা 4 লিখুন):", (oldData.correct + 1));
-      
       if(!newO1 || !newO2 || !newO3 || !newO4 || !newCor) { alert("সব অপশন ঠিকভাবে দিন!"); return; }
-
-      oldData.q = newQ.trim();
-      oldData.a = [newO1.trim(), newO2.trim(), newO3.trim(), newO4.trim()];
-      oldData.correct = parseInt(newCor) - 1;
-
-      fetch(DB + "/questions/" + id + ".json", {
-        method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(oldData)
-      }).then(() => { alert("✅ Updated!"); loadQuestions(); });
+      oldData.q = newQ.trim(); oldData.a = [newO1.trim(), newO2.trim(), newO3.trim(), newO4.trim()]; oldData.correct = parseInt(newCor) - 1;
+      fetch(DB + "/questions/" + id + ".json", { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(oldData) })
+      .then(() => { alert("✅ Updated!"); loadQuestions(); });
   });
 }
-
 function deleteQuestion(id){
   if(!confirm("Question delete করবে?")) return;
   fetch(DB + "/questions/" + id + ".json", { method: "DELETE" }).then(() => { loadQuestions(); loadQCount(); });
 }
-
 function loadResults() {
   fetch(DB + "/results.json").then(r => r.json()).then(data => {
       if (!data) return;
@@ -730,18 +596,13 @@ function loadResults() {
       var html = "";
       Object.values(data).reverse().forEach(r => {
        if(search && !r.name.toLowerCase().includes(search)) return;
-        html += `<div class="card"><b>👤 ${r.name}</b> (Class: ${r.class})<br>🌐 ${r.version || "Bengali"}<br>📚 ${r.subject} - ${r.chapter}<br>📊 XP Score: ${r.score} | 🎯 ${r.percent}% | 🏆 ${r.grade}<br>🕒 ${r.time}</div>`;
+        html += `<div class="card"><b>👤 ${r.name}</b> (Phone: ${r.phone || 'N/A'})<br>🌐 ${r.version || "Bengali"}<br>📚 ${r.subject} - ${r.chapter}<br>📊 XP Score: ${r.score} | 🎯 ${r.percent}% | 🏆 ${r.grade}<br>🕒 ${r.time}</div>`;
       });
       document.getElementById("allResults").innerHTML = html;
     });
 }
-
-window.onload = function(){ 
-    initDropdowns(); 
-    loadQuestions(); 
-    loadResults(); 
-};
-setInterval(() => { if(document.getElementById("page4").style.display === "block") loadLeaderboards(); }, 5000);
+window.onload = function(){ initDropdowns(); loadQuestions(); loadResults(); };
+setInterval(() => { if(document.getElementById("pageResult").style.display === "block") loadLeaderboards(); }, 5000);
 </script>
 </body>
 </html>
