@@ -3,7 +3,7 @@
 <head>  
 <meta charset="UTF-8">  
 <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-<title>Smart Online Exam System</title>  
+<title>Smart Online Exam</title>  
 <style>  
   *{box-sizing:border-box;margin:0;padding:0;}  
   body{font-family:Arial,sans-serif;background:#050816;color:white;padding:16px;min-height:100vh;}  
@@ -19,7 +19,7 @@
   .btn-red{background:#ef4444;color:white;}  
   .btn-gray{background:#475569;color:white;}  
   .card{background:#1e293b;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #334155;}  
-  #timer{font-size:22px;color:#f87171;font-weight:bold;margin:10px 0;}  
+  #timer{font-size:22px;color:#f87171;font-weight:bold;margin:10px 0; text-align:center;}  
   #progressBar{width:100%;height:8px;background:#334155;border-radius:10px;margin-bottom:12px;}  
   #progress{height:8px;background:#22c55e;border-radius:10px;width:100%;transition:width .5s;}  
   .radio-label{display:flex;align-items:center;gap:8px;padding:7px 0;cursor:pointer;font-size:14px;}  
@@ -39,14 +39,13 @@
 </head>  
 <body>  
 <div class="container">  
-  <h2>🏫 GOD++ EXAM SYSTEM</h2>    
+  <h2>🏫 Smart Online Exam</h2>    
   
   <div id="page1">  
     <div class="card">  
       <h3>👨‍🎓 Student Login</h3>  
-      <input id="studentName" placeholder="তোমার নাম লেখো">  
-      <input id="studentClass" placeholder="তোমার ক্লাস লেখো"> 
-      <input type="password" id="studentPass" placeholder="Exam Password (Hint: god++)"> 
+      <input id="studentName" placeholder="Student Name (তোমার নাম লেখো)">  
+      <input id="studentClass" placeholder="Class (তোমার ক্লাস লেখো)"> 
       
       <select id="examSubject" onchange="updateChapters('examSubject', 'examChapter')">
         <option value="">-- সাবজেক্ট সিলেক্ট করো --</option>
@@ -59,11 +58,15 @@
       <button class="btn-blue" onclick="studentLogin()">Exam দিতে চাই ▶</button> 
     </div>
     
-    <div class="card" style="margin-top:10px;">  
+    <div style="text-align:center; margin-top: 25px;">
+        <span onclick="document.getElementById('teacherPanelBox').style.display='block'" style="cursor:pointer; color:#475569; font-size:12px; font-weight:bold;">Admin Login 🔒</span>
+    </div>
+
+    <div class="card" id="teacherPanelBox" style="display:none; margin-top:10px; border: 1px solid #ef4444;">  
       <h3>🔐 Teacher Login</h3>  
       <input id="user" placeholder="Username">  
       <input type="password" id="pass" placeholder="Password">  
-      <button class="btn-blue" onclick="teacherLogin()">Login</button>  
+      <button class="btn-red" onclick="teacherLogin()">Login</button>  
     </div>  
   </div>    
    
@@ -133,8 +136,10 @@
     <div id="timer">⏱ --</div>  
     <div id="progressBar"><div id="progress"></div></div>  
     <div id="warnDiv"></div>  
+    
     <div id="quiz"></div>  
-    <button class="btn-red" onclick="submitExam()">✅ Submit করো</button>  
+
+    <button class="btn-red" onclick="submitExam()" style="margin-top:15px;">✅ Submit Exam</button>  
   </div>    
 
   <div id="page4" style="display:none;">  
@@ -308,19 +313,16 @@ function clearAllQuestions() {
 function studentLogin() {  
   student = document.getElementById("studentName").value.trim();  
   sClass = document.getElementById("studentClass").value.trim();  
-  var sPass = document.getElementById("studentPass").value; 
   var examSubject = document.getElementById("examSubject").value;
   var examChapter = document.getElementById("examChapter").value; 
   
   if (!student||!sClass) { alert("নাম ও ক্লাস লেখো!"); return; }  
-  if (sPass !== "god++") { alert("❌ ভুল Exam Password!"); return; }
   
   fetch(DB+"/questions.json").then(r => r.json()).then(data => {  
       if (!data) { alert("❌ কোনো প্রশ্ন নেই!"); return; }  
       
       examQuestions = Object.values(data);
       
-      // Advanced Filter
       if(examSubject !== "All" && examSubject !== ""){
           examQuestions = examQuestions.filter(q => q.subject === examSubject);
       }
@@ -347,17 +349,23 @@ function lockOptions(qIndex) {
     });
 }
   
-// ===== START EXAM =====  
+// ===== START EXAM & ALL QUESTIONS LOAD =====  
 function startExam() {  
   submitted = false;  
   warn = 0;  
+  
+  // Shuffle questions randomly
   examQuestions = examQuestions.sort(() => Math.random() - 0.5);  
+  
   var html = "";  
   
   examQuestions.forEach((x,i) => {  
-    html += '<div class="card"><p><strong>'+(i+1)+'. '+x.q+'</strong></p>';  
+    html += '<div class="card"><p><strong>'+(i+1)+'. '+x.q+'</strong></p><hr>';  
+    
+    // Shuffle options randomly
     var options = x.a.map((opt, idx) => ({text: opt, originalIndex: idx}));  
     options.sort(() => Math.random() - 0.5);  
+    
     options.forEach(o => {  
       html += '<label class="radio-label"><input type="radio" name="q'+i+'" value="'+o.originalIndex+'" onchange="lockOptions('+i+')"> '+o.text+'</label>';  
     });  
@@ -383,6 +391,18 @@ function startExam() {
     if(timeLeft <= 0) submitExam();  
   },1000);  
 }  
+  
+// ===== ANTI CHEAT =====  
+document.addEventListener("visibilitychange", function(){  
+  if (document.hidden && !submitted && timerInterval) {  
+    warn++;  
+    document.getElementById("warnDiv").innerHTML =  
+      '<div class="warn">⚠️ সতর্কতা '+warn+'/3 — বারবার করলে Exam বাতিল!</div>';  
+    if (warn>=3) submitExam();  
+  }  
+});  
+document.addEventListener("contextmenu", function(e){ e.preventDefault(); });  
+document.addEventListener("copy", function(e){ e.preventDefault(); });  
   
 // ===== SUBMIT & REVIEW =====  
 function submitExam() {  
@@ -413,7 +433,7 @@ function submitExam() {
   });  
   
   var negativeMarks = wrongAnswers * 0.25;
-  var finalScore = score - negativeMarks; // Calculation of final point
+  var finalScore = score - negativeMarks; 
   var displayScore = finalScore < 0 ? 0 : finalScore; 
   var percent = Math.round((displayScore/examQuestions.length)*100);  
 
@@ -425,8 +445,7 @@ function submitExam() {
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
       name:student, class:sClass, subject:examSubject, chapter:examChapter,
-      score:finalScore, // saving actual score for global calculation (even if negative)
-      displayScore: displayScore, total:examQuestions.length, percent:percent, grade:grade,
+      score:finalScore, displayScore: displayScore, total:examQuestions.length, percent:percent, grade:grade,
       time:new Date().toLocaleString()
     })
   });
