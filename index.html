@@ -258,7 +258,8 @@
 // ==========================================
 // ALL CREDENTIALS BINDED SUCCESSFULLY 
 // ==========================================
-emailjs.init("77p5rsvhYShAMlfXovHww"); 
+// 🔑 মেইন চাবি (Public Key)
+emailjs.init("9NGDRWmeFoMfEsFiA"); 
 
 var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";  
 var studentName = "", studentClass = "", studentEmail = "", studentCleanEmail = "";
@@ -366,7 +367,8 @@ function sendEmailOTP() {
             generatedOTP = Math.floor(100000 + Math.random() * 900000);
             let templateParams = { to_name: name, to_email: email, otp_code: generatedOTP };
             
-            emailjs.send('service_v8kvekp', '9NGDRWmeFoMfEsFiA', templateParams)
+            // 🎯 তোমার দেওয়া আসল Template ID বসানো হয়েছে
+            emailjs.send('service_v8kvekp', 'template_lj3iz1l', templateParams)
                 .then(function(response) {
                    alert("✅ ওটিপি পাঠানো হয়েছে! জিমেইল চেক করো।");
                    document.getElementById('otpSection').style.display = 'block';
@@ -374,7 +376,6 @@ function sendEmailOTP() {
                    regBtn.innerText = "Verify & Register ✔";
                    regBtn.setAttribute("onclick", "registerStudentWithOTP()");
                 }, function(error) {
-                   // ERROR DETECTOR LINE ADDED HERE:
                    alert("EmailJS Error: " + (error.text || JSON.stringify(error)));
                 });
         }
