@@ -1,750 +1,655 @@
-<!DOCTYPE html>  
-<html>  
-<head>  
-<meta charset="UTF-8">  
-<meta name="viewport" content="width=device-width, initial-scale=1.0">  
-<title>Smart Online Exam</title>  
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>  
-  *{box-sizing:border-box;margin:0;padding:0;}  
-  body{font-family:Arial,sans-serif;background:#050816;color:white;padding:16px;min-height:100vh;}  
-  .container{max-width:900px;margin:auto;background:#0f172a;padding:24px;border-radius:16px;}  
-  h2{text-align:center;font-size:1.4rem;margin-bottom:20px;}  
-  h3{margin-bottom:10px;font-size:1rem;}  
-  input,select{width:100%;padding:10px;margin:5px 0;border:1px solid #334155;border-radius:8px;background:#1e293b;color:white;font-size:14px;outline:none;}  
-  input::placeholder{color:#64748b;}  
-  button{width:100%;padding:11px;margin-top:8px;border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;}  
-  .btn-blue{background:#2563eb;color:white;}  
-  .btn-green{background:#22c55e;color:white;}  
-  .btn-yellow{background:#f59e0b;color:#111;}  
-  .btn-red{background:#ef4444;color:white;}  
-  .btn-gray{background:#475569;color:white;}  
-  .card{background:#1e293b;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #334155;}  
-  #timer{font-size:22px;color:#f87171;font-weight:bold;margin:10px 0; text-align:center;}  
-  #progressBar{width:100%;height:8px;background:#334155;border-radius:10px;margin-bottom:12px;}  
-  #progress{height:8px;background:#22c55e;border-radius:10px;width:100%;transition:width .5s;}  
-  .radio-label{display:flex;align-items:center;gap:8px;padding:7px 0;cursor:pointer;font-size:14px;}  
-  .radio-label input{width:auto;margin:0;}  
-  .radio-label.disabled {opacity: 0.5; cursor: not-allowed;}
-  .radio-label.correct-ans {background: rgba(34, 197, 94, 0.2); border-radius: 6px; padding-left: 5px;}
-  .radio-label.wrong-ans {background: rgba(239, 68, 68, 0.2); border-radius: 6px; padding-left: 5px;}
-  .warn{background:#7f1d1d;padding:10px;border-radius:8px;margin:8px 0;text-align:center;font-weight:600;}  
-  hr{border:none;border-top:1px solid #334155;margin:16px 0;}  
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}  
-  @media(max-width:500px){.two-col{grid-template-columns:1fr;}}  
-  .leaderboard{margin-top:20px;padding:16px;background:#1e293b;border-radius:10px;}  
-  .builder-box {border: 1px dashed #3b82f6; padding: 12px; border-radius: 8px; margin-top: 10px;}
-  .link-text {color: #3b82f6; text-align: center; margin-top: 10px; cursor: pointer; font-size: 14px; text-decoration: underline;}
-  .notice-box {background: #7c2d12; border: 1px solid #ea580c; padding: 10px; border-radius: 8px; margin-bottom: 15px;}
-  .quest-item {display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px dashed #334155;}
-  .lifeline-container {display: flex; gap: 10px; margin-bottom: 15px; justify-content: center;}
-  .btn-lifeline {width: auto; padding: 6px 12px; font-size: 12px; margin: 0;}
-  .top-rank-1 { border: 2px solid #f59e0b; background: linear-gradient(145deg, #1e293b, #78350f); }
-  .flashcard-box {background: linear-gradient(135deg, #1e1b4b, #311042); border: 2px solid #a855f7; padding: 30px; border-radius: 12px; text-align: center; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; user-select: none; margin: 12px 0; transition: transform 0.2s;}
-  .chart-wrapper { position: relative; width: 100%; max-width: 400px; margin: 15px auto; }
-</style>  
-</head>  
-<body>  
-<div class="container">  
-  <h2>🏫 Smart Online Exam</h2>    
-  
-  <div id="pageLogin">  
-    <div class="card">  
-      <h3 style="text-align:center; font-size:1.2rem;">👨‍🎓 Student Login</h3>  
-      <input id="loginId" type="text" placeholder="Enter Registered Gmail or Phone Number">  
-      <input type="password" id="loginPass" placeholder="Password"> 
-      <button class="btn-blue" onclick="loginStudent()">Login ▶</button> 
-      <p class="link-text" onclick="show('pageRegister')">অ্যাকাউন্ট নেই? নতুন একাউন্ট খুলুন</p>
-    </div>
-    
-    <div style="text-align:center; margin-top: 25px;">
-        <span onclick="document.getElementById('teacherPanelBox').style.display='block'" style="cursor:pointer; color:#475569; font-size:12px; font-weight:bold;">Admin Login 🔒</span>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Examora Clone - Pro UI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
 
-    <div class="card" id="teacherPanelBox" style="display:none; margin-top:10px; border: 1px solid #ef4444;">  
-      <h3>🔐 Teacher Login</h3>  
-      <input id="user" placeholder="Username">  
-      <input type="password" id="pass" placeholder="Password">  
-      <button class="btn-red" onclick="teacherLogin()">Login</button>  
-    </div>  
-  </div>    
+        :root {
+            --bg-dark: #0b0f19;
+            --card-dark: #151b2b;
+            --card-light: #1e2638;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #10b981; /* Green */
+            --primary-dark: #059669;
+            --accent: #3b82f6; /* Blue */
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #2e364f;
+        }
 
-  <div id="pageRegister" style="display:none;">  
-    <div class="card">  
-      <h3 style="text-align:center; font-size:1.2rem;">📝 Student Registration</h3>  
-      <input id="regName" placeholder="Full Name (তোমার নাম)">  
-      <select id="regBatch">
-          <option value="">-- তোমার ব্যাচ সিলেক্ট করো --</option>
-          <option value="HSC 26">HSC 26</option>
-          <option value="HSC 27">HSC 27</option>
-          <option value="HSC 28">HSC 28</option>
-          <option value="HSC 29">HSC 29</option>
-      </select>
-      
-      <input id="regId" type="text" placeholder="Enter Gmail OR Phone Number">  
-      <input type="password" id="regPass" placeholder="Create a Password"> 
-
-      <button id="mainRegBtn" class="btn-green" onclick="registerStudentDirect()">Register Now 🚀</button> 
-      <p class="link-text" onclick="show('pageLogin')">আগের একাউন্ট আছে? লগইন করো</p>
-    </div>
-  </div>
-
-  <div id="pageDashboard" style="display:none;">
-    <div id="noticeBoard" class="notice-box" style="display:none;">
-        <strong>📢 নোটিশ:</strong> <span id="noticeText"></span>
-    </div>
-
-    <div class="card">
-        <h3 id="welcomeMsg" style="color:#22c55e;">Welcome!</h3>
-        <p id="userCoins" style="color:#f59e0b; font-size:13px; margin-bottom:10px;">💰 Coins: 0 | ⭐ Total XP: 0</p>
-        <button class="btn-red" onclick="show('pageLogin')" style="width:auto; padding:5px 10px; font-size:12px; float:right; margin-top:-45px;">Logout</button>
-        <hr>
-
-        <div style="background:#1e293b; padding:10px; border-radius:8px; border:1px solid #475569; margin-bottom:15px;">
-            <h4 style="color:#a855f7; font-size:14px; margin-bottom:5px;">🎯 Daily Quests (আজকের মিশন)</h4>
-            <div id="questList"></div>
-        </div>
-
-        <div style="background:#111827; padding:16px; border-radius:12px; border: 1px solid #22c55e; margin-bottom:15px; text-align:center;">
-            <h4 style="color:#22c55e; font-size:15px; margin-bottom:5px;">📊 Performance Graph Analytics</h4>
-            <p style="font-size:12px; color:#94a3b8;">সঠিক বনাম ভুল উত্তরের ভিজ্যুয়াল চার্ট রিপোর্ট</p>
-            <div class="chart-wrapper">
-                <canvas id="analyticsChart"></canvas>
-            </div>
-        </div>
-
-        <div style="background:#111827; padding:12px; border-radius:10px; border:1px solid #a855f7; margin-bottom:15px;">
-            <h4 style="color:#e9d5ff; font-size:14px;">⚡ Quick Flashcard Revision (ট্যাপ করে সূত্র দেখো)</h4>
-            <div id="flashcardContainer" class="flashcard-box" onclick="flipFlashcard()">
-                <h3 id="flashcardText" style="color:#f3e8ff;">লোড হচ্ছে...</h3>
-                <small id="flashcardHint" style="color:#c084fc; margin-top:10px;">[ Click to Reveal Answer ]</small>
-            </div>
-            <div class="two-col">
-                <button class="btn-gray" onclick="prevFlashcard()" style="margin:0; padding:6px;">◀ Previous</button>
-                <button class="btn-blue" onclick="nextFlashcard()" style="margin:0; padding:6px;">Next ▶</button>
-            </div>
-        </div>
-
-        <div class="two-col">
-            <div>
-                <label style="font-size:12px; color:#94a3b8;">Exam Mode</label>
-                <select id="examMode">
-                    <option value="Exam">📝 Exam Mode (শেষে রেজাল্ট)</option>
-                    <option value="Practice">💡 Practice Mode (সাথে সাথে উত্তর)</option>
-                </select>
-            </div>
-            <div>
-                <label style="font-size:12px; color:#94a3b8;">Exam Version</label>
-                <select id="examVersion">
-                    <option value="Bengali">🟢 বাংলা ভার্সন (Bengali)</option>
-                    <option value="English">🔵 English Version</option>
-                </select>
-            </div>
-        </div>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        <div class="builder-box">
-            <h3 style="color:#38bdf8;">⚙️ Custom Exam Builder</h3>
-            <select id="premiumLock" style="border: 1px solid #f59e0b; color:#f59e0b; margin-bottom: 8px;" onchange="checkPremiumLock()">
-                <option value="Free">🔓 Free Basic Exams</option>
-                <option value="Premium">🔒 Premium Master Exams (Requires 30 Coins)</option>
-            </select>
+        body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.5; padding-bottom: 70px; }
+        
+        /* Mobile App Container */
+        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; background: var(--bg-dark); position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5); overflow-x: hidden; }
+
+        /* Utility Classes */
+        .hidden { display: none !important; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .text-center { text-align: center; }
+        .mt-1 { margin-top: 10px; } .mt-2 { margin-top: 20px; } .mb-2 { margin-bottom: 20px; }
+        .p-2 { padding: 16px; }
+
+        /* Header */
+        .header { padding: 16px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-dark); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
+        .user-profile { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 36px; height: 36px; background: var(--accent); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; }
+        .streak-badge { background: rgba(245, 158, 11, 0.2); color: var(--warning); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+
+        /* Grid Layouts */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+        /* Cards */
+        .stat-card { background: var(--card-dark); padding: 16px; border-radius: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 5px; }
+        .stat-card i { font-size: 20px; color: var(--text-muted); }
+        .stat-value { font-size: 22px; font-weight: 700; color: var(--text-main); }
+        .stat-label { font-size: 12px; color: var(--text-muted); }
+
+        .banner-card { border-radius: 16px; padding: 20px; color: white; position: relative; overflow: hidden; }
+        .banner-quick { background: linear-gradient(135deg, #1e1b4b, #0f172a); border: 1px solid #4338ca; }
+        .banner-plan { background: linear-gradient(135deg, #064e3b, #0f172a); border: 1px solid #047857; }
+        .banner-title { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
+        .btn-banner { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; margin-top: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+
+        /* Action Grid */
+        .action-card { background: var(--card-dark); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .action-card i { font-size: 24px; margin-bottom: 10px; color: var(--primary); }
+        .action-card:active { transform: scale(0.95); }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: var(--card-dark); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; border-radius: 20px 20px 0 0; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); cursor: pointer; font-size: 12px; width: 20%; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 20px; }
+
+        /* Forms & Inputs */
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+        .input-group input, .input-group select { width: 100%; padding: 14px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 10px; color: white; font-size: 15px; outline: none; }
+        .input-group input:focus { border-color: var(--primary); }
+        
+        .btn-main { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-main.danger { background: var(--danger); }
+        .link-text { color: var(--accent); text-align: center; display: block; margin-top: 15px; font-size: 14px; cursor: pointer; }
+
+        /* Exam Setup & UI */
+        .section-title { font-size: 16px; font-weight: 600; margin: 20px 0 10px; color: var(--text-muted); }
+        .selectable-item { background: var(--card-dark); border: 1px solid var(--border); padding: 16px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .selectable-item.selected { border-color: var(--primary); background: rgba(16, 185, 129, 0.1); }
+        
+        .exam-header { display: flex; justify-content: space-between; background: var(--card-dark); padding: 15px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
+        .timer-box { font-size: 18px; font-weight: bold; color: var(--danger); }
+        .q-card { background: var(--card-dark); padding: 20px; border-radius: 12px; margin-bottom: 20px; font-size: 16px; }
+        .opt-label { display: block; background: var(--bg-dark); border: 1px solid var(--border); padding: 14px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .opt-label input { display: none; }
+        .opt-label.checked { border-color: var(--accent); background: rgba(59, 130, 246, 0.1); }
+        .opt-label.correct { border-color: var(--primary); background: rgba(16, 185, 129, 0.1); }
+        .opt-label.wrong { border-color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+        .explanation { background: rgba(59, 130, 246, 0.1); border-left: 3px solid var(--accent); padding: 12px; margin-top: 10px; font-size: 13px; border-radius: 4px; }
+
+        /* Result Circular Chart */
+        .chart-container { width: 150px; margin: 20px auto; position: relative; }
+        .score-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .score-center h2 { font-size: 28px; margin: 0; line-height: 1; }
+        
+        /* Leaderboard */
+        .rank-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); }
+        .rank-num { width: 30px; font-weight: bold; color: var(--text-muted); }
+        .rank-1 { color: #fbbf24; font-size: 18px; }
+        .rank-2 { color: #cbd5e1; font-size: 16px; }
+        .rank-3 { color: #b45309; font-size: 16px; }
+        .rank-info { flex: 1; margin-left: 10px; }
+        .rank-score { font-weight: bold; color: var(--primary); }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <div id="pageAuth" class="p-2 mt-2">
+        <div class="text-center mb-2">
+            <i class="fa-solid fa-graduation-cap" style="font-size: 40px; color: var(--primary);"></i>
+            <h2 style="margin-top: 10px;">Examora Pro</h2>
+            <p style="color: var(--text-muted); font-size: 14px;">লগইন বা রেজিস্ট্রেশন করো</p>
+        </div>
+
+        <div class="stat-card" style="margin-bottom: 20px;">
+            <div class="input-group">
+                <label>ফোন নাম্বার বা জিমেইল</label>
+                <input type="text" id="authId" placeholder="ex: 017... or test@gmail.com">
+            </div>
+            <div class="input-group">
+                <label>পাসওয়ার্ড</label>
+                <input type="password" id="authPass" placeholder="••••••••">
+            </div>
             
-            <div class="two-col">
-                <select id="examSubject" onchange="updateChapters('examSubject', 'examChapter')">
-                  <option value="">-- সাবজেক্ট সিলেক্ট করো --</option>
-                </select>
-                <select id="examChapter">
-                  <option value="All">All Chapters</option>
-                </select>
+            <div id="regFields" class="hidden">
+                <div class="input-group">
+                    <label>তোমার নাম</label>
+                    <input type="text" id="authName" placeholder="Full Name">
+                </div>
+                <div class="input-group">
+                    <label>HSC ব্যাচ</label>
+                    <select id="authBatch">
+                        <option value="HSC 25">HSC 25</option>
+                        <option value="HSC 26">HSC 26</option>
+                        <option value="HSC 27">HSC 27</option>
+                    </select>
+                </div>
             </div>
-            <div class="two-col">
-                <input type="number" id="qLimit" placeholder="কয়টি প্রশ্ন চাও?" min="1">
-                <button class="btn-yellow" onclick="addConfig()" style="margin-top:5px; padding: 9px;">➕ Add to Exam</button>
+
+            <button class="btn-main" id="btnLogin" onclick="handleLogin()">Login <i class="fa-solid fa-arrow-right"></i></button>
+            <button class="btn-main hidden" id="btnReg" onclick="handleRegister()">Register <i class="fa-solid fa-user-plus"></i></button>
+            
+            <span class="link-text" id="toggleAuth" onclick="toggleAuthMode()">অ্যাকাউন্ট নেই? রেজিস্ট্রেশন করো</span>
+        </div>
+    </div>
+
+    <div id="pageHome" class="hidden">
+        <div class="header">
+            <div class="user-profile">
+                <div class="avatar" id="navAvatar">U</div>
+                <div>
+                    <div style="font-weight: 600; font-size: 15px;" id="navName">Umor Ali</div>
+                    <div style="font-size: 12px; color: var(--text-muted);" id="navClass">HSC 26</div>
+                </div>
             </div>
-            <div id="configList" style="margin-top:12px;"></div>
+            <div class="streak-badge"><i class="fa-solid fa-fire"></i> ৩ দিন</div>
+        </div>
+
+        <div class="p-2">
+            <div class="grid-2 mb-2">
+                <div class="stat-card">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <div class="stat-value" id="statExams">0</div>
+                    <div class="stat-label">মোট পরীক্ষা দিয়েছো</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-database" style="color: var(--primary);"></i>
+                    <div class="stat-value">12550+</div>
+                    <div class="stat-label">প্রশ্নব্যাংক প্রশ্ন</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-trophy" style="color: var(--warning);"></i>
+                    <div class="stat-value" id="statRank">#--</div>
+                    <div class="stat-label">জাতীয় র‍্যাংক</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-lock" style="color: var(--text-muted);"></i>
+                    <div class="stat-value" style="font-size: 18px;">Free Plan</div>
+                    <div class="stat-label" style="color: var(--accent);">Buy Subscription</div>
+                </div>
+            </div>
+
+            <div class="grid-2 mb-2">
+                <div class="banner-card banner-quick" onclick="navTo('pageSetup')">
+                    <div style="font-size: 10px; background: var(--primary); display: inline-block; padding: 2px 8px; border-radius: 10px; margin-bottom: 8px;">● LIVE</div>
+                    <div class="banner-title">এখনই Quick<br>Exam শুরু করো!</div>
+                    <button class="btn-banner">Unlock <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+                <div class="banner-card banner-plan" onclick="navTo('pageSetup')">
+                    <div style="font-size: 12px; color: #a7f3d0; margin-bottom: 8px;">PLAN EXAM</div>
+                    <div class="banner-title">নিজের Model<br>Test বানাও!</div>
+                    <button class="btn-banner" style="background: #047857;">Create <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <div class="section-title">পরীক্ষার ধরন ও টুলস</div>
+            <div class="grid-3 mb-2">
+                <div class="action-card" onclick="navTo('pageSetup')">
+                    <i class="fa-solid fa-globe"></i>
+                    <div style="font-size: 12px;">Question Bank</div>
+                </div>
+                <div class="action-card" onclick="navTo('pageSetup')">
+                    <i class="fa-solid fa-sliders" style="color: var(--text-main);"></i>
+                    <div style="font-size: 12px;">Custom Room</div>
+                </div>
+                <div class="action-card" onclick="alert('Battle Exam Premium User দের জন্য!')">
+                    <i class="fa-solid fa-swords" style="color: var(--danger);"></i>
+                    <div style="font-size: 12px;">Battle Exam</div>
+                </div>
+                <div class="action-card" onclick="alert('Focus Timer চালু হচ্ছে...')">
+                    <i class="fa-regular fa-clock" style="color: var(--warning);"></i>
+                    <div style="font-size: 12px;">Focus Timer</div>
+                </div>
+                <div class="action-card" onclick="alert('Desmos Graphing API Load হচ্ছে...')">
+                    <i class="fa-solid fa-chart-line" style="color: var(--accent);"></i>
+                    <div style="font-size: 12px;">Graph Calc</div>
+                </div>
+                <div class="action-card" onclick="navTo('pageLeaderboard')">
+                    <i class="fa-solid fa-medal" style="color: #fbbf24;"></i>
+                    <div style="font-size: 12px;">Leaderboard</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pageSetup" class="hidden">
+        <div class="header">
+            <i class="fa-solid fa-arrow-left" onclick="navTo('pageHome')" style="cursor: pointer; font-size: 18px;"></i>
+            <div style="font-weight: 600; font-size: 16px;">পরীক্ষার Setup</div>
+            <div style="width: 18px;"></div>
+        </div>
+        <div class="p-2">
+            <div class="section-title" style="margin-top: 0;">বিষয় বেছে নাও</div>
+            <select id="setupSubject" class="input-group" style="width:100%; padding:14px; background:var(--card-dark); border:1px solid var(--border); color:white; border-radius:10px; margin-bottom:15px;" onchange="loadChapters()">
+                <option value="">-- বিষয় সিলেক্ট করো --</option>
+                <option value="Physics 1st Paper">পদার্থবিজ্ঞান ১ম পত্র</option>
+                <option value="Physics 2nd Paper">পদার্থবিজ্ঞান ২য় পত্র</option>
+                <option value="Chemistry 1st Paper">রসায়ন ১ম পত্র</option>
+            </select>
+
+            <div id="chapterBox" class="hidden">
+                <div class="section-title">অধ্যায় বেছে নাও</div>
+                <div id="chapterList"></div>
+
+                <div class="section-title">পরীক্ষার ধরন ও সময়</div>
+                <div class="grid-2 mb-2">
+                    <div class="input-group">
+                        <label>প্রশ্ন সংখ্যা</label>
+                        <select id="setupLimit">
+                            <option value="5">5 টি</option>
+                            <option value="10">10 টি</option>
+                            <option value="20">20 টি</option>
+                            <option value="50">50 টি (Pro)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>সময় (মিনিট)</label>
+                        <select id="setupTime">
+                            <option value="5">5 মিনিট</option>
+                            <option value="10">10 মিনিট</option>
+                            <option value="20">20 মিনিট</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn-main" onclick="startExam()">পরীক্ষা শুরু করো <i class="fa-solid fa-rocket"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pageExam" class="hidden" style="background: var(--bg-dark); min-height: 100vh;">
+        <div class="exam-header">
+            <div id="examProgressText" style="color: var(--text-muted); font-weight: bold;">0/0</div>
+            <div class="timer-box" id="examTimer">00:00</div>
+            <div style="color: var(--warning); font-size: 12px; display: flex; align-items: center;"><i class="fa-solid fa-flag"></i></div>
         </div>
         
-        <button id="startExamBtn" class="btn-blue" onclick="startExamProcess()" style="margin-top:15px; font-size: 16px;">🚀 Start Exam</button> 
-        
-        <hr>
-        <h3 style="color:#e2e8f0; margin-top:10px;">📊 Subject & Chapter-wise Detailed Breakdown</h3>
-        <div id="studentHistoryBox" style="max-height: 250px; overflow-y: auto; margin-top: 8px;">লোড হচ্ছে...</div>
-    </div>
-  </div>
-   
-  <div id="pageTeacher" style="display:none;">  
-    <div class="card">  
-      <h3>➕ Admin Controls & Question Management</h3> 
-      <button class="btn-blue" onclick="show('pageLogin')" style="width:auto; padding:5px 10px; font-size:12px; float:right; margin-top:-30px;">Logout</button>
-      
-      <div class="two-col">
-          <div style="margin: 5px 0; padding:8px; border:1px dashed #ef4444; border-radius:8px;">
-              <label style="font-size:12px; color:#ef4444;">🚨 Negative Marking:</label>
-              <select id="adminNegMark"><option value="0.25">0.25</option><option value="0.50">0.50</option><option value="0.00">0.00</option></select>
-              <button class="btn-red" onclick="saveAdminSettings()" style="padding:4px; font-size:11px; margin-top:4px;">Save</button>
-          </div>
-          <div style="margin: 5px 0; padding:8px; border:1px dashed #ea580c; border-radius:8px;">
-              <label style="font-size:12px; color:#ea580c;">📢 Notice Board:</label>
-              <input id="adminNotice" placeholder="নোটিশ...">
-              <button class="btn-yellow" onclick="saveNotice()" style="padding:4px; font-size:11px; margin-top:4px; color:black;">Publish</button>
-          </div>
-      </div>
-      
-      <hr>
-      <div class="two-col">
-          <select id="qVersion"><option value="Bengali">🟢 বাংলা ভার্সন</option><option value="English">🔵 English Version</option></select>
-          <select id="qType" onchange="initAddQuestionSubjects()"><option value="Academic">📚 Academic</option><option value="Advanced">🚀 Advanced</option></select>
-      </div>
-      <div class="two-col" style="margin-top:8px;">
-          <select id="subject" onchange="updateChapters('subject', 'chapter')"></select>
-          <select id="qDifficulty"><option value="1">⭐ 1 Star</option><option value="2">⭐⭐ 2 Star</option></select>
-      </div>
-      <select id="chapter"><option value="All">All Chapters</option></select>
-      <input id="q" placeholder="প্রশ্ন লেখো">
-      <div class="two-col"><input id="o1" placeholder="Option 1"><input id="o2" placeholder="Option 2"></div>
-      <div class="two-col"><input id="o3" placeholder="Option 3"><input id="o4" placeholder="Option 4"></div>
-      <select id="correct"><option value="0">Option 1 সঠিক</option><option value="1">Option 2 সঠিক</option><option value="2">Option 3</option><option value="3">Option 4</option></select>  
-      <input id="exp" placeholder="উত্তরের ব্যাখ্যা">
-      <button class="btn-green" onclick="addQuestion()">প্রশ্ন যোগ করো ✚</button>  
-    </div>  
+        <div style="height: 4px; background: var(--border); width: 100%;">
+            <div id="examProgressBar" style="height: 100%; background: var(--primary); width: 0%; transition: 0.3s;"></div>
+        </div>
 
-    <div class="card">
-      <h3>📋 Question List & Search</h3>
-      <div class="two-col">
-          <select id="filterSubject" onchange="loadQuestions()"><option value="All">All Subjects</option></select>
-          <input id="searchQuestion" placeholder="🔍 প্রশ্ন খুঁজুন..." onkeyup="loadQuestions()">
-      </div>
-      <div id="questionList" style="max-height: 200px; overflow-y: auto; margin-top:8px;"></div>
-    </div>
-    
-    <div class="card">
-      <h3>📊 All Results & Excel Export</h3>
-      <button class="btn-green" onclick="exportResultsToCSV()" style="margin-bottom: 10px; font-size: 13px; padding: 6px;">📥 Export All Results to Excel (CSV)</button>
-      <input id="searchResult" placeholder="🔍 Student Name Search..." onkeyup="loadResults()">
-      <div id="allResults" style="max-height: 200px; overflow-y: auto; margin-top:8px;"></div> 
-    </div>
-  </div>
+        <div class="p-2" id="examContainer">
+            </div>
 
-  <div id="pageExam" style="display:none;">  
-    <div id="timer">⏱ --</div>  
-    <div id="progressBar"><div id="progress"></div></div>  
-    <div id="lifelineArea" class="lifeline-container">
-        <button id="btn5050" class="btn-lifeline btn-yellow" onclick="use5050()">🧬 50-50 (10 Coins)</button>
-        <button id="btnSkip" class="btn-lifeline btn-blue" onclick="useSkip()">⏭ Skip (15 Coins)</button>
+        <div class="p-2" style="position: fixed; bottom: 0; width: 100%; max-width: 480px; background: var(--bg-dark); border-top: 1px solid var(--border);">
+            <button class="btn-main danger" onclick="submitExam()">Submit Test <i class="fa-solid fa-check-circle"></i></button>
+        </div>
     </div>
-    <div id="warnDiv"></div>  
-    <div id="quiz"></div>  
-    <button id="submitExamBtn" class="btn-red" onclick="submitExam()" style="margin-top:15px;">✅ Submit Exam</button>  
-  </div>    
 
-  <div id="pageResult" style="display:none;">  
-    <div id="result"></div>    
-    <div class="leaderboard">  
-      <h3>🏆 Exam Leaderboard (Podium Ranking)</h3>  
-      <div id="board">লোড হচ্ছে...</div>  
-    </div> 
-    <button class="btn-blue" onclick="show('pageDashboard')" style="margin-top:12px;">🔄 Back to Dashboard</button>  
-  </div>  
+    <div id="pageResult" class="hidden p-2">
+        <div class="header" style="padding: 0 0 16px 0; border-bottom: none;">
+            <i class="fa-solid fa-arrow-left" onclick="navTo('pageHome')" style="cursor: pointer; font-size: 18px;"></i>
+            <div style="font-weight: 600; font-size: 16px;">পরীক্ষার ফলাফল</div>
+            <div></div>
+        </div>
+
+        <div class="stat-card text-center mb-2">
+            <div class="chart-container">
+                <canvas id="scoreChart"></canvas>
+                <div class="score-center">
+                    <h2 id="resPercent">0<span style="font-size:14px;">%</span></h2>
+                </div>
+            </div>
+            
+            <div class="grid-3 mt-2">
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--primary); border-radius: 8px; padding: 10px;">
+                    <div id="resCorrect" style="font-size: 18px; font-weight: bold; color: var(--primary);">0</div>
+                    <div style="font-size: 11px;">সঠিক</div>
+                </div>
+                <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: 8px; padding: 10px;">
+                    <div id="resWrong" style="font-size: 18px; font-weight: bold; color: var(--danger);">0</div>
+                    <div style="font-size: 11px;">ভুল</div>
+                </div>
+                <div style="background: rgba(148, 163, 184, 0.1); border: 1px solid var(--text-muted); border-radius: 8px; padding: 10px;">
+                    <div id="resSkip" style="font-size: 18px; font-weight: bold; color: var(--text-main);">0</div>
+                    <div style="font-size: 11px;">Skip</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">প্রশ্ন Review ও ব্যাখ্যা</div>
+        <div id="reviewContainer"></div>
+
+        <button class="btn-main mt-2" onclick="navTo('pageHome')">Home এ যাও <i class="fa-solid fa-home"></i></button>
+        <div style="height: 50px;"></div>
+    </div>
+
+      <div id="pageLeaderboard" class="hidden">
+        <div class="header">
+            <div style="font-weight: 600; font-size: 16px;"><i class="fa-solid fa-trophy" style="color: var(--warning);"></i> Leaderboard</div>
+        </div>
+        <div class="p-2">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button class="btn-banner" style="flex:1; text-align:center; margin:0;">Overall</button>
+                <button class="btn-banner" style="flex:1; background:var(--card-dark); color:var(--text-muted); border:1px solid var(--border); margin:0;">District</button>
+            </div>
+            
+            <div class="stat-card" id="leaderboardList" style="padding: 0; overflow: hidden;">
+                <div class="text-center p-2" style="color: var(--text-muted);">লোড হচ্ছে...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav" id="bottomNav" style="display: none;">
+        <div class="nav-item active" onclick="navTo('pageHome')"><i class="fa-solid fa-house"></i><span>Home</span></div>
+        <div class="nav-item" onclick="navTo('pageSetup')"><i class="fa-solid fa-file-pen"></i><span>Test</span></div>
+        <div class="nav-item" onclick="navTo('pageLeaderboard')"><i class="fa-solid fa-trophy"></i><span>Rank</span></div>
+        <div class="nav-item" onclick="alert('PDF Books Loading...')"><i class="fa-solid fa-book"></i><span>Books</span></div>
+        <div class="nav-item" onclick="logout()"><i class="fa-solid fa-user"></i><span>Logout</span></div>
+    </div>
 
 </div>
 
-<script>  
-var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";  
-var studentName = "", studentClass = "", studentCleanEmail = "";
-var studentCoins = 0, studentXP = 0;
-var examQuestions = [], timeLeft = 0, totalTime = 0, timerInterval = null, warn = 0, submitted = false;  
-var examVersion = "", examConfig = [], examSubResult = "", examChapResult = "", selectedMode = "Exam";
-var globalNegMark = 0.25; 
-var myChartInstance = null; 
+<script>
+    /* ================= DB & DATA ================= */
+    const DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";
+    let currentUser = { id: "", name: "", batch: "", points: 0, exams: 0 };
+    
+    // Exact UI structured DB matching the app
+    const syllabusData = {
+        "Physics 1st Paper": [
+            { name: "ভৌত জগত ও পরিমাপ", qCount: 222 },
+            { name: "ভেক্টর", qCount: 174 },
+            { name: "নিউটনিয়ান বলবিদ্যা", qCount: 348 },
+            { name: "কাজ, ক্ষমতা ও শক্তি", qCount: 163 }
+        ],
+        "Physics 2nd Paper": [
+            { name: "তাপগতিবিদ্যা", qCount: 210 },
+            { name: "স্থির তড়িৎ", qCount: 190 }
+        ]
+    };
 
-const flashcards = [
-    { q: "⏰ ভেক্টরের সামান্তরিক সূত্রানুযায়ী লব্ধির সর্বোচ্চ মান কখন হয়?", a: "যখন ভেক্টরদ্বয়ের মধ্যবর্তী কোণ 0° হয় (সর্বোচ্চ মান = P + Q)" },
-    { q: "⚡ চল তড়িৎ: ওহমের সূত্রের গাণিতিক রূপটি কী?", a: "I = V / R" },
-    { q: "🍎 মহাকর্ষ ও অভিকর্ষ: পৃথিবীর কেন্দ্রে অভিকর্ষজ ত্বরণ 'g' এর মান কত?", a: "একদম শূন্য (0)" }
-];
-var currentCardIdx = 0, isFlipped = false;
+    // Sample Question Bank (Mimicking backend fetch)
+    const qBank = [
+        { sub: "Physics 1st Paper", chap: "ভেক্টর", q: "ভেক্টরের সামান্তরিক সূত্রানুযায়ী লব্ধির সর্বোচ্চ মান কখন হয়?", opts: ["0° কোণে", "90° কোণে", "180° কোণে", "45° কোণে"], ans: 0, exp: "লব্ধি R = P + Q হয় যখন কোণ 0°।" },
+        { sub: "Physics 1st Paper", chap: "নিউটনিয়ান বলবিদ্যা", q: "বলের ঘাতের একক কোনটি?", opts: ["N", "N.s", "kg.m/s^2", "J"], ans: 1, exp: "বলের ঘাত = বল × সময় = N.s" },
+        { sub: "Physics 1st Paper", chap: "কাজ, ক্ষমতা ও শক্তি", q: "1 HP সমান কত ওয়াট?", opts: ["500 W", "746 W", "1000 W", "750 W"], ans: 1, exp: "1 Horse Power = 746 Watts." }
+    ];
 
-const hscData = {
-    "Physics 1st Paper": ["ভৌত জগত ও পরিমাপ", "ভেক্টর", "গতিবিদ্যা", "নিউটনিয়ান বলবিদ্যা"],
-    "Physics 2nd Paper": ["তাপগতিবিদ্যা", "স্থির তড়িৎ", "চল তড়িৎ"],
-    "Chemistry 1st Paper": ["ল্যাবরেটরি নিরাপদ ব্যবহার", "গুণগত রসায়ন"],
-    "Higher Math 1st Paper": ["ম্যাট্রিক্স ও নির্ণায়ক", "ভেক্টর"]
-};
+    let examState = { questions: [], answers: [], timeLeft: 0, interval: null, subject: "", chapter: "" };
+    let chartInstance = null;
 
-function initDropdowns() {
-    let subjectHTML = '<option value="">-- সাবজেক্ট সিলেক্ট করো --</option>';
-    let filterSubjectHTML = '<option value="All">All Subjects</option>';
-    for (let sub in hscData) { 
-        subjectHTML += `<option value="${sub}">${sub}</option>`; 
-        filterSubjectHTML += `<option value="${sub}">${sub}</option>`;
-    }
-    document.getElementById("examSubject").innerHTML = subjectHTML;
-    document.getElementById("filterSubject").innerHTML = filterSubjectHTML;
-    initAddQuestionSubjects();
-    renderFlashcard();
-}
-
-function initAddQuestionSubjects() {
-    let subSelect = document.getElementById("subject");
-    let html = '<option value="">-- সাবজেক্ট সিলেক্ট করো --</option>';
-    for (let sub in hscData) { html += `<option value="${sub}">${sub}</option>`; }
-    subSelect.innerHTML = html;
-    updateChapters('subject', 'chapter');
-}
-
-function updateChapters(subId, chapId) {
-    let sub = document.getElementById(subId).value;
-    let chapSelect = document.getElementById(chapId);
-    let html = '<option value="All">All Chapters</option>';
-    if (hscData[sub]) hscData[sub].forEach(c => html += `<option value="${c}">${c}</option>`);
-    chapSelect.innerHTML = html;
-}
-
-function show(id) {  
-  ["pageLogin","pageRegister","pageDashboard","pageTeacher","pageExam","pageResult"].forEach(p => document.getElementById(p).style.display="none");  
-  document.getElementById(id).style.display="block";  
-}  
-
-function renderFlashcard() {
-    isFlipped = false;
-    document.getElementById("flashcardText").innerText = flashcards[currentCardIdx].q;
-    document.getElementById("flashcardHint").innerText = "[ Click to Reveal Answer ]";
-}
-function flipFlashcard() {
-    if(!isFlipped) {
-        document.getElementById("flashcardText").innerText = flashcards[currentCardIdx].a;
-        document.getElementById("flashcardHint").innerText = "[ Click to See Question ]";
-        isFlipped = true;
-    } else {
-        renderFlashcard();
-    }
-}
-function nextFlashcard() { currentCardIdx = (currentCardIdx + 1) % flashcards.length; renderFlashcard(); }
-function prevFlashcard() { currentCardIdx = (currentCardIdx - 1 + flashcards.length) % flashcards.length; renderFlashcard(); }
-
-function checkPremiumLock() {
-    let type = document.getElementById("premiumLock").value;
-    if(type === "Premium") {
-        if(studentCoins < 30) {
-            alert("❌ পর্যাপ্ত কয়েন নেই! আনলক করতে ৩০ কয়েন প্রয়োজন।");
-            document.getElementById("premiumLock").value = "Free";
+    /* ================= NAVIGATION ================= */
+    function navTo(pageId) {
+        ['pageAuth', 'pageHome', 'pageSetup', 'pageExam', 'pageResult', 'pageLeaderboard'].forEach(p => {
+            document.getElementById(p).classList.add('hidden');
+        });
+        document.getElementById(pageId).classList.remove('hidden');
+        
+        // Update Bottom Nav UI
+        if(pageId !== 'pageAuth' && pageId !== 'pageExam') {
+            document.getElementById('bottomNav').style.display = 'flex';
+            let items = document.querySelectorAll('.nav-item');
+            items.forEach(i => i.classList.remove('active'));
+            if(pageId === 'pageHome') items[0].classList.add('active');
+            if(pageId === 'pageSetup') items[1].classList.add('active');
+            if(pageId === 'pageLeaderboard') { items[2].classList.add('active'); fetchLeaderboard(); }
         } else {
-            if(confirm("🔒 ৩০ কয়েন খরচ করে প্রিমিয়াম এক্সাম আনলক করতে চান?")) {
-                studentCoins -= 30;
-                updateDataInFirebase();
-                alert("🔓 প্রিমিয়াম আনলক সফল!");
-            } else {
-                document.getElementById("premiumLock").value = "Free";
-            }
+            document.getElementById('bottomNav').style.display = 'none';
         }
     }
-}
 
-// ==========================================
-// DIRECT REGISTRATION (No OTP)
-// ==========================================
-function registerStudentDirect() {
-    let name = document.getElementById('regName').value.trim();
-    let batch = document.getElementById('regBatch').value;
-    let userId = document.getElementById('regId').value.trim(); // Can be Gmail or Phone
-    let pass = document.getElementById('regPass').value.trim();
-
-    if(!name || !batch || !userId || !pass) { 
-        alert("সব ফিল্ড পূরণ করো!"); 
-        return; 
+    /* ================= AUTHENTICATION ================= */
+    let isRegMode = false;
+    function toggleAuthMode() {
+        isRegMode = !isRegMode;
+        document.getElementById('regFields').classList.toggle('hidden', !isRegMode);
+        document.getElementById('btnLogin').classList.toggle('hidden', isRegMode);
+        document.getElementById('btnReg').classList.toggle('hidden', !isRegMode);
+        document.getElementById('toggleAuth').innerText = isRegMode ? "আগের একাউন্ট আছে? লগইন করো" : "অ্যাকাউন্ট নেই? রেজিস্ট্রেশন করো";
     }
-    
-    // Database safe ID (replaces dots with underscore if it's an email)
-    let cleanId = userId.replace(/\./g, '_');
 
-    fetch(DB + "/students_email/" + cleanId + ".json").then(r=>r.json()).then(data => {
-        if(data) { 
-            alert("❌ এই জিমেইল বা ফোন নাম্বার দিয়ে আগে থেকেই একটি অ্যাকাউন্ট খোলা আছে!"); 
-        } else {
-            fetch(DB + "/students_email/" + cleanId + ".json", {
-                method: "PUT",
-                body: JSON.stringify({ name: name, class: batch, pass: pass, contact: userId, coins: 50, xp: 0 })
-            }).then(() => { 
-                alert("🎉 রেজিস্ট্রেশন সফল! বোনাস ৫০ কয়েন পেয়েছ। এখন লগইন করো।"); 
-                show('pageLogin'); 
+    function handleRegister() {
+        let id = document.getElementById('authId').value.replace(/\./g, '_').trim();
+        let pass = document.getElementById('authPass').value.trim();
+        let name = document.getElementById('authName').value.trim();
+        let batch = document.getElementById('authBatch').value;
+        if(!id || !pass || !name) return alert("সব ফিল্ড পূরণ করো!");
+
+        fetch(`${DB}/pro_users/${id}.json`).then(r=>r.json()).then(data => {
+            if(data) return alert("এই আইডি দিয়ে অ্যাকাউন্ট খোলা আছে!");
+            let newUser = { name, batch, pass, points: 50, exams: 0 };
+            fetch(`${DB}/pro_users/${id}.json`, { method: "PUT", body: JSON.stringify(newUser) }).then(() => {
+                alert("Registration Successful!");
+                toggleAuthMode();
+            });
+        });
+    }
+
+    function handleLogin() {
+        let id = document.getElementById('authId').value.replace(/\./g, '_').trim();
+        let pass = document.getElementById('authPass').value.trim();
+        if(!id || !pass) return alert("লগইন ডেটা দিন!");
+
+        fetch(`${DB}/pro_users/${id}.json`).then(r=>r.json()).then(data => {
+            if(!data || data.pass !== pass) return alert("লগইন ব্যর্থ! সঠিক আইডি ও পাসওয়ার্ড দিন।");
+            currentUser = { id, name: data.name, batch: data.batch, points: data.points || 0, exams: data.exams || 0 };
+            initDashboard();
+        });
+    }
+
+    function logout() { currentUser = {}; navTo('pageAuth'); }
+
+    /* ================= DASHBOARD ================= */
+    function initDashboard() {
+        document.getElementById('navAvatar').innerText = currentUser.name.charAt(0).toUpperCase();
+        document.getElementById('navName').innerText = currentUser.name;
+        document.getElementById('navClass').innerText = currentUser.batch;
+        document.getElementById('statExams').innerText = currentUser.exams;
+        navTo('pageHome');
+    }
+
+    /* ================= EXAM SETUP ================= */
+    function loadChapters() {
+        let sub = document.getElementById('setupSubject').value;
+        let box = document.getElementById('chapterBox');
+        let list = document.getElementById('chapterList');
+        
+        if(!sub) { box.classList.add('hidden'); return; }
+        box.classList.remove('hidden');
+        
+        let html = '';
+        if(syllabusData[sub]) {
+            syllabusData[sub].forEach((chap, idx) => {
+                html += `
+                <div class="selectable-item" id="chapItem_${idx}" onclick="selectChapter('${idx}', '${chap.name}')">
+                    <div style="font-weight: 500;">${chap.name}</div>
+                    <div style="font-size: 12px; color: var(--primary); background: rgba(16,185,129,0.1); padding: 4px 8px; border-radius: 6px;">${chap.qCount} টি প্রশ্ন</div>
+                </div>`;
             });
         }
-    });
-}
+        list.innerHTML = html;
+        examState.subject = sub;
+        examState.chapter = ""; // Reset
+    }
 
-function loginStudent() {
-    let userId = document.getElementById('loginId').value.trim();
-    let pass = document.getElementById('loginPass').value.trim();
-    if(!userId || !pass) { alert("লগইন ডেটা দাও!"); return; }
-    
-    // Process the ID the same way we did in registration
-    studentCleanEmail = userId.replace(/\./g, '_');
+    function selectChapter(idx, name) {
+        document.querySelectorAll('.selectable-item').forEach(el => el.classList.remove('selected'));
+        document.getElementById(`chapItem_${idx}`).classList.add('selected');
+        examState.chapter = name;
+    }
 
-    fetch(DB + "/students_email/" + studentCleanEmail + ".json").then(r=>r.json()).then(data => {
-        if(!data || data.pass !== pass) { alert("❌ লগইন ব্যর্থ! সঠিক জিমেইল/নাম্বার এবং পাসওয়ার্ড দাও।"); return; }
+    /* ================= EXAM ENGINE ================= */
+    function startExam() {
+        if(!examState.chapter) return alert("দয়া করে একটি অধ্যায় সিলেক্ট করো!");
+        let limit = parseInt(document.getElementById('setupLimit').value);
+        let timeMins = parseInt(document.getElementById('setupTime').value);
+
+        // Filter Questions (Simulated)
+        let matched = qBank.filter(q => q.sub === examState.subject && (!examState.chapter || q.chap === examState.chapter));
+        if(matched.length === 0) matched = qBank; // Fallback if chapter has no exact match in dummy data
         
-        studentName = data.name;
-        studentClass = data.class;
-        studentCoins = data.coins || 0;
-        studentXP = data.xp || 0;
+        examState.questions = matched.slice(0, limit);
+        examState.answers = new Array(examState.questions.length).fill(null);
+        examState.timeLeft = timeMins * 60;
         
-        updateDashboardHeader();
-        loadSystemSettings();
-        loadDailyQuests();
-        loadStudentHistoryAndChart();
-        show('pageDashboard');
-    });
-}
+        renderExamUI();
+        navTo('pageExam');
 
-function updateDashboardHeader() {
-    document.getElementById('welcomeMsg').innerText = "👨‍🎓 Welcome, " + studentName + " (" + studentClass + ")!";
-    document.getElementById('userCoins').innerText = `💰 Coins: ${studentCoins} | ⭐ Total XP: ${studentXP}`;
-}
+        // Timer Logic
+        clearInterval(examState.interval);
+        examState.interval = setInterval(() => {
+            examState.timeLeft--;
+            let m = Math.floor(examState.timeLeft / 60);
+            let s = examState.timeLeft % 60;
+            document.getElementById('examTimer').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+            
+            let percent = ((timeMins * 60 - examState.timeLeft) / (timeMins * 60)) * 100;
+            document.getElementById('examProgressBar').style.width = `${percent}%`;
 
-function loadSystemSettings() {
-    fetch(DB + "/settings.json").then(r=>r.json()).then(data => {
-        if(data) {
-            globalNegMark = parseFloat(data.negMark || 0.25);
-            if(data.notice) {
-                document.getElementById('noticeBoard').style.display = "block";
-                document.getElementById('noticeText').innerText = data.notice;
-            }
+            if(examState.timeLeft <= 0) submitExam();
+        }, 1000);
+    }
+
+    function renderExamUI() {
+        let html = '';
+        examState.questions.forEach((q, qIndex) => {
+            html += `<div class="q-card" id="qCard_${qIndex}">
+                <div style="font-weight: 600; margin-bottom: 15px;"><span style="color:var(--text-muted);">Q${qIndex+1}.</span> ${q.q}</div>`;
+            q.opts.forEach((opt, oIndex) => {
+                html += `<label class="opt-label" id="optLabel_${qIndex}_${oIndex}" onclick="selectOption(${qIndex}, ${oIndex})">
+                    <input type="radio" name="q${qIndex}" value="${oIndex}">
+                    <span>${String.fromCharCode(65+oIndex)}. ${opt}</span>
+                </label>`;
+            });
+            html += `</div>`;
+        });
+        document.getElementById('examContainer').innerHTML = html;
+        document.getElementById('examProgressText').innerText = `1/${examState.questions.length}`;
+    }
+
+    function selectOption(qIndex, oIndex) {
+        examState.answers[qIndex] = oIndex;
+        for(let i=0; i<4; i++) {
+            let el = document.getElementById(`optLabel_${qIndex}_${i}`);
+            if(el) el.classList.remove('checked');
         }
-    });
-}
-
-function loadDailyQuests() {
-    document.getElementById('questList').innerHTML = `
-        <div class="quest-item"><span>🎯 মিশন ১: যেকোনো ১টি পরীক্ষা কমপ্লিট করা</span> <span>+১০ XP</span></div>
-        <div class="quest-item"><span>🎯 মিশন ২: পরীক্ষায় ৮০% এর উপরে পাওয়া</span> <span>+২০ XP</span></div>
-    `;
-}
-
-function loadStudentHistoryAndChart() {
-    fetch(DB + "/results.json").then(r => r.json()).then(data => {
-        if(!data) { 
-            document.getElementById('studentHistoryBox').innerHTML = "কোনো পরীক্ষার রেকর্ড নেই।"; 
-            renderChart(0, 0);
-            return; 
-        }
+        document.getElementById(`optLabel_${qIndex}_${oIndex}`).classList.add('checked');
         
-        let html = "";
-        let totalCorrectQuestions = 0;
-        let totalWrongQuestions = 0;
+        let answeredCount = examState.answers.filter(a => a !== null).length;
+        document.getElementById('examProgressText').innerText = `${answeredCount}/${examState.questions.length}`;
+    }
 
-        Object.values(data).reverse().forEach(res => {
-            if(res.name === studentName) {
-                let totalQ = res.total || 10;
-                let cCount = Math.round((res.percent / 100) * totalQ);
-                let wCount = totalQ - cCount;
+    /* ================= RESULTS & ANALYTICS ================= */
+    function submitExam() {
+        clearInterval(examState.interval);
+        let correct = 0, wrong = 0, skip = 0;
+        let reviewHTML = '';
+
+        examState.questions.forEach((q, i) => {
+            let userAns = examState.answers[i];
+            let isCorrect = userAns === q.ans;
+            
+            if(userAns === null) skip++;
+            else if(isCorrect) correct++;
+            else wrong++;
+
+            // Build Review UI
+            reviewHTML += `<div class="q-card" style="margin-top: 15px; border: 1px solid ${isCorrect ? 'var(--primary)' : (userAns === null ? 'var(--text-muted)' : 'var(--danger)')}">
+                <div style="margin-bottom: 10px;"><strong>Q${i+1}.</strong> ${q.q}</div>`;
+            
+            q.opts.forEach((opt, idx) => {
+                let badge = ""; let colorClass = "opt-label disabled";
+                if(idx === q.ans) { colorClass += " correct"; badge = " <i class='fa-solid fa-check float-right'></i>"; }
+                else if(idx === userAns) { colorClass += " wrong"; badge = " <i class='fa-solid fa-xmark float-right'></i>"; }
                 
-                totalCorrectQuestions += cCount;
-                totalWrongQuestions += wCount;
+                reviewHTML += `<div class="${colorClass}">${String.fromCharCode(65+idx)}. ${opt}${badge}</div>`;
+            });
+            reviewHTML += `<div class="explanation"><i class="fa-solid fa-lightbulb text-warning"></i> <strong>ব্যাখ্যা:</strong> ${q.exp}</div></div>`;
+        });
 
-                html += `<div class="card" style="margin: 6px 0; padding: 10px; font-size:12px; border-left: 4px solid #3b82f6;">
-                    📚 Subject: <b>${res.subject || 'Mixed'}</b> (${res.chapter || 'All Chapters'})<br>
-                    🎯 Percentage: <span style="color:#22c55e; font-weight:bold;">${res.percent}%</span> | Total Q: ${totalQ}<br>
-                    ✅ Correct answers: <span style="color:#22c55e;">${cCount}</span> | ❌ Wrong answers: <span style="color:#ef4444;">${wCount}</span><br>
-                    <small style="color:#64748b;">🕒 Time Taken: ${res.time}</small>
+        // Calculations & DB Update
+        let score = (correct * 1) - (wrong * 0.25);
+        if(score < 0) score = 0;
+        let totalQ = examState.questions.length;
+        let percentage = Math.round((score / totalQ) * 100);
+
+        document.getElementById('resCorrect').innerText = correct;
+        document.getElementById('resWrong').innerText = wrong;
+        document.getElementById('resSkip').innerText = skip;
+        document.getElementById('resPercent').innerHTML = `${percentage}<span style="font-size:14px;">%</span>`;
+        document.getElementById('reviewContainer').innerHTML = reviewHTML;
+
+        drawChart(correct, wrong, skip);
+
+        // Update DB
+        currentUser.exams += 1;
+        currentUser.points += Math.round(score * 10);
+        fetch(`${DB}/pro_users/${currentUser.id}.json`, {
+            method: "PATCH",
+            body: JSON.stringify({ exams: currentUser.exams, points: currentUser.points })
+        });
+
+        fetch(`${DB}/pro_results.json`, {
+            method: "POST",
+            body: JSON.stringify({ name: currentUser.name, batch: currentUser.batch, score: score, percent: percentage })
+        });
+
+        initDashboard(); // refresh top variables
+        navTo('pageResult');
+    }
+
+    function drawChart(c, w, s) {
+        let ctx = document.getElementById('scoreChart').getContext('2d');
+        if(chartInstance) chartInstance.destroy();
+        if(c===0 && w===0 && s===0) s=1; // prevent empty chart error
+
+        chartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Correct', 'Wrong', 'Skip'],
+                datasets: [{ data: [c, w, s], backgroundColor: ['#10b981', '#ef4444', '#64748b'], borderWidth: 0, cutout: '75%' }]
+            },
+            options: { plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: true }
+        });
+    }
+
+    /* ================= LEADERBOARD ================= */
+    function fetchLeaderboard() {
+        fetch(`${DB}/pro_users.json`).then(r=>r.json()).then(data => {
+            if(!data) return;
+            let users = Object.values(data);
+            users.sort((a,b) => (b.points || 0) - (a.points || 0));
+            
+            let html = '';
+            users.slice(0, 15).forEach((u, i) => {
+                let rankClass = i===0 ? 'rank-1' : i===1 ? 'rank-2' : i===2 ? 'rank-3' : '';
+                let avatarColor = ['#3b82f6', '#ec4899', '#8b5cf6', '#f59e0b'][i % 4];
+                html += `
+                <div class="rank-item">
+                    <div class="rank-num ${rankClass}">${i+1}</div>
+                    <div class="avatar" style="background: ${avatarColor}; width: 32px; height: 32px; font-size: 14px;">${u.name.charAt(0).toUpperCase()}</div>
+                    <div class="rank-info">
+                        <div style="font-weight: 600; font-size: 14px; color: var(--text-main);">${u.name}</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">${u.batch || 'User'}</div>
+                    </div>
+                    <div class="rank-score">${u.points || 0} pts</div>
                 </div>`;
-            }
+            });
+            document.getElementById('leaderboardList').innerHTML = html;
         });
-        
-        document.getElementById('studentHistoryBox').innerHTML = html || "কোনো পরীক্ষার রেকর্ড নেই।";
-        renderChart(totalCorrectQuestions, totalWrongQuestions);
-    });
-}
-
-function renderChart(correct, wrong) {
-    let ctx = document.getElementById('analyticsChart').getContext('2d');
-    if(myChartInstance) { myChartInstance.destroy(); }
-    if(correct === 0 && wrong === 0) { correct = 1; }
-
-    myChartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Correct Answers (সঠিক)', 'Wrong Answers (ভুল)'],
-            datasets: [{
-                data: [correct, wrong],
-                backgroundColor: ['#22c55e', '#ef4444'],
-                borderColor: '#0f172a',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { color: 'white', font: { size: 12 } }
-                }
-            }
-        }
-    });
-}
-
-function addConfig() {
-    let sub = document.getElementById("examSubject").value;
-    let chap = document.getElementById("examChapter").value;
-    let limit = parseInt(document.getElementById("qLimit").value);
-    if(!sub || !limit || limit <= 0) { alert("সঠিক তথ্য দাও!"); return; }
-    examConfig.push({sub: sub, chap: chap, limit: limit});
-    renderConfig();
-}
-function renderConfig() {
-    let html = "";
-    examConfig.forEach((c, i) => { html += `<div style="font-size:12px; color:#38bdf8;">✔ 📚 <b>${c.sub}</b> - ${c.limit} টি</div>`; });
-    document.getElementById("configList").innerHTML = html;
-}
-
-function startExamProcess() {  
-  examVersion = document.getElementById("examVersion").value; 
-  selectedMode = document.getElementById("examMode").value;
-  if (examConfig.length === 0) { alert("এক্সাম বিল্ডারে সাবজেক্ট এড করো!"); return; }
-  
-  fetch(DB+"/questions.json").then(r => r.json()).then(data => {  
-      if (!data) return;  
-      let allDbQuestions = Object.values(data).filter(q => q.version === examVersion); 
-      examQuestions = [];
-      examConfig.forEach(cfg => {
-          let matched = allDbQuestions.filter(q => q.subject === cfg.sub);
-          if(matched.length > 0) examQuestions = examQuestions.concat(matched.slice(0, cfg.limit));
-      });
-      if(examQuestions.length === 0) return alert("কোনো প্রশ্ন পাওয়া যায়নি!");
-      
-      examSubResult = examConfig.length === 1 ? examConfig[0].sub : "Mixed Sub";
-      examChapResult = examConfig.length === 1 ? examConfig[0].chap : "Mixed Chap";
-      
-      document.getElementById('lifelineArea').style.display = selectedMode === "Exam" ? "flex" : "none";
-      document.getElementById('submitExamBtn').style.display = selectedMode === "Exam" ? "block" : "none";
-
-      startExamTimer();
-    });  
-}  
-
-function startExamTimer() {  
-  submitted = false; var html = "";  
-  examQuestions.forEach((x,i) => {  
-    html += `<div class="card" id="qBlock${i}"><p><strong>${i+1}. ${x.q}</strong></p><hr>`;  
-    x.a.forEach((opt, idx) => {  
-      html += `<label class="radio-label" id="label-${i}-${idx}"><input type="radio" name="q${i}" value="${idx}" onchange="handleAnswer(${i}, ${idx})"> ${opt}</label>`;  
-    });  
-    html += `<div id="exp-${i}" style="display:none; font-size:12px; color:#67e8f9; margin-top:5px;">💡 ব্যাখ্যা: ${x.exp||'নেই'}</div></div>`;  
-  });  
-  document.getElementById("quiz").innerHTML = html;  
-  show("pageExam");  
-  
-  timeLeft = examQuestions.length * 60; totalTime = timeLeft;  
-  if (timerInterval) clearInterval(timerInterval);  
-  timerInterval = setInterval(() => {  
-    timeLeft--;  
-    document.getElementById("timer").innerText = "⏱ Time Left: " + Math.floor(timeLeft/60) + ":" + (timeLeft%60 < 10 ? "0" : "") + timeLeft%60;  
-    document.getElementById("progress").style.width = (timeLeft/totalTime)*100 + "%";  
-    if(timeLeft <= 0 && selectedMode === "Exam") submitExam();  
-  },1000);  
-}  
-
-function handleAnswer(qIndex, selectedIdx) {
-    if(selectedMode === "Practice") {
-        let correctIdx = examQuestions[qIndex].correct;
-        let radios = document.getElementsByName('q' + qIndex);
-        radios.forEach(r => r.disabled = true);
-        document.getElementById(`label-${qIndex}-${correctIdx}`).classList.add('correct-ans');
-        if(selectedIdx !== correctIdx) {
-            document.getElementById(`label-${qIndex}-${selectedIdx}`).classList.add('wrong-ans');
-        }
-        document.getElementById(`exp-${qIndex}`).style.display = "block";
-    } else {
-        let radios = document.getElementsByName('q' + qIndex);
-        radios.forEach(r => { if(!r.checked) r.disabled = true; });
     }
-}
-
-function use5050() {
-    if(studentCoins < 10) return alert("❌ পর্যাপ্ত কয়েন নেই!");
-    let qIndex = -1;
-    for(let i=0; i<examQuestions.length; i++) {
-        if(!document.querySelector(`input[name=q${i}]:checked`)) { qIndex = i; break; }
-    }
-    if(qIndex === -1) return alert("সব প্রশ্নের উত্তর দেওয়া শেষ!");
-
-    let correctIdx = examQuestions[qIndex].correct;
-    let count = 0;
-    for(let idx=0; idx<4; idx++) {
-        if(idx !== correctIdx && count < 2) {
-            let label = document.getElementById(`label-${qIndex}-${idx}`);
-            label.style.opacity = "0.2";
-            label.querySelector('input').disabled = true;
-            count++;
-        }
-    }
-    deductCoins(10);
-    document.getElementById('btn5050').disabled = true;
-}
-
-function useSkip() {
-    if(studentCoins < 15) return alert("❌ পর্যাপ্ত কয়েন নেই!");
-    let qIndex = -1;
-    for(let i=0; i<examQuestions.length; i++) {
-        if(!document.querySelector(`input[name=q${i}]:checked`)) { qIndex = i; break; }
-    }
-    if(qIndex === -1) return;
-
-    let correctIdx = examQuestions[qIndex].correct;
-    let radio = document.querySelector(`input[name=q${qIndex}][value="${correctIdx}"]`);
-    radio.checked = true;
-    handleAnswer(qIndex, correctIdx);
-    document.getElementById(`qBlock${qIndex}`).style.border = "1px solid #2563eb";
-    deductCoins(15);
-}
-
-function deductCoins(amount) {
-    studentCoins -= amount;
-    updateDataInFirebase();
-}
-
-function updateDataInFirebase() {
-    fetch(DB + "/students_email/" + studentCleanEmail + ".json", {
-        method: "PATCH",
-        body: JSON.stringify({ coins: studentCoins, xp: studentXP })
-    }).then(() => updateDashboardHeader());
-}
-
-function submitExam() {  
-  if (submitted) return; submitted = true;  
-  if (timerInterval) clearInterval(timerInterval);  
-  
-  var score = 0, wrong = 0;
-  examQuestions.forEach((x,i) => {  
-    var ans = document.querySelector(`input[name=q${i}]:checked`);  
-    if(ans){  
-      if(parseInt(ans.value) === x.correct){ score++; } 
-      else { wrong++; }  
-    } else {
-      wrong++;
-    }
-  });  
-  
-  var fixedWrong = examQuestions.length - score;
-  var finalScore = score - (fixedWrong * globalNegMark);
-  var displayScore = finalScore < 0 ? 0 : finalScore;
-  var percent = Math.round((displayScore/examQuestions.length)*100);  
-  var grade = percent>=80?"A+": percent>=70?"A": percent>=60?"B": percent>=50?"C": percent>=40?"D":"F";
-  
-  let gainedXP = score * 5 + 10;
-  let gainedCoins = score * 2;
-  if(percent >= 80) gainedXP += 20; 
-  
-  studentXP += gainedXP;
-  studentCoins += gainedCoins;
-  updateDataInFirebase();
-
-  fetch(DB+"/results.json",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({ 
-        name:studentName, class:studentClass, 
-        subject:examSubResult, chapter:examChapResult, score:finalScore, 
-        total: examQuestions.length, percent:percent, grade:grade, time:new Date().toLocaleString() 
-    })
-  }).then(() => {
-      loadStudentHistoryAndChart();
-  });
-
-  document.getElementById("result").innerHTML = `
-    <div class="card" style="text-align:center;">
-        <h2>Exam Complete!</h2>
-        <p>🎯 Gained: +${gainedXP} XP & +${gainedCoins} Coins!</p>
-        <p style="font-size:24px; font-weight:bold; margin-top:10px;">Score: ${finalScore.toFixed(2)} / ${examQuestions.length} (${percent}%)</p>
-    </div>`;  
-  loadLeaderboards();  
-  show("pageResult");  
-}  
-
-function loadLeaderboards() {
-  fetch(DB + "/results.json").then(r => r.json()).then(data => {
-      if (!data) return;
-      var results = Object.values(data);
-      results.sort((a,b) => b.percent - a.percent);
-      
-      var htmlExam = results.slice(0,5).map((d,i) => {
-        let podiumClass = i === 0 ? "top-rank-1" : "";
-        let medal = i === 0 ? "🥇" : "🏅";
-        return `<div class="card ${podiumClass}"><b>${medal} Rank #${i+1}:</b> ${d.name} (${d.class}) - <b>${d.percent}%</b></div>`;
-      }).join("");
-      document.getElementById("board").innerHTML = htmlExam;
-    });
-}
-
-function exportResultsToCSV() {
-    fetch(DB + "/results.json").then(r => r.json()).then(data => {
-        if(!data) return alert("কোনো ডাটা নেই!");
-        let csvContent = "data:text/csv;charset=utf-8,Name,Batch,Subject,Score,Percentage,Time\n";
-        Object.values(data).forEach(r => {
-            csvContent += `"${r.name}","${r.class}","${r.subject}",${r.score},${r.percent}%,"${r.time}"\n`;
-        });
-        var link = document.createElement("a");
-        link.setAttribute("href", encodeURI(csvContent));
-        link.setAttribute("download", "Exam_Results.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    });
-}
-
-function loadQuestions() {
-  var searchText = document.getElementById("searchQuestion").value.toLowerCase();
-  fetch(DB + "/questions.json").then(r => r.json()).then(data => {
-      if (!data) return;
-      var html = "";
-      Object.keys(data).forEach(key => {
-        var q = data[key];
-        if (searchText && !q.q.toLowerCase().includes(searchText)) return;
-        html += `<div class="card" style="padding:6px; font-size:12px;">
-            <b>Q:</b> ${q.q} <button class="btn-red" style="width:auto; padding:2px 6px; font-size:10px; float:right;" onclick="deleteQuestion('${key}')">🗑 Delete</button>
-          </div>`;
-      });
-      document.getElementById("questionList").innerHTML = html;
-    });
-}
-
-function deleteQuestion(id){
-  if(confirm("মুছবেন?")) fetch(DB + "/questions/" + id + ".json", { method: "DELETE" }).then(() => loadQuestions());
-}
-function teacherLogin() {  
-  if (document.getElementById("user").value==="admin" && document.getElementById("pass").value==="1234") { show("pageTeacher"); loadQuestions(); loadResults(); } 
-} 
-function saveAdminSettings() {
-    let mark = document.getElementById('adminNegMark').value;
-    fetch(DB + "/settings.json", { method: "PATCH", body: JSON.stringify({ negMark: mark }) }).then(() => alert("Saved!"));
-}
-function saveNotice() {
-    let text = document.getElementById('adminNotice').value.trim();
-    fetch(DB + "/settings.json", { method: "PATCH", body: JSON.stringify({ notice: text }) }).then(() => alert("Published!"));
-}
-function addQuestion() {
-  var data = {
-    version: document.getElementById("qVersion").value, type: document.getElementById("qType").value,
-    subject: document.getElementById("subject").value, chapter: document.getElementById("chapter").value,
-    q: document.getElementById("q").value.trim(),
-    a: [document.getElementById("o1").value.trim(), document.getElementById("o2").value.trim(), document.getElementById("o3").value.trim(), document.getElementById("o4").value.trim()],
-    correct: parseInt(document.getElementById("correct").value), exp: document.getElementById("exp").value.trim()
-  };
-  fetch(DB+"/questions.json",{ method:"POST", body:JSON.stringify(data) }).then(()=>{ alert("প্রশ্ন যুক্ত হয়েছে!"); loadQuestions(); });
-}
-function loadResults() {
-  fetch(DB + "/results.json").then(r => r.json()).then(data => {
-      if (!data) return;
-      var search = document.getElementById("searchResult").value.toLowerCase();
-      var html = "";
-      Object.values(data).reverse().forEach(r => {
-        if(search && !r.name.toLowerCase().includes(search)) return;
-        html += `<div class="card" style="padding:6px; font-size:11px;">👤 ${r.name} - ${r.subject} - <b>${r.percent}%</b></div>`;
-      });
-      document.getElementById("allResults").innerHTML = html;
-    });
-}
-window.onload = function(){ initDropdowns(); };
 </script>
 </body>
 </html>
