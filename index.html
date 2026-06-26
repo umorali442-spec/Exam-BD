@@ -363,7 +363,8 @@ function sendEmailOTP() {
             generatedOTP = Math.floor(100000 + Math.random() * 900000);
             let templateParams = { to_name: name, to_email: email, otp_code: generatedOTP };
             
-            emailjs.send('service_okfk1vh', '9NGDRWmeFoMfEsFiA', templateParams)
+            // Updated with new Service ID: service_v8kvekp
+            emailjs.send('service_v8kvekp', '9NGDRWmeFoMfEsFiA', templateParams)
                 .then(function(response) {
                    alert("✅ ওটিপি পাঠানো হয়েছে! জিমেইল চেক করো।");
                    document.getElementById('otpSection').style.display = 'block';
