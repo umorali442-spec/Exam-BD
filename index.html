@@ -6,6 +6,7 @@
     <title>Smart Exam Pro - Ultimate Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
         :root {
@@ -15,18 +16,22 @@
             --accent: #6366f1; --accent-glow: rgba(99, 102, 241, 0.3);
             --danger: #f43f5e; --warning: #f59e0b; --border: #1e293b;
         }
+        body.light-mode {
+            --bg-main: #f0f2f5; --card-bg: #ffffff; --card-glass: rgba(255, 255, 255, 0.9);
+            --text-main: #0f172a; --text-muted: #475569; --border: #cbd5e1;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 80px; overflow-x: hidden; }
+        body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 80px; overflow-x: hidden; transition: 0.3s; }
         .container { max-width: 500px; margin: 0 auto; min-height: 100vh; position: relative; }
         
         .hidden { display: none !important; }
         .p-2 { padding: 16px; } .mt-1 { margin-top: 12px; } .mb-1 { margin-bottom: 12px; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
 
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-        .glass-card { background: var(--card-glass); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); transition: 0.3s; }
+        .glass-card { background: var(--card-glass); backdrop-filter: blur(12px); border: 1px solid rgba(128,128,128,0.2); }
         
-        input, select, textarea { width: 100%; padding: 14px; margin: 8px 0; background: #0f172a; border: 1px solid var(--border); border-radius: 12px; color: white; font-size: 14px; outline: none; transition: 0.3s; }
+        input, select, textarea { width: 100%; padding: 14px; margin: 8px 0; background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; color: var(--text-main); font-size: 14px; outline: none; transition: 0.3s; }
         input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
         
         button { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
@@ -37,11 +42,11 @@
         .btn-warning { background: linear-gradient(135deg, #d97706, #f59e0b); color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
 
-        .header { position: sticky; top: 0; z-index: 50; background: rgba(11, 15, 25, 0.9); backdrop-filter: blur(10px); padding: 15px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; border: 2px solid #fff; }
+        .header { position: sticky; top: 0; z-index: 50; background: var(--card-glass); backdrop-filter: blur(10px); padding: 15px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; border: 2px solid var(--text-main); }
         .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; border: 1px solid; }
 
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; border-radius: 24px 24px 0 0; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: var(--card-glass); backdrop-filter: blur(15px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; border-radius: 24px 24px 0 0; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); cursor: pointer; font-size: 11px; font-weight: 600; width: 20%; transition: 0.3s;}
         .nav-item i { font-size: 20px; }
         .nav-item.active { color: var(--accent); } .nav-item.active i { transform: translateY(-3px); text-shadow: 0 0 10px var(--accent-glow); }
@@ -49,19 +54,24 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
-        .rank-row { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); background: var(--card-bg); border-radius: 12px; margin-bottom: 8px; }
-        .streak-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
-        .streak-box { width: 100%; aspect-ratio: 1; border-radius: 4px; background: #1e293b; transition: 0.3s; }
-        .streak-box.active { background: var(--primary); box-shadow: 0 0 8px var(--primary-glow); }
+        .rank-row { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); background: var(--bg-main); border-radius: 12px; margin-bottom: 8px; }
+        
+        .cal-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 10px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
+        .streak-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        .streak-box { width: 100%; aspect-ratio: 1; border-radius: 4px; background: var(--border); transition: 0.3s; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-muted); font-weight: bold;}
+        .streak-box.active { background: var(--primary); color: white; box-shadow: 0 0 8px var(--primary-glow); }
+        .streak-box.today { border: 2px solid var(--accent); }
 
-        .opt-btn { background: #0f172a; padding: 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; cursor: pointer; }
+        .opt-btn { background: var(--bg-main); padding: 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; cursor: pointer; color: var(--text-main); }
         .opt-btn.correct { background: rgba(16, 185, 129, 0.15); border-color: var(--primary); }
         .opt-btn.wrong { background: rgba(244, 63, 94, 0.15); border-color: var(--danger); }
         .opt-btn.selected { border-color: var(--accent); background: rgba(99, 102, 241, 0.15); }
         .bookmark-btn { float: right; color: var(--text-muted); cursor: pointer; font-size:18px;}
         .bookmark-btn.active { color: var(--warning); }
         
-        .fc-box { background: linear-gradient(135deg, #1e1b4b, #311042); border: 1px dashed #a855f7; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; user-select: none; min-height: 120px; display:flex; flex-direction:column; justify-content:center;}
+        .fc-box { background: linear-gradient(135deg, var(--accent), #311042); border: 1px dashed #a855f7; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; user-select: none; min-height: 120px; display:flex; flex-direction:column; justify-content:center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
+        
+        .pdf-frame { width: 100%; height: 300px; border: none; border-radius: 8px; margin-top: 10px; background: #fff; }
     </style>
 </head>
 <body>
@@ -76,7 +86,8 @@
                     <div id="headBadge" class="badge">Basic</div>
                 </div>
             </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <i class="fa-solid fa-moon" style="font-size: 18px; color: var(--text-muted); cursor: pointer;" onclick="toggleTheme()" id="themeToggleBtn"></i>
                 <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245,158,11,0.3); padding: 4px 10px; border-radius: 20px; color: var(--warning); font-size: 12px; font-weight: bold;"><i class="fa-solid fa-coins"></i> <span id="headCoins">0</span></div>
             </div>
         </div>
@@ -123,8 +134,8 @@
 
     <div id="pageHome" class="hidden p-2">
         <div class="fc-box mb-1" onclick="flipFlashcard()">
-            <div style="color:#e9d5ff; font-size:12px; margin-bottom:5px;"><i class="fa-solid fa-bolt"></i> Quick Revise</div>
-            <div id="fcText" style="font-size:15px; font-weight:bold; color:white;">Loading...</div>
+            <div style="color:#e9d5ff; font-size:12px; margin-bottom:5px;"><i class="fa-solid fa-bolt"></i> Quick Revise Flashcards</div>
+            <div id="fcText" style="font-size:16px; font-weight:bold; color:white; min-height: 40px; display:flex; align-items:center; justify-content:center;">Loading...</div>
             <div style="margin-top:10px; font-size:11px; color:#c084fc;">[ Tap to Flip ]</div>
         </div>
         <div class="grid-2 mb-1">
@@ -156,7 +167,7 @@
             <select id="readSub" onchange="updateReadChaps()"><option value="">-- Subject --</option></select>
             <select id="readChap"><option value="All">All Chapters</option></select>
             <div class="grid-2 mt-1">
-                <button class="btn-accent" style="padding: 10px;" onclick="loadShortNotes()"><i class="fa-solid fa-file-lines"></i> Notes</button>
+                <button class="btn-accent" style="padding: 10px;" onclick="loadShortNotes()"><i class="fa-solid fa-file-lines"></i> Notes & PDFs</button>
                 <button class="btn-outline" style="padding: 10px;" onclick="loadQBank()"><i class="fa-solid fa-clipboard-question"></i> Q-Bank</button>
             </div>
         </div>
@@ -193,7 +204,7 @@
                 <input type="number" id="mockLimit" placeholder="No. of Qs" min="1">
                 <button class="btn-outline" onclick="addMockBlock()"><i class="fa-solid fa-plus"></i> Add</button>
             </div>
-            <div id="mockConfigList" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;"></div>
+            <div id="mockConfigList" style="margin-top: 15px; padding: 10px; background: var(--bg-main); border-radius: 8px;"></div>
             <div class="flex-between mt-1">
                 <div style="font-size: 12px; color: var(--warning);">Cost: 10 Coins</div>
                 <button class="btn-primary" style="width: 60%;" onclick="startMockExam()"><i class="fa-solid fa-rocket"></i> Launch</button>
@@ -202,15 +213,20 @@
     </div>
 
     <div id="pageProgress" class="hidden p-2">
-        <div class="grid-2 mb-1">
-            <button id="tabProg" class="btn-accent" onclick="switchProgTab('prog')"><i class="fa-solid fa-chart-line"></i> Analytics</button>
-            <button id="tabHist" class="btn-outline" onclick="switchProgTab('hist')"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+        <div class="grid-3 mb-1">
+            <button id="tabProg" class="btn-accent" style="font-size:12px; padding:8px;" onclick="switchProgTab('prog')"><i class="fa-solid fa-chart-line"></i> Analytics</button>
+            <button id="tabHist" class="btn-outline" style="font-size:12px; padding:8px;" onclick="switchProgTab('hist')"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+            <button id="tabMistakes" class="btn-outline" style="font-size:12px; padding:8px;" onclick="switchProgTab('mistakes')"><i class="fa-solid fa-circle-exclamation"></i> Mistakes</button>
         </div>
 
         <div id="viewProg">
             <div class="card text-center"><canvas id="lineChart" style="width: 100%; max-height: 200px;"></canvas></div>
             <div class="card">
-                <div class="flex-between mb-1"><h4 style="color: var(--primary);">30-Day Streak</h4><div class="badge">🔥 <span id="progStreak">0</span> Days</div></div>
+                <div class="flex-between mb-1">
+                    <h4 style="color: var(--primary);" id="calMonthTitle">Monthly Streak</h4>
+                    <div class="badge">🔥 <span id="progStreak">0</span> Days</div>
+                </div>
+                <div class="cal-header"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
                 <div class="streak-grid" id="streakCalendar"></div>
             </div>
             <h3 class="mb-1"><i class="fa-solid fa-trophy" style="color: gold;"></i> Global XP Leaderboard</h3>
@@ -220,19 +236,25 @@
         <div id="viewHist" class="hidden">
             <div class="grid-2 mb-1">
                 <button id="subTabExams" class="btn-primary" style="font-size:12px;" onclick="showHistoryMode('exams')">Past Exams</button>
-                <button id="subTabSaved" class="btn-outline" style="font-size:12px;" onclick="showHistoryMode('saved')">Saved Questions</button>
+                <button id="subTabSaved" class="btn-outline" style="font-size:12px;" onclick="showHistoryMode('saved')">Saved Qs</button>
             </div>
             <div id="historyArea"></div>
             <div id="savedArea" class="hidden"></div>
+        </div>
+
+        <div id="viewMistakes" class="hidden">
+            <h4 class="mb-1" style="color:var(--danger);">Mistake Book (Review Wrong Answers)</h4>
+            <div id="mistakeArea"></div>
         </div>
     </div>
 
     <div id="pageProfile" class="hidden p-2">
         <div class="card text-center" style="margin-top: 20px;">
-            <div class="avatar" style="width: 80px; height: 80px; font-size: 36px; margin: 0 auto 10px; background: linear-gradient(135deg, var(--accent), var(--primary));" id="profAvatar">U</div>
+            <div class="avatar" style="width: 80px; height: 80px; font-size: 36px; margin: 0 auto 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); border-color:white;" id="profAvatar">U</div>
             <h2 id="profName">Name</h2>
             <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 10px;" id="profId">ID</p>
             <div class="badge" id="profBadge">Basic</div>
+            <div id="achievementsBox" style="margin-top:15px; display:flex; justify-content:center; gap:10px;"></div>
             <button class="btn-outline mt-1" style="width:auto; padding: 6px 12px; font-size:12px; margin: 10px auto;" onclick="document.getElementById('editProfBox').classList.toggle('hidden')"><i class="fa-solid fa-pen"></i> Edit Profile</button>
         </div>
 
@@ -244,61 +266,17 @@
             <button class="btn-primary mt-1" onclick="saveProfileEdit()">Save Changes</button>
         </div>
 
-        <div class="grid-3 mb-1 text-center">
-            <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--warning);" id="profCoins">0</div><div style="font-size: 10px; color: var(--text-muted);">Coins</div></div>
-            <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--accent);" id="profXp">0</div><div style="font-size: 10px; color: var(--text-muted);">XP</div></div>
-            <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--primary);" id="profStudy">0</div><div style="font-size: 10px; color: var(--text-muted);">Study Mins</div></div>
-        </div>
-        
-        <button class="btn-danger mt-1" onclick="logout()"><i class="fa-solid fa-power-off"></i> Logout</button>
-    </div>
-
-    <div id="pageExam" class="hidden" style="min-height: 100vh;">
-        <div style="position: sticky; top:0; background: var(--card-bg); padding: 15px; border-bottom: 1px solid var(--border); z-index:50;">
-            <div class="flex-between">
-                <div style="color: var(--text-muted); font-weight: bold;" id="examProgressTxt">0/0</div>
-                <div style="font-size: 20px; font-weight: bold; color: var(--danger); font-family: monospace;" id="examTimerTxt">00:00</div>
-            </div>
-        </div>
-        <div class="p-2" id="liveExamContainer"></div>
-        <div class="p-2" style="position: fixed; bottom: 0; width: 100%; max-width: 500px; background: var(--card-bg); border-top: 1px solid var(--border);">
-            <button class="btn-primary" onclick="submitExam()"><i class="fa-solid fa-check-double"></i> Submit</button>
-        </div>
-    </div>
-
-    <div id="pageResult" class="hidden p-2">
-        <div class="card text-center glass-card">
-            <h2 style="color: white;"><i class="fa-solid fa-medal"></i> Report Card</h2>
-            <div style="font-size: 40px; font-weight: bold; color: var(--primary); margin: 10px 0;" id="resPercent">0%</div>
-            <p style="color: var(--warning); font-weight: bold;">Earned: +<span id="resXp">0</span> XP | +<span id="resCoin">0</span> Coins</p>
-        </div>
-        <button class="btn-outline mb-1" onclick="navTo('pageHome', 0)"><i class="fa-solid fa-house"></i> Home</button>
-        <h3 class="mb-1">Detailed Analysis</h3>
-        <div id="reviewContainer"></div>
-    </div>
-
-     <div id="pageAdmin" class="hidden p-2">
-        <div class="flex-between mb-1">
-            <h3 style="color: var(--danger);"><i class="fa-solid fa-shield-halved"></i> Admin Console</h3>
-            <button class="btn-outline" style="width:auto; padding: 5px 10px;" onclick="navTo('pageAuth')">Exit</button>
-        </div>
-        
-        <div class="grid-3 mb-1">
+          <div class="grid-2 mb-1">
             <button class="btn-primary" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adQBox')">Add Q</button>
             <button class="btn-warning" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adBulkBox')">Bulk Qs</button>
-            <button class="btn-accent" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adNoteBox')">Add Note</button>
+            <button class="btn-accent" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adNoteBox')">Add Note/PDF</button>
+            <button class="btn-danger" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adFcBox')">Flashcards</button>
         </div>
 
         <div id="adQBox" class="card">
             <h4 id="adModeText">Add Question</h4>
-            <div class="grid-2 mt-1">
-                <select id="adSub" onchange="updateChapDropdown('adSub','adChap')"></select>
-                <select id="adChap"><option value="All">Chapter</option></select>
-            </div>
-            <div class="grid-2 mt-1">
-                <select id="adLevel"><option value="Academic">Academic</option><option value="Advanced">Advanced</option></select>
-                <select id="adStars"><option value="1">⭐ 1 Star</option><option value="2">⭐⭐ 2</option><option value="3">⭐⭐⭐ 3</option><option value="4">⭐⭐⭐⭐ 4</option><option value="5">⭐⭐⭐⭐⭐ 5</option></select>
-            </div>
+            <div class="grid-2 mt-1"><select id="adSub" onchange="updateChapDropdown('adSub','adChap')"></select><select id="adChap"><option value="All">Chapter</option></select></div>
+            <div class="grid-2 mt-1"><select id="adLevel"><option value="Academic">Academic</option><option value="Advanced">Advanced</option></select><select id="adStars"><option value="1">⭐ 1 Star</option><option value="2">⭐⭐ 2</option><option value="3">⭐⭐⭐ 3</option><option value="4">⭐⭐⭐⭐ 4</option><option value="5">⭐⭐⭐⭐⭐ 5</option></select></div>
             <textarea id="adQ" placeholder="Type Question Here..." rows="3"></textarea>
             <input id="adImg" placeholder="Image URL (Optional)">
             <input id="adO1" placeholder="Option A"><input id="adO2" placeholder="Option B">
@@ -316,21 +294,29 @@
         </div>
 
         <div id="adNoteBox" class="card hidden">
-            <h4>Add Short Note</h4>
+            <h4>Add Short Note or PDF</h4>
             <div class="grid-2 mt-1"><select id="adNoteSub" onchange="updateChapDropdown('adNoteSub','adNoteChap')"></select><select id="adNoteChap"></select></div>
             <input id="adNoteTitle" placeholder="Note Title">
-            <textarea id="adNoteContent" placeholder="Write comprehensive notes here..." rows="6"></textarea>
+            <input id="adNotePdf" placeholder="PDF Drive URL (Optional)">
+            <textarea id="adNoteContent" placeholder="Write comprehensive notes here (Optional if PDF given)..." rows="6"></textarea>
             <button class="btn-accent mt-1" onclick="adminSaveNote()">Publish Note</button>
         </div>
 
-        <div class="card">
+        <div id="adFcBox" class="card hidden">
+            <h4>Add Flashcard</h4>
+            <input id="adFcQ" placeholder="Question (e.g. ⏰ ভেক্টরের লব্ধির সর্বোচ্চ মান?)">
+            <input id="adFcA" placeholder="Answer (e.g. যখন কোণ 0° হয়)">
+            <button class="btn-primary mt-1" onclick="adminSaveFlashcard()">Save Flashcard</button>
+            <div id="adminFcList" style="margin-top:10px; max-height: 200px; overflow-y:auto; font-size:12px;"></div>
+        </div>
+
+        <div class="card mt-1">
             <h4>Database Search & Edit</h4>
             <div class="grid-2 mt-1">
                 <select id="adSearchSub" onchange="updateChapDropdown('adSearchSub','adSearchChap')"></select>
                 <select id="adSearchChap"><option value="All">All</option></select>
             </div>
             <input id="adSearch" placeholder="Search keywords..." onkeyup="adminSearchQ()">
-            <button class="btn-outline mt-1" onclick="adminSearchQ()"><i class="fa-solid fa-search"></i> Search Filter</button>
             <div id="adQList" style="max-height: 300px; overflow-y: auto; margin-top: 10px;"></div>
         </div>
     </div>
@@ -350,9 +336,14 @@
 // ==========================================
 const DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";
 let currentUser = {};
-let allQuestions = []; let allNotes = []; let allUsers = [];
+let allQuestions = []; let allNotes = []; let allUsers = []; let flashcards = [];
 let examState = { config: [], questions: [], answers: [], time: 0, interval: null, sub: "" };
 let lineChartInst = null; let currentEditId = null;
+
+// Sound Effects Setup (Using accessible short sounds)
+const timerSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+const successSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+const failSound = new Audio('https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg');
 
 const hscData = {
     "Bangla 1st Paper": ["গদ্য", "পদ্য", "উপন্যাস", "নাটক"],
@@ -370,13 +361,14 @@ const hscData = {
     "ICT": ["বিশ্ব ও বাংলাদেশ প্রেক্ষিত", "কমিউনিকেশন সিস্টেমস", "সংখ্যা পদ্ধতি", "Web Design", "Programming (C)", "Database"]
 };
 
-const flashcards = [
-    { q: "⏰ ভেক্টরের লব্ধির সর্বোচ্চ মান?", a: "যখন কোণ 0° হয় (R = P + Q)" },
-    { q: "⚡ ওহমের সূত্র", a: "I = V / R" },
-    { q: "🍎 পৃথিবীর কেন্দ্রে g এর মান?", a: "একদম শূন্য (0)" },
-    { q: "💧 আদর্শ গ্যাসের সমীকরণ?", a: "PV = nRT" }
-];
 let fcIndex = 0; let fcFlipped = false;
+
+// Theme Toggle
+function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+    let isLight = document.body.classList.contains('light-mode');
+    document.getElementById('themeToggleBtn').className = isLight ? "fa-solid fa-sun" : "fa-solid fa-moon";
+}
 
 // ==========================================
 // 2. CORE NAVIGATION
@@ -400,10 +392,10 @@ function navTo(pageId, navIdx = -1) {
             }
         }
         
-        if(pageId === 'pageHome') { loadLeaderboards(); renderFlashcard(); }
-        if(pageId === 'pageProgress') { renderProgressUI(); loadHistory(); }
+        if(pageId === 'pageHome') { loadLeaderboards(); if(flashcards.length>0)renderFlashcard(); }
+        if(pageId === 'pageProgress') { renderProgressUI(); loadHistory(); loadMistakes(); }
         if(pageId === 'pageNotes' || pageId === 'pageMock' || pageId === 'pageAdmin') { initDropdowns(); fetchDBData(); }
-    } catch(err) { console.error("Navigation error:", err); }
+    } catch(err) { console.error("Nav Error:", err); }
 }
 
 function navToTimer(isActive) {
@@ -443,179 +435,106 @@ function toggleAuth() {
 }
 
 function handleRegister() {
-    try {
-        let name = document.getElementById('regName').value.trim();
-        let batch = document.getElementById('regBatch').value;
-        let rawId = document.getElementById('authId').value.trim(); 
-        let pass = document.getElementById('authPass').value.trim();
-        
-        if(!name || !batch || !rawId || !pass) { alert("Please fill all fields!"); return; }
-        
-        document.getElementById('btnReg').innerHTML = "Registering...";
-        let cleanId = rawId.replace(/\./g, '_');
-
-        fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r=>r.json()).then(data => {
-            if(data) { alert("Account already exists with this ID!"); document.getElementById('btnReg').innerHTML = "Register"; return; }
-            
-            let today = new Date().toLocaleDateString();
-            let newUser = { name, batch, pass, coins: 100, xp: 0, studyMins: 0, streak: 1, lastLogin: today, activityData: [0,0,0,0,0,0,0], bookmarks: [] }; 
-            
-            fetch(`${DB}/ultimate_users/${cleanId}.json`, { method: "PUT", body: JSON.stringify(newUser) }).then(() => {
-                alert("Registration successful! +100 Coins Bonus!"); 
-                document.getElementById('btnReg').innerHTML = "Register";
-                toggleAuth(); 
-            });
-        }).catch(err => { alert("Network Error!"); document.getElementById('btnReg').innerHTML = "Register"; });
-    } catch (e) { alert("Error: " + e.message); }
+    let name = document.getElementById('regName').value.trim(), batch = document.getElementById('regBatch').value, rawId = document.getElementById('authId').value.trim(), pass = document.getElementById('authPass').value.trim();
+    if(!name || !batch || !rawId || !pass) return alert("Fill all fields!");
+    let cleanId = rawId.replace(/\./g, '_'); document.getElementById('btnReg').innerHTML = "Registering...";
+    fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r=>r.json()).then(data => {
+        if(data) { alert("Account exists!"); document.getElementById('btnReg').innerHTML = "Register"; return; }
+        let newUser = { name, batch, pass, coins: 100, xp: 0, studyMins: 0, streak: 1, lastLogin: new Date().toLocaleDateString(), activityData: [0,0,0,0,0,0,0], bookmarks: [], mistakes: [], subjProg: {} }; 
+        fetch(`${DB}/ultimate_users/${cleanId}.json`, { method: "PUT", body: JSON.stringify(newUser) }).then(() => { alert("Success! +100 Coins!"); document.getElementById('btnReg').innerHTML = "Register"; toggleAuth(); });
+    }).catch(() => { alert("Error!"); document.getElementById('btnReg').innerHTML = "Register"; });
 }
 
 function handleLogin() {
-    try {
-        let rawId = document.getElementById('authId').value.trim();
-        let pass = document.getElementById('authPass').value.trim();
-        if(!rawId || !pass) { alert("Enter ID and Password!"); return; }
-        
-        let cleanId = rawId.replace(/\./g, '_');
-        document.getElementById('btnLogin').innerHTML = "Loading...";
-
-        fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r=>r.json()).then(data => {
-            document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`;
-            if(!data || data.pass !== pass) return alert("❌ Invalid Login Credentials!");
-            
-            // Safe assignment with fallback
-            currentUser = { 
-                id: cleanId, name: data.name || "User", batch: data.batch || "", 
-                coins: data.coins||0, xp: data.xp||0, studyMins: data.studyMins||0, 
-                streak: data.streak||1, lastLogin: data.lastLogin||"", 
-                activityData: data.activityData||[0,0,0,0,0,0,0], bookmarks: data.bookmarks||[] 
-            };
-            
-            let today = new Date().toLocaleDateString();
-            if(currentUser.lastLogin !== today) {
-                currentUser.streak += 1; currentUser.lastLogin = today;
-                currentUser.activityData.shift(); currentUser.activityData.push(0);
-                saveUserDB({ streak: currentUser.streak, lastLogin: today, activityData: currentUser.activityData });
-            }
-            
-            updateUIHeader(); navTo('pageHome', 0); fetchDBData();
-        }).catch(err => {
-            alert("Network Error!"); document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`;
-        });
-    } catch(e) { alert("Error: " + e.message); }
+    let rawId = document.getElementById('authId').value.trim(), pass = document.getElementById('authPass').value.trim();
+    if(!rawId || !pass) return alert("Enter credentials!");
+    let cleanId = rawId.replace(/\./g, '_'); document.getElementById('btnLogin').innerHTML = "Loading...";
+    fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r=>r.json()).then(data => {
+        document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`;
+        if(!data || data.pass !== pass) return alert("❌ Invalid Login!");
+        currentUser = { id: cleanId, ...data, mistakes: data.mistakes||[], subjProg: data.subjProg||{} };
+        let today = new Date().toLocaleDateString();
+        if(currentUser.lastLogin !== today) {
+            // Complex streak logic for new day
+            let lastDate = new Date(currentUser.lastLogin); let curDate = new Date(today);
+            let diff = (curDate - lastDate) / (1000*60*60*24);
+            if(diff === 1) currentUser.streak += 1; else currentUser.streak = 1; // Reset if missed day
+            currentUser.lastLogin = today;
+            currentUser.activityData.shift(); currentUser.activityData.push(0);
+            saveUserDB({ streak: currentUser.streak, lastLogin: today, activityData: currentUser.activityData });
+        }
+        updateUIHeader(); navTo('pageHome', 0); fetchDBData(); fetchFlashcards();
+    }).catch(() => { alert("Error!"); document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`; });
 }
 
 function logout() { currentUser = {}; navTo('pageAuth'); }
 
 function getStage(xp) {
-    if(xp < 500) return { name: "Basic", color: "var(--text-muted)", glow: "rgba(100,116,139,0.3)" };
-    if(xp < 1500) return { name: "Pro", color: "#38bdf8", glow: "rgba(56,189,248,0.4)" };
-    if(xp < 3000) return { name: "Advanced", color: "var(--primary)", glow: "var(--primary-glow)" };
-    if(xp < 6000) return { name: "Master", color: "var(--accent)", glow: "var(--accent-glow)" };
-    return { name: "Legend", color: "gold", glow: "rgba(255,215,0,0.5)" };
+    if(xp < 500) return { name: "Basic", color: "var(--text-muted)", glow: "rgba(100,116,139,0.3)", icon: "🌱" };
+    if(xp < 1500) return { name: "Pro", color: "#38bdf8", glow: "rgba(56,189,248,0.4)", icon: "🚀" };
+    if(xp < 3000) return { name: "Advanced", color: "var(--primary)", glow: "var(--primary-glow)", icon: "💎" };
+    if(xp < 6000) return { name: "Master", color: "var(--accent)", glow: "var(--accent-glow)", icon: "👑" };
+    return { name: "Legend", color: "gold", glow: "rgba(255,215,0,0.5)", icon: "🏆" };
 }
 
 function updateUIHeader() {
-    try {
-        let stage = getStage(currentUser.xp);
-        let fn = (currentUser.name || "User").split(" ")[0];
-        let fl = fn.charAt(0).toUpperCase();
-        
-        document.getElementById('headName').innerText = fn;
-        document.getElementById('headAvatar').innerText = fl;
-        document.getElementById('headAvatar').style.borderColor = stage.color;
-        document.getElementById('headAvatar').style.boxShadow = `0 0 10px ${stage.glow}`;
-        
-        let b = document.getElementById('headBadge');
-        b.innerText = stage.name; b.style.color = stage.color; b.style.borderColor = stage.color;
-        document.getElementById('headCoins').innerText = currentUser.coins;
+    let stage = getStage(currentUser.xp); let fn = (currentUser.name || "User").split(" ")[0]; let fl = fn.charAt(0).toUpperCase();
+    document.getElementById('headName').innerText = fn; document.getElementById('headAvatar').innerText = fl;
+    document.getElementById('headAvatar').style.borderColor = stage.color; document.getElementById('headAvatar').style.boxShadow = `0 0 10px ${stage.glow}`;
+    let b = document.getElementById('headBadge'); b.innerText = stage.name; b.style.color = stage.color; b.style.borderColor = stage.color;
+    document.getElementById('headCoins').innerText = currentUser.coins;
+    
+    document.getElementById('profName').innerText = currentUser.name; document.getElementById('profAvatar').innerText = fl;
+    document.getElementById('profAvatar').style.borderColor = stage.color; document.getElementById('profId').innerText = currentUser.id.replace(/_/g, '.');
+    let pb = document.getElementById('profBadge'); pb.innerText = `${stage.icon} ${stage.name} Level`; pb.style.color = stage.color; pb.style.borderColor = stage.color; pb.style.boxShadow = `0 0 10px ${stage.glow}`;
+    document.getElementById('profCoins').innerText = currentUser.coins; document.getElementById('profXp').innerText = currentUser.xp;
+    document.getElementById('profStudy').innerText = currentUser.studyMins; document.getElementById('progStreak').innerText = currentUser.streak;
 
-        document.getElementById('profName').innerText = currentUser.name;
-        document.getElementById('profAvatar').innerText = fl;
-        document.getElementById('profAvatar').style.borderColor = stage.color;
-        document.getElementById('profId').innerText = currentUser.id.replace(/_/g, '.');
-        
-        let pb = document.getElementById('profBadge');
-        pb.innerText = `${stage.name} Level`; pb.style.color = stage.color; pb.style.borderColor = stage.color; pb.style.boxShadow = `0 0 10px ${stage.glow}`;
-        
-        document.getElementById('profCoins').innerText = currentUser.coins;
-        document.getElementById('profXp').innerText = currentUser.xp;
-        document.getElementById('profStudy').innerText = currentUser.studyMins;
-        document.getElementById('progStreak').innerText = currentUser.streak;
-    } catch(e) { console.error("UI Header Update Error:", e); }
+    // Badges
+    let achHtml = "";
+    if(currentUser.streak >= 7) achHtml += `<div class="badge" style="border-color:var(--warning); color:var(--warning);">🔥 7-Day Streak</div>`;
+    if(currentUser.studyMins >= 600) achHtml += `<div class="badge" style="border-color:var(--primary); color:var(--primary);">🕒 10hr Focus</div>`;
+    document.getElementById('achievementsBox').innerHTML = achHtml;
 }
 
-function saveProfileEdit() {
-    let n = document.getElementById('epName').value.trim();
-    let b = document.getElementById('epBatch').value;
-    if(n) { currentUser.name = n; currentUser.batch = b; saveUserDB({ name: n, batch: b }); alert("Profile Updated!"); document.getElementById('editProfBox').classList.add('hidden'); }
-}
-
-function saveUserDB(updates) {
-    Object.assign(currentUser, updates);
-    fetch(`${DB}/ultimate_users/${currentUser.id}.json`, { method: "PATCH", body: JSON.stringify(updates) });
-    updateUIHeader();
-}
+function saveProfileEdit() { let n = document.getElementById('epName').value.trim(); let b = document.getElementById('epBatch').value; if(n) { saveUserDB({ name: n, batch: b }); alert("Updated!"); document.getElementById('editProfBox').classList.add('hidden'); } }
+function saveUserDB(updates) { Object.assign(currentUser, updates); fetch(`${DB}/ultimate_users/${currentUser.id}.json`, { method: "PATCH", body: JSON.stringify(updates) }); updateUIHeader(); }
 
 // ==========================================
 // 4. QUICK REVISE & DUAL LEADERBOARDS
 // ==========================================
-function renderFlashcard() {
-    fcFlipped = false;
-    document.getElementById("fcText").innerText = flashcards[fcIndex].q;
-    document.getElementById("fcText").style.color = "white";
+function fetchFlashcards() {
+    fetch(`${DB}/ultimate_flashcards.json`).then(r=>r.json()).then(data => {
+        if(data) { flashcards = Object.keys(data).map(k=>({id:k,...data[k]})); if(flashcards.length>0) renderFlashcard(); }
+        else flashcards = [{q: "No flashcards yet. Admin will add soon!", a: "Keep learning!"}];
+    });
 }
-function flipFlashcard() {
-    if(!fcFlipped) {
-        document.getElementById("fcText").innerText = flashcards[fcIndex].a;
-        document.getElementById("fcText").style.color = "#38bdf8";
-        fcFlipped = true;
-    } else renderFlashcard();
-}
+function renderFlashcard() { fcFlipped = false; document.getElementById("fcText").innerText = flashcards[fcIndex].q; document.getElementById("fcText").style.color = "white"; }
+function flipFlashcard() { if(!fcFlipped) { document.getElementById("fcText").innerText = flashcards[fcIndex].a; document.getElementById("fcText").style.color = "#38bdf8"; fcFlipped = true; } else renderFlashcard(); }
 function nextFlashcard(e) { e.stopPropagation(); fcIndex = (fcIndex + 1) % flashcards.length; renderFlashcard(); }
 function prevFlashcard(e) { e.stopPropagation(); fcIndex = (fcIndex - 1 + flashcards.length) % flashcards.length; renderFlashcard(); }
 
 function loadLeaderboards() {
     fetch(`${DB}/ultimate_users.json`).then(r=>r.json()).then(data => {
-        if(!data) return;
-        allUsers = Object.values(data);
-        
-        // 1. Global XP Leaderboard (Top 10)
-        let xpUsers = [...allUsers].sort((a,b) => (b.xp||0) - (a.xp||0)).slice(0,10);
-        let xpHtmlHome = ''; let xpHtmlFull = '';
-        
+        if(!data) return; allUsers = Object.values(data);
+        let xpUsers = [...allUsers].sort((a,b) => (b.xp||0) - (a.xp||0)).slice(0,10); let xpHtmlHome = ''; let xpHtmlFull = '';
         xpUsers.forEach((u, i) => {
-            let rCls = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
             let stg = getStage(u.xp||0);
-            let rowHtml = `<div class="rank-row ${rCls}">
-                <div class="rank-pos">${i+1}</div>
+            let rowHtml = `<div class="rank-row">
+                <div style="font-weight:bold; width:20px; color:${i<3?'gold':''}">${i+1}</div>
                 <div class="avatar" style="width:36px;height:36px;font-size:14px;border-color:${stg.color};">${(u.name||"U").charAt(0).toUpperCase()}</div>
-                <div style="flex:1; margin-left:12px;">
-                    <div style="font-weight:bold; font-size:14px;">${u.name||"User"}</div>
-                    <div style="font-size:10px; color:${stg.color};">${stg.name} • ${u.batch||'User'}</div>
-                </div>
+                <div style="flex:1; margin-left:12px;"><div style="font-weight:bold; font-size:14px;">${u.name||"User"}</div><div style="font-size:10px; color:${stg.color};">${stg.name}</div></div>
                 <div style="color:var(--accent); font-weight:bold;">${u.xp||0} <small>XP</small></div>
             </div>`;
-            
-            if(i < 3) xpHtmlHome += rowHtml; // Home shows Top 3
-            xpHtmlFull += rowHtml;           // Progress shows Top 10
+            if(i < 3) xpHtmlHome += rowHtml; xpHtmlFull += rowHtml;
         });
-        
         document.getElementById('homeLeaderboard').innerHTML = xpHtmlHome || "<div class='text-center text-muted'>No data yet.</div>";
         document.getElementById('fullLeaderboard').innerHTML = xpHtmlFull || "<div class='text-center text-muted'>No data yet.</div>";
 
-        // 2. Study Time Leaderboard
-        let studyUsers = [...allUsers].sort((a,b) => (b.studyMins||0) - (a.studyMins||0)).slice(0,10);
-        let sHtml = '';
-        studyUsers.forEach((u, i) => {
-            let rCls = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
-            sHtml += `<div class="rank-row ${rCls}">
-                <div class="rank-pos">${i+1}</div>
-                <div style="flex:1; margin-left:12px;"><div style="font-weight:bold; font-size:14px;">${u.name||"User"}</div></div>
-                <div style="color:var(--danger); font-weight:bold;">${u.studyMins||0} <small>Mins</small></div>
-            </div>`;
-        });
+        let studyUsers = [...allUsers].sort((a,b) => (b.studyMins||0) - (a.studyMins||0)).slice(0,10); let sHtml = '';
+        studyUsers.forEach((u, i) => { sHtml += `<div class="rank-row"><div style="font-weight:bold;width:20px;">${i+1}</div><div style="flex:1; margin-left:12px;"><div style="font-weight:bold; font-size:14px;">${u.name||"User"}</div></div><div style="color:var(--danger); font-weight:bold;">${u.studyMins||0} <small>Mins</small></div></div>`; });
         document.getElementById('studyRankList').innerHTML = sHtml || "<div class='text-center text-muted'>No data yet.</div>";
-    }).catch(err => console.error("Leaderboard Error:", err));
+    });
 }
 
 // ==========================================
@@ -623,102 +542,68 @@ function loadLeaderboards() {
 // ==========================================
 let pTimer = null; let pTimeLeft = 0; let isPRunning = false; let pMode = 'study';
 function togglePomodoro() {
-    if(isPRunning) {
-        clearInterval(pTimer); isPRunning = false;
-        document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-play"></i> Resume';
-        document.getElementById('timerStatus').innerText = "Paused";
-    } else {
-        if(pTimeLeft === 0) {
-            let mins = pMode==='study' ? parseInt(document.getElementById('tStudyInp').value) : parseInt(document.getElementById('tBreakInp').value);
-            pTimeLeft = (mins || 25) * 60;
-        }
-        isPRunning = true;
-        document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
-        document.getElementById('timerStatus').innerText = pMode==='study' ? "Deep Focus Mode 🔥" : "Relax & Breathe ☕";
-        
+    if(isPRunning) { clearInterval(pTimer); isPRunning = false; document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-play"></i> Resume'; document.getElementById('timerStatus').innerText = "Paused"; }
+    else {
+        if(pTimeLeft === 0) pTimeLeft = (pMode==='study' ? parseInt(document.getElementById('tStudyInp').value) : parseInt(document.getElementById('tBreakInp').value)) * 60;
+        isPRunning = true; document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-pause"></i> Pause'; document.getElementById('timerStatus').innerText = pMode==='study' ? "Deep Focus Mode 🔥" : "Relax & Breathe ☕";
         pTimer = setInterval(() => {
             if(pTimeLeft > 0) {
-                pTimeLeft--;
-                let m = Math.floor(pTimeLeft/60); let s = pTimeLeft%60;
+                pTimeLeft--; let m = Math.floor(pTimeLeft/60); let s = pTimeLeft%60;
                 document.getElementById('timerDisplay').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
             } else {
-                clearInterval(pTimer); isPRunning = false;
+                clearInterval(pTimer); isPRunning = false; timerSound.play().catch(e=>{});
                 if(pMode === 'study') {
                     let minsAdded = parseInt(document.getElementById('tStudyInp').value);
-                    alert(`🎉 Session Complete! +${minsAdded} Mins added to profile!`);
-                    saveUserDB({ studyMins: currentUser.studyMins + minsAdded, xp: currentUser.xp + 5 });
-                    pMode = 'break';
-                } else { alert("Break over! Time to focus again."); pMode = 'study'; }
+                    alert(`🎉 Session Complete! +${minsAdded} Mins added!`);
+                    saveUserDB({ studyMins: currentUser.studyMins + minsAdded, xp: currentUser.xp + 5 }); pMode = 'break';
+                } else { alert("Break over! Time to focus."); pMode = 'study'; }
                 resetPomodoro(); loadLeaderboards();
             }
         }, 1000);
     }
 }
-function resetPomodoro() {
-    clearInterval(pTimer); isPRunning = false; pTimeLeft = 0;
-    let mins = pMode==='study' ? parseInt(document.getElementById('tStudyInp').value) : parseInt(document.getElementById('tBreakInp').value);
-    document.getElementById('timerDisplay').innerText = `${mins<10?'0'+mins:mins}:00`;
-    document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-play"></i> Start';
-    document.getElementById('timerStatus').innerText = pMode==='study' ? "Ready to focus" : "Ready for break";
-}
+function resetPomodoro() { clearInterval(pTimer); isPRunning = false; pTimeLeft = 0; let mins = pMode==='study' ? parseInt(document.getElementById('tStudyInp').value) : parseInt(document.getElementById('tBreakInp').value); document.getElementById('timerDisplay').innerText = `${mins<10?'0'+mins:mins}:00`; document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-play"></i> Start'; document.getElementById('timerStatus').innerText = pMode==='study' ? "Ready to focus" : "Ready for break"; }
 
 // ==========================================
 // 6. DB FETCH & LEARN
 // ==========================================
 function fetchDBData() {
-    fetch(`${DB}/ultimate_questions.json`).then(r=>r.json()).then(data => {
-        if(data) allQuestions = Object.keys(data).map(k => ({ id: k, ...data[k] }));
-    }).catch(e=>console.log(e));
-    
-    fetch(`${DB}/ultimate_notes.json`).then(r=>r.json()).then(data => {
-        if(data) allNotes = Object.keys(data).map(k => ({ id: k, ...data[k] }));
-    }).catch(e=>console.log(e));
+    fetch(`${DB}/ultimate_questions.json`).then(r=>r.json()).then(data => { if(data) allQuestions = Object.keys(data).map(k => ({ id: k, ...data[k] })); });
+    fetch(`${DB}/ultimate_notes.json`).then(r=>r.json()).then(data => { if(data) allNotes = Object.keys(data).map(k => ({ id: k, ...data[k] })); });
 }
 
 function loadShortNotes() {
-    let sub = document.getElementById('readSub').value;
-    let chap = document.getElementById('readChap').value;
+    let sub = document.getElementById('readSub').value, chap = document.getElementById('readChap').value;
     if(!sub) return alert("Select subject!");
-    
-    let html = '';
-    let filtered = allNotes.filter(n => n.subject === sub && (chap === 'All' || n.chapter === chap));
+    let html = ''; let filtered = allNotes.filter(n => n.subject === sub && (chap === 'All' || n.chapter === chap));
     if(filtered.length === 0) html = "<div class='text-center mt-1 text-muted'>No notes available yet.</div>";
-    
     filtered.forEach(n => {
         html += `<div class="card" style="border-left: 4px solid var(--accent); background: rgba(99, 102, 241, 0.05);">
             <div style="font-size:12px; color:var(--text-muted);">${n.chapter}</div>
             <h4 style="color:var(--text-main); margin:5px 0;">${n.title}</h4>
-            <div style="font-size:13px; white-space: pre-wrap;">${n.content}</div>
-        </div>`;
+            <div style="font-size:13px; white-space: pre-wrap; margin-bottom: 10px;">${n.content}</div>`;
+        if(n.pdfUrl) {
+            let embedUrl = n.pdfUrl.replace('/view?usp=sharing', '/preview').replace('/view', '/preview'); // Try adapt gdrive links
+            html += `<iframe src="${embedUrl}" class="pdf-frame"></iframe>
+                     <a href="${n.pdfUrl}" target="_blank" style="display:block; margin-top:5px; font-size:12px; color:var(--accent);">Open PDF in new tab</a>`;
+        }
+        html += `</div>`;
     });
     document.getElementById('readContentArea').innerHTML = html;
 }
 
 function loadQBank() {
-    let sub = document.getElementById('readSub').value;
-    let chap = document.getElementById('readChap').value;
+    let sub = document.getElementById('readSub').value, chap = document.getElementById('readChap').value;
     if(!sub) return alert("Select subject!");
-    
-    let html = '';
-    let filtered = allQuestions.filter(q => q.subject === sub && (chap === 'All' || q.chapter === chap));
+    let html = ''; let filtered = allQuestions.filter(q => q.subject === sub && (chap === 'All' || q.chapter === chap));
     if(filtered.length === 0) html = "<div class='text-center mt-1 text-muted'>No questions available yet.</div>";
-    
     filtered.forEach((q, i) => {
         let isBookmarked = currentUser.bookmarks && currentUser.bookmarks.includes(q.id);
-        html += `<div class="card">
-            <div class="flex-between mb-1">
-                <span class="badge" style="border-color:var(--primary); color:var(--primary);">${q.level||'Academic'}</span>
-                <i class="fa-solid fa-bookmark bookmark-btn ${isBookmarked?'active':''}" onclick="toggleBookmark('${q.id}', this)"></i>
-            </div>
+        html += `<div class="card"><div class="flex-between mb-1"><span class="badge" style="border-color:var(--primary); color:var(--primary);">${q.level||'Academic'}</span><i class="fa-solid fa-bookmark bookmark-btn ${isBookmarked?'active':''}" onclick="toggleBookmark('${q.id}', this)"></i></div>
             <div style="font-weight:bold; margin-bottom:10px;">Q. ${q.q}</div>`;
         if(q.img) html += `<img src="${q.img}" style="width:100%; border-radius:8px; margin-bottom:10px;">`;
-        
         html += `<button class="btn-outline" style="padding:8px;" onclick="this.nextElementSibling.classList.toggle('hidden')">Show Answer</button>
-            <div class="hidden" style="margin-top:10px;">
-                <div style="color:var(--primary); font-weight:bold; font-size:14px;">✔ ${q.a[q.correct]}</div>
-                ${q.exp ? `<div style="font-size:12px; color:var(--text-muted); margin-top:5px;">💡 ${q.exp}</div>` : ''}
-            </div>
-        </div>`;
+            <div class="hidden" style="margin-top:10px;"><div style="color:var(--primary); font-weight:bold; font-size:14px;">✔ ${q.a[q.correct]}</div>${q.exp ? `<div style="font-size:12px; color:var(--text-muted); margin-top:5px;">💡 ${q.exp}</div>` : ''}</div></div>`;
     });
     document.getElementById('readContentArea').innerHTML = html;
 }
@@ -726,8 +611,7 @@ function loadQBank() {
 function toggleBookmark(id, el) {
     if(!currentUser.bookmarks) currentUser.bookmarks = [];
     let idx = currentUser.bookmarks.indexOf(id);
-    if(idx > -1) { currentUser.bookmarks.splice(idx, 1); el.classList.remove('active'); }
-    else { currentUser.bookmarks.push(id); el.classList.add('active'); }
+    if(idx > -1) { currentUser.bookmarks.splice(idx, 1); el.classList.remove('active'); } else { currentUser.bookmarks.push(id); el.classList.add('active'); }
     saveUserDB({ bookmarks: currentUser.bookmarks });
 }
 
@@ -735,63 +619,44 @@ function toggleBookmark(id, el) {
 // 7. MOCK EXAM BUILDER
 // ==========================================
 function addMockBlock() {
-    let sub = document.getElementById("mockSub").value;
-    let chap = document.getElementById("mockChap").value;
-    let limit = parseInt(document.getElementById("mockLimit").value);
+    let sub = document.getElementById("mockSub").value, chap = document.getElementById("mockChap").value, limit = parseInt(document.getElementById("mockLimit").value);
     if(!sub || !limit || limit <= 0) return alert("Valid inputs required!"); 
     examState.config.push({sub, chap, limit});
-    
-    let html = "";
-    examState.config.forEach((c, i) => { 
-        html += `<div style="font-size:12px; color:white; margin-bottom:5px; border-left:3px solid var(--accent); padding-left:8px;"><b>${c.sub}</b> (${c.chap}) - ${c.limit} Qs</div>`; 
-    });
+    let html = ""; examState.config.forEach((c) => { html += `<div style="font-size:12px; color:var(--text-main); margin-bottom:5px; border-left:3px solid var(--accent); padding-left:8px;"><b>${c.sub}</b> (${c.chap}) - ${c.limit} Qs</div>`; });
     document.getElementById("mockConfigList").innerHTML = html;
 }
 
 function startMockExam() {
-    if (examState.config.length === 0) return alert("Add block first!"); 
-    if(currentUser.coins < 10) return alert("Insufficient coins! (10 needed)");
-    
+    if (examState.config.length === 0) return alert("Add block first!"); if(currentUser.coins < 10) return alert("Insufficient coins! (10 needed)");
     examState.questions = [];
     examState.config.forEach(cfg => {
-        let matched = allQuestions.filter(q => q.subject === cfg.sub && (cfg.chap === 'All' || q.chapter === cfg.chap));
-        matched = matched.sort(() => 0.5 - Math.random()); 
+        let matched = allQuestions.filter(q => q.subject === cfg.sub && (cfg.chap === 'All' || q.chapter === cfg.chap)).sort(() => 0.5 - Math.random()); 
         examState.questions = examState.questions.concat(matched.slice(0, cfg.limit));
     });
-    if(examState.questions.length === 0) return alert("No questions available!");
-    
+    if(examState.questions.length === 0) return alert("No questions available for config!");
     saveUserDB({ coins: currentUser.coins - 10 });
     examState.sub = examState.config.length === 1 ? examState.config[0].sub : "Custom Mock Test";
-    examState.answers = new Array(examState.questions.length).fill(null);
-    examState.time = examState.questions.length * 60; 
+    examState.answers = new Array(examState.questions.length).fill(null); examState.time = examState.questions.length * 60; 
     renderLiveExam();
 }
 
 function renderLiveExam() {
     let html = '';
     examState.questions.forEach((q, i) => {
-        html += `<div class="card" id="qBox_${i}">
-            <div style="font-weight:bold; margin-bottom:12px;">${i+1}. ${q.q}</div>`;
+        html += `<div class="card" id="qBox_${i}"><div style="font-weight:bold; margin-bottom:12px;">${i+1}. ${q.q}</div>`;
         if(q.img) html += `<img src="${q.img}" style="width:100%; border-radius:8px; margin-bottom:10px;">`;
-        
         let opts = q.a.map((txt, idx) => ({ text: txt, isCorr: idx === q.correct })).sort(() => 0.5 - Math.random());
-        q.tempCorrect = opts.findIndex(o => o.isCorr);
-        q.tempOpts = opts; 
-
-        opts.forEach((optObj, idx) => {
-            html += `<div class="opt-btn" id="opt_${i}_${idx}" onclick="selectOpt(${i}, ${idx})">${String.fromCharCode(65+idx)}. ${optObj.text}</div>`;
-        });
+        q.tempCorrect = opts.findIndex(o => o.isCorr); q.tempOpts = opts; 
+        opts.forEach((optObj, idx) => { html += `<div class="opt-btn" id="opt_${i}_${idx}" onclick="selectOpt(${i}, ${idx})">${String.fromCharCode(65+idx)}. ${optObj.text}</div>`; });
         html += `</div>`;
     });
-    document.getElementById('liveExamContainer').innerHTML = html;
-    document.getElementById('examProgressTxt').innerText = `0/${examState.questions.length}`;
-    
+    document.getElementById('liveExamContainer').innerHTML = html; document.getElementById('examProgressTxt').innerText = `0/${examState.questions.length}`;
     navTo('pageExam');
     examState.interval = setInterval(() => {
         if(examState.time > 0) {
-            examState.time--;
-            let m = Math.floor(examState.time/60); let s = examState.time%60;
+            examState.time--; let m = Math.floor(examState.time/60); let s = examState.time%60;
             document.getElementById('examTimerTxt').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+            if(examState.time === 60) timerSound.play().catch(e=>{}); // Warning beep at 1 min
         } else submitExam();
     }, 1000);
 }
@@ -800,79 +665,102 @@ function selectOpt(qIdx, oIdx) {
     examState.answers[qIdx] = oIdx;
     for(let i=0; i<4; i++) { let el = document.getElementById(`opt_${qIdx}_${i}`); if(el) el.classList.remove('selected'); }
     document.getElementById(`opt_${qIdx}_${oIdx}`).classList.add('selected');
-    let c = examState.answers.filter(a => a !== null).length;
-    document.getElementById('examProgressTxt').innerText = `${c}/${examState.questions.length}`;
+    let c = examState.answers.filter(a => a !== null).length; document.getElementById('examProgressTxt').innerText = `${c}/${examState.questions.length}`;
 }
 
 function submitExam() {
     clearInterval(examState.interval);
-    let correct = 0, wrong = 0; let revHtml = '';
+    let correct = 0, wrong = 0; let revHtml = ''; let mistakesArr = currentUser.mistakes || []; let sp = currentUser.subjProg || {};
 
     examState.questions.forEach((q, i) => {
         let userAns = examState.answers[i];
-        if(userAns === q.tempCorrect) correct++; else if(userAns !== null) wrong++;
+        if(userAns === q.tempCorrect) {
+            correct++;
+            if(!sp[q.subject]) sp[q.subject] = { c:0, w:0 }; sp[q.subject].c++;
+            mistakesArr = mistakesArr.filter(id => id !== q.id); // Remove from mistakes if correct now
+        } else if(userAns !== null) {
+            wrong++;
+            if(!sp[q.subject]) sp[q.subject] = { c:0, w:0 }; sp[q.subject].w++;
+            if(!mistakesArr.includes(q.id)) mistakesArr.push(q.id); // Add to mistake book
+        }
         
         revHtml += `<div class="card" style="border-color: ${userAns===q.tempCorrect?'var(--primary)':userAns===null?'var(--border)':'var(--danger)'}">
-            <div class="flex-between mb-1">
-                <div style="font-weight:bold;">Q. ${q.q}</div>
-                <i class="fa-solid fa-bookmark bookmark-btn ${currentUser.bookmarks && currentUser.bookmarks.includes(q.id)?'active':''}" onclick="toggleBookmark('${q.id}', this)"></i>
-            </div>`;
-        
+            <div class="flex-between mb-1"><div style="font-weight:bold;">Q. ${q.q}</div><i class="fa-solid fa-bookmark bookmark-btn ${currentUser.bookmarks && currentUser.bookmarks.includes(q.id)?'active':''}" onclick="toggleBookmark('${q.id}', this)"></i></div>`;
         q.tempOpts.forEach((optObj, idx) => {
-            let cls = "opt-btn";
-            if(idx === q.tempCorrect) cls += " correct"; else if(idx === userAns) cls += " wrong";
+            let cls = "opt-btn"; if(idx === q.tempCorrect) cls += " correct"; else if(idx === userAns) cls += " wrong";
             revHtml += `<div class="${cls}">${String.fromCharCode(65+idx)}. ${optObj.text}</div>`;
         });
         if(q.exp) revHtml += `<div style="margin-top:10px; font-size:12px; color:var(--accent);">💡 Exp: ${q.exp}</div>`;
         revHtml += `</div>`;
     });
 
-    let score = Math.max(0, correct - (wrong * 0.25));
-    let percent = Math.round((score / examState.questions.length) * 100);
+    let score = Math.max(0, correct - (wrong * 0.25)); let percent = Math.round((score / examState.questions.length) * 100);
     let earnXp = Math.floor(score * 5) + 10; let earnCoin = Math.floor(score * 2);
-    if(percent >= 80) earnXp += 20;
+    if(percent >= 80) { earnXp += 20; successSound.play().catch(e=>{}); } else if (percent < 40) { failSound.play().catch(e=>{}); }
 
     let newAct = [...(currentUser.activityData || [0,0,0,0,0,0,0])]; newAct[newAct.length-1] += earnXp; 
-    saveUserDB({ xp: currentUser.xp + earnXp, coins: currentUser.coins + earnCoin, activityData: newAct });
+    saveUserDB({ xp: currentUser.xp + earnXp, coins: currentUser.coins + earnCoin, activityData: newAct, mistakes: mistakesArr, subjProg: sp });
     
     fetch(`${DB}/ultimate_history.json`, { method: "POST", body: JSON.stringify({ name: currentUser.name, subject: examState.sub, percent: percent, total: examState.questions.length, c: correct, w: wrong, time: new Date().toLocaleDateString() }) });
 
-    document.getElementById('resPercent').innerText = `${percent}%`;
-    document.getElementById('resPercent').style.color = percent>=50 ? 'var(--primary)' : 'var(--danger)';
+    document.getElementById('resPercent').innerText = `${percent}%`; document.getElementById('resPercent').style.color = percent>=50 ? 'var(--primary)' : 'var(--danger)';
     document.getElementById('resXp').innerText = earnXp; document.getElementById('resCoin').innerText = earnCoin;
-    document.getElementById('reviewContainer').innerHTML = revHtml;
     
+    // Subject Progress Breakdown
+    let spHtml = `<div style="font-size:12px; text-align:left; margin-top:15px; border-top:1px solid var(--border); padding-top:10px;"><b>Subject Accuracy:</b><br>`;
+    examState.config.forEach(c => {
+        let d = sp[c.sub]; if(d) { let acc = Math.round((d.c/(d.c+d.w))*100)||0; spHtml += `${c.sub}: ${acc}% <br>`; }
+    });
+    spHtml += `</div>`; document.getElementById('subjectProgressArea').innerHTML = spHtml;
+
+    document.getElementById('reviewContainer').innerHTML = revHtml;
     examState.config = []; document.getElementById("mockConfigList").innerHTML = "";
     navTo('pageResult');
+}
+
+function downloadResult() {
+    let el = document.getElementById('printableResult');
+    let opt = { margin: 10, filename: 'EduNexus_Result.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+    html2pdf().set(opt).from(el).save();
 }
 
 // ==========================================
 // 8. PROGRESS CHARTS & HISTORY
 // ==========================================
 function switchProgTab(tab) {
-    document.getElementById('viewProg').classList.toggle('hidden', tab!=='prog');
-    document.getElementById('viewHist').classList.toggle('hidden', tab!=='hist');
-    document.getElementById('tabProg').className = tab==='prog' ? 'btn-accent' : 'btn-outline';
-    document.getElementById('tabHist').className = tab==='hist' ? 'btn-accent' : 'btn-outline';
+    ['viewProg', 'viewHist', 'viewMistakes'].forEach(id => document.getElementById(id).classList.add('hidden'));
+    ['tabProg', 'tabHist', 'tabMistakes'].forEach(id => document.getElementById(id).className = 'btn-outline');
+    if(tab==='prog') { document.getElementById('viewProg').classList.remove('hidden'); document.getElementById('tabProg').className = 'btn-accent'; }
+    if(tab==='hist') { document.getElementById('viewHist').classList.remove('hidden'); document.getElementById('tabHist').className = 'btn-accent'; }
+    if(tab==='mistakes') { document.getElementById('viewMistakes').classList.remove('hidden'); document.getElementById('tabMistakes').className = 'btn-accent'; }
 }
+
 function showHistoryMode(mode) {
-    document.getElementById('historyArea').classList.toggle('hidden', mode!=='exams');
-    document.getElementById('savedArea').classList.toggle('hidden', mode!=='saved');
-    document.getElementById('subTabExams').className = mode==='exams' ? 'btn-primary' : 'btn-outline';
-    document.getElementById('subTabSaved').className = mode==='saved' ? 'btn-primary' : 'btn-outline';
+    document.getElementById('historyArea').classList.toggle('hidden', mode!=='exams'); document.getElementById('savedArea').classList.toggle('hidden', mode!=='saved');
+    document.getElementById('subTabExams').className = mode==='exams' ? 'btn-primary' : 'btn-outline'; document.getElementById('subTabSaved').className = mode==='saved' ? 'btn-primary' : 'btn-outline';
 }
 
 function renderProgressUI() {
     let ctx = document.getElementById('lineChart').getContext('2d');
     if(lineChartInst) lineChartInst.destroy();
     lineChartInst = new Chart(ctx, {
-        type: 'line',
-        data: { labels: ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'Today'], datasets: [{ label: 'XP Earned', data: currentUser.activityData || [0,0,0,0,0,0,0], borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.2)', borderWidth: 3, fill: true, tension: 0.4 }] },
+        type: 'line', data: { labels: ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'Today'], datasets: [{ label: 'XP Earned', data: currentUser.activityData || [0,0,0,0,0,0,0], borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.2)', borderWidth: 3, fill: true, tension: 0.4 }] },
         options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#1e293b' } } } }
     });
 
-    let sHtml = ''; let streakCount = currentUser.streak || 1;
-    for(let i=28; i>0; i--) { let isActive = i <= streakCount ? 'active' : ''; sHtml += `<div class="streak-box ${isActive}"></div>`; }
+    // Dynamic Monthly Calendar
+    let d = new Date(); let year = d.getFullYear(); let month = d.getMonth(); let today = d.getDate();
+    let daysInMonth = new Date(year, month + 1, 0).getDate(); let firstDay = new Date(year, month, 1).getDay();
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    document.getElementById('calMonthTitle').innerText = `${monthNames[month]} Streak`;
+    
+    let sHtml = ''; let startActive = Math.max(1, today - (currentUser.streak || 1) + 1);
+    for(let i=0; i<firstDay; i++) sHtml += `<div style="width:100%; aspect-ratio:1;"></div>`; // padding
+    for(let i=1; i<=daysInMonth; i++) {
+        let isActive = (i >= startActive && i <= today) ? 'active' : '';
+        let isToday = (i === today) ? 'today' : '';
+        sHtml += `<div class="streak-box ${isActive} ${isToday}">${i}</div>`;
+    }
     document.getElementById('streakCalendar').innerHTML = sHtml;
 }
 
@@ -884,7 +772,7 @@ function loadHistory() {
                 if(res.name === currentUser.name) {
                     html += `<div class="card" style="border-left: 4px solid var(--primary); padding: 12px;">
                         <div class="flex-between"><b style="font-size:14px;">${res.subject}</b><span style="color:var(--text-muted); font-size:11px;">${res.time}</span></div>
-                        <div style="color:white; margin-top:5px; font-size:13px;">🎯 Score: <span style="color:var(--primary); font-weight:bold;">${res.percent}%</span> | ✅ ${res.c} ❌ ${res.w}</div>
+                        <div style="color:var(--text-main); margin-top:5px; font-size:13px;">🎯 Score: <span style="color:var(--primary); font-weight:bold;">${res.percent}%</span> | ✅ ${res.c} ❌ ${res.w}</div>
                     </div>`;
                 }
             });
@@ -896,110 +784,71 @@ function loadHistory() {
     if(currentUser.bookmarks && currentUser.bookmarks.length > 0) {
         currentUser.bookmarks.forEach(id => {
             let q = allQuestions.find(x => x.id === id);
-            if(q) {
-                bHtml += `<div class="card"><div class="flex-between mb-1"><small style="color:var(--accent);">${q.subject}</small><i class="fa-solid fa-bookmark bookmark-btn active" onclick="toggleBookmark('${q.id}', this); this.parentElement.parentElement.remove();"></i></div><div style="font-size:14px;">Q. ${q.q}</div><div style="font-size:12px; color:var(--primary); margin-top:5px;">✔ Ans: ${q.a[q.correct]}</div></div>`;
-            }
+            if(q) bHtml += `<div class="card"><div class="flex-between mb-1"><small style="color:var(--accent);">${q.subject}</small><i class="fa-solid fa-bookmark bookmark-btn active" onclick="toggleBookmark('${q.id}', this); this.parentElement.parentElement.remove();"></i></div><div style="font-size:14px;">Q. ${q.q}</div><div style="font-size:12px; color:var(--primary); margin-top:5px;">✔ Ans: ${q.a[q.correct]}</div></div>`;
         });
     } else bHtml = "<div class='text-center text-muted'>No saved questions.</div>";
     document.getElementById('savedArea').innerHTML = bHtml;
 }
 
+function loadMistakes() {
+    let mHtml = '';
+    if(currentUser.mistakes && currentUser.mistakes.length > 0) {
+        currentUser.mistakes.forEach(id => {
+            let q = allQuestions.find(x => x.id === id);
+            if(q) mHtml += `<div class="card" style="border-left: 3px solid var(--danger);"><small style="color:var(--text-muted);">${q.subject}</small><div style="font-size:14px; font-weight:bold; margin:5px 0;">Q. ${q.q}</div><div style="font-size:13px; color:var(--primary);">✔ Correct: ${q.a[q.correct]}</div>${q.exp?`<div style="font-size:11px; margin-top:5px; color:var(--warning);">💡 ${q.exp}</div>`:''}</div>`;
+        });
+    } else mHtml = "<div class='text-center text-muted'>Great job! No mistakes recorded yet.</div>";
+    document.getElementById('mistakeArea').innerHTML = mHtml;
+}
+
 // ==========================================
 // 9. ADMIN CONSOLE
 // ==========================================
-function teacherLogin() { if(document.getElementById('adminUser').value === 'admin' && document.getElementById('adminPass').value === '1234') { navTo('pageAdmin'); adminSearchQ(); } }
-function switchAdminTab(tab) {
-    ['adQBox', 'adBulkBox', 'adNoteBox'].forEach(t => document.getElementById(t).classList.add('hidden'));
-    document.getElementById(tab).classList.remove('hidden');
-}
+function teacherLogin() { if(document.getElementById('adminUser').value === 'admin' && document.getElementById('adminPass').value === '1234') { navTo('pageAdmin'); adminSearchQ(); fetchAdminFc(); } }
+function switchAdminTab(tab) { ['adQBox', 'adBulkBox', 'adNoteBox', 'adFcBox'].forEach(t => document.getElementById(t).classList.add('hidden')); document.getElementById(tab).classList.remove('hidden'); }
 
 function adminSaveQ() {
-    let data = {
-        subject: document.getElementById('adSub').value, chapter: document.getElementById('adChap').value,
-        level: document.getElementById('adLevel').value, stars: parseInt(document.getElementById('adStars').value),
-        q: document.getElementById('adQ').value, img: document.getElementById('adImg').value,
-        a: [document.getElementById('adO1').value, document.getElementById('adO2').value, document.getElementById('adO3').value, document.getElementById('adO4').value],
-        correct: parseInt(document.getElementById('adCorrect').value), exp: document.getElementById('adExp').value
-    };
+    let data = { subject: document.getElementById('adSub').value, chapter: document.getElementById('adChap').value, level: document.getElementById('adLevel').value, stars: parseInt(document.getElementById('adStars').value), q: document.getElementById('adQ').value, img: document.getElementById('adImg').value, a: [document.getElementById('adO1').value, document.getElementById('adO2').value, document.getElementById('adO3').value, document.getElementById('adO4').value], correct: parseInt(document.getElementById('adCorrect').value), exp: document.getElementById('adExp').value };
     if(!data.subject || !data.q) return alert("Fill mandatory fields!");
-    
-    let url = currentEditId ? `${DB}/ultimate_questions/${currentEditId}.json` : `${DB}/ultimate_questions.json`;
-    let method = currentEditId ? "PUT" : "POST";
-    
-    fetch(url, { method: method, body: JSON.stringify(data) }).then(() => { 
-        alert(currentEditId ? "Question Updated!" : "Question Added!"); 
-        document.getElementById('adQ').value=""; document.getElementById('adO1').value=""; document.getElementById('adO2').value=""; document.getElementById('adO3').value=""; document.getElementById('adO4').value=""; document.getElementById('adExp').value=""; document.getElementById('adImg').value="";
-        cancelEdit(); fetchDBData(); setTimeout(adminSearchQ, 1000); 
-    });
+    let url = currentEditId ? `${DB}/ultimate_questions/${currentEditId}.json` : `${DB}/ultimate_questions.json`; let method = currentEditId ? "PUT" : "POST";
+    fetch(url, { method: method, body: JSON.stringify(data) }).then(() => { alert("Saved!"); cancelEdit(); fetchDBData(); setTimeout(adminSearchQ, 1000); });
 }
 
-function adminBulkAdd() {
-    try {
-        let arr = JSON.parse(document.getElementById('adBulkJson').value);
-        if(Array.isArray(arr)) {
-            arr.forEach(q => { fetch(`${DB}/ultimate_questions.json`, {method:'POST', body:JSON.stringify(q)}); });
-            alert('Bulk Upload Successful!'); document.getElementById('adBulkJson').value = ""; fetchDBData(); setTimeout(adminSearchQ, 1000);
-        } else alert("Must be a JSON Array!");
-    } catch(e) { alert('Invalid JSON format!'); }
-}
+function adminBulkAdd() { try { let arr = JSON.parse(document.getElementById('adBulkJson').value); if(Array.isArray(arr)) { arr.forEach(q => { fetch(`${DB}/ultimate_questions.json`, {method:'POST', body:JSON.stringify(q)}); }); alert('Success!'); fetchDBData(); setTimeout(adminSearchQ, 1000); } } catch(e) { alert('Invalid JSON!'); } }
 
 function adminSaveNote() {
-    let data = { subject: document.getElementById('adNoteSub').value, chapter: document.getElementById('adNoteChap').value, title: document.getElementById('adNoteTitle').value, content: document.getElementById('adNoteContent').value };
-    if(!data.subject || !data.content) return alert("Fill data!");
-    fetch(`${DB}/ultimate_notes.json`, { method: "POST", body: JSON.stringify(data) }).then(() => { alert("Note Published!"); document.getElementById('adNoteTitle').value=""; document.getElementById('adNoteContent').value=""; fetchDBData(); });
+    let data = { subject: document.getElementById('adNoteSub').value, chapter: document.getElementById('adNoteChap').value, title: document.getElementById('adNoteTitle').value, content: document.getElementById('adNoteContent').value, pdfUrl: document.getElementById('adNotePdf').value };
+    if(!data.subject || (!data.content && !data.pdfUrl)) return alert("Fill data or provide PDF!");
+    fetch(`${DB}/ultimate_notes.json`, { method: "POST", body: JSON.stringify(data) }).then(() => { alert("Published!"); document.getElementById('adNoteTitle').value=""; document.getElementById('adNoteContent').value=""; document.getElementById('adNotePdf').value=""; fetchDBData(); });
 }
 
+function adminSaveFlashcard() {
+    let data = { q: document.getElementById('adFcQ').value, a: document.getElementById('adFcA').value };
+    if(!data.q || !data.a) return alert("Fill both fields!");
+    fetch(`${DB}/ultimate_flashcards.json`, { method: "POST", body: JSON.stringify(data) }).then(() => { alert("Flashcard Added!"); document.getElementById('adFcQ').value=""; document.getElementById('adFcA').value=""; fetchAdminFc(); fetchFlashcards(); });
+}
+function fetchAdminFc() {
+    fetch(`${DB}/ultimate_flashcards.json`).then(r=>r.json()).then(data => {
+        let html = ''; if(data) { Object.keys(data).forEach(k => { html += `<div style="background:var(--bg-main); padding:8px; margin-bottom:5px; border-radius:5px;"><b>Q:</b> ${data[k].q} <br><button class="btn-danger" style="padding:4px; font-size:10px; margin-top:5px;" onclick="delFc('${k}')">Delete</button></div>`; }); }
+        document.getElementById('adminFcList').innerHTML = html;
+    });
+}
+function delFc(id) { if(confirm("Delete?")) fetch(`${DB}/ultimate_flashcards/${id}.json`, { method:"DELETE" }).then(()=>{fetchAdminFc(); fetchFlashcards();}); }
+
 function adminSearchQ() {
-    if(allQuestions.length === 0) return;
-    let txt = document.getElementById('adSearch').value.toLowerCase();
-    let subF = document.getElementById('adSearchSub').value;
-    let chapF = document.getElementById('adSearchChap').value;
-    
-    let html = '';
+    let txt = document.getElementById('adSearch').value.toLowerCase(); let subF = document.getElementById('adSearchSub').value; let chapF = document.getElementById('adSearchChap').value; let html = '';
     allQuestions.forEach(q => {
-        if(subF && q.subject !== subF) return;
-        if(chapF && chapF !== 'All' && q.chapter !== chapF) return;
-        if(txt && !q.q.toLowerCase().includes(txt) && !q.chapter.toLowerCase().includes(txt)) return;
-        
-        html += `<div class="card" style="padding:10px; font-size:12px;">
-            <div class="flex-between">
-                <b>${q.subject} - ${q.chapter}</b> 
-                <div>
-                    <button class="btn-warning" style="display:inline; width:auto; padding:4px 8px; font-size:10px;" onclick="editQ('${q.id}')">Edit</button>
-                    <button class="btn-danger" style="display:inline; width:auto; padding:4px 8px; font-size:10px;" onclick="delQ('${q.id}')">Del</button>
-                </div>
-            </div>
-            <div style="margin-top:5px;">Q: ${q.q}</div>
-        </div>`;
+        if((subF && q.subject !== subF) || (chapF && chapF !== 'All' && q.chapter !== chapF) || (txt && !q.q.toLowerCase().includes(txt))) return;
+        html += `<div class="card" style="padding:10px; font-size:12px;"><div class="flex-between"><b>${q.subject} - ${q.chapter}</b><div><button class="btn-warning" style="display:inline; width:auto; padding:4px 8px; font-size:10px;" onclick="editQ('${q.id}')">Edit</button> <button class="btn-danger" style="display:inline; width:auto; padding:4px 8px; font-size:10px;" onclick="delQ('${q.id}')">Del</button></div></div><div style="margin-top:5px;">Q: ${q.q}</div></div>`;
     });
     document.getElementById('adQList').innerHTML = html;
 }
 
-function editQ(id) {
-    let q = allQuestions.find(x => x.id === id);
-    if(!q) return;
-    currentEditId = id;
-    document.getElementById('adSub').value = q.subject; updateChapDropdown('adSub','adChap'); document.getElementById('adChap').value = q.chapter;
-    document.getElementById('adLevel').value = q.level || 'Academic'; document.getElementById('adStars').value = q.stars || 1;
-    document.getElementById('adQ').value = q.q; document.getElementById('adImg').value = q.img || '';
-    document.getElementById('adO1').value = q.a[0] || ''; document.getElementById('adO2').value = q.a[1] || ''; document.getElementById('adO3').value = q.a[2] || ''; document.getElementById('adO4').value = q.a[3] || '';
-    document.getElementById('adCorrect').value = q.correct; document.getElementById('adExp').value = q.exp || '';
-    
-    document.getElementById('adModeText').innerText = "Edit Question"; document.getElementById('adSaveBtn').innerText = "Update Question";
-    document.getElementById('adCancelBtn').classList.remove('hidden'); switchAdminTab('adQBox'); window.scrollTo(0,0);
-}
+function editQ(id) { let q = allQuestions.find(x => x.id === id); if(!q) return; currentEditId = id; document.getElementById('adSub').value = q.subject; updateChapDropdown('adSub','adChap'); document.getElementById('adChap').value = q.chapter; document.getElementById('adQ').value = q.q; document.getElementById('adO1').value = q.a[0]||''; document.getElementById('adO2').value = q.a[1]||''; document.getElementById('adO3').value = q.a[2]||''; document.getElementById('adO4').value = q.a[3]||''; document.getElementById('adCorrect').value = q.correct; document.getElementById('adExp').value = q.exp || ''; document.getElementById('adModeText').innerText = "Edit Question"; document.getElementById('adSaveBtn').innerText = "Update"; document.getElementById('adCancelBtn').classList.remove('hidden'); switchAdminTab('adQBox'); window.scrollTo(0,0); }
+function cancelEdit() { currentEditId = null; document.getElementById('adModeText').innerText = "Add Question"; document.getElementById('adSaveBtn').innerText = "Save Question"; document.getElementById('adCancelBtn').classList.add('hidden'); document.getElementById('adQ').value=""; }
+function delQ(id) { if(confirm("Delete?")) fetch(`${DB}/ultimate_questions/${id}.json`, { method: "DELETE" }).then(()=>{ alert("Deleted!"); fetchDBData(); setTimeout(adminSearchQ, 1000); }); }
 
-function cancelEdit() {
-    currentEditId = null; document.getElementById('adModeText').innerText = "Add Question"; document.getElementById('adSaveBtn').innerText = "Save Question";
-    document.getElementById('adCancelBtn').classList.add('hidden');
-    document.getElementById('adQ').value=""; document.getElementById('adO1').value=""; document.getElementById('adO2').value=""; document.getElementById('adO3').value=""; document.getElementById('adO4').value=""; document.getElementById('adExp').value=""; document.getElementById('adImg').value="";
-}
-
-function delQ(id) {
-    if(confirm("Delete this question?")) fetch(`${DB}/ultimate_questions/${id}.json`, { method: "DELETE" }).then(()=>{ alert("Deleted!"); allQuestions=[]; fetchDBData(); setTimeout(adminSearchQ, 1000); });
-}
-
-window.onload = function(){ initDropdowns(); fetchDBData(); };
+window.onload = function(){ initDropdowns(); fetchDBData(); fetchFlashcards(); };
 </script>
 </body>
 </html>
