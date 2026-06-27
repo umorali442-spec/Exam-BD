@@ -89,7 +89,8 @@
             <p style="color: var(--text-muted); font-size: 13px;">The Ultimate Learning Ecosystem</p>
         </div>
         <div class="card glass-card">
-            <h3 id="authTitle" style="text-align: center; margin-bottom: 15px;">Login</h3>
+            <h3 id="authTitle" style="text-align: center; margin-bottom: 15px;">Secure Login</h3>
+            
             <div id="regFields" class="hidden">
                 <input id="regName" type="text" placeholder="Full Name">
                 <select id="regBatch">
@@ -102,10 +103,13 @@
             </div>
             <input id="authId" type="text" placeholder="Email OR Phone Number">  
             <input type="password" id="authPass" placeholder="Password"> 
+            
             <button id="btnLogin" class="btn-accent mt-1" onclick="handleLogin()">Login <i class="fa-solid fa-arrow-right"></i></button> 
-            <button id="btnReg" class="btn-primary mt-1 hidden" onclick="handleRegister()">Register</button> 
-            <div style="text-align: center; margin-top: 15px; color: var(--primary); font-size: 13px; cursor: pointer; text-decoration: underline;" id="toggleAuth" onclick="toggleAuth()">New here? Create account</div>
+            <button id="btnReg" class="btn-primary mt-1 hidden" onclick="handleRegister()">Register <i class="fa-solid fa-user-plus"></i></button> 
+            
+            <div style="text-align: center; margin-top: 15px; color: var(--primary); font-size: 13px; cursor: pointer; text-decoration: underline;" id="toggleAuth" onclick="toggleAuth()">New here? Create an account</div>
         </div>
+        
         <div style="text-align:center; margin-top: 20px;">
             <span onclick="document.getElementById('adminBox').classList.toggle('hidden')" style="cursor:pointer; color:var(--text-muted); font-size:12px;"><i class="fa-solid fa-shield-halved"></i> Admin Console</span>
         </div>
@@ -174,7 +178,7 @@
             </div>
         </div>
         
-        <h3 style="margin: 20px 0 10px;"><i class="fa-solid fa-fire-flame-curved" style="color:var(--danger);"></i> Focus Leaderboard (Study Time)</h3>
+        <h3 style="margin: 20px 0 10px;"><i class="fa-solid fa-fire-flame-curved" style="color:var(--danger);"></i> Focus Leaderboard</h3>
         <div class="card" id="studyRankList"></div>
     </div>
 
@@ -273,7 +277,7 @@
         <div id="reviewContainer"></div>
     </div>
 
-    <div id="pageAdmin" class="hidden p-2">
+     <div id="pageAdmin" class="hidden p-2">
         <div class="flex-between mb-1">
             <h3 style="color: var(--danger);"><i class="fa-solid fa-shield-halved"></i> Admin Console</h3>
             <button class="btn-outline" style="width:auto; padding: 5px 10px;" onclick="navTo('pageAuth')">Exit</button>
@@ -293,7 +297,7 @@
             </div>
             <div class="grid-2 mt-1">
                 <select id="adLevel"><option value="Academic">Academic</option><option value="Advanced">Advanced</option></select>
-                <select id="adStars"><option value="1">⭐ 1 Star</option><option value="5">⭐⭐⭐⭐⭐ 5 Stars</option></select>
+                <select id="adStars"><option value="1">⭐ 1 Star</option><option value="2">⭐⭐ 2</option><option value="3">⭐⭐⭐ 3</option><option value="4">⭐⭐⭐⭐ 4</option><option value="5">⭐⭐⭐⭐⭐ 5</option></select>
             </div>
             <textarea id="adQ" placeholder="Type Question Here..." rows="3"></textarea>
             <input id="adImg" placeholder="Image URL (Optional)">
@@ -342,10 +346,10 @@
 
 <script>
 // ==========================================
-// GLOBAL VARIABLES & DATA
+// 1. DATA & CONSTANTS
 // ==========================================
 const DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";
-let currentUser = { id: "", name: "", batch: "", coins: 0, xp: 0, studyMins: 0, streak: 1, lastLogin: "", activityData: [], bookmarks: [] };
+let currentUser = {};
 let allQuestions = []; let allNotes = []; let allUsers = [];
 let examState = { config: [], questions: [], answers: [], time: 0, interval: null, sub: "" };
 let lineChartInst = null; let currentEditId = null;
@@ -375,29 +379,33 @@ const flashcards = [
 let fcIndex = 0; let fcFlipped = false;
 
 // ==========================================
-// NAVIGATION & UI
+// 2. CORE NAVIGATION
 // ==========================================
 function navTo(pageId, navIdx = -1) {
-    const pages = ['pageAuth', 'pageHome', 'pageNotes', 'pageMock', 'pageProgress', 'pageProfile', 'pageExam', 'pageResult', 'pageAdmin', 'pageTimer'];
-    pages.forEach(p => document.getElementById(p).classList.add('hidden'));
-    document.getElementById(pageId).classList.remove('hidden');
-    
-    if (['pageAuth', 'pageExam', 'pageResult', 'pageAdmin'].includes(pageId)) {
-        document.getElementById('bottomNav').style.display = 'none';
-        document.getElementById('appHeader').classList.add('hidden');
-    } else {
-        document.getElementById('bottomNav').style.display = 'flex';
-        document.getElementById('appHeader').classList.remove('hidden');
-        if(navIdx >= 0) {
-            let items = document.querySelectorAll('.nav-item');
-            items.forEach(i => i.classList.remove('active'));
-            items[navIdx].classList.add('active');
+    try {
+        const pages = ['pageAuth', 'pageHome', 'pageNotes', 'pageMock', 'pageProgress', 'pageProfile', 'pageExam', 'pageResult', 'pageAdmin', 'pageTimer'];
+        pages.forEach(p => document.getElementById(p).classList.add('hidden'));
+        document.getElementById(pageId).classList.remove('hidden');
+        
+        if (['pageAuth', 'pageExam', 'pageResult', 'pageAdmin'].includes(pageId)) {
+            document.getElementById('bottomNav').style.display = 'none';
+            document.getElementById('appHeader').classList.add('hidden');
+        } else {
+            document.getElementById('bottomNav').style.display = 'flex';
+            document.getElementById('appHeader').classList.remove('hidden');
+            if(navIdx >= 0) {
+                let items = document.querySelectorAll('.nav-item');
+                items.forEach(i => i.classList.remove('active'));
+                items[navIdx].classList.add('active');
+            }
         }
-    }
-    if(pageId === 'pageHome') { loadLeaderboards(); renderFlashcard(); }
-    if(pageId === 'pageProgress') { renderProgressUI(); loadHistory(); }
-    if(pageId === 'pageNotes' || pageId === 'pageMock' || pageId === 'pageAdmin') { initDropdowns(); fetchDBData(); }
+        
+        if(pageId === 'pageHome') { loadLeaderboards(); renderFlashcard(); }
+        if(pageId === 'pageProgress') { renderProgressUI(); loadHistory(); }
+        if(pageId === 'pageNotes' || pageId === 'pageMock' || pageId === 'pageAdmin') { initDropdowns(); fetchDBData(); }
+    } catch(err) { console.error("Navigation error:", err); }
 }
+
 function navToTimer(isActive) {
     let items = document.querySelectorAll('.nav-item');
     if(isActive) { items.forEach(i => i.classList.remove('active')); items[2].classList.add('active'); }
@@ -407,9 +415,11 @@ function initDropdowns() {
     let subHtml = '<option value="">-- Select Subject --</option>';
     for (let sub in hscData) subHtml += `<option value="${sub}">${sub}</option>`;
     ['mockSub', 'readSub', 'adSub', 'adSearchSub', 'adNoteSub'].forEach(id => {
-        if(document.getElementById(id) && document.getElementById(id).innerHTML.length < 50) document.getElementById(id).innerHTML = subHtml;
+        let el = document.getElementById(id);
+        if(el && el.innerHTML.length < 50) el.innerHTML = subHtml;
     });
 }
+
 function updateChapDropdown(subId, chapId) {
     let sub = document.getElementById(subId).value;
     let html = '<option value="All">All Chapters</option>';
@@ -420,8 +430,9 @@ function updateMockChaps() { updateChapDropdown('mockSub', 'mockChap'); }
 function updateReadChaps() { updateChapDropdown('readSub', 'readChap'); }
 
 // ==========================================
-// AUTHENTICATION
+// 3. AUTHENTICATION & PROFILE
 // ==========================================
+let isRegMode = false;
 function toggleAuth() {
     isRegMode = !isRegMode;
     document.getElementById('regFields').classList.toggle('hidden', !isRegMode);
@@ -432,52 +443,69 @@ function toggleAuth() {
 }
 
 function handleRegister() {
-    let name = document.getElementById('regName').value.trim();
-    let batch = document.getElementById('regBatch').value;
-    let rawId = document.getElementById('authId').value.trim(); 
-    let pass = document.getElementById('authPass').value.trim();
-    if(!name || !batch || !rawId || !pass) return alert("Fill all fields!");
-    let cleanId = rawId.replace(/\./g, '_');
+    try {
+        let name = document.getElementById('regName').value.trim();
+        let batch = document.getElementById('regBatch').value;
+        let rawId = document.getElementById('authId').value.trim(); 
+        let pass = document.getElementById('authPass').value.trim();
+        
+        if(!name || !batch || !rawId || !pass) { alert("Please fill all fields!"); return; }
+        
+        document.getElementById('btnReg').innerHTML = "Registering...";
+        let cleanId = rawId.replace(/\./g, '_');
 
-    fetch(`${DB}/startup_users/${cleanId}.json`).then(r=>r.json()).then(data => {
-        if(data) return alert("Account already exists!");
-        let today = new Date().toLocaleDateString();
-        let newUser = { name, batch, pass, coins: 100, xp: 0, studyMins: 0, streak: 1, lastLogin: today, activityData: [0,0,0,0,0,0,0], bookmarks: [] }; 
-        fetch(`${DB}/startup_users/${cleanId}.json`, { method: "PUT", body: JSON.stringify(newUser) }).then(() => {
-            alert("Registration successful! +100 Coins"); toggleAuth();
-        });
-    });
+        fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r=>r.json()).then(data => {
+            if(data) { alert("Account already exists with this ID!"); document.getElementById('btnReg').innerHTML = "Register"; return; }
+            
+            let today = new Date().toLocaleDateString();
+            let newUser = { name, batch, pass, coins: 100, xp: 0, studyMins: 0, streak: 1, lastLogin: today, activityData: [0,0,0,0,0,0,0], bookmarks: [] }; 
+            
+            fetch(`${DB}/ultimate_users/${cleanId}.json`, { method: "PUT", body: JSON.stringify(newUser) }).then(() => {
+                alert("Registration successful! +100 Coins Bonus!"); 
+                document.getElementById('btnReg').innerHTML = "Register";
+                toggleAuth(); 
+            });
+        }).catch(err => { alert("Network Error!"); document.getElementById('btnReg').innerHTML = "Register"; });
+    } catch (e) { alert("Error: " + e.message); }
 }
 
 function handleLogin() {
-    let rawId = document.getElementById('authId').value.trim();
-    let pass = document.getElementById('authPass').value.trim();
-    if(!rawId || !pass) return alert("Enter credentials!");
-    let cleanId = rawId.replace(/\./g, '_');
-
-    fetch(`${DB}/startup_users/${cleanId}.json`).then(r=>r.json()).then(data => {
-        if(!data || data.pass !== pass) return alert("Invalid Login!");
-        currentUser = { id: cleanId, name: data.name, batch: data.batch, coins: data.coins||0, xp: data.xp||0, studyMins: data.studyMins||0, streak: data.streak||1, lastLogin: data.lastLogin||"", activityData: data.activityData||[0,0,0,0,0,0,0], bookmarks: data.bookmarks||[] };
+    try {
+        let rawId = document.getElementById('authId').value.trim();
+        let pass = document.getElementById('authPass').value.trim();
+        if(!rawId || !pass) { alert("Enter ID and Password!"); return; }
         
-        let today = new Date().toLocaleDateString();
-        if(currentUser.lastLogin !== today) {
-            currentUser.streak += 1; currentUser.lastLogin = today;
-            currentUser.activityData.shift(); currentUser.activityData.push(0);
-            saveUserDB({ streak: currentUser.streak, lastLogin: today, activityData: currentUser.activityData });
-        }
-        updateUIHeader(); navTo('pageHome', 0); fetchDBData();
-    });
+        let cleanId = rawId.replace(/\./g, '_');
+        document.getElementById('btnLogin').innerHTML = "Loading...";
+
+        fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r=>r.json()).then(data => {
+            document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`;
+            if(!data || data.pass !== pass) return alert("❌ Invalid Login Credentials!");
+            
+            // Safe assignment with fallback
+            currentUser = { 
+                id: cleanId, name: data.name || "User", batch: data.batch || "", 
+                coins: data.coins||0, xp: data.xp||0, studyMins: data.studyMins||0, 
+                streak: data.streak||1, lastLogin: data.lastLogin||"", 
+                activityData: data.activityData||[0,0,0,0,0,0,0], bookmarks: data.bookmarks||[] 
+            };
+            
+            let today = new Date().toLocaleDateString();
+            if(currentUser.lastLogin !== today) {
+                currentUser.streak += 1; currentUser.lastLogin = today;
+                currentUser.activityData.shift(); currentUser.activityData.push(0);
+                saveUserDB({ streak: currentUser.streak, lastLogin: today, activityData: currentUser.activityData });
+            }
+            
+            updateUIHeader(); navTo('pageHome', 0); fetchDBData();
+        }).catch(err => {
+            alert("Network Error!"); document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`;
+        });
+    } catch(e) { alert("Error: " + e.message); }
 }
+
 function logout() { currentUser = {}; navTo('pageAuth'); }
 
-// Profile Edit
-function saveProfileEdit() {
-    let n = document.getElementById('epName').value.trim();
-    let b = document.getElementById('epBatch').value;
-    if(n) { currentUser.name = n; currentUser.batch = b; saveUserDB({ name: n, batch: b }); alert("Profile Updated!"); document.getElementById('editProfBox').classList.add('hidden'); }
-}
-
-// Stage & UI Update
 function getStage(xp) {
     if(xp < 500) return { name: "Basic", color: "var(--text-muted)", glow: "rgba(100,116,139,0.3)" };
     if(xp < 1500) return { name: "Pro", color: "#38bdf8", glow: "rgba(56,189,248,0.4)" };
@@ -487,38 +515,49 @@ function getStage(xp) {
 }
 
 function updateUIHeader() {
-    let stage = getStage(currentUser.xp);
-    document.getElementById('headName').innerText = currentUser.name.split(" ")[0];
-    document.getElementById('headAvatar').innerText = currentUser.name.charAt(0).toUpperCase();
-    document.getElementById('headAvatar').style.borderColor = stage.color;
-    document.getElementById('headAvatar').style.boxShadow = `0 0 10px ${stage.glow}`;
-    
-    let b = document.getElementById('headBadge');
-    b.innerText = stage.name; b.style.color = stage.color; b.style.borderColor = stage.color;
-    document.getElementById('headCoins').innerText = currentUser.coins;
+    try {
+        let stage = getStage(currentUser.xp);
+        let fn = (currentUser.name || "User").split(" ")[0];
+        let fl = fn.charAt(0).toUpperCase();
+        
+        document.getElementById('headName').innerText = fn;
+        document.getElementById('headAvatar').innerText = fl;
+        document.getElementById('headAvatar').style.borderColor = stage.color;
+        document.getElementById('headAvatar').style.boxShadow = `0 0 10px ${stage.glow}`;
+        
+        let b = document.getElementById('headBadge');
+        b.innerText = stage.name; b.style.color = stage.color; b.style.borderColor = stage.color;
+        document.getElementById('headCoins').innerText = currentUser.coins;
 
-    document.getElementById('profName').innerText = currentUser.name;
-    document.getElementById('profAvatar').innerText = currentUser.name.charAt(0).toUpperCase();
-    document.getElementById('profAvatar').style.borderColor = stage.color;
-    document.getElementById('profId').innerText = currentUser.id.replace(/_/g, '.');
-    
-    let pb = document.getElementById('profBadge');
-    pb.innerText = `${stage.name} Level`; pb.style.color = stage.color; pb.style.borderColor = stage.color; pb.style.boxShadow = `0 0 10px ${stage.glow}`;
-    
-    document.getElementById('profCoins').innerText = currentUser.coins;
-    document.getElementById('profXp').innerText = currentUser.xp;
-    document.getElementById('profStudy').innerText = currentUser.studyMins;
-    document.getElementById('progStreak').innerText = currentUser.streak;
+        document.getElementById('profName').innerText = currentUser.name;
+        document.getElementById('profAvatar').innerText = fl;
+        document.getElementById('profAvatar').style.borderColor = stage.color;
+        document.getElementById('profId').innerText = currentUser.id.replace(/_/g, '.');
+        
+        let pb = document.getElementById('profBadge');
+        pb.innerText = `${stage.name} Level`; pb.style.color = stage.color; pb.style.borderColor = stage.color; pb.style.boxShadow = `0 0 10px ${stage.glow}`;
+        
+        document.getElementById('profCoins').innerText = currentUser.coins;
+        document.getElementById('profXp').innerText = currentUser.xp;
+        document.getElementById('profStudy').innerText = currentUser.studyMins;
+        document.getElementById('progStreak').innerText = currentUser.streak;
+    } catch(e) { console.error("UI Header Update Error:", e); }
+}
+
+function saveProfileEdit() {
+    let n = document.getElementById('epName').value.trim();
+    let b = document.getElementById('epBatch').value;
+    if(n) { currentUser.name = n; currentUser.batch = b; saveUserDB({ name: n, batch: b }); alert("Profile Updated!"); document.getElementById('editProfBox').classList.add('hidden'); }
 }
 
 function saveUserDB(updates) {
     Object.assign(currentUser, updates);
-    fetch(`${DB}/startup_users/${currentUser.id}.json`, { method: "PATCH", body: JSON.stringify(updates) });
+    fetch(`${DB}/ultimate_users/${currentUser.id}.json`, { method: "PATCH", body: JSON.stringify(updates) });
     updateUIHeader();
 }
 
 // ==========================================
-// QUICK REVISE (Flashcards)
+// 4. QUICK REVISE & DUAL LEADERBOARDS
 // ==========================================
 function renderFlashcard() {
     fcFlipped = false;
@@ -535,49 +574,52 @@ function flipFlashcard() {
 function nextFlashcard(e) { e.stopPropagation(); fcIndex = (fcIndex + 1) % flashcards.length; renderFlashcard(); }
 function prevFlashcard(e) { e.stopPropagation(); fcIndex = (fcIndex - 1 + flashcards.length) % flashcards.length; renderFlashcard(); }
 
-// ==========================================
-// DUAL LEADERBOARDS
-// ==========================================
 function loadLeaderboards() {
-    fetch(`${DB}/startup_users.json`).then(r=>r.json()).then(data => {
+    fetch(`${DB}/ultimate_users.json`).then(r=>r.json()).then(data => {
         if(!data) return;
         allUsers = Object.values(data);
         
-        // 1. XP Leaderboard (Home & Progress)
+        // 1. Global XP Leaderboard (Top 10)
         let xpUsers = [...allUsers].sort((a,b) => (b.xp||0) - (a.xp||0)).slice(0,10);
-        let xpHtml = '';
+        let xpHtmlHome = ''; let xpHtmlFull = '';
+        
         xpUsers.forEach((u, i) => {
             let rCls = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
             let stg = getStage(u.xp||0);
-            xpHtml += `<div class="rank-row ${rCls}">
+            let rowHtml = `<div class="rank-row ${rCls}">
                 <div class="rank-pos">${i+1}</div>
-                <div class="avatar" style="width:36px;height:36px;font-size:14px;border-color:${stg.color};">${u.name.charAt(0).toUpperCase()}</div>
+                <div class="avatar" style="width:36px;height:36px;font-size:14px;border-color:${stg.color};">${(u.name||"U").charAt(0).toUpperCase()}</div>
                 <div style="flex:1; margin-left:12px;">
-                    <div style="font-weight:bold; font-size:14px;">${u.name}</div>
+                    <div style="font-weight:bold; font-size:14px;">${u.name||"User"}</div>
                     <div style="font-size:10px; color:${stg.color};">${stg.name} • ${u.batch||'User'}</div>
                 </div>
                 <div style="color:var(--accent); font-weight:bold;">${u.xp||0} <small>XP</small></div>
             </div>`;
+            
+            if(i < 3) xpHtmlHome += rowHtml; // Home shows Top 3
+            xpHtmlFull += rowHtml;           // Progress shows Top 10
         });
-        document.getElementById('homeLeaderboard').innerHTML = xpHtml.slice(0, 3 * xpHtml.indexOf('</div>', xpHtml.indexOf('</div>', xpHtml.indexOf('rank-row')+1))); // Show top 3 on home
-        document.getElementById('fullLeaderboard').innerHTML = xpHtml; // Show all on progress
+        
+        document.getElementById('homeLeaderboard').innerHTML = xpHtmlHome || "<div class='text-center text-muted'>No data yet.</div>";
+        document.getElementById('fullLeaderboard').innerHTML = xpHtmlFull || "<div class='text-center text-muted'>No data yet.</div>";
 
-        // 2. Study Time Leaderboard (Timer Page)
+        // 2. Study Time Leaderboard
         let studyUsers = [...allUsers].sort((a,b) => (b.studyMins||0) - (a.studyMins||0)).slice(0,10);
         let sHtml = '';
         studyUsers.forEach((u, i) => {
             let rCls = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
             sHtml += `<div class="rank-row ${rCls}">
                 <div class="rank-pos">${i+1}</div>
-                <div style="flex:1; margin-left:12px;"><div style="font-weight:bold; font-size:14px;">${u.name}</div></div>
+                <div style="flex:1; margin-left:12px;"><div style="font-weight:bold; font-size:14px;">${u.name||"User"}</div></div>
                 <div style="color:var(--danger); font-weight:bold;">${u.studyMins||0} <small>Mins</small></div>
             </div>`;
         });
-        document.getElementById('studyRankList').innerHTML = sHtml;
-    });
+        document.getElementById('studyRankList').innerHTML = sHtml || "<div class='text-center text-muted'>No data yet.</div>";
+    }).catch(err => console.error("Leaderboard Error:", err));
 }
-    // ==========================================
-// POMODORO TIMER
+
+// ==========================================
+// 5. POMODORO TIMER
 // ==========================================
 let pTimer = null; let pTimeLeft = 0; let isPRunning = false; let pMode = 'study';
 function togglePomodoro() {
@@ -621,15 +663,16 @@ function resetPomodoro() {
 }
 
 // ==========================================
-// DB FETCH (Questions & Notes)
+// 6. DB FETCH & LEARN
 // ==========================================
 function fetchDBData() {
-    fetch(`${DB}/startup_questions.json`).then(r=>r.json()).then(data => {
+    fetch(`${DB}/ultimate_questions.json`).then(r=>r.json()).then(data => {
         if(data) allQuestions = Object.keys(data).map(k => ({ id: k, ...data[k] }));
-    });
-    fetch(`${DB}/startup_notes.json`).then(r=>r.json()).then(data => {
+    }).catch(e=>console.log(e));
+    
+    fetch(`${DB}/ultimate_notes.json`).then(r=>r.json()).then(data => {
         if(data) allNotes = Object.keys(data).map(k => ({ id: k, ...data[k] }));
-    });
+    }).catch(e=>console.log(e));
 }
 
 function loadShortNotes() {
@@ -689,7 +732,7 @@ function toggleBookmark(id, el) {
 }
 
 // ==========================================
-// MOCK EXAM BUILDER
+// 7. MOCK EXAM BUILDER
 // ==========================================
 function addMockBlock() {
     let sub = document.getElementById("mockSub").value;
@@ -789,10 +832,10 @@ function submitExam() {
     let earnXp = Math.floor(score * 5) + 10; let earnCoin = Math.floor(score * 2);
     if(percent >= 80) earnXp += 20;
 
-    let newAct = [...currentUser.activityData]; newAct[newAct.length-1] += earnXp; 
+    let newAct = [...(currentUser.activityData || [0,0,0,0,0,0,0])]; newAct[newAct.length-1] += earnXp; 
     saveUserDB({ xp: currentUser.xp + earnXp, coins: currentUser.coins + earnCoin, activityData: newAct });
     
-    fetch(`${DB}/startup_history.json`, { method: "POST", body: JSON.stringify({ name: currentUser.name, subject: examState.sub, percent: percent, total: examState.questions.length, c: correct, w: wrong, time: new Date().toLocaleDateString() }) });
+    fetch(`${DB}/ultimate_history.json`, { method: "POST", body: JSON.stringify({ name: currentUser.name, subject: examState.sub, percent: percent, total: examState.questions.length, c: correct, w: wrong, time: new Date().toLocaleDateString() }) });
 
     document.getElementById('resPercent').innerText = `${percent}%`;
     document.getElementById('resPercent').style.color = percent>=50 ? 'var(--primary)' : 'var(--danger)';
@@ -804,7 +847,7 @@ function submitExam() {
 }
 
 // ==========================================
-// PROGRESS CHARTS & HISTORY
+// 8. PROGRESS CHARTS & HISTORY
 // ==========================================
 function switchProgTab(tab) {
     document.getElementById('viewProg').classList.toggle('hidden', tab!=='prog');
@@ -834,7 +877,7 @@ function renderProgressUI() {
 }
 
 function loadHistory() {
-    fetch(`${DB}/startup_history.json`).then(r=>r.json()).then(data => {
+    fetch(`${DB}/ultimate_history.json`).then(r=>r.json()).then(data => {
         let html = '';
         if(data) {
             Object.values(data).reverse().forEach(res => {
@@ -862,7 +905,7 @@ function loadHistory() {
 }
 
 // ==========================================
-// ADMIN CONSOLE
+// 9. ADMIN CONSOLE
 // ==========================================
 function teacherLogin() { if(document.getElementById('adminUser').value === 'admin' && document.getElementById('adminPass').value === '1234') { navTo('pageAdmin'); adminSearchQ(); } }
 function switchAdminTab(tab) {
@@ -880,12 +923,12 @@ function adminSaveQ() {
     };
     if(!data.subject || !data.q) return alert("Fill mandatory fields!");
     
-    let url = currentEditId ? `${DB}/startup_questions/${currentEditId}.json` : `${DB}/startup_questions.json`;
+    let url = currentEditId ? `${DB}/ultimate_questions/${currentEditId}.json` : `${DB}/ultimate_questions.json`;
     let method = currentEditId ? "PUT" : "POST";
     
     fetch(url, { method: method, body: JSON.stringify(data) }).then(() => { 
         alert(currentEditId ? "Question Updated!" : "Question Added!"); 
-        document.getElementById('adQ').value=""; document.getElementById('adO1').value=""; document.getElementById('adO2').value=""; document.getElementById('adO3').value=""; document.getElementById('adO4').value=""; document.getElementById('adExp').value="";
+        document.getElementById('adQ').value=""; document.getElementById('adO1').value=""; document.getElementById('adO2').value=""; document.getElementById('adO3').value=""; document.getElementById('adO4').value=""; document.getElementById('adExp').value=""; document.getElementById('adImg').value="";
         cancelEdit(); fetchDBData(); setTimeout(adminSearchQ, 1000); 
     });
 }
@@ -894,7 +937,7 @@ function adminBulkAdd() {
     try {
         let arr = JSON.parse(document.getElementById('adBulkJson').value);
         if(Array.isArray(arr)) {
-            arr.forEach(q => { fetch(`${DB}/startup_questions.json`, {method:'POST', body:JSON.stringify(q)}); });
+            arr.forEach(q => { fetch(`${DB}/ultimate_questions.json`, {method:'POST', body:JSON.stringify(q)}); });
             alert('Bulk Upload Successful!'); document.getElementById('adBulkJson').value = ""; fetchDBData(); setTimeout(adminSearchQ, 1000);
         } else alert("Must be a JSON Array!");
     } catch(e) { alert('Invalid JSON format!'); }
@@ -903,7 +946,7 @@ function adminBulkAdd() {
 function adminSaveNote() {
     let data = { subject: document.getElementById('adNoteSub').value, chapter: document.getElementById('adNoteChap').value, title: document.getElementById('adNoteTitle').value, content: document.getElementById('adNoteContent').value };
     if(!data.subject || !data.content) return alert("Fill data!");
-    fetch(`${DB}/startup_notes.json`, { method: "POST", body: JSON.stringify(data) }).then(() => { alert("Note Published!"); fetchDBData(); });
+    fetch(`${DB}/ultimate_notes.json`, { method: "POST", body: JSON.stringify(data) }).then(() => { alert("Note Published!"); document.getElementById('adNoteTitle').value=""; document.getElementById('adNoteContent').value=""; fetchDBData(); });
 }
 
 function adminSearchQ() {
@@ -939,4 +982,4 @@ function editQ(id) {
     document.getElementById('adSub').value = q.subject; updateChapDropdown('adSub','adChap'); document.getElementById('adChap').value = q.chapter;
     document.getElementById('adLevel').value = q.level || 'Academic'; document.getElementById('adStars').value = q.stars || 1;
     document.getElementById('adQ').value = q.q; document.getElementById('adImg').value = q.img || '';
-    document.getElementById('adO1').value = q.a[0] || ''; document.getElementById('adO2').value = q.a[1] || ''; document.getElementById('adO3').value = q.a[2] || ''; document.getElementById('adO4').value = 
+    document.getElementById('adO1').value = q.a[0] || ''; document.getElementById('adO2')
