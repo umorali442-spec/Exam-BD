@@ -982,4 +982,24 @@ function editQ(id) {
     document.getElementById('adSub').value = q.subject; updateChapDropdown('adSub','adChap'); document.getElementById('adChap').value = q.chapter;
     document.getElementById('adLevel').value = q.level || 'Academic'; document.getElementById('adStars').value = q.stars || 1;
     document.getElementById('adQ').value = q.q; document.getElementById('adImg').value = q.img || '';
-    document.getElementById('adO1').value = q.a[0] || ''; document.getElementById('adO2')
+    document.getElementById('adO1').value = q.a[0] || ''; document.getElementById('adO2').value = q.a[1] || ''; document.getElementById('adO3').value = q.a[2] || ''; document.getElementById('adO4').value = q.a[3] || '';
+    document.getElementById('adCorrect').value = q.correct; document.getElementById('adExp').value = q.exp || '';
+    
+    document.getElementById('adModeText').innerText = "Edit Question"; document.getElementById('adSaveBtn').innerText = "Update Question";
+    document.getElementById('adCancelBtn').classList.remove('hidden'); switchAdminTab('adQBox'); window.scrollTo(0,0);
+}
+
+function cancelEdit() {
+    currentEditId = null; document.getElementById('adModeText').innerText = "Add Question"; document.getElementById('adSaveBtn').innerText = "Save Question";
+    document.getElementById('adCancelBtn').classList.add('hidden');
+    document.getElementById('adQ').value=""; document.getElementById('adO1').value=""; document.getElementById('adO2').value=""; document.getElementById('adO3').value=""; document.getElementById('adO4').value=""; document.getElementById('adExp').value=""; document.getElementById('adImg').value="";
+}
+
+function delQ(id) {
+    if(confirm("Delete this question?")) fetch(`${DB}/ultimate_questions/${id}.json`, { method: "DELETE" }).then(()=>{ alert("Deleted!"); allQuestions=[]; fetchDBData(); setTimeout(adminSearchQ, 1000); });
+}
+
+window.onload = function(){ initDropdowns(); fetchDBData(); };
+</script>
+</body>
+</html>
