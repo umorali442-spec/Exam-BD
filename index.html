@@ -3,335 +3,348 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Exam Pro - Ultimate</title>
+    <title>Smart Exam Pro - Ultimate Startup Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
 
         :root {
-            --bg-dark: #070b19; --card-dark: #111827; --card-glass: rgba(17, 24, 39, 0.7);
-            --text-main: #f8fafc; --text-muted: #94a3b8;
+            --bg-main: #0b0f19; --card-bg: #151b2b; --card-glass: rgba(21, 27, 43, 0.8);
+            --text-main: #f8fafc; --text-muted: #64748b;
             --primary: #10b981; --primary-glow: rgba(16, 185, 129, 0.3);
-            --accent: #3b82f6; --accent-glow: rgba(59, 130, 246, 0.3);
-            --danger: #ef4444; --warning: #f59e0b; --border: #1e293b;
+            --accent: #6366f1; --accent-glow: rgba(99, 102, 241, 0.3);
+            --danger: #f43f5e; --warning: #f59e0b;
+            --border: #1e293b;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-dark); color: var(--text-main); padding-bottom: 80px; }
+        body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 80px; overflow-x: hidden; }
+        .container { max-width: 500px; margin: 0 auto; min-height: 100vh; position: relative; }
         
-        .app-container { max-width: 500px; margin: 0 auto; min-height: 100vh; position: relative; overflow-x: hidden; }
         .hidden { display: none !important; }
-        .p-2 { padding: 16px; } .mt-1 { margin-top: 10px; } .mb-2 { margin-bottom: 20px; }
+        .p-2 { padding: 16px; } .mt-1 { margin-top: 12px; } .mb-1 { margin-bottom: 12px; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
 
-        /* Glassmorphism Cards */
-        .card { background: var(--card-glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-        .wow-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid #334155; position: relative; overflow: hidden; }
-        .wow-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%); opacity: 0.1; pointer-events: none; }
+        /* Wow Cards */
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .glass-card { background: var(--card-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .gradient-border { position: relative; border-radius: 16px; background: var(--card-bg); padding: 16px; z-index: 1; }
+        .gradient-border::before { content: ""; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px; background: linear-gradient(45deg, var(--primary), var(--accent)); z-index: -1; border-radius: 18px; opacity: 0.5; }
 
         /* Inputs & Buttons */
-        input, select { width: 100%; padding: 14px; margin: 8px 0; background: #0f172a; border: 1px solid var(--border); border-radius: 10px; color: white; font-size: 14px; outline: none; transition: 0.3s; }
-        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-        button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        button:active { transform: scale(0.97); }
+        input, select, textarea { width: 100%; padding: 14px; margin: 8px 0; background: #0f172a; border: 1px solid var(--border); border-radius: 12px; color: white; font-size: 14px; outline: none; transition: 0.3s; }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+        
+        button { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        button:active { transform: scale(0.95); }
         .btn-primary { background: linear-gradient(135deg, #059669, #10b981); color: white; box-shadow: 0 4px 15px var(--primary-glow); }
-        .btn-accent { background: linear-gradient(135deg, #2563eb, #3b82f6); color: white; box-shadow: 0 4px 15px var(--accent-glow); }
-        .btn-danger { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-accent { background: linear-gradient(135deg, #4f46e5, #6366f1); color: white; box-shadow: 0 4px 15px var(--accent-glow); }
+        .btn-danger { background: linear-gradient(135deg, #e11d48, #f43f5e); color: white; }
+        .btn-outline { background: transparent; border: 1px dashed var(--accent); color: var(--accent); }
 
         /* Header & Profile */
-        .header { position: sticky; top: 0; z-index: 50; background: rgba(7, 11, 25, 0.9); backdrop-filter: blur(10px); padding: 15px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #ef4444); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; cursor: pointer; border: 2px solid #fff; }
-        .streak { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: var(--warning); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        .header { position: sticky; top: 0; z-index: 50; background: rgba(11, 15, 25, 0.9); backdrop-filter: blur(10px); padding: 15px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #ef4444); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; border: 2px solid #fff; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; border: 1px solid; }
 
-        /* Bottom Nav (Premium Style) */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(15px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; border-radius: 20px 20px 0 0; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); cursor: pointer; font-size: 11px; font-weight: 500; transition: 0.3s; width: 20%; }
-        .nav-item i { font-size: 20px; margin-bottom: 2px; transition: 0.3s; }
-        .nav-item.active { color: var(--primary); }
-        .nav-item.active i { transform: translateY(-3px); text-shadow: 0 0 10px var(--primary-glow); }
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; border-radius: 24px 24px 0 0; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); cursor: pointer; font-size: 11px; font-weight: 600; transition: 0.3s; width: 20%; }
+        .nav-item i { font-size: 22px; transition: 0.3s; }
+        .nav-item.active { color: var(--accent); }
+        .nav-item.active i { transform: translateY(-4px); text-shadow: 0 0 12px var(--accent-glow); }
 
         /* Grid System */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
-        /* Timer UI */
-        .timer-circle { width: 180px; height: 180px; border-radius: 50%; border: 4px solid var(--border); margin: 20px auto; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
-        .timer-circle.running { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow), inset 0 0 20px var(--accent-glow); }
-        .time-display { font-size: 40px; font-weight: bold; font-family: monospace; color: white; }
+        /* Leaderboard Wow UI */
+        .rank-row { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); background: var(--card-bg); border-radius: 12px; margin-bottom: 8px; }
+        .rank-1 .avatar { border-color: gold; box-shadow: 0 0 15px rgba(255,215,0,0.6); }
+        .rank-2 .avatar { border-color: silver; box-shadow: 0 0 15px rgba(192,192,192,0.6); }
+        .rank-3 .avatar { border-color: #cd7f32; box-shadow: 0 0 15px rgba(205,127,50,0.6); }
 
-        /* Question & Exam UI */
-        .q-card { background: var(--card-dark); border: 1px solid var(--border); padding: 16px; border-radius: 12px; margin-bottom: 12px; }
-        .q-text { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
-        .opt-btn { text-align: left; background: #0f172a; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; font-size: 14px; transition: 0.2s; cursor: pointer; }
-        .opt-btn.correct { background: rgba(16, 185, 129, 0.2); border-color: var(--primary); }
-        .opt-btn.wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
-        .opt-btn.selected { border-color: var(--accent); background: rgba(59, 130, 246, 0.1); }
-        .bookmark-btn { float: right; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
-        .bookmark-btn.active { color: var(--warning); }
+        /* Streak Grid (Like GitHub) */
+        .streak-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
+        .streak-box { width: 100%; aspect-ratio: 1; border-radius: 4px; background: #1e293b; display: flex; justify-content: center; align-items: center; font-size: 10px; color: transparent; transition: 0.3s; }
+        .streak-box.active { background: var(--primary); color: white; box-shadow: 0 0 8px var(--primary-glow); }
 
-        /* Progress & Syllabus */
-        .progress-track { height: 6px; background: var(--border); border-radius: 10px; overflow: hidden; margin-top: 8px; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--primary)); width: 0%; border-radius: 10px; transition: width 1s ease-in-out; }
-        
-        .section-title { font-size: 16px; font-weight: bold; margin: 20px 0 10px; color: white; display: flex; align-items: center; gap: 8px; }
-        
-        /* Rankings */
-        .rank-row { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); }
-        .rank-row:last-child { border-bottom: none; }
-        .rank-pos { width: 30px; font-weight: bold; color: var(--text-muted); }
-        .rank-1 { color: gold; font-size: 18px; } .rank-2 { color: silver; font-size: 16px; } .rank-3 { color: #cd7f32; font-size: 16px; }
+        /* Question & Notes UI */
+        .opt-btn { text-align: left; background: #0f172a; padding: 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .opt-btn.correct { background: rgba(16, 185, 129, 0.15); border-color: var(--primary); }
+        .opt-btn.wrong { background: rgba(244, 63, 94, 0.15); border-color: var(--danger); }
+        .opt-btn.selected { border-color: var(--accent); background: rgba(99, 102, 241, 0.15); }
 
-        .link-text { color: var(--accent); text-align: center; margin-top: 15px; cursor: pointer; font-size: 13px; text-decoration: underline; display: block;}
+        .note-card { border-left: 4px solid var(--accent); background: rgba(99, 102, 241, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 12px; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="container">
 
     <div id="appHeader" class="header hidden">
         <div class="flex-between" style="width: 100%;">
-            <div style="display: flex; align-items: center; gap: 10px;" onclick="navTo('pageProfile')">
+            <div style="display: flex; align-items: center; gap: 10px;" onclick="navTo('pageProfile', 4)">
                 <div class="avatar" id="headAvatar">U</div>
                 <div>
-                    <div style="font-weight: 600; font-size: 14px;" id="headName">User</div>
-                    <div style="font-size: 11px; color: var(--primary);" id="headLvl">🛡️ Lvl. 1</div>
+                    <div style="font-weight: bold; font-size: 14px;" id="headName">User</div>
+                    <div id="headBadge" class="badge" style="color: var(--primary); border-color: var(--primary);">Basic</div>
                 </div>
             </div>
             <div style="display: flex; gap: 10px; align-items: center;">
-                <div class="streak" title="Daily Streak"><i class="fa-solid fa-fire"></i> <span id="headStreak">1</span></div>
-                <div style="color: var(--warning); font-size: 12px; font-weight: bold;">💰 <span id="headCoins">0</span></div>
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245,158,11,0.3); padding: 4px 10px; border-radius: 20px; color: var(--warning); font-size: 12px; font-weight: bold;"><i class="fa-solid fa-coins"></i> <span id="headCoins">0</span></div>
             </div>
         </div>
     </div>
 
     <div id="pageAuth" class="p-2">
-        <div style="text-align: center; margin: 40px 0 20px;">
-            <i class="fa-solid fa-graduation-cap" style="font-size: 50px; color: var(--primary); text-shadow: 0 0 20px var(--primary-glow);"></i>
-            <h1 style="margin-top: 10px; font-size: 24px;">Smart Exam Pro</h1>
-            <p style="color: var(--text-muted); font-size: 13px;">The Ultimate Learning Platform</p>
+        <div style="text-align: center; margin: 50px 0 30px;">
+            <div style="position: relative; display: inline-block;">
+                <i class="fa-solid fa-graduation-cap" style="font-size: 60px; color: var(--accent); text-shadow: 0 0 30px var(--accent-glow);"></i>
+                <i class="fa-solid fa-sparkles" style="position: absolute; top: -10px; right: -20px; color: var(--warning);"></i>
+            </div>
+            <h1 style="margin-top: 15px; font-size: 26px; background: linear-gradient(45deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">EduNexus Pro</h1>
+            <p style="color: var(--text-muted); font-size: 13px;">Advanced Learning Ecosystem</p>
         </div>
 
-        <div class="card wow-card">
-            <h3 id="authTitle" style="text-align: center; margin-bottom: 15px;">Login</h3>
-            
+        <div class="card glass-card">
+            <h3 id="authTitle" style="text-align: center; margin-bottom: 15px;">Secure Login</h3>
             <div id="regFields" class="hidden">
                 <input id="regName" type="text" placeholder="Full Name">
                 <select id="regBatch">
-                    <option value="">-- Select Batch --</option>
-                    <option value="HSC 25">HSC 25</option>
-                    <option value="HSC 26">HSC 26</option>
+                    <option value="">-- Select HSC Batch --</option>
                     <option value="HSC 27">HSC 27</option>
+                    <option value="HSC 28">HSC 28</option>
+                    <option value="HSC 29">HSC 29</option>
+                    <option value="HSC 30">HSC 30</option>
                 </select>
             </div>
-            
             <input id="authId" type="text" placeholder="Email OR Phone Number">  
             <input type="password" id="authPass" placeholder="Password"> 
 
-            <button id="btnLogin" class="btn-primary mt-1" onclick="handleLogin()">Login <i class="fa-solid fa-arrow-right-to-bracket"></i></button> 
-            <button id="btnReg" class="btn-accent mt-1 hidden" onclick="handleRegister()">Register <i class="fa-solid fa-user-plus"></i></button> 
+            <button id="btnLogin" class="btn-accent mt-1" onclick="handleLogin()">Login <i class="fa-solid fa-arrow-right-to-bracket"></i></button> 
+            <button id="btnReg" class="btn-primary mt-1 hidden" onclick="handleRegister()">Create Account <i class="fa-solid fa-user-plus"></i></button> 
             
-            <span class="link-text" id="toggleAuth" onclick="toggleAuth()">New here? Create an account</span>
+            <div style="text-align: center; margin-top: 15px; color: var(--primary); font-size: 13px; cursor: pointer; text-decoration: underline;" id="toggleAuth" onclick="toggleAuth()">New here? Create an account</div>
         </div>
-        <div style="text-align:center; margin-top: 20px;">
-            <span onclick="document.getElementById('teacherPanelBox').classList.toggle('hidden')" style="cursor:pointer; color:var(--text-muted); font-size:12px;"><i class="fa-solid fa-lock"></i> Admin</span>
+        
+        <div style="text-align:center; margin-top: 30px;">
+            <span onclick="document.getElementById('adminBox').classList.toggle('hidden')" style="cursor:pointer; color:var(--text-muted); font-size:12px;"><i class="fa-solid fa-shield-halved"></i> Admin Console</span>
         </div>
-        <div class="card hidden mt-1" id="teacherPanelBox" style="border-color: var(--danger);">
-            <h3 style="color: var(--danger);">Admin Access</h3>
-            <input id="adminUser" placeholder="Username">
-            <input type="password" id="adminPass" placeholder="Password">
-            <button class="btn-danger" onclick="teacherLogin()">Login</button>
+        <div class="card hidden mt-1" id="adminBox" style="border-color: var(--danger); background: rgba(244, 63, 94, 0.05);">
+            <h4 style="color: var(--danger); margin-bottom: 10px;">Admin Access</h4>
+            <input id="adminUser" placeholder="Admin ID">
+            <input type="password" id="adminPass" placeholder="Admin Pass">
+            <button class="btn-danger" onclick="teacherLogin()">Enter Console</button>
         </div>
     </div>
 
     <div id="pageHome" class="hidden p-2">
         
-        <div class="card wow-card" style="background: linear-gradient(135deg, #1e1b4b, #0f172a); border-color: #4338ca;">
-            <h3 style="color: #a78bfa;">Ready to level up? 🚀</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Complete exams or study to earn XP & Coins.</p>
-            <div class="grid-2">
-                <button class="btn-accent" style="padding: 10px; font-size: 13px;" onclick="navTo('pageMock')"><i class="fa-solid fa-bolt"></i> Quick Exam</button>
-                <button class="btn-primary" style="padding: 10px; font-size: 13px;" onclick="navTo('pageQBank')"><i class="fa-solid fa-book-open"></i> Learn Now</button>
+        <div class="gradient-border mb-1" onclick="navTo('pageMock', 2)" style="cursor: pointer;">
+            <div class="flex-between">
+                <div>
+                    <h3 style="color: white; margin-bottom: 4px;">Build Custom Exam 🚀</h3>
+                    <p style="font-size: 12px; color: var(--text-muted);">Select multiple subjects & chapters.</p>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color: var(--primary); font-size: 20px;"></i>
             </div>
         </div>
 
-        <div class="section-title"><i class="fa-solid fa-stopwatch"></i> Focus Zone (Pomodoro)</div>
-        <div class="card" style="text-align: center;">
-            <div class="grid-2 mb-2">
-                <button class="btn-outline" id="modeStudy" onclick="setTimerMode('study')" style="border-color: var(--accent); color: var(--accent);">📖 Study</button>
-                <button class="btn-outline" id="modeBreak" onclick="setTimerMode('break')">☕ Break</button>
+        <div class="grid-2 mb-1">
+            <div class="card text-center" style="padding: 15px; margin: 0; border-color: var(--accent); cursor:pointer;" onclick="navTo('pageNotes', 1)">
+                <i class="fa-solid fa-book-journal-whills" style="font-size: 28px; color: var(--accent); margin-bottom: 8px;"></i>
+                <div style="font-weight: bold; font-size: 14px;">Short Notes</div>
             </div>
-            
-            <div class="timer-circle" id="timerCircle">
-                <div class="time-display" id="timeDisplay">25:00</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;" id="timerLabel">Ready to Focus</div>
-            </div>
-
-            <div class="grid-2 mt-1">
-                <button class="btn-primary" id="btnTimerStart" onclick="toggleTimer()"><i class="fa-solid fa-play"></i> Start</button>
-                <button class="btn-danger" onclick="resetTimer()"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+            <div class="card text-center" style="padding: 15px; margin: 0; border-color: var(--warning); cursor:pointer;" onclick="navTo('pageTimer', 2)">
+                <i class="fa-solid fa-stopwatch-20" style="font-size: 28px; color: var(--warning); margin-bottom: 8px;"></i>
+                <div style="font-weight: bold; font-size: 14px;">Study Timer</div>
             </div>
         </div>
 
-        <div class="section-title"><i class="fa-solid fa-fire"></i> Top Studiers (Today)</div>
-        <div class="card" id="homeStudyRank">
-            <div style="text-align: center; color: var(--text-muted); font-size: 12px;">লোড হচ্ছে...</div>
+        <h3 style="margin: 20px 0 10px;"><i class="fa-solid fa-trophy" style="color: gold;"></i> Global Leaderboard</h3>
+        <div class="card" id="homeLeaderboard" style="padding: 10px;">
+            <div class="text-center text-muted">Loading Rank...</div>
         </div>
     </div>
 
-    <div id="pageQBank" class="hidden p-2">
-        <div class="section-title"><i class="fa-solid fa-folder-open"></i> Question Bank</div>
-        <div class="card wow-card">
-            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Select subject and chapter to read questions and answers.</p>
-            <select id="qbSubject" onchange="updateQbChapters()"><option value="">-- Select Subject --</option></select>
-            <select id="qbChapter"><option value="All">All Chapters</option></select>
-            <button class="btn-accent mt-1" onclick="loadQuestionBank()"><i class="fa-solid fa-search"></i> Load Questions</button>
+    <div id="pageNotes" class="hidden p-2">
+        <h3 class="mb-1"><i class="fa-solid fa-book-open-reader"></i> Learn & Revise</h3>
+        <div class="card">
+            <select id="readSub" onchange="updateReadChaps()"><option value="">-- Subject --</option></select>
+            <select id="readChap"><option value="All">All Chapters</option></select>
+            <div class="grid-2 mt-1">
+                <button class="btn-accent" style="padding: 10px;" onclick="loadShortNotes()"><i class="fa-solid fa-file-lines"></i> Notes</button>
+                <button class="btn-outline" style="padding: 10px;" onclick="loadQBank()"><i class="fa-solid fa-clipboard-question"></i> Q-Bank</button>
+            </div>
         </div>
-        <div id="qbListContainer"></div>
+        <div id="readContentArea"></div>
+    </div>
+
+    <div id="pageTimer" class="hidden p-2">
+        <h3 class="mb-1"><i class="fa-solid fa-brain"></i> Focus Zone</h3>
+        <div class="card text-center glass-card" style="border-color: var(--accent);">
+            <div class="grid-2 mb-1">
+                <div>
+                    <label style="font-size: 11px; color: var(--text-muted);">Study (Min)</label>
+                    <input type="number" id="tStudyInp" value="25" style="text-align: center;">
+                </div>
+                <div>
+                    <label style="font-size: 11px; color: var(--text-muted);">Break (Min)</label>
+                    <input type="number" id="tBreakInp" value="5" style="text-align: center;">
+                </div>
+            </div>
+            
+            <div style="font-size: 50px; font-weight: bold; font-family: monospace; color: var(--accent); text-shadow: 0 0 20px var(--accent-glow); margin: 20px 0;" id="timerDisplay">25:00</div>
+            <div id="timerStatus" style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Ready to focus</div>
+            
+            <div class="grid-2">
+                <button class="btn-accent" id="btnTimerStart" onclick="togglePomodoro()"><i class="fa-solid fa-play"></i> Start</button>
+                <button class="btn-danger" onclick="resetPomodoro()"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+            </div>
+        </div>
+        
+        <h3 style="margin: 20px 0 10px;"><i class="fa-solid fa-fire-flame-curved"></i> Top Studiers</h3>
+        <div class="card" id="studyRankList"></div>
     </div>
 
     <div id="pageMock" class="hidden p-2">
-        <div class="section-title"><i class="fa-solid fa-layer-group"></i> Build Mock Test</div>
-        
-        <div class="card wow-card" style="border-color: var(--warning);">
-            <div class="flex-between mb-2">
-                <div style="font-weight: bold; color: var(--warning);">PRO Mode</div>
-                <div style="font-size: 12px; background: rgba(245, 158, 11, 0.2); padding: 4px 8px; border-radius: 8px; color: var(--warning);">Cost: 10 Coins</div>
-            </div>
-            
+        <h3 class="mb-1"><i class="fa-solid fa-pen-ruler"></i> Custom Exam Setup</h3>
+        <div class="card glass-card">
             <div class="two-col">
-                <select id="examSubject" onchange="updateMockChapters()"><option value="">-- Subject --</option></select>
-                <select id="examChapter"><option value="All">All Chapters</option></select>
+                <select id="mockSub" onchange="updateMockChaps()"><option value="">-- Subject --</option></select>
+                <select id="mockChap"><option value="All">All Chapters</option></select>
             </div>
             <div class="two-col mt-1">
-                <input type="number" id="qLimit" placeholder="No. of Questions" min="1">
-                <button class="btn-primary" onclick="addMockConfig()" style="padding: 12px;"><i class="fa-solid fa-plus"></i> Add Block</button>
+                <input type="number" id="mockLimit" placeholder="No. of Qs" min="1">
+                <button class="btn-outline" onclick="addMockBlock()"><i class="fa-solid fa-plus"></i> Add</button>
             </div>
+            <div id="mockConfigList" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;"></div>
             
-            <div id="configList" style="margin-top:15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; min-height: 50px;">
-                <div style="color: var(--text-muted); font-size: 12px; text-align: center;">No subjects added yet.</div>
+            <div class="flex-between mt-1">
+                <div style="font-size: 12px; color: var(--warning);">Cost: 10 Coins</div>
+                <button class="btn-primary" style="width: 60%;" onclick="startMockExam()"><i class="fa-solid fa-play"></i> Launch Exam</button>
             </div>
-            
-            <button class="btn-accent mt-1" onclick="startExamProcess()"><i class="fa-solid fa-rocket"></i> Launch Mission</button>
-        </div>
-    </div>
-
-    <div id="pageHistory" class="hidden p-2">
-        
-        <div class="grid-2 mb-2">
-            <button id="tabHistory" class="btn-accent" style="border-radius: 20px;" onclick="switchHistTab('history')"><i class="fa-solid fa-clock-rotate-left"></i> Exam History</button>
-            <button id="tabBookmarks" class="btn-outline" style="border-radius: 20px;" onclick="switchHistTab('bookmarks')"><i class="fa-solid fa-bookmark"></i> Bookmarks</button>
-        </div>
-
-        <div id="viewHistory">
-            <div class="section-title">Past Exams</div>
-            <div id="historyList"></div>
-        </div>
-
-        <div id="viewBookmarks" class="hidden">
-            <div class="section-title">Saved Questions</div>
-            <div id="bookmarksList"></div>
         </div>
     </div>
 
     <div id="pageProgress" class="hidden p-2">
-        <div class="section-title"><i class="fa-solid fa-chart-pie"></i> Skill Radar</div>
         <div class="card text-center">
-            <div style="position: relative; width: 100%; max-width: 300px; margin: 0 auto;">
-                <canvas id="radarChart"></canvas>
-            </div>
+            <h4 style="color: var(--accent); margin-bottom: 10px;"><i class="fa-solid fa-chart-line"></i> Activity Chart</h4>
+            <canvas id="lineChart" style="width: 100%; max-height: 200px;"></canvas>
         </div>
 
-        <div class="section-title"><i class="fa-solid fa-list-check"></i> Syllabus Tracker</div>
-        <div class="card" id="syllabusList">
+        <div class="card">
+            <div class="flex-between mb-1">
+                <h4 style="color: var(--primary);"><i class="fa-solid fa-calendar-check"></i> 30-Day Streak</h4>
+                <div class="badge" style="background: var(--primary-glow); color: var(--primary);">🔥 <span id="progStreak">0</span> Days</div>
             </div>
-        
-        <div class="section-title"><i class="fa-solid fa-trophy"></i> Global Leaderboard</div>
-        <div class="card" id="globalRankList" style="padding: 0; overflow: hidden;">
-            </div>
+            <div class="streak-grid" id="streakCalendar"></div>
+            <div style="text-align: right; font-size: 10px; color: var(--text-muted); margin-top: 5px;">Less <span style="display:inline-block; width:10px; height:10px; background:#1e293b; margin:0 2px;"></span> <span style="display:inline-block; width:10px; height:10px; background:var(--primary); margin:0 2px; box-shadow: 0 0 5px var(--primary-glow);"></span> More</div>
+        </div>
+
+        <h3 class="mb-1"><i class="fa-solid fa-clock-rotate-left"></i> Exam History</h3>
+        <div id="historyArea"></div>
     </div>
 
     <div id="pageProfile" class="hidden p-2">
-        <div class="card text-center" style="margin-top: 20px;">
+        <div class="card text-center" style="margin-top: 20px; background: linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, var(--card-bg) 100%);">
             <div class="avatar" style="width: 80px; height: 80px; font-size: 36px; margin: 0 auto 10px; background: linear-gradient(135deg, var(--accent), var(--primary));" id="profAvatar">U</div>
             <h2 id="profName">Name</h2>
-            <p style="color: var(--text-muted);" id="profId">ID/Email</p>
-            <div class="badge-level mt-1" id="profBadge" style="display:inline-block; padding: 5px 15px; border-radius: 20px; background: var(--primary-glow); color: var(--primary); font-weight:bold;">🛡️ Rookie</div>
+            <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 10px;" id="profId">ID</p>
+            <div class="badge" id="profBadge" style="padding: 6px 16px; font-size: 13px;">Basic</div>
         </div>
 
-        <div class="grid-2 mb-2">
-            <div class="card text-center" style="padding: 10px;">
-                <div style="font-size: 20px; font-weight: bold; color: var(--warning);" id="profCoins">0</div>
-                <div style="font-size: 11px; color: var(--text-muted);">Total Coins</div>
-            </div>
-            <div class="card text-center" style="padding: 10px;">
-                <div style="font-size: 20px; font-weight: bold; color: var(--accent);" id="profStudyMins">0</div>
-                <div style="font-size: 11px; color: var(--text-muted);">Study Mins</div>
-            </div>
+        <div class="grid-3 mb-1 text-center">
+            <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--warning);" id="profCoins">0</div><div style="font-size: 10px; color: var(--text-muted);">Coins</div></div>
+            <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--accent);" id="profXp">0</div><div style="font-size: 10px; color: var(--text-muted);">XP</div></div>
+            <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--primary);" id="profStudy">0</div><div style="font-size: 10px; color: var(--text-muted);">Study Mins</div></div>
         </div>
-
-        <button class="btn-outline mb-2" onclick="alert('Edit profile feature coming soon!')"><i class="fa-solid fa-pen-to-square"></i> Edit Profile</button>
-        <button class="btn-danger" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        
+        <button class="btn-danger mt-1" onclick="logout()"><i class="fa-solid fa-power-off"></i> Secure Logout</button>
     </div>
 
-    <div id="pageExam" class="hidden" style="background: var(--bg-dark); min-height: 100vh;">
-        <div style="position: sticky; top:0; background: var(--card-dark); padding: 15px; border-bottom: 1px solid var(--border); z-index:50;">
+    <div id="pageExam" class="hidden" style="min-height: 100vh;">
+        <div style="position: sticky; top:0; background: var(--card-bg); padding: 15px; border-bottom: 1px solid var(--border); z-index:50;">
             <div class="flex-between">
                 <div style="color: var(--text-muted); font-weight: bold;" id="examProgressTxt">0/0</div>
                 <div style="font-size: 20px; font-weight: bold; color: var(--danger); font-family: monospace;" id="examTimerTxt">00:00</div>
             </div>
-            <div class="progress-track" style="margin-top: 10px;"><div class="progress-fill" id="examProgressBar"></div></div>
         </div>
-        
         <div class="p-2" id="liveExamContainer"></div>
-
-        <div class="p-2" style="position: fixed; bottom: 0; width: 100%; max-width: 500px; background: var(--card-dark); border-top: 1px solid var(--border);">
-            <button class="btn-danger" onclick="submitExam()"><i class="fa-solid fa-check-double"></i> Submit Test</button>
+        <div class="p-2" style="position: fixed; bottom: 0; width: 100%; max-width: 500px; background: var(--card-bg); border-top: 1px solid var(--border);">
+            <button class="btn-primary" onclick="submitExam()"><i class="fa-solid fa-check-double"></i> Submit Exam</button>
         </div>
     </div>
 
      <div id="pageResult" class="hidden p-2">
-        <div class="card text-center wow-card" style="border-color: var(--primary);">
-            <h2 style="color: var(--primary);"><i class="fa-solid fa-medal"></i> Mission Complete!</h2>
-            <div style="position: relative; width: 150px; margin: 20px auto;">
-                <canvas id="scoreChart"></canvas>
-                <div style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%);">
-                    <h2 id="resPercentTxt" style="margin:0;">0%</h2>
-                </div>
-            </div>
-            <p style="color: var(--warning); font-weight: bold;">Earned: +<span id="resEarnXp">0</span> XP | +<span id="resEarnCoin">0</span> Coins</p>
+        <div class="card text-center gradient-border">
+            <h2 style="color: white;"><i class="fa-solid fa-medal"></i> Report Card</h2>
+            <div style="font-size: 40px; font-weight: bold; color: var(--primary); margin: 10px 0;" id="resPercent">0%</div>
+            <p style="color: var(--warning); font-weight: bold;">Earned: +<span id="resXp">0</span> XP | +<span id="resCoin">0</span> Coins</p>
         </div>
-        <button class="btn-accent" onclick="navTo('pageHome')"><i class="fa-solid fa-house"></i> Back to Home</button>
-        <div class="section-title">Review Answers</div>
+        <button class="btn-outline mb-1" onclick="navTo('pageHome', 0)"><i class="fa-solid fa-house"></i> Home</button>
+        <h3 class="mb-1">Detailed Analysis</h3>
         <div id="reviewContainer"></div>
     </div>
 
     <div id="pageAdmin" class="hidden p-2">
-        <div class="card">
-            <div class="flex-between mb-2">
-                <h3 style="color: var(--danger);"><i class="fa-solid fa-user-tie"></i> Admin Panel</h3>
-                <button class="btn-outline" style="width:auto; padding: 5px 10px;" onclick="navTo('pageAuth')">Exit</button>
+        <div class="flex-between mb-1">
+            <h3 style="color: var(--danger);"><i class="fa-solid fa-shield-halved"></i> Admin Console</h3>
+            <button class="btn-outline" style="width:auto; padding: 5px 10px;" onclick="navTo('pageAuth')">Exit</button>
+        </div>
+        
+        <div class="grid-2 mb-1">
+            <button class="btn-primary" style="padding: 10px;" onclick="document.getElementById('adminAddQBox').classList.remove('hidden'); document.getElementById('adminAddNoteBox').classList.add('hidden');">Add Question</button>
+            <button class="btn-accent" style="padding: 10px;" onclick="document.getElementById('adminAddNoteBox').classList.remove('hidden'); document.getElementById('adminAddQBox').classList.add('hidden');">Add Note</button>
+        </div>
+
+        <div id="adminAddQBox" class="card">
+            <h4>Add Question</h4>
+            <div class="grid-2 mt-1">
+                <select id="adSub" onchange="updateChapDropdown('adSub','adChap')"><option value="">-- Subject --</option></select>
+                <select id="adChap"><option value="All">Chapter</option></select>
             </div>
-            <input id="qSub" placeholder="Subject">
-            <input id="qChap" placeholder="Chapter">
-            <input id="qText" placeholder="Question">
-            <input id="o1" placeholder="Option 1">
-            <input id="o2" placeholder="Option 2">
-            <input id="o3" placeholder="Option 3">
-            <input id="o4" placeholder="Option 4">
-            <select id="qCorrect"><option value="0">Opt 1 Correct</option><option value="1">Opt 2</option><option value="2">Opt 3</option><option value="3">Opt 4</option></select>
-            <input id="qExp" placeholder="Explanation (Optional)">
-            <button class="btn-primary" onclick="adminAddQ()">Add Question</button>
+            <div class="grid-2 mt-1">
+                <select id="adLevel"><option value="Academic">Academic</option><option value="Advanced">Advanced</option></select>
+                <select id="adStars"><option value="1">⭐ 1 Star</option><option value="2">⭐⭐ 2 Stars</option><option value="3">⭐⭐⭐ 3 Stars</option><option value="4">⭐⭐⭐⭐ 4 Stars</option><option value="5">⭐⭐⭐⭐⭐ 5 Stars</option></select>
+            </div>
+            <textarea id="adQ" placeholder="Type Question Here..." rows="3"></textarea>
+            <input id="adImg" placeholder="Image URL (Optional)">
+            <input id="adO1" placeholder="Option A">
+            <input id="adO2" placeholder="Option B">
+            <input id="adO3" placeholder="Option C">
+            <input id="adO4" placeholder="Option D">
+            <select id="adCorrect"><option value="0">A is Correct</option><option value="1">B is Correct</option><option value="2">C is Correct</option><option value="3">D is Correct</option></select>
+            <input id="adExp" placeholder="Explanation (Optional)">
+            <button class="btn-danger mt-1" onclick="adminSaveQ()">Upload Question</button>
+        </div>
+
+        <div id="adminAddNoteBox" class="card hidden">
+            <h4>Add Short Note</h4>
+            <div class="grid-2 mt-1">
+                <select id="adNoteSub" onchange="updateChapDropdown('adNoteSub','adNoteChap')"><option value="">-- Subject --</option></select>
+                <select id="adNoteChap"><option value="All">Chapter</option></select>
+            </div>
+            <input id="adNoteTitle" placeholder="Note Title">
+            <textarea id="adNoteContent" placeholder="Write comprehensive notes here..." rows="8"></textarea>
+            <button class="btn-accent mt-1" onclick="adminSaveNote()">Publish Note</button>
+        </div>
+
+        <div class="card">
+            <h4>Database Search</h4>
+            <input id="adSearch" placeholder="Search questions..." onkeyup="adminSearchQ()">
+            <div id="adQList" style="max-height: 300px; overflow-y: auto; margin-top: 10px;"></div>
         </div>
     </div>
 
     <div class="bottom-nav" id="bottomNav" style="display: none;">
         <div class="nav-item active" onclick="navTo('pageHome', 0)"><i class="fa-solid fa-house"></i><span>Home</span></div>
-        <div class="nav-item" onclick="navTo('pageQBank', 1)"><i class="fa-solid fa-folder-open"></i><span>Q-Bank</span></div>
+        <div class="nav-item" onclick="navTo('pageNotes', 1)"><i class="fa-solid fa-book-open"></i><span>Learn</span></div>
         <div class="nav-item" onclick="navTo('pageMock', 2)"><i class="fa-solid fa-pen-to-square"></i><span>Test</span></div>
-        <div class="nav-item" onclick="navTo('pageHistory', 3)"><i class="fa-solid fa-clock-rotate-left"></i><span>History</span></div>
-        <div class="nav-item" onclick="navTo('pageProgress', 4)"><i class="fa-solid fa-chart-line"></i><span>Progress</span></div>
+        <div class="nav-item" onclick="navTo('pageProgress', 3)"><i class="fa-solid fa-chart-line"></i><span>Progress</span></div>
+        <div class="nav-item" onclick="navTo('pageProfile', 4)"><i class="fa-solid fa-user"></i><span>Profile</span></div>
     </div>
 
 </div>
@@ -341,40 +354,38 @@
 // 1. GLOBAL VARIABLES & DATABASE
 // ==========================================
 const DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";
-let currentUser = { id: "", name: "", batch: "", coins: 0, xp: 0, studyMins: 0, streak: 1, bookmarks: [] };
+let currentUser = { id: "", name: "", batch: "", coins: 0, xp: 0, studyMins: 0, streak: 1, lastLogin: "", activityData: [] };
 let allQuestions = [];
+let allNotes = [];
 let examState = { config: [], questions: [], answers: [], time: 0, interval: null, sub: "", chap: "" };
-let charts = { radar: null, donut: null };
 
-// Dummy Structure for Dropdowns & Syllabus Tracker
+// Bulky Data Structure
 const hscData = {
-    "Physics 1st Paper": ["ভৌত জগত ও পরিমাপ", "ভেক্টর", "গতিবিদ্যা", "নিউটনিয়ান বলবিদ্যা"],
-    "Physics 2nd Paper": ["তাপগতিবিদ্যা", "স্থির তড়িৎ", "চল তড়িৎ"],
-    "Chemistry 1st Paper": ["ল্যাবরেটরি নিরাপদ ব্যবহার", "গুণগত রসায়ন"],
-    "Higher Math 1st Paper": ["ম্যাট্রিক্স ও নির্ণায়ক", "ভেক্টর"]
+    "Physics 1st Paper": ["ভৌত জগত ও পরিমাপ", "ভেক্টর", "গতিবিদ্যা", "নিউটনিয়ান বলবিদ্যা", "কাজ, ক্ষমতা ও শক্তি", "মহাকর্ষ ও অভিকর্ষ", "পদার্থের গাঠনিক ধর্ম", "পর্যাবৃত্ত গতি", "আদর্শ গ্যাস"],
+    "Physics 2nd Paper": ["তাপগতিবিদ্যা", "স্থির তড়িৎ", "চল তড়িৎ", "ভৌত আলোকবিজ্ঞান", "আধুনিক পদার্থবিজ্ঞানের সূচনা", "পরমাণুর মডেল", "সেমিকন্ডাক্টর"],
+    "Chemistry 1st Paper": ["ল্যাবরেটরি নিরাপদ ব্যবহার", "গুণগত রসায়ন", "মৌলের পর্যাবৃত্ত ধর্ম", "রাসায়নিক পরিবর্তন", "কর্মমুখী রসায়ন"],
+    "Chemistry 2nd Paper": ["পরিবেশ রসায়ন", "জৈব রসায়ন", "পরিমাণগত রসায়ন", "তড়িৎ রসায়ন", "অর্থনৈতিক রসায়ন"],
+    "Higher Math 1st Paper": ["ম্যাট্রিক্স ও নির্ণায়ক", "ভেক্টর", "সরলরেখা", "বৃত্ত", "বিন্যাস ও সমাবেশ", "ত্রিকোণমিতি", "অন্তরীকরণ", "যোগজীকরণ"],
+    "Higher Math 2nd Paper": ["বাস্তব সংখ্যা", "বহুপদী", "জটিল সংখ্যা", "কণিক", "স্থিতিবিদ্যা", "গতিবিদ্যা"],
+    "Biology 1st Paper": ["কোষ ও এর গঠন", "কোষ বিভাজন", "কোষ রসায়ন", "অণুজীব", "শৈবাল ও ছত্রাক", "ব্রায়োফাইটা", "নগ্নবীজী"],
+    "Biology 2nd Paper": ["প্রাণীর বিভিন্নতা", "প্রাণীর পরিচিতি", "পরিপাক", "রক্ত ও সঞ্চালন", "শসন", "বর্জ্য ও নিষ্কাশন"],
+    "ICT": ["বিশ্ব ও বাংলাদেশ প্রেক্ষিত", "কমিউনিকেশন সিস্টেমস", "সংখ্যা পদ্ধতি", "Web Design", "Programming (C)", "Database"]
 };
 
 // ==========================================
 // 2. NAVIGATION & UI LOGIC
 // ==========================================
 function navTo(pageId, navIdx = -1) {
-    // Hide all pages
-    const pages = ['pageAuth', 'pageHome', 'pageQBank', 'pageMock', 'pageHistory', 'pageProgress', 'pageProfile', 'pageExam', 'pageResult', 'pageAdmin'];
+    const pages = ['pageAuth', 'pageHome', 'pageNotes', 'pageMock', 'pageProgress', 'pageProfile', 'pageExam', 'pageResult', 'pageAdmin', 'pageTimer'];
     pages.forEach(p => document.getElementById(p).classList.add('hidden'));
-    
-    // Show target page
     document.getElementById(pageId).classList.remove('hidden');
     
-    // Manage Header & Bottom Nav visibility
-    let noNavPages = ['pageAuth', 'pageExam', 'pageResult', 'pageAdmin'];
-    if (noNavPages.includes(pageId)) {
+    if (['pageAuth', 'pageExam', 'pageResult', 'pageAdmin'].includes(pageId)) {
         document.getElementById('bottomNav').style.display = 'none';
         document.getElementById('appHeader').classList.add('hidden');
     } else {
         document.getElementById('bottomNav').style.display = 'flex';
         document.getElementById('appHeader').classList.remove('hidden');
-        
-        // Update Nav Active State
         if(navIdx >= 0) {
             let items = document.querySelectorAll('.nav-item');
             items.forEach(i => i.classList.remove('active'));
@@ -382,31 +393,30 @@ function navTo(pageId, navIdx = -1) {
         }
     }
 
-    // Trigger page-specific loads
-    if(pageId === 'pageHome') { loadStudyLeaderboard(); }
-    if(pageId === 'pageProgress') { renderProgressPage(); }
-    if(pageId === 'pageHistory') { loadHistoryAndBookmarks(); }
-    if(pageId === 'pageQBank' || pageId === 'pageMock') { initDropdowns(); fetchAllQuestions(); }
+    if(pageId === 'pageHome') { loadLeaderboard(); }
+    if(pageId === 'pageProgress') { renderProgressUI(); loadHistory(); }
+    if(pageId === 'pageNotes' || pageId === 'pageMock' || pageId === 'pageAdmin') { initDropdowns(); fetchDBData(); }
 }
 
 function initDropdowns() {
     let subHtml = '<option value="">-- Select Subject --</option>';
     for (let sub in hscData) subHtml += `<option value="${sub}">${sub}</option>`;
-    if(document.getElementById("examSubject").innerHTML.length < 50) document.getElementById("examSubject").innerHTML = subHtml;
-    if(document.getElementById("qbSubject").innerHTML.length < 50) document.getElementById("qbSubject").innerHTML = subHtml;
+    ['mockSub', 'readSub', 'adSub', 'adNoteSub'].forEach(id => {
+        if(document.getElementById(id) && document.getElementById(id).innerHTML.length < 50) document.getElementById(id).innerHTML = subHtml;
+    });
 }
 
-function updateMockChapters() { updateChapDropdown('examSubject', 'examChapter'); }
-function updateQbChapters() { updateChapDropdown('qbSubject', 'qbChapter'); }
 function updateChapDropdown(subId, chapId) {
     let sub = document.getElementById(subId).value;
     let html = '<option value="All">All Chapters</option>';
     if (hscData[sub]) hscData[sub].forEach(c => html += `<option value="${c}">${c}</option>`);
     document.getElementById(chapId).innerHTML = html;
 }
+function updateMockChaps() { updateChapDropdown('mockSub', 'mockChap'); }
+function updateReadChaps() { updateChapDropdown('readSub', 'readChap'); }
 
 // ==========================================
-// 3. AUTHENTICATION (Direct Login/Reg)
+// 3. AUTHENTICATION & STAGES
 // ==========================================
 let isRegMode = false;
 function toggleAuth() {
@@ -414,7 +424,7 @@ function toggleAuth() {
     document.getElementById('regFields').classList.toggle('hidden', !isRegMode);
     document.getElementById('btnLogin').classList.toggle('hidden', isRegMode);
     document.getElementById('btnReg').classList.toggle('hidden', !isRegMode);
-    document.getElementById('authTitle').innerText = isRegMode ? "Register" : "Login";
+    document.getElementById('authTitle').innerText = isRegMode ? "Create Account" : "Secure Login";
     document.getElementById('toggleAuth').innerText = isRegMode ? "Already have an account? Login" : "New here? Create an account";
 }
 
@@ -423,15 +433,15 @@ function handleRegister() {
     let batch = document.getElementById('regBatch').value;
     let rawId = document.getElementById('authId').value.trim(); 
     let pass = document.getElementById('authPass').value.trim();
-    if(!name || !batch || !rawId || !pass) return alert("Please fill all fields!");
+    if(!name || !batch || !rawId || !pass) return alert("Fill all fields!");
     let cleanId = rawId.replace(/\./g, '_');
 
-    fetch(`${DB}/users_v2/${cleanId}.json`).then(r=>r.json()).then(data => {
-        if(data) return alert("Account already exists with this ID!");
-        let newUser = { name, batch, pass, coins: 100, xp: 0, studyMins: 0, streak: 1, bookmarks: [] };
-        fetch(`${DB}/users_v2/${cleanId}.json`, { method: "PUT", body: JSON.stringify(newUser) }).then(() => {
-            alert("Registration successful! 100 Coins Bonus!");
-            toggleAuth(); // Switch to login
+    fetch(`${DB}/startup_users/${cleanId}.json`).then(r=>r.json()).then(data => {
+        if(data) return alert("Account already exists!");
+        let today = new Date().toLocaleDateString();
+        let newUser = { name, batch, pass, coins: 100, xp: 0, studyMins: 0, streak: 1, lastLogin: today, activityData: [10, 20, 15, 30, 0, 0, 50] }; // Dummy initial graph data
+        fetch(`${DB}/startup_users/${cleanId}.json`, { method: "PUT", body: JSON.stringify(newUser) }).then(() => {
+            alert("Registration successful! +100 Coins"); toggleAuth();
         });
     });
 }
@@ -442,246 +452,264 @@ function handleLogin() {
     if(!rawId || !pass) return alert("Enter credentials!");
     let cleanId = rawId.replace(/\./g, '_');
 
-    fetch(`${DB}/users_v2/${cleanId}.json`).then(r=>r.json()).then(data => {
-        if(!data || data.pass !== pass) return alert("Invalid ID or Password!");
+    fetch(`${DB}/startup_users/${cleanId}.json`).then(r=>r.json()).then(data => {
+        if(!data || data.pass !== pass) return alert("Invalid Login!");
         
-        currentUser = { 
-            id: cleanId, name: data.name, batch: data.batch, 
-            coins: data.coins||0, xp: data.xp||0, 
-            studyMins: data.studyMins||0, streak: data.streak||1, 
-            bookmarks: data.bookmarks||[] 
-        };
+        currentUser = { id: cleanId, name: data.name, batch: data.batch, coins: data.coins||0, xp: data.xp||0, studyMins: data.studyMins||0, streak: data.streak||1, lastLogin: data.lastLogin||"", activityData: data.activityData||[0,0,0,0,0,0,0] };
         
-        updateUIHeader();
-        navTo('pageHome', 0);
+        // Streak Logic
+        let today = new Date().toLocaleDateString();
+        if(currentUser.lastLogin !== today) {
+            currentUser.streak += 1; currentUser.lastLogin = today;
+            // Shift activity array for line graph
+            currentUser.activityData.shift(); currentUser.activityData.push(0);
+            saveUserDB({ streak: currentUser.streak, lastLogin: today, activityData: currentUser.activityData });
+        }
+        
+        updateUIHeader(); navTo('pageHome', 0);
     });
 }
-
 function logout() { currentUser = {}; navTo('pageAuth'); }
 
-function getLvlName(xp) {
-    if(xp<200) return {n: "Rookie", i:"🛡️", c:"#94a3b8"};
-    if(xp<500) return {n: "Scholar", i:"🎓", c:"#38bdf8"};
-    if(xp<1000) return {n: "Ninja", i:"🥷", c:"#10b981"};
-    return {n: "Legend", i:"👑", c:"#f59e0b"};
+// 🌟 Stage Logic based on XP
+function getStage(xp) {
+    if(xp < 500) return { name: "Basic", color: "var(--text-muted)", glow: "rgba(100,116,139,0.3)" };
+    if(xp < 1500) return { name: "Pro", color: "#38bdf8", glow: "rgba(56,189,248,0.4)" };
+    if(xp < 3000) return { name: "Advanced", color: "var(--primary)", glow: "var(--primary-glow)" };
+    if(xp < 6000) return { name: "Master", color: "var(--accent)", glow: "var(--accent-glow)" };
+    return { name: "Legend", color: "gold", glow: "rgba(255,215,0,0.5)" };
 }
 
 function updateUIHeader() {
-    let lvl = getLvlName(currentUser.xp);
-    document.getElementById('headName').innerText = currentUser.name.split(" ")[0]; // First name
+    let stage = getStage(currentUser.xp);
+    document.getElementById('headName').innerText = currentUser.name.split(" ")[0];
     document.getElementById('headAvatar').innerText = currentUser.name.charAt(0).toUpperCase();
-    document.getElementById('headLvl').innerHTML = `${lvl.i} ${lvl.n} Lvl.${Math.floor(currentUser.xp/100)+1}`;
-    document.getElementById('headLvl').style.color = lvl.c;
+    document.getElementById('headAvatar').style.borderColor = stage.color;
+    document.getElementById('headAvatar').style.boxShadow = `0 0 10px ${stage.glow}`;
+    
+    let b = document.getElementById('headBadge');
+    b.innerText = stage.name; b.style.color = stage.color; b.style.borderColor = stage.color;
+    
     document.getElementById('headCoins').innerText = currentUser.coins;
-    document.getElementById('headStreak').innerText = currentUser.streak;
 
-    // Profile Page setup
+    // Profile Setup
     document.getElementById('profName').innerText = currentUser.name;
     document.getElementById('profAvatar').innerText = currentUser.name.charAt(0).toUpperCase();
+    document.getElementById('profAvatar').style.borderColor = stage.color;
     document.getElementById('profId').innerText = currentUser.id.replace(/_/g, '.');
-    document.getElementById('profBadge').innerHTML = `${lvl.i} ${lvl.n}`;
+    
+    let pb = document.getElementById('profBadge');
+    pb.innerText = `${stage.name} Level`; pb.style.color = stage.color; pb.style.borderColor = stage.color; pb.style.boxShadow = `0 0 10px ${stage.glow}`;
+    
     document.getElementById('profCoins').innerText = currentUser.coins;
-    document.getElementById('profStudyMins').innerText = currentUser.studyMins;
+    document.getElementById('profXp').innerText = currentUser.xp;
+    document.getElementById('profStudy').innerText = currentUser.studyMins;
+    document.getElementById('progStreak').innerText = currentUser.streak;
 }
 
 function saveUserDB(updates) {
     Object.assign(currentUser, updates);
-    fetch(`${DB}/users_v2/${currentUser.id}.json`, { method: "PATCH", body: JSON.stringify(updates) });
+    fetch(`${DB}/startup_users/${currentUser.id}.json`, { method: "PATCH", body: JSON.stringify(updates) });
     updateUIHeader();
 }
 
 // ==========================================
-// 4. FOCUS TIMER (Pomodoro)
+// 4. LEADERBOARD (Home Page)
 // ==========================================
-let timerMode = 'study'; // study or break
-let tSeconds = 25 * 60;
-let tInterval = null;
-let isTRunning = false;
-
-function setTimerMode(mode) {
-    if(isTRunning) return alert("Stop timer first!");
-    timerMode = mode;
-    tSeconds = mode === 'study' ? 25*60 : 5*60;
-    
-    document.getElementById('modeStudy').style.color = mode==='study' ? 'var(--accent)' : 'var(--text-main)';
-    document.getElementById('modeStudy').style.borderColor = mode==='study' ? 'var(--accent)' : 'var(--border)';
-    document.getElementById('modeBreak').style.color = mode==='break' ? 'var(--primary)' : 'var(--text-main)';
-    document.getElementById('modeBreak').style.borderColor = mode==='break' ? 'var(--primary)' : 'var(--border)';
-    
-    updateTDisplay();
+function loadLeaderboard() {
+    fetch(`${DB}/startup_users.json`).then(r=>r.json()).then(data => {
+        if(!data) return;
+        let users = Object.values(data).sort((a,b) => (b.xp||0) - (a.xp||0)).slice(0,10);
+        let html = '';
+        users.forEach((u, i) => {
+            let rankCls = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
+            let stage = getStage(u.xp||0);
+            html += `<div class="rank-row ${rankCls}">
+                <div class="rank-pos">${i+1}</div>
+                <div class="avatar" style="width:36px; height:36px; font-size:14px; border-color:${stage.color};">${u.name.charAt(0).toUpperCase()}</div>
+                <div style="flex:1; margin-left:12px;">
+                    <div style="font-weight:bold; font-size:14px;">${u.name}</div>
+                    <div style="font-size:10px; color:${stage.color};">${stage.name} • ${u.batch||'User'}</div>
+                </div>
+                <div style="color:var(--accent); font-weight:bold;">${u.xp||0} <small>XP</small></div>
+            </div>`;
+        });
+        document.getElementById('homeLeaderboard').innerHTML = html;
+        document.getElementById('studyRankList').innerHTML = html; // Mirror in timer page for now
+    });
 }
 
-function updateTDisplay() {
-    let m = Math.floor(tSeconds/60); let s = tSeconds%60;
-    document.getElementById('timeDisplay').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-}
+// ==========================================
+// 5. POMODORO TIMER
+// ==========================================
+let pTimer = null;
+let pTimeLeft = 0;
+let isPRunning = false;
+let pMode = 'study'; // study or break
 
-function toggleTimer() {
-    let btn = document.getElementById('btnTimerStart');
-    let circle = document.getElementById('timerCircle');
-    let lbl = document.getElementById('timerLabel');
-
-    if(isTRunning) {
-        clearInterval(tInterval); isTRunning = false;
-        btn.innerHTML = '<i class="fa-solid fa-play"></i> Resume';
-        btn.classList.replace('btn-warning', 'btn-primary');
-        circle.classList.remove('running');
-        lbl.innerText = "Paused";
+function togglePomodoro() {
+    if(isPRunning) {
+        clearInterval(pTimer); isPRunning = false;
+        document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-play"></i> Resume';
+        document.getElementById('timerStatus').innerText = "Paused";
     } else {
-        isTRunning = true;
-        btn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
-        btn.classList.replace('btn-primary', 'btn-warning');
-        if(!btn.classList.contains('btn-warning')) { btn.style.background = 'var(--warning)'; } // fallback
-        circle.classList.add('running');
-        lbl.innerText = timerMode === 'study' ? "Deep Focus..." : "Relaxing...";
-
-        tInterval = setInterval(() => {
-            if(tSeconds > 0) { tSeconds--; updateTDisplay(); }
-            else {
-                clearInterval(tInterval); isTRunning = false;
-                circle.classList.remove('running');
-                if(timerMode === 'study') {
-                    alert("🎉 Session Complete! +25 Mins, +10 XP!");
-                    saveUserDB({ studyMins: currentUser.studyMins + 25, xp: currentUser.xp + 10 });
-                    loadStudyLeaderboard(); // refresh local rank
-                } else { alert("Break over! Ready to study?"); }
-                resetTimer();
+        if(pTimeLeft === 0) {
+            let mins = pMode==='study' ? parseInt(document.getElementById('tStudyInp').value) : parseInt(document.getElementById('tBreakInp').value);
+            pTimeLeft = (mins || 25) * 60;
+        }
+        isPRunning = true;
+        document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
+        document.getElementById('timerStatus').innerText = pMode==='study' ? "Deep Focus Mode 🔥" : "Relax & Breathe ☕";
+        
+        pTimer = setInterval(() => {
+            if(pTimeLeft > 0) {
+                pTimeLeft--;
+                let m = Math.floor(pTimeLeft/60); let s = pTimeLeft%60;
+                document.getElementById('timerDisplay').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+            } else {
+                clearInterval(pTimer); isPRunning = false;
+                if(pMode === 'study') {
+                    let minsAdded = parseInt(document.getElementById('tStudyInp').value);
+                    alert(`🎉 Session Complete! +${minsAdded} Mins added to profile!`);
+                    saveUserDB({ studyMins: currentUser.studyMins + minsAdded, xp: currentUser.xp + 5 });
+                    pMode = 'break';
+                } else {
+                    alert("Break over! Time to focus again.");
+                    pMode = 'study';
+                }
+                resetPomodoro();
             }
         }, 1000);
     }
 }
-
-function resetTimer() {
-    clearInterval(tInterval); isTRunning = false;
-    document.getElementById('timerCircle').classList.remove('running');
-    let btn = document.getElementById('btnTimerStart');
-    btn.innerHTML = '<i class="fa-solid fa-play"></i> Start';
-    btn.style.background = ''; btn.classList.add('btn-primary');
-    setTimerMode(timerMode);
+function resetPomodoro() {
+    clearInterval(pTimer); isPRunning = false; pTimeLeft = 0;
+    let mins = pMode==='study' ? parseInt(document.getElementById('tStudyInp').value) : parseInt(document.getElementById('tBreakInp').value);
+    document.getElementById('timerDisplay').innerText = `${mins<10?'0'+mins:mins}:00`;
+    document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-play"></i> Start';
+    document.getElementById('timerStatus').innerText = pMode==='study' ? "Ready to focus" : "Ready for break";
 }
 
-// Fetch Study Leaderboard
-function loadStudyLeaderboard() {
-    fetch(`${DB}/users_v2.json`).then(r=>r.json()).then(data => {
-        if(!data) return;
-        let users = Object.values(data).sort((a,b) => (b.studyMins||0) - (a.studyMins||0)).slice(0,5);
-        let html = '';
-        users.forEach((u, i) => {
-            let m = i===0?"🥇":i===1?"🥈":i===2?"🥉":"";
-            html += `<div class="rank-row">
-                <div class="rank-pos ${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':''}">${m||i+1}</div>
-                <div style="flex:1; margin-left:10px;">
-                    <div style="font-weight:bold; font-size:14px;">${u.name}</div>
-                </div>
-                <div style="color:var(--primary); font-weight:bold; font-size:14px;">${u.studyMins||0} <small>m</small></div>
-            </div>`;
+// ==========================================
+// 6. DB FETCH (Questions & Notes)
+// ==========================================
+function fetchDBData() {
+    if(allQuestions.length === 0) {
+        fetch(`${DB}/startup_questions.json`).then(r=>r.json()).then(data => {
+            if(data) allQuestions = Object.keys(data).map(k => ({ id: k, ...data[k] }));
         });
-        document.getElementById('homeStudyRank').innerHTML = html;
-        document.getElementById('globalRankList').innerHTML = html; // Sync global rank page too
-    });
+    }
+    if(allNotes.length === 0) {
+        fetch(`${DB}/startup_notes.json`).then(r=>r.json()).then(data => {
+            if(data) allNotes = Object.keys(data).map(k => ({ id: k, ...data[k] }));
+        });
+    }
 }
 
-// ==========================================
-// 5. QUESTION BANK & BOOKMARKS
-// ==========================================
-function fetchAllQuestions() {
-    if(allQuestions.length > 0) return; // Cache
-    fetch(`${DB}/questions.json`).then(r=>r.json()).then(data => {
-        if(data) {
-            allQuestions = Object.keys(data).map(k => ({ id: k, ...data[k] }));
-        }
-    });
-}
-
-function loadQuestionBank() {
-    let sub = document.getElementById('qbSubject').value;
-    let chap = document.getElementById('qbChapter').value;
-    if(!sub) return alert("Select a subject first!");
+function loadShortNotes() {
+    let sub = document.getElementById('readSub').value;
+    let chap = document.getElementById('readChap').value;
+    if(!sub) return alert("Select subject!");
     
-    let filtered = allQuestions.filter(q => q.subject === sub && (chap === 'All' || q.chapter === chap));
     let html = '';
+    let filtered = allNotes.filter(n => n.subject === sub && (chap === 'All' || n.chapter === chap));
     
-    if(filtered.length === 0) html = `<div class="text-center" style="color:var(--text-muted);">No questions found here yet.</div>`;
-    
-    filtered.forEach((q, i) => {
-        let isBookmarked = currentUser.bookmarks.includes(q.id);
-        html += `<div class="q-card">
-            <div class="flex-between mb-2">
-                <div style="color:var(--primary); font-size:12px; font-weight:bold;">${q.chapter}</div>
-                <i class="fa-solid fa-bookmark bookmark-btn ${isBookmarked ? 'active' : ''}" onclick="toggleBookmark('${q.id}', this)"></i>
-            </div>
-            <div class="q-text">Q. ${q.q}</div>`;
-            
-        q.a.forEach((opt, idx) => {
-            let colorCls = (idx === q.correct) ? 'correct' : '';
-            let icon = (idx === q.correct) ? '<i class="fa-solid fa-check float-right text-success"></i>' : '';
-            html += `<div class="opt-btn ${colorCls}" style="cursor:default;">${String.fromCharCode(65+idx)}. ${opt} ${icon}</div>`;
-        });
-        if(q.exp) html += `<div style="margin-top:10px; font-size:12px; color:var(--accent);">💡 Exp: ${q.exp}</div>`;
-        html += `</div>`;
+    if(filtered.length === 0) html = "<div class='text-center mt-1 text-muted'>No notes available yet.</div>";
+    filtered.forEach(n => {
+        html += `<div class="note-card">
+            <div style="font-size:12px; color:var(--text-muted);">${n.chapter}</div>
+            <h4 style="color:var(--text-main); margin:5px 0;">${n.title}</h4>
+            <div style="font-size:13px; white-space: pre-wrap;">${n.content}</div>
+        </div>`;
     });
+    document.getElementById('readContentArea').innerHTML = html;
+}
+
+function loadQBank() {
+    let sub = document.getElementById('readSub').value;
+    let chap = document.getElementById('readChap').value;
+    if(!sub) return alert("Select subject!");
     
-    document.getElementById('qbListContainer').innerHTML = html;
-}
-
-function toggleBookmark(qId, el) {
-    let idx = currentUser.bookmarks.indexOf(qId);
-    if(idx > -1) { currentUser.bookmarks.splice(idx, 1); el.classList.remove('active'); }
-    else { currentUser.bookmarks.push(qId); el.classList.add('active'); }
-    saveUserDB({ bookmarks: currentUser.bookmarks });
+    let html = '';
+    let filtered = allQuestions.filter(q => q.subject === sub && (chap === 'All' || q.chapter === chap));
+    
+    if(filtered.length === 0) html = "<div class='text-center mt-1 text-muted'>No questions available yet.</div>";
+    filtered.forEach((q, i) => {
+        html += `<div class="card">
+            <div class="flex-between mb-1">
+                <span class="badge" style="border-color:var(--primary); color:var(--primary);">${q.level||'Academic'}</span>
+                <span style="color:gold; font-size:12px;">${'★'.repeat(q.stars||1)}</span>
+            </div>
+            <div style="font-weight:bold; margin-bottom:10px;">Q. ${q.q}</div>`;
+        if(q.img) html += `<img src="${q.img}" style="width:100%; border-radius:8px; margin-bottom:10px;">`;
+        
+        html += `<button class="btn-outline" style="padding:8px;" onclick="this.nextElementSibling.classList.toggle('hidden')">Show Answer</button>
+            <div class="hidden" style="margin-top:10px;">
+                <div style="color:var(--primary); font-weight:bold; font-size:14px;">✔ ${q.a[q.correct]}</div>
+                ${q.exp ? `<div style="font-size:12px; color:var(--text-muted); margin-top:5px;">💡 ${q.exp}</div>` : ''}
+            </div>
+        </div>`;
+    });
+    document.getElementById('readContentArea').innerHTML = html;
 }
 
 // ==========================================
-// 6. MOCK EXAM BUILDER (Ninja Mode)
+// 7. MOCK EXAM BUILDER
 // ==========================================
-function addMockConfig() {
-    let sub = document.getElementById("examSubject").value;
-    let chap = document.getElementById("examChapter").value;
-    let limit = parseInt(document.getElementById("qLimit").value);
+function addMockBlock() {
+    let sub = document.getElementById("mockSub").value;
+    let chap = document.getElementById("mockChap").value;
+    let limit = parseInt(document.getElementById("mockLimit").value);
     if(!sub || !limit || limit <= 0) return alert("Valid inputs required!"); 
     examState.config.push({sub, chap, limit});
     
     let html = "";
     examState.config.forEach((c, i) => { 
-        html += `<div style="font-size:13px; color:var(--primary); margin-bottom:5px; padding:8px; background:rgba(16,185,129,0.1); border-radius:6px;">
-            <i class="fa-solid fa-check"></i> <b>${c.sub}</b> (${c.chap}) - ${c.limit} Qs
+        html += `<div style="font-size:12px; color:white; margin-bottom:5px; border-left:3px solid var(--accent); padding-left:8px;">
+            <b>${c.sub}</b> (${c.chap}) - ${c.limit} Qs
         </div>`; 
     });
-    document.getElementById("configList").innerHTML = html;
+    document.getElementById("mockConfigList").innerHTML = html;
 }
 
-function startExamProcess() {
-    if (examState.config.length === 0) return alert("Add at least one subject block!"); 
-    // Requires 10 coins
-    if(currentUser.coins < 10) return alert("Not enough coins! You need 10 coins to build a mock test.");
+function startMockExam() {
+    if (examState.config.length === 0) return alert("Add block first!"); 
+    if(currentUser.coins < 10) return alert("Insufficient coins! (10 needed)");
     
     examState.questions = [];
     examState.config.forEach(cfg => {
         let matched = allQuestions.filter(q => q.subject === cfg.sub && (cfg.chap === 'All' || q.chapter === cfg.chap));
-        // Shuffle matched
-        matched = matched.sort(() => 0.5 - Math.random());
+        matched = matched.sort(() => 0.5 - Math.random()); // Shuffle questions
         examState.questions = examState.questions.concat(matched.slice(0, cfg.limit));
     });
     
-    if(examState.questions.length === 0) return alert("No questions available for this config!");
+    if(examState.questions.length === 0) return alert("No questions available!");
     
-    // Deduct coins
     saveUserDB({ coins: currentUser.coins - 10 });
-    
-    examState.sub = examState.config.length === 1 ? examState.config[0].sub : "Mixed Mock Test";
+    examState.sub = examState.config.length === 1 ? examState.config[0].sub : "Custom Mock Test";
     examState.answers = new Array(examState.questions.length).fill(null);
-    examState.time = examState.questions.length * 60; // 1 min per Q
+    examState.time = examState.questions.length * 60; 
     
-    renderLiveExamUI();
+    renderLiveExam();
 }
 
-function renderLiveExamUI() {
+function renderLiveExam() {
     let html = '';
     examState.questions.forEach((q, i) => {
-        html += `<div class="q-card" id="qBox_${i}">
-            <div class="q-text">Q${i+1}. ${q.q}</div>`;
-        q.a.forEach((opt, idx) => {
-            html += `<div class="opt-btn" id="opt_${i}_${idx}" onclick="selectAnswer(${i}, ${idx})">${String.fromCharCode(65+idx)}. ${opt}</div>`;
+        html += `<div class="card" id="qBox_${i}">
+            <div style="font-weight:bold; margin-bottom:12px;">${i+1}. ${q.q}</div>`;
+        if(q.img) html += `<img src="${q.img}" style="width:100%; border-radius:8px; margin-bottom:10px;">`;
+        
+        // 🔀 SHUFFLE OPTIONS LOGIC
+        let opts = q.a.map((txt, idx) => ({ text: txt, isCorr: idx === q.correct }));
+        opts = opts.sort(() => 0.5 - Math.random());
+        
+        // Save new correct index temporarily in the object to grade later
+        q.tempCorrect = opts.findIndex(o => o.isCorr);
+        q.tempOpts = opts; // Save shuffled array to render in review
+
+        opts.forEach((optObj, idx) => {
+            html += `<div class="opt-btn" id="opt_${i}_${idx}" onclick="selectOpt(${i}, ${idx})">${String.fromCharCode(65+idx)}. ${optObj.text}</div>`;
         });
         html += `</div>`;
     });
@@ -689,38 +717,27 @@ function renderLiveExamUI() {
     document.getElementById('examProgressTxt').innerText = `0/${examState.questions.length}`;
     
     navTo('pageExam');
-    startExamTimer();
+    
+    examState.interval = setInterval(() => {
+        if(examState.time > 0) {
+            examState.time--;
+            let m = Math.floor(examState.time/60); let s = examState.time%60;
+            document.getElementById('examTimerTxt').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+        } else submitExam();
+    }, 1000);
 }
 
-function selectAnswer(qIdx, oIdx) {
+function selectOpt(qIdx, oIdx) {
     examState.answers[qIdx] = oIdx;
     for(let i=0; i<4; i++) {
         let el = document.getElementById(`opt_${qIdx}_${i}`);
         if(el) el.classList.remove('selected');
     }
     document.getElementById(`opt_${qIdx}_${oIdx}`).classList.add('selected');
-    
-    let ansCount = examState.answers.filter(a => a !== null).length;
-    document.getElementById('examProgressTxt').innerText = `${ansCount}/${examState.questions.length}`;
+    let c = examState.answers.filter(a => a !== null).length;
+    document.getElementById('examProgressTxt').innerText = `${c}/${examState.questions.length}`;
 }
 
-function startExamTimer() {
-    let totalTime = examState.time;
-    examState.interval = setInterval(() => {
-        if(examState.time > 0) {
-            examState.time--;
-            let m = Math.floor(examState.time/60); let s = examState.time%60;
-            document.getElementById('examTimerTxt').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-            document.getElementById('examProgressBar').style.width = `${((totalTime - examState.time)/totalTime)*100}%`;
-        } else {
-            submitExam();
-        }
-    }, 1000);
-}
-
-// ==========================================
-// 7. EXAM SUBMIT & RESULT
-// ==========================================
 function submitExam() {
     clearInterval(examState.interval);
     let correct = 0, wrong = 0;
@@ -728,80 +745,84 @@ function submitExam() {
 
     examState.questions.forEach((q, i) => {
         let userAns = examState.answers[i];
-        if(userAns === q.correct) correct++;
+        if(userAns === q.tempCorrect) correct++;
         else if(userAns !== null) wrong++;
         
-        // Build review UI
-        revHtml += `<div class="q-card" style="border-color: ${userAns===q.correct?'var(--primary)':userAns===null?'var(--border)':'var(--danger)'}">
-            <div class="flex-between mb-2">
-                <div class="q-text" style="margin:0;">Q${i+1}. ${q.q}</div>
-                <i class="fa-solid fa-bookmark bookmark-btn ${currentUser.bookmarks.includes(q.id)?'active':''}" onclick="toggleBookmark('${q.id}', this)"></i>
-            </div>`;
-        q.a.forEach((opt, idx) => {
+        revHtml += `<div class="card" style="border-color: ${userAns===q.tempCorrect?'var(--primary)':userAns===null?'var(--border)':'var(--danger)'}">
+            <div style="font-weight:bold; margin-bottom:10px;">Q. ${q.q}</div>`;
+        
+        q.tempOpts.forEach((optObj, idx) => {
             let cls = "opt-btn";
-            if(idx === q.correct) cls += " correct";
+            if(idx === q.tempCorrect) cls += " correct";
             else if(idx === userAns) cls += " wrong";
-            revHtml += `<div class="${cls}">${String.fromCharCode(65+idx)}. ${opt}</div>`;
+            revHtml += `<div class="${cls}">${String.fromCharCode(65+idx)}. ${optObj.text}</div>`;
         });
         if(q.exp) revHtml += `<div style="margin-top:10px; font-size:12px; color:var(--accent);">💡 Exp: ${q.exp}</div>`;
         revHtml += `</div>`;
     });
 
-    let empty = examState.questions.length - (correct + wrong);
-    let score = Math.max(0, correct - (wrong * 0.25));
+    let score = Math.max(0, correct - (wrong * 0.25)); // Negative Mark
     let percent = Math.round((score / examState.questions.length) * 100);
     
-    // Rewards
     let earnXp = Math.floor(score * 5) + 10;
     let earnCoin = Math.floor(score * 2);
     if(percent >= 80) earnXp += 20;
 
-    // Save DB
-    saveUserDB({ xp: currentUser.xp + earnXp, coins: currentUser.coins + earnCoin });
-    fetch(`${DB}/results_v2.json`, {
+    // Daily Activity update for line chart
+    let newAct = [...currentUser.activityData];
+    newAct[newAct.length-1] += earnXp; // Add XP to today's graph
+
+    saveUserDB({ xp: currentUser.xp + earnXp, coins: currentUser.coins + earnCoin, activityData: newAct });
+    
+    fetch(`${DB}/startup_history.json`, {
         method: "POST",
-        body: JSON.stringify({ name: currentUser.name, batch: currentUser.batch, subject: examState.sub, percent: percent, total: examState.questions.length, time: new Date().toLocaleDateString() })
+        body: JSON.stringify({ name: currentUser.name, subject: examState.sub, percent: percent, total: examState.questions.length, c: correct, w: wrong, time: new Date().toLocaleDateString() })
     });
 
-    // Update Result UI
-    document.getElementById('resPercentTxt').innerText = `${percent}%`;
-    document.getElementById('resEarnXp').innerText = earnXp;
-    document.getElementById('resEarnCoin').innerText = earnCoin;
+    document.getElementById('resPercent').innerText = `${percent}%`;
+    document.getElementById('resPercent').style.color = percent>=50 ? 'var(--primary)' : 'var(--danger)';
+    document.getElementById('resXp').innerText = earnXp;
+    document.getElementById('resCoin').innerText = earnCoin;
     document.getElementById('reviewContainer').innerHTML = revHtml;
     
-    renderScoreDonut(correct, wrong, empty);
-    
-    // Reset config
-    examState.config = [];
-    document.getElementById("configList").innerHTML = `<div style="color: var(--text-muted); font-size: 12px; text-align: center;">No subjects added yet.</div>`;
-    
+    examState.config = []; document.getElementById("mockConfigList").innerHTML = "";
     navTo('pageResult');
 }
 
-function renderScoreDonut(c, w, s) {
-    let ctx = document.getElementById('scoreChart').getContext('2d');
-    if(charts.donut) charts.donut.destroy();
-    if(c===0 && w===0 && s===0) s=1;
-    charts.donut = new Chart(ctx, {
-        type: 'doughnut',
-        data: { labels: ['Correct', 'Wrong', 'Skip'], datasets: [{ data: [c, w, s], backgroundColor: ['#10b981', '#ef4444', '#475569'], borderWidth: 0, cutout: '75%' }] },
-        options: { plugins: { legend: { display: false } } }
+// ==========================================
+// 8. PROGRESS CHARTS & HISTORY
+// ==========================================
+let lineChartInst = null;
+function renderProgressUI() {
+    // 1. Line Chart
+    let ctx = document.getElementById('lineChart').getContext('2d');
+    if(lineChartInst) lineChartInst.destroy();
+    lineChartInst = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Today'],
+            datasets: [{
+                label: 'XP Earned',
+                data: currentUser.activityData || [0,0,0,0,0,0,0],
+                borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.2)', borderWidth: 3, fill: true, tension: 0.4, pointBackgroundColor: '#f59e0b'
+            }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#1e293b' } } } }
     });
+
+    // 2. Streak Calendar (Github style grid, approx 4 weeks = 28 blocks)
+    let sHtml = '';
+    let streakCount = currentUser.streak || 1;
+    for(let i=28; i>0; i--) {
+        // Highlight based on streak
+        let isActive = i <= streakCount ? 'active' : '';
+        sHtml += `<div class="streak-box ${isActive}"></div>`;
+    }
+    document.getElementById('streakCalendar').innerHTML = sHtml;
 }
 
-// ==========================================
-// 8. HISTORY & PROGRESS
-// ==========================================
-function switchHistTab(tab) {
-    document.getElementById('viewHistory').classList.toggle('hidden', tab!=='history');
-    document.getElementById('viewBookmarks').classList.toggle('hidden', tab!=='bookmarks');
-    document.getElementById('tabHistory').className = tab==='history' ? 'btn-accent' : 'btn-outline';
-    document.getElementById('tabBookmarks').className = tab==='bookmarks' ? 'btn-accent' : 'btn-outline';
-}
-
-function loadHistoryAndBookmarks() {
-    // 1. History
-    fetch(`${DB}/results_v2.json`).then(r=>r.json()).then(data => {
+function loadHistory() {
+    fetch(`${DB}/startup_history.json`).then(r=>r.json()).then(data => {
         let html = '';
         if(data) {
             Object.values(data).reverse().forEach(res => {
@@ -811,86 +832,55 @@ function loadHistoryAndBookmarks() {
                             <b style="font-size:14px;">${res.subject}</b>
                             <span style="color:var(--text-muted); font-size:11px;">${res.time}</span>
                         </div>
-                        <div style="color:var(--primary); font-weight:bold; margin-top:5px;">🎯 Score: ${res.percent}% <span style="color:var(--text-muted); font-size:12px; font-weight:normal;">(${res.total} Qs)</span></div>
+                        <div style="color:white; margin-top:5px; font-size:13px;">🎯 Score: <span style="color:var(--primary); font-weight:bold;">${res.percent}%</span> | ✅ ${res.c} ❌ ${res.w}</div>
                     </div>`;
                 }
             });
         }
-        document.getElementById('historyList').innerHTML = html || "<div class='text-center text-muted'>No exams taken yet.</div>";
+        document.getElementById('historyArea').innerHTML = html || "<div class='text-center text-muted'>No exams yet.</div>";
     });
-
-    // 2. Bookmarks
-    let bHtml = '';
-    if(currentUser.bookmarks.length === 0) {
-        bHtml = "<div class='text-center text-muted'>No bookmarked questions.</div>";
-    } else {
-        currentUser.bookmarks.forEach(id => {
-            let q = allQuestions.find(x => x.id === id);
-            if(q) {
-                bHtml += `<div class="q-card">
-                    <div class="flex-between mb-1">
-                        <small style="color:var(--accent);">${q.subject}</small>
-                        <i class="fa-solid fa-bookmark bookmark-btn active" onclick="toggleBookmark('${q.id}', this); this.parentElement.parentElement.remove();"></i>
-                    </div>
-                    <div class="q-text" style="font-size:14px;">Q. ${q.q}</div>
-                    <div style="font-size:12px; color:var(--primary);">✔ Ans: ${q.a[q.correct]}</div>
-                </div>`;
-            }
-        });
-    }
-    document.getElementById('bookmarksList').innerHTML = bHtml;
 }
 
-function renderProgressPage() {
-    // Radar Chart
-    let ctx = document.getElementById('radarChart').getContext('2d');
-    if(charts.radar) charts.radar.destroy();
-    
-    let xpLvl = Math.min(currentUser.xp/20, 100);
-    let studyLvl = Math.min(currentUser.studyMins, 100);
-    
-    charts.radar = new Chart(ctx, {
-        type: 'radar',
-        data: {
-            labels: ['Accuracy', 'Focus', 'Dedication', 'Speed', 'Knowledge'],
-            datasets: [{
-                label: 'Skills', data: [75, studyLvl||10, xpLvl||10, 80, xpLvl||5],
-                backgroundColor: 'rgba(59, 130, 246, 0.3)', borderColor: '#3b82f6', pointBackgroundColor: '#10b981', borderWidth: 2
-            }]
-        },
-        options: { scales: { r: { angleLines: { color: '#1e293b' }, grid: { color: '#1e293b' }, pointLabels: { color: '#94a3b8' }, ticks: { display: false, max: 100, min: 0 } } }, plugins: { legend: { display: false } } }
-    });
-
-    // Syllabus Tracker (Dummy visual simulation)
-    let sHtml = '';
-    Object.keys(hscData).forEach((sub, i) => {
-        let p = Math.min((currentUser.xp/100) * (5-i) * 10, 100) || 0; // Fake calc based on XP
-        sHtml += `<div style="margin-bottom: 12px;">
-            <div class="flex-between" style="font-size:12px; margin-bottom:5px;">
-                <span>${sub}</span> <span style="color:var(--primary);">${p.toFixed(0)}%</span>
-            </div>
-            <div class="progress-track"><div class="progress-fill" style="width:${p}%;"></div></div>
+// ==========================================
+// 9. ADMIN CONSOLE
+// ==========================================
+function teacherLogin() {
+    if(document.getElementById('adminUser').value === 'admin' && document.getElementById('adminPass').value === '1234') { navTo('pageAdmin'); adminSearchQ(); }
+}
+function adminSaveQ() {
+    let data = {
+        subject: document.getElementById('adSub').value, chapter: document.getElementById('adChap').value,
+        level: document.getElementById('adLevel').value, stars: parseInt(document.getElementById('adStars').value),
+        q: document.getElementById('adQ').value, img: document.getElementById('adImg').value,
+        a: [document.getElementById('adO1').value, document.getElementById('adO2').value, document.getElementById('adO3').value, document.getElementById('adO4').value],
+        correct: parseInt(document.getElementById('adCorrect').value), exp: document.getElementById('adExp').value
+    };
+    if(!data.subject || !data.q) return alert("Fill mandatory fields!");
+    fetch(`${DB}/startup_questions.json`, { method: "POST", body: JSON.stringify(data) }).then(() => { alert("Uploaded!"); document.getElementById('adQ').value=""; allQuestions=[]; fetchDBData(); adminSearchQ(); });
+}
+function adminSaveNote() {
+    let data = { subject: document.getElementById('adNoteSub').value, chapter: document.getElementById('adNoteChap').value, title: document.getElementById('adNoteTitle').value, content: document.getElementById('adNoteContent').value };
+    if(!data.subject || !data.content) return alert("Fill data!");
+    fetch(`${DB}/startup_notes.json`, { method: "POST", body: JSON.stringify(data) }).then(() => { alert("Note Published!"); allNotes=[]; fetchDBData(); });
+}
+function adminSearchQ() {
+    if(allQuestions.length === 0) return;
+    let txt = document.getElementById('adSearch').value.toLowerCase();
+    let html = '';
+    allQuestions.forEach(q => {
+        if(txt && !q.q.toLowerCase().includes(txt) && !q.chapter.toLowerCase().includes(txt)) return;
+        html += `<div class="card" style="padding:10px; font-size:12px;">
+            <div class="flex-between"><b>${q.chapter}</b> <button class="btn-danger" style="width:auto; padding:4px 8px; font-size:10px;" onclick="delQ('${q.id}')">Delete</button></div>
+            <div style="margin-top:5px;">Q: ${q.q}</div>
         </div>`;
     });
-    document.getElementById('syllabusList').innerHTML = sHtml;
+    document.getElementById('adQList').innerHTML = html;
+}
+function delQ(id) {
+    if(confirm("Delete this question?")) fetch(`${DB}/startup_questions/${id}.json`, { method: "DELETE" }).then(()=>{ alert("Deleted!"); allQuestions=[]; fetchDBData(); setTimeout(adminSearchQ, 1000); });
 }
 
-// ==========================================
-// 9. ADMIN PANEL
-// ==========================================
-function adminAddQ() {
-    let sub = document.getElementById('qSub').value;
-    let chap = document.getElementById('qChap').value;
-    let data = { subject: sub, chapter: chap, q: document.getElementById('qText').value, a: [document.getElementById('o1').value, document.getElementById('o2').value, document.getElementById('o3').value, document.getElementById('o4').value], correct: parseInt(document.getElementById('qCorrect').value), exp: document.getElementById('qExp').value };
-    if(!sub || !data.q) return alert("Fill data!");
-    fetch(`${DB}/questions.json`, { method: "POST", body: JSON.stringify(data) }).then(() => { alert("Added!"); document.getElementById('qText').value = ""; fetchAllQuestions(); });
-}
-function teacherLogin() {
-    if(document.getElementById('adminUser').value === 'admin' && document.getElementById('adminPass').value === '1234') navTo('pageAdmin');
-}
-
-// Initial Load
-fetchAllQuestions();
+window.onload = function(){ initDropdowns(); fetchDBData(); };
 </script>
 </body>
 </html>
