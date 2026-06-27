@@ -1,238 +1,352 @@
-<!DOCTYPE html>  
-<html>  
-<head>  
-<meta charset="UTF-8">  
-<meta name="viewport" content="width=device-width, initial-scale=1.0">  
-<title>Smart Online Exam - Ninja Edition</title>  
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>  
-  *{box-sizing:border-box;margin:0;padding:0;}  
-  body{font-family:Arial,sans-serif;background:#050816;color:white;padding:16px;min-height:100vh;}  
-  .container{max-width:900px;margin:auto;background:#0f172a;padding:24px;border-radius:16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);}  
-  h2{text-align:center;font-size:1.4rem;margin-bottom:20px; color: #38bdf8;}  
-  h3{margin-bottom:10px;font-size:1rem;}  
-  input,select{width:100%;padding:12px;margin:6px 0;border:1px solid #334155;border-radius:8px;background:#1e293b;color:white;font-size:14px;outline:none; transition: 0.3s;}  
-  input:focus, select:focus{border-color: #38bdf8; box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);}
-  input::placeholder{color:#64748b;}  
-  button{width:100%;padding:12px;margin-top:8px;border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:bold; transition: 0.2s;}  
-  button:active{transform: scale(0.98);}
-  
-  /* Modern Buttons */
-  .btn-blue{background:linear-gradient(135deg, #2563eb, #3b82f6);color:white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);}  
-  .btn-green{background:linear-gradient(135deg, #059669, #10b981);color:white; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);}  
-  .btn-yellow{background:linear-gradient(135deg, #d97706, #f59e0b);color:white;}  
-  .btn-red{background:linear-gradient(135deg, #dc2626, #ef4444);color:white;}  
-  .btn-gray{background:#475569;color:white;}  
-  
-  .card{background:#1e293b;padding:16px;margin:10px 0;border-radius:12px;border:1px solid #334155;}  
-  #timer{font-size:24px;color:#f87171;font-weight:bold;margin:10px 0; text-align:center; font-family: monospace;}  
-  #progressBar{width:100%;height:8px;background:#334155;border-radius:10px;margin-bottom:12px; overflow: hidden;}  
-  #progress{height:100%;background:linear-gradient(90deg, #10b981, #34d399);border-radius:10px;width:100%;transition:width .5s;}  
-  
-  /* Radio Options */
-  .radio-label{display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer;font-size:14px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; margin-bottom: 6px; transition: 0.2s;}  
-  .radio-label input{width:auto;margin:0; accent-color: #38bdf8;}  
-  .radio-label.disabled {opacity: 0.5; cursor: not-allowed;}
-  .radio-label.correct-ans {background: rgba(16, 185, 129, 0.15); border-color: #10b981;}
-  .radio-label.wrong-ans {background: rgba(239, 68, 68, 0.15); border-color: #ef4444;}
-  
-  hr{border:none;border-top:1px dashed #334155;margin:16px 0;}  
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}  
-  @media(max-width:500px){.two-col{grid-template-columns:1fr;}}  
-  
-  .link-text {color: #38bdf8; text-align: center; margin-top: 12px; cursor: pointer; font-size: 13px; text-decoration: underline;}
-  .lifeline-container {display: flex; gap: 10px; margin-bottom: 15px; justify-content: center;}
-  .btn-lifeline {width: auto; padding: 8px 16px; font-size: 13px; margin: 0; border-radius: 20px;}
-  
-  /* NEW FEATURES CSS */
-  .badge-level {display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; background: rgba(56,189,248,0.1); border: 1px solid #38bdf8; color: #38bdf8; margin-bottom: 5px;}
-  .ninja-box {background: linear-gradient(145deg, #0f172a, #050816); border: 1px dashed #10b981; padding: 16px; border-radius: 12px; margin-top: 15px; position: relative; overflow: hidden;}
-  .ninja-box::before {content: '🥷'; position: absolute; right: 10px; top: 10px; font-size: 30px; opacity: 0.2;}
-  
-  .deep-work-zone {background: #1e1b4b; border: 1px solid #4338ca; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 15px;}
-  .focus-time-display {font-size: 32px; font-weight: bold; color: #a78bfa; font-family: monospace; margin: 10px 0;}
-  
-  .chart-wrapper { position: relative; width: 100%; max-width: 300px; margin: 15px auto; }
-  .top-rank-1 { border: 2px solid #f59e0b; background: linear-gradient(145deg, #1e293b, #451a03); }
-</style>  
-</head>  
-<body>  
-<div class="container">  
-  <h2>🏫 Smart Exam Platform</h2>    
-  
-  <div id="pageLogin">  
-    <div class="card">  
-      <h3 style="text-align:center;">👨‍🎓 Student Login</h3>  
-      <input id="loginId" type="text" placeholder="Enter Gmail or Phone Number">  
-      <input type="password" id="loginPass" placeholder="Password"> 
-      <button class="btn-blue" onclick="loginStudent()">Login <i class="fa-solid fa-arrow-right"></i></button> 
-      <p class="link-text" onclick="show('pageRegister')">অ্যাকাউন্ট নেই? নতুন একাউন্ট খুলুন</p>
-    </div>
-    <div style="text-align:center; margin-top: 25px;">
-        <span onclick="document.getElementById('teacherPanelBox').style.display='block'" style="cursor:pointer; color:#475569; font-size:12px; font-weight:bold;"><i class="fa-solid fa-lock"></i> Admin Panel</span>
-    </div>
-    <div class="card" id="teacherPanelBox" style="display:none; margin-top:10px; border: 1px solid #ef4444;">  
-      <h3>🔐 Admin Login</h3>  
-      <input id="user" placeholder="Username">  
-      <input type="password" id="pass" placeholder="Password">  
-      <button class="btn-red" onclick="teacherLogin()">Login</button>  
-    </div>  
-  </div>    
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Exam Pro - Ultimate</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
 
-  <div id="pageRegister" style="display:none;">  
-    <div class="card">  
-      <h3 style="text-align:center;">📝 Student Registration</h3>  
-      <input id="regName" placeholder="Full Name (তোমার নাম)">  
-      <select id="regBatch">
-          <option value="">-- তোমার ব্যাচ সিলেক্ট করো --</option>
-          <option value="HSC 25">HSC 25</option>
-          <option value="HSC 26">HSC 26</option>
-          <option value="HSC 27">HSC 27</option>
-      </select>
-      <input id="regId" type="text" placeholder="Enter Gmail OR Phone Number">  
-      <input type="password" id="regPass" placeholder="Create a Password"> 
-      <button class="btn-green" onclick="registerStudentDirect()">Register Now 🚀</button> 
-      <p class="link-text" onclick="show('pageLogin')">আগের একাউন্ট আছে? লগইন করো</p>
-    </div>
-  </div>
+        :root {
+            --bg-dark: #070b19; --card-dark: #111827; --card-glass: rgba(17, 24, 39, 0.7);
+            --text-main: #f8fafc; --text-muted: #94a3b8;
+            --primary: #10b981; --primary-glow: rgba(16, 185, 129, 0.3);
+            --accent: #3b82f6; --accent-glow: rgba(59, 130, 246, 0.3);
+            --danger: #ef4444; --warning: #f59e0b; --border: #1e293b;
+        }
 
-  <div id="pageDashboard" style="display:none;">
-    
-    <div class="card" style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, #0f172a, #1e293b);">
-        <div>
-            <div id="userBadge" class="badge-level">🛡️ Rookie Lv.1</div>
-            <h3 id="welcomeMsg" style="color:#10b981; margin:0;">Welcome!</h3>
-            <p id="userCoins" style="color:#f59e0b; font-size:12px; margin-top:5px;">💰 Coins: 0 | ⭐ Total XP: 0</p>
-        </div>
-        <button class="btn-red" onclick="show('pageLogin')" style="width:auto; padding:6px 12px; font-size:12px; margin:0;"><i class="fa-solid fa-power-off"></i></button>
-    </div>
-
-    <div class="deep-work-zone">
-        <h4 style="color:#c4b5fd; font-size:14px;"><i class="fa-solid fa-headphones-simple"></i> Deep Work Zone</h4>
-        <div class="focus-time-display" id="focusTimerDisplay">25:00</div>
-        <div style="display: flex; gap: 10px; justify-content: center;">
-            <button class="btn-green" id="btnFocusStart" onclick="startFocusTimer()" style="width: auto; padding: 6px 15px; border-radius: 20px;"><i class="fa-solid fa-play"></i> Start</button>
-            <button class="btn-red" onclick="resetFocusTimer()" style="width: auto; padding: 6px 15px; border-radius: 20px;"><i class="fa-solid fa-rotate-right"></i> Reset</button>
-        </div>
-        <p style="font-size: 11px; color: #6366f1; margin-top: 8px;">(পড়ার সময় ফোকাস ধরে রাখতে ব্যবহার করো)</p>
-    </div>
-
-    <div class="two-col mb-2">
-        <div style="background:#0f172a; padding:16px; border-radius:12px; text-align:center;">
-            <h4 style="color:#38bdf8; font-size:13px;">🕸️ Skill Profile Radar</h4>
-            <div class="chart-wrapper"><canvas id="skillRadarChart"></canvas></div>
-        </div>
-        <div style="background:#0f172a; padding:16px; border-radius:12px; text-align:center;">
-            <h4 style="color:#10b981; font-size:13px;">📊 Accuracy</h4>
-            <div class="chart-wrapper"><canvas id="analyticsChart"></canvas></div>
-        </div>
-    </div>
-
-    <div class="two-col">
-        <div>
-            <label style="font-size:12px; color:#94a3b8;">Exam Mode</label>
-            <select id="examMode"><option value="Exam">📝 Exam Mode</option><option value="Practice">💡 Practice Mode</option></select>
-        </div>
-        <div>
-            <label style="font-size:12px; color:#94a3b8;">Exam Version</label>
-            <select id="examVersion"><option value="Bengali">🟢 বাংলা (Bengali)</option><option value="English">🔵 English</option></select>
-        </div>
-    </div>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-dark); color: var(--text-main); padding-bottom: 80px; }
         
-    <div class="ninja-box">
-        <h3 style="color:#10b981; margin-bottom: 5px;">🥷 Ninja Exam Builder</h3>
-        <p style="font-size: 11px; color: #94a3b8; margin-bottom: 10px;">নিজের মতো কাস্টমাইজ করে মডেল টেস্ট বানাও</p>
+        .app-container { max-width: 500px; margin: 0 auto; min-height: 100vh; position: relative; overflow-x: hidden; }
+        .hidden { display: none !important; }
+        .p-2 { padding: 16px; } .mt-1 { margin-top: 10px; } .mb-2 { margin-bottom: 20px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+        /* Glassmorphism Cards */
+        .card { background: var(--card-glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+        .wow-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid #334155; position: relative; overflow: hidden; }
+        .wow-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%); opacity: 0.1; pointer-events: none; }
+
+        /* Inputs & Buttons */
+        input, select { width: 100%; padding: 14px; margin: 8px 0; background: #0f172a; border: 1px solid var(--border); border-radius: 10px; color: white; font-size: 14px; outline: none; transition: 0.3s; }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+        button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        button:active { transform: scale(0.97); }
+        .btn-primary { background: linear-gradient(135deg, #059669, #10b981); color: white; box-shadow: 0 4px 15px var(--primary-glow); }
+        .btn-accent { background: linear-gradient(135deg, #2563eb, #3b82f6); color: white; box-shadow: 0 4px 15px var(--accent-glow); }
+        .btn-danger { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+
+        /* Header & Profile */
+        .header { position: sticky; top: 0; z-index: 50; background: rgba(7, 11, 25, 0.9); backdrop-filter: blur(10px); padding: 15px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #ef4444); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; cursor: pointer; border: 2px solid #fff; }
+        .streak { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: var(--warning); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+
+        /* Bottom Nav (Premium Style) */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(15px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; border-radius: 20px 20px 0 0; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); cursor: pointer; font-size: 11px; font-weight: 500; transition: 0.3s; width: 20%; }
+        .nav-item i { font-size: 20px; margin-bottom: 2px; transition: 0.3s; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active i { transform: translateY(-3px); text-shadow: 0 0 10px var(--primary-glow); }
+
+        /* Grid System */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+        /* Timer UI */
+        .timer-circle { width: 180px; height: 180px; border-radius: 50%; border: 4px solid var(--border); margin: 20px auto; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+        .timer-circle.running { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow), inset 0 0 20px var(--accent-glow); }
+        .time-display { font-size: 40px; font-weight: bold; font-family: monospace; color: white; }
+
+        /* Question & Exam UI */
+        .q-card { background: var(--card-dark); border: 1px solid var(--border); padding: 16px; border-radius: 12px; margin-bottom: 12px; }
+        .q-text { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+        .opt-btn { text-align: left; background: #0f172a; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; font-size: 14px; transition: 0.2s; cursor: pointer; }
+        .opt-btn.correct { background: rgba(16, 185, 129, 0.2); border-color: var(--primary); }
+        .opt-btn.wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
+        .opt-btn.selected { border-color: var(--accent); background: rgba(59, 130, 246, 0.1); }
+        .bookmark-btn { float: right; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+        .bookmark-btn.active { color: var(--warning); }
+
+        /* Progress & Syllabus */
+        .progress-track { height: 6px; background: var(--border); border-radius: 10px; overflow: hidden; margin-top: 8px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--primary)); width: 0%; border-radius: 10px; transition: width 1s ease-in-out; }
         
-        <select id="premiumLock" style="border: 1px solid #f59e0b; color:#f59e0b; background: rgba(245,158,11,0.1);" onchange="checkPremiumLock()">
-            <option value="Free">🔓 Free Basic Exams</option>
-            <option value="Premium">🔒 Pro Ninja Mode (30 Coins)</option>
-        </select>
+        .section-title { font-size: 16px; font-weight: bold; margin: 20px 0 10px; color: white; display: flex; align-items: center; gap: 8px; }
         
-        <div class="two-col">
-            <select id="examSubject" onchange="updateChapters('examSubject', 'examChapter')"><option value="">-- সাবজেক্ট --</option></select>
-            <select id="examChapter"><option value="All">All Chapters</option></select>
+        /* Rankings */
+        .rank-row { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); }
+        .rank-row:last-child { border-bottom: none; }
+        .rank-pos { width: 30px; font-weight: bold; color: var(--text-muted); }
+        .rank-1 { color: gold; font-size: 18px; } .rank-2 { color: silver; font-size: 16px; } .rank-3 { color: #cd7f32; font-size: 16px; }
+
+        .link-text { color: var(--accent); text-align: center; margin-top: 15px; cursor: pointer; font-size: 13px; text-decoration: underline; display: block;}
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <div id="appHeader" class="header hidden">
+        <div class="flex-between" style="width: 100%;">
+            <div style="display: flex; align-items: center; gap: 10px;" onclick="navTo('pageProfile')">
+                <div class="avatar" id="headAvatar">U</div>
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;" id="headName">User</div>
+                    <div style="font-size: 11px; color: var(--primary);" id="headLvl">🛡️ Lvl. 1</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="streak" title="Daily Streak"><i class="fa-solid fa-fire"></i> <span id="headStreak">1</span></div>
+                <div style="color: var(--warning); font-size: 12px; font-weight: bold;">💰 <span id="headCoins">0</span></div>
+            </div>
         </div>
-        <div class="two-col">
-            <input type="number" id="qLimit" placeholder="কয়টি প্রশ্ন?" min="1">
-            <button class="btn-yellow" onclick="addConfig()">➕ Add Block</button>
+    </div>
+
+    <div id="pageAuth" class="p-2">
+        <div style="text-align: center; margin: 40px 0 20px;">
+            <i class="fa-solid fa-graduation-cap" style="font-size: 50px; color: var(--primary); text-shadow: 0 0 20px var(--primary-glow);"></i>
+            <h1 style="margin-top: 10px; font-size: 24px;">Smart Exam Pro</h1>
+            <p style="color: var(--text-muted); font-size: 13px;">The Ultimate Learning Platform</p>
         </div>
-        <div id="configList" style="margin-top:12px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; min-height: 40px;"></div>
+
+        <div class="card wow-card">
+            <h3 id="authTitle" style="text-align: center; margin-bottom: 15px;">Login</h3>
+            
+            <div id="regFields" class="hidden">
+                <input id="regName" type="text" placeholder="Full Name">
+                <select id="regBatch">
+                    <option value="">-- Select Batch --</option>
+                    <option value="HSC 25">HSC 25</option>
+                    <option value="HSC 26">HSC 26</option>
+                    <option value="HSC 27">HSC 27</option>
+                </select>
+            </div>
+            
+            <input id="authId" type="text" placeholder="Email OR Phone Number">  
+            <input type="password" id="authPass" placeholder="Password"> 
+
+            <button id="btnLogin" class="btn-primary mt-1" onclick="handleLogin()">Login <i class="fa-solid fa-arrow-right-to-bracket"></i></button> 
+            <button id="btnReg" class="btn-accent mt-1 hidden" onclick="handleRegister()">Register <i class="fa-solid fa-user-plus"></i></button> 
+            
+            <span class="link-text" id="toggleAuth" onclick="toggleAuth()">New here? Create an account</span>
+        </div>
+        <div style="text-align:center; margin-top: 20px;">
+            <span onclick="document.getElementById('teacherPanelBox').classList.toggle('hidden')" style="cursor:pointer; color:var(--text-muted); font-size:12px;"><i class="fa-solid fa-lock"></i> Admin</span>
+        </div>
+        <div class="card hidden mt-1" id="teacherPanelBox" style="border-color: var(--danger);">
+            <h3 style="color: var(--danger);">Admin Access</h3>
+            <input id="adminUser" placeholder="Username">
+            <input type="password" id="adminPass" placeholder="Password">
+            <button class="btn-danger" onclick="teacherLogin()">Login</button>
+        </div>
     </div>
+
+    <div id="pageHome" class="hidden p-2">
         
-    <button id="startExamBtn" class="btn-blue" onclick="startExamProcess()" style="margin-top:15px; font-size: 16px; padding: 14px;"><i class="fa-solid fa-rocket"></i> Launch Exam</button> 
+        <div class="card wow-card" style="background: linear-gradient(135deg, #1e1b4b, #0f172a); border-color: #4338ca;">
+            <h3 style="color: #a78bfa;">Ready to level up? 🚀</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Complete exams or study to earn XP & Coins.</p>
+            <div class="grid-2">
+                <button class="btn-accent" style="padding: 10px; font-size: 13px;" onclick="navTo('pageMock')"><i class="fa-solid fa-bolt"></i> Quick Exam</button>
+                <button class="btn-primary" style="padding: 10px; font-size: 13px;" onclick="navTo('pageQBank')"><i class="fa-solid fa-book-open"></i> Learn Now</button>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fa-solid fa-stopwatch"></i> Focus Zone (Pomodoro)</div>
+        <div class="card" style="text-align: center;">
+            <div class="grid-2 mb-2">
+                <button class="btn-outline" id="modeStudy" onclick="setTimerMode('study')" style="border-color: var(--accent); color: var(--accent);">📖 Study</button>
+                <button class="btn-outline" id="modeBreak" onclick="setTimerMode('break')">☕ Break</button>
+            </div>
+            
+            <div class="timer-circle" id="timerCircle">
+                <div class="time-display" id="timeDisplay">25:00</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;" id="timerLabel">Ready to Focus</div>
+            </div>
+
+            <div class="grid-2 mt-1">
+                <button class="btn-primary" id="btnTimerStart" onclick="toggleTimer()"><i class="fa-solid fa-play"></i> Start</button>
+                <button class="btn-danger" onclick="resetTimer()"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fa-solid fa-fire"></i> Top Studiers (Today)</div>
+        <div class="card" id="homeStudyRank">
+            <div style="text-align: center; color: var(--text-muted); font-size: 12px;">লোড হচ্ছে...</div>
+        </div>
+    </div>
+
+    <div id="pageQBank" class="hidden p-2">
+        <div class="section-title"><i class="fa-solid fa-folder-open"></i> Question Bank</div>
+        <div class="card wow-card">
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Select subject and chapter to read questions and answers.</p>
+            <select id="qbSubject" onchange="updateQbChapters()"><option value="">-- Select Subject --</option></select>
+            <select id="qbChapter"><option value="All">All Chapters</option></select>
+            <button class="btn-accent mt-1" onclick="loadQuestionBank()"><i class="fa-solid fa-search"></i> Load Questions</button>
+        </div>
+        <div id="qbListContainer"></div>
+    </div>
+
+    <div id="pageMock" class="hidden p-2">
+        <div class="section-title"><i class="fa-solid fa-layer-group"></i> Build Mock Test</div>
         
-    <hr>
-    <h3 style="color:#e2e8f0; margin-top:10px;"><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</h3>
-    <div id="studentHistoryBox" style="max-height: 250px; overflow-y: auto; margin-top: 8px;">লোড হচ্ছে...</div>
-  </div>
-   
-  <div id="pageTeacher" style="display:none;">  
-    <div class="card">  
-      <h3>➕ Admin Controls & Question Management</h3> 
-      <button class="btn-gray" onclick="show('pageLogin')" style="width:auto; padding:6px 12px; font-size:12px; float:right; margin-top:-30px;">Logout</button>
-      
-      <div class="two-col" style="margin-top:15px;">
-          <select id="qVersion"><option value="Bengali">বাংলা ভার্সন</option><option value="English">English Version</option></select>
-          <select id="qType" onchange="initAddQuestionSubjects()"><option value="Academic">📚 Academic</option><option value="Advanced">🚀 Advanced</option></select>
-      </div>
-      <div class="two-col">
-          <select id="subject" onchange="updateChapters('subject', 'chapter')"></select>
-          <select id="qDifficulty"><option value="1">⭐ 1 Star</option><option value="2">⭐⭐ 2 Star</option></select>
-      </div>
-      <select id="chapter"><option value="All">All Chapters</option></select>
-      <input id="q" placeholder="প্রশ্ন লেখো">
-      <div class="two-col"><input id="o1" placeholder="Option 1"><input id="o2" placeholder="Option 2"></div>
-      <div class="two-col"><input id="o3" placeholder="Option 3"><input id="o4" placeholder="Option 4"></div>
-      <select id="correct"><option value="0">Option 1 সঠিক</option><option value="1">Option 2 সঠিক</option><option value="2">Option 3</option><option value="3">Option 4</option></select>  
-      <input id="exp" placeholder="উত্তরের ব্যাখ্যা (Optional)">
-      <button class="btn-green" onclick="addQuestion()">প্রশ্ন যোগ করো ✚</button>  
-    </div>  
-
-    <div class="card">
-      <h3>📋 Question List</h3>
-      <input id="searchQuestion" placeholder="🔍 প্রশ্ন খুঁজুন..." onkeyup="loadQuestions()">
-      <div id="questionList" style="max-height: 200px; overflow-y: auto; margin-top:8px;"></div>
+        <div class="card wow-card" style="border-color: var(--warning);">
+            <div class="flex-between mb-2">
+                <div style="font-weight: bold; color: var(--warning);">PRO Mode</div>
+                <div style="font-size: 12px; background: rgba(245, 158, 11, 0.2); padding: 4px 8px; border-radius: 8px; color: var(--warning);">Cost: 10 Coins</div>
+            </div>
+            
+            <div class="two-col">
+                <select id="examSubject" onchange="updateMockChapters()"><option value="">-- Subject --</option></select>
+                <select id="examChapter"><option value="All">All Chapters</option></select>
+            </div>
+            <div class="two-col mt-1">
+                <input type="number" id="qLimit" placeholder="No. of Questions" min="1">
+                <button class="btn-primary" onclick="addMockConfig()" style="padding: 12px;"><i class="fa-solid fa-plus"></i> Add Block</button>
+            </div>
+            
+            <div id="configList" style="margin-top:15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; min-height: 50px;">
+                <div style="color: var(--text-muted); font-size: 12px; text-align: center;">No subjects added yet.</div>
+            </div>
+            
+            <button class="btn-accent mt-1" onclick="startExamProcess()"><i class="fa-solid fa-rocket"></i> Launch Mission</button>
+        </div>
     </div>
-  </div>
 
-  <div id="pageExam" style="display:none;">  
-    <div id="timer">⏱ --:--</div>  
-    <div id="progressBar"><div id="progress"></div></div>  
-    <div id="lifelineArea" class="lifeline-container">
-        <button id="btn5050" class="btn-lifeline btn-yellow" onclick="use5050()"><i class="fa-solid fa-divide"></i> 50-50 (10 Coins)</button>
-        <button id="btnSkip" class="btn-lifeline btn-blue" onclick="useSkip()"><i class="fa-solid fa-forward-step"></i> Skip (15 Coins)</button>
+    <div id="pageHistory" class="hidden p-2">
+        
+        <div class="grid-2 mb-2">
+            <button id="tabHistory" class="btn-accent" style="border-radius: 20px;" onclick="switchHistTab('history')"><i class="fa-solid fa-clock-rotate-left"></i> Exam History</button>
+            <button id="tabBookmarks" class="btn-outline" style="border-radius: 20px;" onclick="switchHistTab('bookmarks')"><i class="fa-solid fa-bookmark"></i> Bookmarks</button>
+        </div>
+
+        <div id="viewHistory">
+            <div class="section-title">Past Exams</div>
+            <div id="historyList"></div>
+        </div>
+
+        <div id="viewBookmarks" class="hidden">
+            <div class="section-title">Saved Questions</div>
+            <div id="bookmarksList"></div>
+        </div>
     </div>
-    <div id="quiz"></div>  
-    <button id="submitExamBtn" class="btn-red" onclick="submitExam()" style="margin-top:20px; padding: 14px;"><i class="fa-solid fa-check-double"></i> Submit Exam</button>  
-  </div>    
 
-  <div id="pageResult" style="display:none;">  
-    <div id="result"></div>    
-    <div class="leaderboard card">  
-      <h3><i class="fa-solid fa-ranking-star" style="color: gold;"></i> Top Ninja Leaderboard</h3>  
-      <div id="board" style="margin-top: 10px;">লোড হচ্ছে...</div>  
-    </div> 
-    <button class="btn-blue" onclick="show('pageDashboard')" style="margin-top:12px;"><i class="fa-solid fa-house"></i> Back to HQ</button>  
-  </div>  
+    <div id="pageProgress" class="hidden p-2">
+        <div class="section-title"><i class="fa-solid fa-chart-pie"></i> Skill Radar</div>
+        <div class="card text-center">
+            <div style="position: relative; width: 100%; max-width: 300px; margin: 0 auto;">
+                <canvas id="radarChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fa-solid fa-list-check"></i> Syllabus Tracker</div>
+        <div class="card" id="syllabusList">
+            </div>
+        
+        <div class="section-title"><i class="fa-solid fa-trophy"></i> Global Leaderboard</div>
+        <div class="card" id="globalRankList" style="padding: 0; overflow: hidden;">
+            </div>
+    </div>
+
+    <div id="pageProfile" class="hidden p-2">
+        <div class="card text-center" style="margin-top: 20px;">
+            <div class="avatar" style="width: 80px; height: 80px; font-size: 36px; margin: 0 auto 10px; background: linear-gradient(135deg, var(--accent), var(--primary));" id="profAvatar">U</div>
+            <h2 id="profName">Name</h2>
+            <p style="color: var(--text-muted);" id="profId">ID/Email</p>
+            <div class="badge-level mt-1" id="profBadge" style="display:inline-block; padding: 5px 15px; border-radius: 20px; background: var(--primary-glow); color: var(--primary); font-weight:bold;">🛡️ Rookie</div>
+        </div>
+
+        <div class="grid-2 mb-2">
+            <div class="card text-center" style="padding: 10px;">
+                <div style="font-size: 20px; font-weight: bold; color: var(--warning);" id="profCoins">0</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Total Coins</div>
+            </div>
+            <div class="card text-center" style="padding: 10px;">
+                <div style="font-size: 20px; font-weight: bold; color: var(--accent);" id="profStudyMins">0</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Study Mins</div>
+            </div>
+        </div>
+
+        <button class="btn-outline mb-2" onclick="alert('Edit profile feature coming soon!')"><i class="fa-solid fa-pen-to-square"></i> Edit Profile</button>
+        <button class="btn-danger" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    </div>
+
+    <div id="pageExam" class="hidden" style="background: var(--bg-dark); min-height: 100vh;">
+        <div style="position: sticky; top:0; background: var(--card-dark); padding: 15px; border-bottom: 1px solid var(--border); z-index:50;">
+            <div class="flex-between">
+                <div style="color: var(--text-muted); font-weight: bold;" id="examProgressTxt">0/0</div>
+                <div style="font-size: 20px; font-weight: bold; color: var(--danger); font-family: monospace;" id="examTimerTxt">00:00</div>
+            </div>
+            <div class="progress-track" style="margin-top: 10px;"><div class="progress-fill" id="examProgressBar"></div></div>
+        </div>
+        
+        <div class="p-2" id="liveExamContainer"></div>
+
+        <div class="p-2" style="position: fixed; bottom: 0; width: 100%; max-width: 500px; background: var(--card-dark); border-top: 1px solid var(--border);">
+            <button class="btn-danger" onclick="submitExam()"><i class="fa-solid fa-check-double"></i> Submit Test</button>
+        </div>
+    </div>
+
+     <div id="pageResult" class="hidden p-2">
+        <div class="card text-center wow-card" style="border-color: var(--primary);">
+            <h2 style="color: var(--primary);"><i class="fa-solid fa-medal"></i> Mission Complete!</h2>
+            <div style="position: relative; width: 150px; margin: 20px auto;">
+                <canvas id="scoreChart"></canvas>
+                <div style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%);">
+                    <h2 id="resPercentTxt" style="margin:0;">0%</h2>
+                </div>
+            </div>
+            <p style="color: var(--warning); font-weight: bold;">Earned: +<span id="resEarnXp">0</span> XP | +<span id="resEarnCoin">0</span> Coins</p>
+        </div>
+        <button class="btn-accent" onclick="navTo('pageHome')"><i class="fa-solid fa-house"></i> Back to Home</button>
+        <div class="section-title">Review Answers</div>
+        <div id="reviewContainer"></div>
+    </div>
+
+    <div id="pageAdmin" class="hidden p-2">
+        <div class="card">
+            <div class="flex-between mb-2">
+                <h3 style="color: var(--danger);"><i class="fa-solid fa-user-tie"></i> Admin Panel</h3>
+                <button class="btn-outline" style="width:auto; padding: 5px 10px;" onclick="navTo('pageAuth')">Exit</button>
+            </div>
+            <input id="qSub" placeholder="Subject">
+            <input id="qChap" placeholder="Chapter">
+            <input id="qText" placeholder="Question">
+            <input id="o1" placeholder="Option 1">
+            <input id="o2" placeholder="Option 2">
+            <input id="o3" placeholder="Option 3">
+            <input id="o4" placeholder="Option 4">
+            <select id="qCorrect"><option value="0">Opt 1 Correct</option><option value="1">Opt 2</option><option value="2">Opt 3</option><option value="3">Opt 4</option></select>
+            <input id="qExp" placeholder="Explanation (Optional)">
+            <button class="btn-primary" onclick="adminAddQ()">Add Question</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav" id="bottomNav" style="display: none;">
+        <div class="nav-item active" onclick="navTo('pageHome', 0)"><i class="fa-solid fa-house"></i><span>Home</span></div>
+        <div class="nav-item" onclick="navTo('pageQBank', 1)"><i class="fa-solid fa-folder-open"></i><span>Q-Bank</span></div>
+        <div class="nav-item" onclick="navTo('pageMock', 2)"><i class="fa-solid fa-pen-to-square"></i><span>Test</span></div>
+        <div class="nav-item" onclick="navTo('pageHistory', 3)"><i class="fa-solid fa-clock-rotate-left"></i><span>History</span></div>
+        <div class="nav-item" onclick="navTo('pageProgress', 4)"><i class="fa-solid fa-chart-line"></i><span>Progress</span></div>
+    </div>
 
 </div>
 
-<script>  
-var DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";  
-var studentName = "", studentClass = "", studentCleanEmail = "";
-var studentCoins = 0, studentXP = 0;
-var examQuestions = [], timeLeft = 0, totalTime = 0, timerInterval = null, submitted = false;  
-var examVersion = "", examConfig = [], examSubResult = "", examChapResult = "", selectedMode = "Exam";
-var globalNegMark = 0.25; 
-var myChartInstance = null; 
-var myRadarInstance = null;
+<script>
+// ==========================================
+// 1. GLOBAL VARIABLES & DATABASE
+// ==========================================
+const DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";
+let currentUser = { id: "", name: "", batch: "", coins: 0, xp: 0, studyMins: 0, streak: 1, bookmarks: [] };
+let allQuestions = [];
+let examState = { config: [], questions: [], answers: [], time: 0, interval: null, sub: "", chap: "" };
+let charts = { radar: null, donut: null };
 
-// Deep Work Timer Variables
-var focusTimeLeft = 25 * 60;
-var focusTimerInterval = null;
-var isFocusRunning = false;
-
+// Dummy Structure for Dropdowns & Syllabus Tracker
 const hscData = {
     "Physics 1st Paper": ["ভৌত জগত ও পরিমাপ", "ভেক্টর", "গতিবিদ্যা", "নিউটনিয়ান বলবিদ্যা"],
     "Physics 2nd Paper": ["তাপগতিবিদ্যা", "স্থির তড়িৎ", "চল তড়িৎ"],
@@ -240,378 +354,543 @@ const hscData = {
     "Higher Math 1st Paper": ["ম্যাট্রিক্স ও নির্ণায়ক", "ভেক্টর"]
 };
 
-// --- CORE INIT ---
+// ==========================================
+// 2. NAVIGATION & UI LOGIC
+// ==========================================
+function navTo(pageId, navIdx = -1) {
+    // Hide all pages
+    const pages = ['pageAuth', 'pageHome', 'pageQBank', 'pageMock', 'pageHistory', 'pageProgress', 'pageProfile', 'pageExam', 'pageResult', 'pageAdmin'];
+    pages.forEach(p => document.getElementById(p).classList.add('hidden'));
+    
+    // Show target page
+    document.getElementById(pageId).classList.remove('hidden');
+    
+    // Manage Header & Bottom Nav visibility
+    let noNavPages = ['pageAuth', 'pageExam', 'pageResult', 'pageAdmin'];
+    if (noNavPages.includes(pageId)) {
+        document.getElementById('bottomNav').style.display = 'none';
+        document.getElementById('appHeader').classList.add('hidden');
+    } else {
+        document.getElementById('bottomNav').style.display = 'flex';
+        document.getElementById('appHeader').classList.remove('hidden');
+        
+        // Update Nav Active State
+        if(navIdx >= 0) {
+            let items = document.querySelectorAll('.nav-item');
+            items.forEach(i => i.classList.remove('active'));
+            items[navIdx].classList.add('active');
+        }
+    }
+
+    // Trigger page-specific loads
+    if(pageId === 'pageHome') { loadStudyLeaderboard(); }
+    if(pageId === 'pageProgress') { renderProgressPage(); }
+    if(pageId === 'pageHistory') { loadHistoryAndBookmarks(); }
+    if(pageId === 'pageQBank' || pageId === 'pageMock') { initDropdowns(); fetchAllQuestions(); }
+}
+
 function initDropdowns() {
-    let subjectHTML = '<option value="">-- সাবজেক্ট সিলেক্ট করো --</option>';
-    for (let sub in hscData) { subjectHTML += `<option value="${sub}">${sub}</option>`; }
-    document.getElementById("examSubject").innerHTML = subjectHTML;
-    initAddQuestionSubjects();
+    let subHtml = '<option value="">-- Select Subject --</option>';
+    for (let sub in hscData) subHtml += `<option value="${sub}">${sub}</option>`;
+    if(document.getElementById("examSubject").innerHTML.length < 50) document.getElementById("examSubject").innerHTML = subHtml;
+    if(document.getElementById("qbSubject").innerHTML.length < 50) document.getElementById("qbSubject").innerHTML = subHtml;
 }
 
-function initAddQuestionSubjects() {
-    let subSelect = document.getElementById("subject");
-    let html = '<option value="">-- সাবজেক্ট সিলেক্ট করো --</option>';
-    for (let sub in hscData) { html += `<option value="${sub}">${sub}</option>`; }
-    subSelect.innerHTML = html;
-    updateChapters('subject', 'chapter');
-}
-
-function updateChapters(subId, chapId) {
+function updateMockChapters() { updateChapDropdown('examSubject', 'examChapter'); }
+function updateQbChapters() { updateChapDropdown('qbSubject', 'qbChapter'); }
+function updateChapDropdown(subId, chapId) {
     let sub = document.getElementById(subId).value;
-    let chapSelect = document.getElementById(chapId);
     let html = '<option value="All">All Chapters</option>';
     if (hscData[sub]) hscData[sub].forEach(c => html += `<option value="${c}">${c}</option>`);
-    chapSelect.innerHTML = html;
+    document.getElementById(chapId).innerHTML = html;
 }
 
-function show(id) {  
-  ["pageLogin","pageRegister","pageDashboard","pageTeacher","pageExam","pageResult"].forEach(p => document.getElementById(p).style.display="none");  
-  document.getElementById(id).style.display="block";  
-}  
-
-// --- NEW FEATURE 1: LEVEL SYSTEM ---
-function calculateLevel(xp) {
-    if (xp < 100) return { name: "Rookie", icon: "🛡️", color: "#94a3b8", border: "#64748b" };
-    if (xp < 300) return { name: "Scholar", icon: "🎓", color: "#38bdf8", border: "#0284c7" };
-    if (xp < 600) return { name: "Ninja", icon: "🥷", color: "#10b981", border: "#059669" };
-    return { name: "Legend", icon: "👑", color: "#f59e0b", border: "#d97706" };
+// ==========================================
+// 3. AUTHENTICATION (Direct Login/Reg)
+// ==========================================
+let isRegMode = false;
+function toggleAuth() {
+    isRegMode = !isRegMode;
+    document.getElementById('regFields').classList.toggle('hidden', !isRegMode);
+    document.getElementById('btnLogin').classList.toggle('hidden', isRegMode);
+    document.getElementById('btnReg').classList.toggle('hidden', !isRegMode);
+    document.getElementById('authTitle').innerText = isRegMode ? "Register" : "Login";
+    document.getElementById('toggleAuth').innerText = isRegMode ? "Already have an account? Login" : "New here? Create an account";
 }
 
-// --- NEW FEATURE 2: DEEP WORK ZONE ---
-function updateFocusDisplay() {
-    let m = Math.floor(focusTimeLeft / 60);
-    let s = focusTimeLeft % 60;
-    document.getElementById('focusTimerDisplay').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+function handleRegister() {
+    let name = document.getElementById('regName').value.trim();
+    let batch = document.getElementById('regBatch').value;
+    let rawId = document.getElementById('authId').value.trim(); 
+    let pass = document.getElementById('authPass').value.trim();
+    if(!name || !batch || !rawId || !pass) return alert("Please fill all fields!");
+    let cleanId = rawId.replace(/\./g, '_');
+
+    fetch(`${DB}/users_v2/${cleanId}.json`).then(r=>r.json()).then(data => {
+        if(data) return alert("Account already exists with this ID!");
+        let newUser = { name, batch, pass, coins: 100, xp: 0, studyMins: 0, streak: 1, bookmarks: [] };
+        fetch(`${DB}/users_v2/${cleanId}.json`, { method: "PUT", body: JSON.stringify(newUser) }).then(() => {
+            alert("Registration successful! 100 Coins Bonus!");
+            toggleAuth(); // Switch to login
+        });
+    });
 }
-function startFocusTimer() {
-    let btn = document.getElementById('btnFocusStart');
-    if (isFocusRunning) {
-        clearInterval(focusTimerInterval);
-        isFocusRunning = false;
+
+function handleLogin() {
+    let rawId = document.getElementById('authId').value.trim();
+    let pass = document.getElementById('authPass').value.trim();
+    if(!rawId || !pass) return alert("Enter credentials!");
+    let cleanId = rawId.replace(/\./g, '_');
+
+    fetch(`${DB}/users_v2/${cleanId}.json`).then(r=>r.json()).then(data => {
+        if(!data || data.pass !== pass) return alert("Invalid ID or Password!");
+        
+        currentUser = { 
+            id: cleanId, name: data.name, batch: data.batch, 
+            coins: data.coins||0, xp: data.xp||0, 
+            studyMins: data.studyMins||0, streak: data.streak||1, 
+            bookmarks: data.bookmarks||[] 
+        };
+        
+        updateUIHeader();
+        navTo('pageHome', 0);
+    });
+}
+
+function logout() { currentUser = {}; navTo('pageAuth'); }
+
+function getLvlName(xp) {
+    if(xp<200) return {n: "Rookie", i:"🛡️", c:"#94a3b8"};
+    if(xp<500) return {n: "Scholar", i:"🎓", c:"#38bdf8"};
+    if(xp<1000) return {n: "Ninja", i:"🥷", c:"#10b981"};
+    return {n: "Legend", i:"👑", c:"#f59e0b"};
+}
+
+function updateUIHeader() {
+    let lvl = getLvlName(currentUser.xp);
+    document.getElementById('headName').innerText = currentUser.name.split(" ")[0]; // First name
+    document.getElementById('headAvatar').innerText = currentUser.name.charAt(0).toUpperCase();
+    document.getElementById('headLvl').innerHTML = `${lvl.i} ${lvl.n} Lvl.${Math.floor(currentUser.xp/100)+1}`;
+    document.getElementById('headLvl').style.color = lvl.c;
+    document.getElementById('headCoins').innerText = currentUser.coins;
+    document.getElementById('headStreak').innerText = currentUser.streak;
+
+    // Profile Page setup
+    document.getElementById('profName').innerText = currentUser.name;
+    document.getElementById('profAvatar').innerText = currentUser.name.charAt(0).toUpperCase();
+    document.getElementById('profId').innerText = currentUser.id.replace(/_/g, '.');
+    document.getElementById('profBadge').innerHTML = `${lvl.i} ${lvl.n}`;
+    document.getElementById('profCoins').innerText = currentUser.coins;
+    document.getElementById('profStudyMins').innerText = currentUser.studyMins;
+}
+
+function saveUserDB(updates) {
+    Object.assign(currentUser, updates);
+    fetch(`${DB}/users_v2/${currentUser.id}.json`, { method: "PATCH", body: JSON.stringify(updates) });
+    updateUIHeader();
+}
+
+// ==========================================
+// 4. FOCUS TIMER (Pomodoro)
+// ==========================================
+let timerMode = 'study'; // study or break
+let tSeconds = 25 * 60;
+let tInterval = null;
+let isTRunning = false;
+
+function setTimerMode(mode) {
+    if(isTRunning) return alert("Stop timer first!");
+    timerMode = mode;
+    tSeconds = mode === 'study' ? 25*60 : 5*60;
+    
+    document.getElementById('modeStudy').style.color = mode==='study' ? 'var(--accent)' : 'var(--text-main)';
+    document.getElementById('modeStudy').style.borderColor = mode==='study' ? 'var(--accent)' : 'var(--border)';
+    document.getElementById('modeBreak').style.color = mode==='break' ? 'var(--primary)' : 'var(--text-main)';
+    document.getElementById('modeBreak').style.borderColor = mode==='break' ? 'var(--primary)' : 'var(--border)';
+    
+    updateTDisplay();
+}
+
+function updateTDisplay() {
+    let m = Math.floor(tSeconds/60); let s = tSeconds%60;
+    document.getElementById('timeDisplay').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+}
+
+function toggleTimer() {
+    let btn = document.getElementById('btnTimerStart');
+    let circle = document.getElementById('timerCircle');
+    let lbl = document.getElementById('timerLabel');
+
+    if(isTRunning) {
+        clearInterval(tInterval); isTRunning = false;
         btn.innerHTML = '<i class="fa-solid fa-play"></i> Resume';
-        btn.classList.replace('btn-yellow', 'btn-green');
+        btn.classList.replace('btn-warning', 'btn-primary');
+        circle.classList.remove('running');
+        lbl.innerText = "Paused";
     } else {
-        isFocusRunning = true;
+        isTRunning = true;
         btn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
-        btn.classList.replace('btn-green', 'btn-yellow');
-        focusTimerInterval = setInterval(() => {
-            if (focusTimeLeft > 0) { focusTimeLeft--; updateFocusDisplay(); } 
-            else { resetFocusTimer(); alert("🎉 Focus Session Complete! +10 XP Bonus!"); studentXP += 10; updateDataInFirebase(); }
+        btn.classList.replace('btn-primary', 'btn-warning');
+        if(!btn.classList.contains('btn-warning')) { btn.style.background = 'var(--warning)'; } // fallback
+        circle.classList.add('running');
+        lbl.innerText = timerMode === 'study' ? "Deep Focus..." : "Relaxing...";
+
+        tInterval = setInterval(() => {
+            if(tSeconds > 0) { tSeconds--; updateTDisplay(); }
+            else {
+                clearInterval(tInterval); isTRunning = false;
+                circle.classList.remove('running');
+                if(timerMode === 'study') {
+                    alert("🎉 Session Complete! +25 Mins, +10 XP!");
+                    saveUserDB({ studyMins: currentUser.studyMins + 25, xp: currentUser.xp + 10 });
+                    loadStudyLeaderboard(); // refresh local rank
+                } else { alert("Break over! Ready to study?"); }
+                resetTimer();
+            }
         }, 1000);
     }
 }
-function resetFocusTimer() {
-    clearInterval(focusTimerInterval);
-    isFocusRunning = false;
-    focusTimeLeft = 25 * 60;
-    updateFocusDisplay();
-    let btn = document.getElementById('btnFocusStart');
+
+function resetTimer() {
+    clearInterval(tInterval); isTRunning = false;
+    document.getElementById('timerCircle').classList.remove('running');
+    let btn = document.getElementById('btnTimerStart');
     btn.innerHTML = '<i class="fa-solid fa-play"></i> Start';
-    btn.classList.replace('btn-yellow', 'btn-green');
+    btn.style.background = ''; btn.classList.add('btn-primary');
+    setTimerMode(timerMode);
 }
 
-// --- AUTHENTICATION ---
-function registerStudentDirect() {
-    let name = document.getElementById('regName').value.trim();
-    let batch = document.getElementById('regBatch').value;
-    let userId = document.getElementById('regId').value.trim(); 
-    let pass = document.getElementById('regPass').value.trim();
-    if(!name || !batch || !userId || !pass) return alert("সব ফিল্ড পূরণ করো!"); 
-    let cleanId = userId.replace(/\./g, '_');
+// Fetch Study Leaderboard
+function loadStudyLeaderboard() {
+    fetch(`${DB}/users_v2.json`).then(r=>r.json()).then(data => {
+        if(!data) return;
+        let users = Object.values(data).sort((a,b) => (b.studyMins||0) - (a.studyMins||0)).slice(0,5);
+        let html = '';
+        users.forEach((u, i) => {
+            let m = i===0?"🥇":i===1?"🥈":i===2?"🥉":"";
+            html += `<div class="rank-row">
+                <div class="rank-pos ${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':''}">${m||i+1}</div>
+                <div style="flex:1; margin-left:10px;">
+                    <div style="font-weight:bold; font-size:14px;">${u.name}</div>
+                </div>
+                <div style="color:var(--primary); font-weight:bold; font-size:14px;">${u.studyMins||0} <small>m</small></div>
+            </div>`;
+        });
+        document.getElementById('homeStudyRank').innerHTML = html;
+        document.getElementById('globalRankList').innerHTML = html; // Sync global rank page too
+    });
+}
 
-    fetch(DB + "/students_email/" + cleanId + ".json").then(r=>r.json()).then(data => {
-        if(data) alert("❌ এই আইডি দিয়ে অ্যাকাউন্ট খোলা আছে!"); 
-        else {
-            fetch(DB + "/students_email/" + cleanId + ".json", {
-                method: "PUT", body: JSON.stringify({ name: name, class: batch, pass: pass, contact: userId, coins: 50, xp: 0 })
-            }).then(() => { alert("🎉 রেজিস্ট্রেশন সফল! বোনাস ৫০ কয়েন।"); show('pageLogin'); });
+// ==========================================
+// 5. QUESTION BANK & BOOKMARKS
+// ==========================================
+function fetchAllQuestions() {
+    if(allQuestions.length > 0) return; // Cache
+    fetch(`${DB}/questions.json`).then(r=>r.json()).then(data => {
+        if(data) {
+            allQuestions = Object.keys(data).map(k => ({ id: k, ...data[k] }));
         }
     });
 }
 
-function loginStudent() {
-    let userId = document.getElementById('loginId').value.trim();
-    let pass = document.getElementById('loginPass').value.trim();
-    if(!userId || !pass) return alert("লগইন ডেটা দাও!"); 
-    studentCleanEmail = userId.replace(/\./g, '_');
+function loadQuestionBank() {
+    let sub = document.getElementById('qbSubject').value;
+    let chap = document.getElementById('qbChapter').value;
+    if(!sub) return alert("Select a subject first!");
+    
+    let filtered = allQuestions.filter(q => q.subject === sub && (chap === 'All' || q.chapter === chap));
+    let html = '';
+    
+    if(filtered.length === 0) html = `<div class="text-center" style="color:var(--text-muted);">No questions found here yet.</div>`;
+    
+    filtered.forEach((q, i) => {
+        let isBookmarked = currentUser.bookmarks.includes(q.id);
+        html += `<div class="q-card">
+            <div class="flex-between mb-2">
+                <div style="color:var(--primary); font-size:12px; font-weight:bold;">${q.chapter}</div>
+                <i class="fa-solid fa-bookmark bookmark-btn ${isBookmarked ? 'active' : ''}" onclick="toggleBookmark('${q.id}', this)"></i>
+            </div>
+            <div class="q-text">Q. ${q.q}</div>`;
+            
+        q.a.forEach((opt, idx) => {
+            let colorCls = (idx === q.correct) ? 'correct' : '';
+            let icon = (idx === q.correct) ? '<i class="fa-solid fa-check float-right text-success"></i>' : '';
+            html += `<div class="opt-btn ${colorCls}" style="cursor:default;">${String.fromCharCode(65+idx)}. ${opt} ${icon}</div>`;
+        });
+        if(q.exp) html += `<div style="margin-top:10px; font-size:12px; color:var(--accent);">💡 Exp: ${q.exp}</div>`;
+        html += `</div>`;
+    });
+    
+    document.getElementById('qbListContainer').innerHTML = html;
+}
 
-    fetch(DB + "/students_email/" + studentCleanEmail + ".json").then(r=>r.json()).then(data => {
-        if(!data || data.pass !== pass) return alert("❌ লগইন ব্যর্থ!"); 
-        studentName = data.name; studentClass = data.class;
-        studentCoins = data.coins || 0; studentXP = data.xp || 0;
+function toggleBookmark(qId, el) {
+    let idx = currentUser.bookmarks.indexOf(qId);
+    if(idx > -1) { currentUser.bookmarks.splice(idx, 1); el.classList.remove('active'); }
+    else { currentUser.bookmarks.push(qId); el.classList.add('active'); }
+    saveUserDB({ bookmarks: currentUser.bookmarks });
+}
+
+// ==========================================
+// 6. MOCK EXAM BUILDER (Ninja Mode)
+// ==========================================
+function addMockConfig() {
+    let sub = document.getElementById("examSubject").value;
+    let chap = document.getElementById("examChapter").value;
+    let limit = parseInt(document.getElementById("qLimit").value);
+    if(!sub || !limit || limit <= 0) return alert("Valid inputs required!"); 
+    examState.config.push({sub, chap, limit});
+    
+    let html = "";
+    examState.config.forEach((c, i) => { 
+        html += `<div style="font-size:13px; color:var(--primary); margin-bottom:5px; padding:8px; background:rgba(16,185,129,0.1); border-radius:6px;">
+            <i class="fa-solid fa-check"></i> <b>${c.sub}</b> (${c.chap}) - ${c.limit} Qs
+        </div>`; 
+    });
+    document.getElementById("configList").innerHTML = html;
+}
+
+function startExamProcess() {
+    if (examState.config.length === 0) return alert("Add at least one subject block!"); 
+    // Requires 10 coins
+    if(currentUser.coins < 10) return alert("Not enough coins! You need 10 coins to build a mock test.");
+    
+    examState.questions = [];
+    examState.config.forEach(cfg => {
+        let matched = allQuestions.filter(q => q.subject === cfg.sub && (cfg.chap === 'All' || q.chapter === cfg.chap));
+        // Shuffle matched
+        matched = matched.sort(() => 0.5 - Math.random());
+        examState.questions = examState.questions.concat(matched.slice(0, cfg.limit));
+    });
+    
+    if(examState.questions.length === 0) return alert("No questions available for this config!");
+    
+    // Deduct coins
+    saveUserDB({ coins: currentUser.coins - 10 });
+    
+    examState.sub = examState.config.length === 1 ? examState.config[0].sub : "Mixed Mock Test";
+    examState.answers = new Array(examState.questions.length).fill(null);
+    examState.time = examState.questions.length * 60; // 1 min per Q
+    
+    renderLiveExamUI();
+}
+
+function renderLiveExamUI() {
+    let html = '';
+    examState.questions.forEach((q, i) => {
+        html += `<div class="q-card" id="qBox_${i}">
+            <div class="q-text">Q${i+1}. ${q.q}</div>`;
+        q.a.forEach((opt, idx) => {
+            html += `<div class="opt-btn" id="opt_${i}_${idx}" onclick="selectAnswer(${i}, ${idx})">${String.fromCharCode(65+idx)}. ${opt}</div>`;
+        });
+        html += `</div>`;
+    });
+    document.getElementById('liveExamContainer').innerHTML = html;
+    document.getElementById('examProgressTxt').innerText = `0/${examState.questions.length}`;
+    
+    navTo('pageExam');
+    startExamTimer();
+}
+
+function selectAnswer(qIdx, oIdx) {
+    examState.answers[qIdx] = oIdx;
+    for(let i=0; i<4; i++) {
+        let el = document.getElementById(`opt_${qIdx}_${i}`);
+        if(el) el.classList.remove('selected');
+    }
+    document.getElementById(`opt_${qIdx}_${oIdx}`).classList.add('selected');
+    
+    let ansCount = examState.answers.filter(a => a !== null).length;
+    document.getElementById('examProgressTxt').innerText = `${ansCount}/${examState.questions.length}`;
+}
+
+function startExamTimer() {
+    let totalTime = examState.time;
+    examState.interval = setInterval(() => {
+        if(examState.time > 0) {
+            examState.time--;
+            let m = Math.floor(examState.time/60); let s = examState.time%60;
+            document.getElementById('examTimerTxt').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+            document.getElementById('examProgressBar').style.width = `${((totalTime - examState.time)/totalTime)*100}%`;
+        } else {
+            submitExam();
+        }
+    }, 1000);
+}
+
+// ==========================================
+// 7. EXAM SUBMIT & RESULT
+// ==========================================
+function submitExam() {
+    clearInterval(examState.interval);
+    let correct = 0, wrong = 0;
+    let revHtml = '';
+
+    examState.questions.forEach((q, i) => {
+        let userAns = examState.answers[i];
+        if(userAns === q.correct) correct++;
+        else if(userAns !== null) wrong++;
         
-        updateDashboardHeader();
-        loadStudentHistoryAndCharts();
-        show('pageDashboard');
+        // Build review UI
+        revHtml += `<div class="q-card" style="border-color: ${userAns===q.correct?'var(--primary)':userAns===null?'var(--border)':'var(--danger)'}">
+            <div class="flex-between mb-2">
+                <div class="q-text" style="margin:0;">Q${i+1}. ${q.q}</div>
+                <i class="fa-solid fa-bookmark bookmark-btn ${currentUser.bookmarks.includes(q.id)?'active':''}" onclick="toggleBookmark('${q.id}', this)"></i>
+            </div>`;
+        q.a.forEach((opt, idx) => {
+            let cls = "opt-btn";
+            if(idx === q.correct) cls += " correct";
+            else if(idx === userAns) cls += " wrong";
+            revHtml += `<div class="${cls}">${String.fromCharCode(65+idx)}. ${opt}</div>`;
+        });
+        if(q.exp) revHtml += `<div style="margin-top:10px; font-size:12px; color:var(--accent);">💡 Exp: ${q.exp}</div>`;
+        revHtml += `</div>`;
+    });
+
+    let empty = examState.questions.length - (correct + wrong);
+    let score = Math.max(0, correct - (wrong * 0.25));
+    let percent = Math.round((score / examState.questions.length) * 100);
+    
+    // Rewards
+    let earnXp = Math.floor(score * 5) + 10;
+    let earnCoin = Math.floor(score * 2);
+    if(percent >= 80) earnXp += 20;
+
+    // Save DB
+    saveUserDB({ xp: currentUser.xp + earnXp, coins: currentUser.coins + earnCoin });
+    fetch(`${DB}/results_v2.json`, {
+        method: "POST",
+        body: JSON.stringify({ name: currentUser.name, batch: currentUser.batch, subject: examState.sub, percent: percent, total: examState.questions.length, time: new Date().toLocaleDateString() })
+    });
+
+    // Update Result UI
+    document.getElementById('resPercentTxt').innerText = `${percent}%`;
+    document.getElementById('resEarnXp').innerText = earnXp;
+    document.getElementById('resEarnCoin').innerText = earnCoin;
+    document.getElementById('reviewContainer').innerHTML = revHtml;
+    
+    renderScoreDonut(correct, wrong, empty);
+    
+    // Reset config
+    examState.config = [];
+    document.getElementById("configList").innerHTML = `<div style="color: var(--text-muted); font-size: 12px; text-align: center;">No subjects added yet.</div>`;
+    
+    navTo('pageResult');
+}
+
+function renderScoreDonut(c, w, s) {
+    let ctx = document.getElementById('scoreChart').getContext('2d');
+    if(charts.donut) charts.donut.destroy();
+    if(c===0 && w===0 && s===0) s=1;
+    charts.donut = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels: ['Correct', 'Wrong', 'Skip'], datasets: [{ data: [c, w, s], backgroundColor: ['#10b981', '#ef4444', '#475569'], borderWidth: 0, cutout: '75%' }] },
+        options: { plugins: { legend: { display: false } } }
     });
 }
 
-function updateDashboardHeader() {
-    let lvl = calculateLevel(studentXP);
-    let badge = document.getElementById('userBadge');
-    badge.innerHTML = `${lvl.icon} ${lvl.name} Lv.${Math.floor(studentXP/100)+1}`;
-    badge.style.color = lvl.color; badge.style.borderColor = lvl.border; badge.style.background = `rgba(255,255,255,0.05)`;
-    
-    document.getElementById('welcomeMsg').innerText = "Hello, " + studentName + "!";
-    document.getElementById('userCoins').innerText = `💰 Coins: ${studentCoins} | ⭐ Total XP: ${studentXP}`;
+// ==========================================
+// 8. HISTORY & PROGRESS
+// ==========================================
+function switchHistTab(tab) {
+    document.getElementById('viewHistory').classList.toggle('hidden', tab!=='history');
+    document.getElementById('viewBookmarks').classList.toggle('hidden', tab!=='bookmarks');
+    document.getElementById('tabHistory').className = tab==='history' ? 'btn-accent' : 'btn-outline';
+    document.getElementById('tabBookmarks').className = tab==='bookmarks' ? 'btn-accent' : 'btn-outline';
 }
 
-// --- HISTORY & CHARTS (Including New Radar Chart) ---
-function loadStudentHistoryAndCharts() {
-    fetch(DB + "/results.json").then(r => r.json()).then(data => {
-        let totalCorrect = 0, totalWrong = 0, examCount = 0;
-        let html = "";
-        
+function loadHistoryAndBookmarks() {
+    // 1. History
+    fetch(`${DB}/results_v2.json`).then(r=>r.json()).then(data => {
+        let html = '';
         if(data) {
             Object.values(data).reverse().forEach(res => {
-                if(res.name === studentName) {
-                    examCount++;
-                    let cCount = Math.round((res.percent / 100) * res.total);
-                    totalCorrect += cCount; totalWrong += (res.total - cCount);
-                    html += `<div class="card" style="margin: 6px 0; padding: 12px; font-size:12px; border-left: 4px solid #10b981;">
-                        <b style="color:#e2e8f0;">${res.subject || 'Mixed'}</b><br>
-                        🎯 Score: <span style="color:#10b981; font-weight:bold;">${res.percent}%</span> | ✅ ${cCount} ❌ ${res.total - cCount}
+                if(res.name === currentUser.name) {
+                    html += `<div class="card" style="border-left: 4px solid var(--primary); padding: 12px;">
+                        <div class="flex-between">
+                            <b style="font-size:14px;">${res.subject}</b>
+                            <span style="color:var(--text-muted); font-size:11px;">${res.time}</span>
+                        </div>
+                        <div style="color:var(--primary); font-weight:bold; margin-top:5px;">🎯 Score: ${res.percent}% <span style="color:var(--text-muted); font-size:12px; font-weight:normal;">(${res.total} Qs)</span></div>
                     </div>`;
                 }
             });
         }
-        document.getElementById('studentHistoryBox').innerHTML = html || "কোনো পরীক্ষার রেকর্ড নেই।";
-        renderDoughnutChart(totalCorrect, totalWrong);
-        renderRadarChart(totalCorrect, totalWrong, examCount);
+        document.getElementById('historyList').innerHTML = html || "<div class='text-center text-muted'>No exams taken yet.</div>";
     });
+
+    // 2. Bookmarks
+    let bHtml = '';
+    if(currentUser.bookmarks.length === 0) {
+        bHtml = "<div class='text-center text-muted'>No bookmarked questions.</div>";
+    } else {
+        currentUser.bookmarks.forEach(id => {
+            let q = allQuestions.find(x => x.id === id);
+            if(q) {
+                bHtml += `<div class="q-card">
+                    <div class="flex-between mb-1">
+                        <small style="color:var(--accent);">${q.subject}</small>
+                        <i class="fa-solid fa-bookmark bookmark-btn active" onclick="toggleBookmark('${q.id}', this); this.parentElement.parentElement.remove();"></i>
+                    </div>
+                    <div class="q-text" style="font-size:14px;">Q. ${q.q}</div>
+                    <div style="font-size:12px; color:var(--primary);">✔ Ans: ${q.a[q.correct]}</div>
+                </div>`;
+            }
+        });
+    }
+    document.getElementById('bookmarksList').innerHTML = bHtml;
 }
 
-function renderDoughnutChart(correct, wrong) {
-    let ctx = document.getElementById('analyticsChart').getContext('2d');
-    if(myChartInstance) myChartInstance.destroy();
-    if(correct === 0 && wrong === 0) correct = 1;
-
-    myChartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: { labels: ['Correct', 'Wrong'], datasets: [{ data: [correct, wrong], backgroundColor: ['#10b981', '#ef4444'], borderColor: '#0f172a', borderWidth: 2 }] },
-        options: { plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } } }
-    });
-}
-
-function renderRadarChart(correct, wrong, examCount) {
-    let ctx = document.getElementById('skillRadarChart').getContext('2d');
-    if(myRadarInstance) myRadarInstance.destroy();
+function renderProgressPage() {
+    // Radar Chart
+    let ctx = document.getElementById('radarChart').getContext('2d');
+    if(charts.radar) charts.radar.destroy();
     
-    // Simulate skills based on available generic data to make it look pro
-    let accuracy = examCount === 0 ? 0 : Math.round((correct / (correct+wrong)) * 100);
-    let dedication = Math.min(examCount * 10, 100);
-    let xpLevel = Math.min(studentXP / 5, 100);
+    let xpLvl = Math.min(currentUser.xp/20, 100);
+    let studyLvl = Math.min(currentUser.studyMins, 100);
     
-    myRadarInstance = new Chart(ctx, {
+    charts.radar = new Chart(ctx, {
         type: 'radar',
         data: {
-            labels: ['Accuracy', 'Dedication', 'Speed', 'Experience'],
+            labels: ['Accuracy', 'Focus', 'Dedication', 'Speed', 'Knowledge'],
             datasets: [{
-                label: 'Skill Level',
-                data: [accuracy || 20, dedication || 10, 75, xpLevel || 10], // Default speed 75
-                backgroundColor: 'rgba(56, 189, 248, 0.2)',
-                borderColor: '#38bdf8',
-                pointBackgroundColor: '#10b981',
-                borderWidth: 2
+                label: 'Skills', data: [75, studyLvl||10, xpLvl||10, 80, xpLvl||5],
+                backgroundColor: 'rgba(59, 130, 246, 0.3)', borderColor: '#3b82f6', pointBackgroundColor: '#10b981', borderWidth: 2
             }]
         },
-        options: {
-            scales: { r: { angleLines: { color: '#334155' }, grid: { color: '#334155' }, pointLabels: { color: '#cbd5e1' }, ticks: { display: false, max: 100, min: 0 } } },
-            plugins: { legend: { display: false } }
-        }
+        options: { scales: { r: { angleLines: { color: '#1e293b' }, grid: { color: '#1e293b' }, pointLabels: { color: '#94a3b8' }, ticks: { display: false, max: 100, min: 0 } } }, plugins: { legend: { display: false } } }
     });
-}
 
-// --- EXAM BUILDER & PROCESS ---
-function checkPremiumLock() {
-    let type = document.getElementById("premiumLock").value;
-    if(type === "Premium") {
-        if(studentCoins < 30) { alert("❌ আনলক করতে ৩০ কয়েন প্রয়োজন।"); document.getElementById("premiumLock").value = "Free"; } 
-        else {
-            if(confirm("🔒 ৩০ কয়েন দিয়ে Pro Ninja Mode আনলক করবে?")) {
-                studentCoins -= 30; updateDataInFirebase(); alert("🔓 আনলক সফল!");
-            } else { document.getElementById("premiumLock").value = "Free"; }
-        }
-    }
-}
-
-function addConfig() {
-    let sub = document.getElementById("examSubject").value;
-    let chap = document.getElementById("examChapter").value;
-    let limit = parseInt(document.getElementById("qLimit").value);
-    if(!sub || !limit || limit <= 0) return alert("সঠিক তথ্য দাও!"); 
-    examConfig.push({sub: sub, chap: chap, limit: limit});
-    renderConfig();
-}
-function renderConfig() {
-    let html = "";
-    examConfig.forEach(c => { html += `<div style="font-size:12px; color:#10b981; margin-bottom:4px;">✔ <b>${c.sub}</b> (${c.limit} Qs)</div>`; });
-    document.getElementById("configList").innerHTML = html;
-}
-
-function startExamProcess() {  
-  examVersion = document.getElementById("examVersion").value; 
-  selectedMode = document.getElementById("examMode").value;
-  if (examConfig.length === 0) return alert("এক্সাম বিল্ডারে সাবজেক্ট এড করো!"); 
-  
-  fetch(DB+"/questions.json").then(r => r.json()).then(data => {  
-      if (!data) return;  
-      let allDbQuestions = Object.values(data).filter(q => q.version === examVersion); 
-      examQuestions = [];
-      examConfig.forEach(cfg => {
-          let matched = allDbQuestions.filter(q => q.subject === cfg.sub && (cfg.chap === 'All' || q.chapter === cfg.chap));
-          if(matched.length > 0) examQuestions = examQuestions.concat(matched.slice(0, cfg.limit));
-      });
-      if(examQuestions.length === 0) return alert("কোনো প্রশ্ন পাওয়া যায়নি!");
-      
-      examSubResult = examConfig.length === 1 ? examConfig[0].sub : "Mixed Sub";
-      examChapResult = examConfig.length === 1 ? examConfig[0].chap : "Mixed Chap";
-      
-      document.getElementById('lifelineArea').style.display = selectedMode === "Exam" ? "flex" : "none";
-      document.getElementById('submitExamBtn').style.display = selectedMode === "Exam" ? "block" : "none";
-
-      startExamTimer();
-    });  
-}  
-
-function startExamTimer() {  
-  submitted = false; var html = "";  
-  examQuestions.forEach((x,i) => {  
-    html += `<div class="card" id="qBlock${i}"><p><strong>${i+1}. ${x.q}</strong></p><hr>`;  
-    x.a.forEach((opt, idx) => {  
-      html += `<label class="radio-label" id="label-${i}-${idx}"><input type="radio" name="q${i}" value="${idx}" onchange="handleAnswer(${i}, ${idx})"> ${opt}</label>`;  
-    });  
-    html += `<div id="exp-${i}" style="display:none; font-size:12px; color:#38bdf8; margin-top:8px; padding:8px; background:rgba(56,189,248,0.1); border-radius:6px;">💡 ব্যাখ্যা: ${x.exp||'নেই'}</div></div>`;  
-  });  
-  document.getElementById("quiz").innerHTML = html;  
-  show("pageExam");  
-  
-  timeLeft = examQuestions.length * 60; totalTime = timeLeft;  
-  if (timerInterval) clearInterval(timerInterval);  
-  timerInterval = setInterval(() => {  
-    timeLeft--;  
-    let m = Math.floor(timeLeft/60); let s = timeLeft%60;
-    document.getElementById("timer").innerText = `⏱ ${m<10?'0'+m:m}:${s<10?'0'+s:s}`;  
-    document.getElementById("progress").style.width = (timeLeft/totalTime)*100 + "%";  
-    if(timeLeft <= 0 && selectedMode === "Exam") submitExam();  
-  },1000);  
-}  
-
-function handleAnswer(qIndex, selectedIdx) {
-    if(selectedMode === "Practice") {
-        let correctIdx = examQuestions[qIndex].correct;
-        let radios = document.getElementsByName('q' + qIndex);
-        radios.forEach(r => r.disabled = true);
-        document.getElementById(`label-${qIndex}-${correctIdx}`).classList.add('correct-ans');
-        if(selectedIdx !== correctIdx) document.getElementById(`label-${qIndex}-${selectedIdx}`).classList.add('wrong-ans');
-        document.getElementById(`exp-${qIndex}`).style.display = "block";
-    }
-}
-
-// Lifelines
-function use5050() {
-    if(studentCoins < 10) return alert("❌ পর্যাপ্ত কয়েন নেই!");
-    let qIndex = examQuestions.findIndex((_,i) => !document.querySelector(`input[name=q${i}]:checked`));
-    if(qIndex === -1) return alert("সব প্রশ্নের উত্তর দেওয়া শেষ!");
-    let correctIdx = examQuestions[qIndex].correct; let count = 0;
-    for(let idx=0; idx<4; idx++) {
-        if(idx !== correctIdx && count < 2) {
-            let label = document.getElementById(`label-${qIndex}-${idx}`);
-            label.style.opacity = "0.2"; label.querySelector('input').disabled = true; count++;
-        }
-    }
-    studentCoins -= 10; updateDataInFirebase(); document.getElementById('btn5050').disabled = true;
-}
-
-function useSkip() {
-    if(studentCoins < 15) return alert("❌ পর্যাপ্ত কয়েন নেই!");
-    let qIndex = examQuestions.findIndex((_,i) => !document.querySelector(`input[name=q${i}]:checked`));
-    if(qIndex === -1) return;
-    let correctIdx = examQuestions[qIndex].correct;
-    document.querySelector(`input[name=q${qIndex}][value="${correctIdx}"]`).checked = true;
-    document.getElementById(`qBlock${qIndex}`).style.border = "1px solid #38bdf8";
-    studentCoins -= 15; updateDataInFirebase();
-}
-
-function updateDataInFirebase() {
-    fetch(DB + "/students_email/" + studentCleanEmail + ".json", { method: "PATCH", body: JSON.stringify({ coins: studentCoins, xp: studentXP }) }).then(() => updateDashboardHeader());
-}
-
-function submitExam() {  
-  if (submitted) return; submitted = true; clearInterval(timerInterval);  
-  
-  let score = 0, wrong = 0;
-  examQuestions.forEach((x,i) => {  
-    let ans = document.querySelector(`input[name=q${i}]:checked`);  
-    if(ans) { if(parseInt(ans.value) === x.correct) score++; else wrong++; } else wrong++;
-  });  
-  
-  let fixedWrong = examQuestions.length - score;
-  let finalScore = Math.max(0, score - (fixedWrong * globalNegMark));
-  let percent = Math.round((finalScore/examQuestions.length)*100);  
-  
-  let gainedXP = score * 5 + 10; let gainedCoins = score * 2;
-  if(percent >= 80) gainedXP += 20; 
-  
-  studentXP += gainedXP; studentCoins += gainedCoins;
-  updateDataInFirebase();
-
-  fetch(DB+"/results.json",{
-    method:"POST",
-    body:JSON.stringify({ name:studentName, class:studentClass, subject:examSubResult, score:finalScore, total: examQuestions.length, percent:percent, time:new Date().toLocaleString() })
-  }).then(() => loadStudentHistoryAndCharts());
-
-  document.getElementById("result").innerHTML = `
-    <div class="card" style="text-align:center; background: linear-gradient(135deg, #1e293b, #0f172a); border-color:#10b981;">
-        <h2 style="color:#10b981;">Mission Complete!</h2>
-        <p style="color:#f59e0b; margin-top:5px;">🎯 Gained: +${gainedXP} XP | 💰 +${gainedCoins} Coins</p>
-        <p style="font-size:28px; font-weight:bold; margin-top:15px; color:white;">Score: ${finalScore.toFixed(2)} / ${examQuestions.length}</p>
-        <p style="color:#94a3b8; font-size:14px;">Accuracy: ${percent}%</p>
-    </div>`;  
-  loadLeaderboards(); show("pageResult");  
-}  
-
-function loadLeaderboards() {
-  fetch(DB + "/results.json").then(r => r.json()).then(data => {
-      if (!data) return;
-      let results = Object.values(data).sort((a,b) => b.percent - a.percent).slice(0,5);
-      let html = results.map((d,i) => {
-        let cls = i === 0 ? "top-rank-1" : "";
-        let medal = i===0 ? "🥇" : i===1 ? "🥈" : i===2 ? "🥉" : "🏅";
-        return `<div class="card ${cls}" style="padding:10px; display:flex; justify-content:space-between; align-items:center;">
-            <div><b style="font-size:16px;">${medal} #${i+1}</b> ${d.name} <small style="color:#94a3b8;">(${d.class})</small></div>
-            <div style="color:#10b981; font-weight:bold; font-size:16px;">${d.percent}%</div>
+    // Syllabus Tracker (Dummy visual simulation)
+    let sHtml = '';
+    Object.keys(hscData).forEach((sub, i) => {
+        let p = Math.min((currentUser.xp/100) * (5-i) * 10, 100) || 0; // Fake calc based on XP
+        sHtml += `<div style="margin-bottom: 12px;">
+            <div class="flex-between" style="font-size:12px; margin-bottom:5px;">
+                <span>${sub}</span> <span style="color:var(--primary);">${p.toFixed(0)}%</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" style="width:${p}%;"></div></div>
         </div>`;
-      }).join("");
-      document.getElementById("board").innerHTML = html;
     });
+    document.getElementById('syllabusList').innerHTML = sHtml;
 }
 
-// --- TEACHER PANEL (Kept Basic from previous) ---
-function teacherLogin() {  
-  if (document.getElementById("user").value==="admin" && document.getElementById("pass").value==="1234") { show("pageTeacher"); loadQuestions(); } 
-} 
-function addQuestion() {
-  var data = {
-    version: document.getElementById("qVersion").value, type: document.getElementById("qType").value,
-    subject: document.getElementById("subject").value, chapter: document.getElementById("chapter").value,
-    q: document.getElementById("q").value.trim(),
-    a: [document.getElementById("o1").value.trim(), document.getElementById("o2").value.trim(), document.getElementById("o3").value.trim(), document.getElementById("o4").value.trim()],
-    correct: parseInt(document.getElementById("correct").value), exp: document.getElementById("exp").value.trim()
-  };
-  fetch(DB+"/questions.json",{ method:"POST", body:JSON.stringify(data) }).then(()=>{ alert("প্রশ্ন যুক্ত হয়েছে!"); loadQuestions(); });
+// ==========================================
+// 9. ADMIN PANEL
+// ==========================================
+function adminAddQ() {
+    let sub = document.getElementById('qSub').value;
+    let chap = document.getElementById('qChap').value;
+    let data = { subject: sub, chapter: chap, q: document.getElementById('qText').value, a: [document.getElementById('o1').value, document.getElementById('o2').value, document.getElementById('o3').value, document.getElementById('o4').value], correct: parseInt(document.getElementById('qCorrect').value), exp: document.getElementById('qExp').value };
+    if(!sub || !data.q) return alert("Fill data!");
+    fetch(`${DB}/questions.json`, { method: "POST", body: JSON.stringify(data) }).then(() => { alert("Added!"); document.getElementById('qText').value = ""; fetchAllQuestions(); });
 }
-function loadQuestions() {
-  fetch(DB + "/questions.json").then(r => r.json()).then(data => {
-      if (!data) return;
-      var html = ""; Object.keys(data).forEach(key => {
-        html += `<div class="card" style="padding:8px; font-size:12px;"><b>Q:</b> ${data[key].q}</div>`;
-      });
-      document.getElementById("questionList").innerHTML = html;
-    });
+function teacherLogin() {
+    if(document.getElementById('adminUser').value === 'admin' && document.getElementById('adminPass').value === '1234') navTo('pageAdmin');
 }
 
-window.onload = function(){ initDropdowns(); };
+// Initial Load
+fetchAllQuestions();
 </script>
 </body>
 </html>
