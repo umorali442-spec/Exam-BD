@@ -272,6 +272,105 @@
             <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--primary);" id="profStudy">0</div><div style="font-size: 10px; color: var(--text-muted);">Study Mins</div></div>
         </div>
         
+        <div id="viewProg">
+            <div class="card text-center"><canvas id="lineChart" style="width: 100%; max-height: 200px;"></canvas></div>
+            <div class="card">
+                <div class="flex-between mb-1">
+                    <h4 style="color: var(--primary);" id="calMonthTitle">Monthly Streak</h4>
+                    <div class="badge">🔥 <span id="progStreak">0</span> Days</div>
+                </div>
+                <div class="cal-header"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
+                <div class="streak-grid" id="streakCalendar"></div>
+            </div>
+            <h3 class="mb-1"><i class="fa-solid fa-trophy" style="color: gold;"></i> Global XP Leaderboard</h3>
+            <div class="card" id="fullLeaderboard"></div>
+        </div>
+
+        <div id="viewHist" class="hidden">
+            <div class="grid-2 mb-1">
+                <button id="subTabExams" class="btn-primary" style="font-size:12px;" onclick="showHistoryMode('exams')">Past Exams</button>
+                <button id="subTabSaved" class="btn-outline" style="font-size:12px;" onclick="showHistoryMode('saved')">Saved Qs</button>
+            </div>
+            <div id="historyArea"></div>
+            <div id="savedArea" class="hidden"></div>
+        </div>
+
+        <div id="viewMistakes" class="hidden">
+            <h4 class="mb-1" style="color:var(--danger);">Mistake Book (Review Wrong Answers)</h4>
+            <div id="mistakeArea"></div>
+        </div>
+    </div>
+
+    <div id="pageProfile" class="hidden p-2">
+        <div class="card text-center" style="margin-top: 20px;">
+            <div class="avatar" style="width: 80px; height: 80px; font-size: 36px; margin: 0 auto 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); border-color:white;" id="profAvatar">U</div>
+            <h2 id="profName">Name</h2>
+            <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 10px;" id="profId">ID</p>
+            <div class="badge" id="profBadge">Basic</div>
+            <div id="achievementsBox" style="margin-top:15px; display:flex; justify-content:center; gap:10px;"></div>
+            <button class="btn-outline mt-1" style="width:auto; padding: 6px 12px; font-size:12px; margin: 10px auto;" onclick="document.getElementById('editProfBox').classList.toggle('hidden')"><i class="fa-solid fa-pen"></i> Edit Profile</button>
+        </div>
+
+        <div id="editProfBox" class="hidden card">
+            <input id="epName" placeholder="New Name">
+            <select id="epBatch">
+                <option value="HSC 27">HSC 27</option><option value="HSC 28">HSC 28</option><option value="HSC 29">HSC 29</option><option value="HSC 30">HSC 30</option>
+            </select>
+            <button class="btn-primary mt-1" onclick="saveProfileEdit()">Save Changes</button>
+        </div>
+
+        <div class="grid-3 mb-1 text-center">
+            <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--warning);" id="profCoins">0</div><div style="font-size: 10px; color: var(--text-muted);">Coins</div></div>
+            <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--accent);" id="profXp">0</div><div style="font-size: 10px; color: var(--text-muted);">XP</div></div>
+            <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--primary);" id="profStudy">0</div><div style="font-size: 10px; color: var(--text-muted);">Study Mins</div></div>
+        </div>
+        
+        <button class="btn-danger mt-1" onclick="logout()"><i class="fa-solid fa-power-off"></i> Logout</button>
+    </div>
+
+    <div id="pageExam" class="hidden" style="min-height: 100vh;">
+        <div style="position: sticky; top:0; background: var(--card-bg); padding: 15px; border-bottom: 1px solid var(--border); z-index:50;">
+            <div class="flex-between">
+                <div style="color: var(--text-muted); font-weight: bold;" id="examProgressTxt">0/0</div>
+                <div style="font-size: 20px; font-weight: bold; color: var(--danger); font-family: monospace;" id="examTimerTxt">00:00</div>
+            </div>
+        </div>
+        <div class="p-2" id="liveExamContainer" style="padding-bottom:80px;"></div>
+        <div class="p-2" style="position: fixed; bottom: 0; width: 100%; max-width: 500px; background: var(--card-bg); border-top: 1px solid var(--border);">
+            <button class="btn-primary" onclick="submitExam()"><i class="fa-solid fa-check-double"></i> Submit</button>
+        </div>
+    </div>
+
+    <div id="pageResult" class="hidden p-2">
+        <div id="printableResult">
+            <div class="card text-center glass-card">
+                <h2><i class="fa-solid fa-medal"></i> Report Card</h2>
+                <div style="font-size: 40px; font-weight: bold; color: var(--primary); margin: 10px 0;" id="resPercent">0%</div>
+                <p style="color: var(--warning); font-weight: bold;">Earned: +<span id="resXp">0</span> XP | +<span id="resCoin">0</span> Coins</p>
+                <div id="subjectProgressArea" style="margin-top:10px;"></div>
+            </div>
+            <h3 class="mb-1">Detailed Analysis</h3>
+            <div id="reviewContainer"></div>
+        </div>
+        <div class="grid-2 mt-1">
+            <button class="btn-accent mb-1" onclick="downloadResult()"><i class="fa-solid fa-file-pdf"></i> Save PDF</button>
+            <button class="btn-outline mb-1" onclick="navTo('pageHome', 0)"><i class="fa-solid fa-house"></i> Home</button>
+        </div>
+    </div>
+
+    <div id="pageAdmin" class="hidden p-2">
+        <div class="flex-between mb-1">
+            <h3 style="color: var(--danger);"><i class="fa-solid fa-shield-halved"></i> Admin Console</h3>
+            <button class="btn-outline" style="width:auto; padding: 5px 10px;" onclick="navTo('pageAuth')">Exit</button>
+        </div>
+        
+        <div class="grid-2 mb-1">
+            <button class="btn-primary" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adQBox')">Add Q</button>
+            <button class="btn-warning" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adBulkBox')">Bulk Qs</button>
+            <button class="btn-accent" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adNoteBox')">Add Note/PDF</button>
+            <button class="btn-danger" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adFcBox')">Flashcards</button>
+        </div>
+
         <div id="adQBox" class="card">
             <h4 id="adModeText">Add Question</h4>
             <div class="grid-2 mt-1"><select id="adSub" onchange="updateChapDropdown('adSub','adChap')"></select><select id="adChap"><option value="All">Chapter</option></select></div>
@@ -331,17 +430,15 @@
 
 <script>
 // ==========================================
-// 1. DATA & CONSTANTS (Your Config)
+// 1. DATA & CONSTANTS
 // ==========================================
 const DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com"; 
-// The REST API uses only the database URL. Your other API keys (AIzaSy...) are needed if using the full SDK.
 
 let currentUser = {};
 let allQuestions = []; let allNotes = []; let allUsers = []; let flashcards = [];
 let examState = { config: [], questions: [], answers: [], time: 0, interval: null, sub: "" };
 let lineChartInst = null; let currentEditId = null;
 
-// Sound Effects Setup
 const timerSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
 const successSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
 const failSound = new Audio('https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg');
@@ -364,7 +461,6 @@ const hscData = {
 
 let fcIndex = 0; let fcFlipped = false;
 
-// Theme Toggle
 function toggleTheme() {
     document.body.classList.toggle('light-mode');
     let isLight = document.body.classList.contains('light-mode');
@@ -423,7 +519,7 @@ function updateMockChaps() { updateChapDropdown('mockSub', 'mockChap'); }
 function updateReadChaps() { updateChapDropdown('readSub', 'readChap'); }
 
 // ==========================================
-// 3. AUTHENTICATION (With Fixed Error Handling)
+// 3. AUTHENTICATION (Bulletproof Fallbacks)
 // ==========================================
 let isRegMode = false;
 function toggleAuth() {
@@ -441,10 +537,7 @@ function handleRegister() {
     let cleanId = rawId.replace(/\./g, '_'); document.getElementById('btnReg').innerHTML = "Registering...";
     
     fetch(`${DB}/ultimate_users/${cleanId}.json`)
-    .then(r => {
-        if(!r.ok) throw new Error(`HTTP Status ${r.status}. Firebase Rules might be blocking access.`);
-        return r.json();
-    })
+    .then(r => { if(!r.ok) throw new Error(`HTTP Status ${r.status}. Firebase Rules might be blocking access.`); return r.json(); })
     .then(data => {
         if(data && !data.error) { alert("Account already exists with this ID!"); document.getElementById('btnReg').innerHTML = "Register"; return; }
         
@@ -456,10 +549,7 @@ function handleRegister() {
             document.getElementById('btnReg').innerHTML = "Register"; toggleAuth(); 
         });
     })
-    .catch(err => { 
-        alert("Registration Error: " + err.message); 
-        document.getElementById('btnReg').innerHTML = "Register"; 
-    });
+    .catch(err => { alert("Registration Error: " + err.message); document.getElementById('btnReg').innerHTML = "Register"; });
 }
 
 function handleLogin() {
@@ -468,30 +558,45 @@ function handleLogin() {
     let cleanId = rawId.replace(/\./g, '_'); document.getElementById('btnLogin').innerHTML = "Loading...";
     
     fetch(`${DB}/ultimate_users/${cleanId}.json`)
-    .then(r => {
-        if(!r.ok) throw new Error(`HTTP Status ${r.status}. Please check your Firebase Database Rules.`);
-        return r.json();
-    })
+    .then(r => { if(!r.ok) throw new Error(`HTTP Status ${r.status}. Check Database Rules.`); return r.json(); })
     .then(data => {
         document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`;
         if(!data || data.error || data.pass !== pass) return alert("❌ Invalid Login Credentials or Account not found!");
         
-        currentUser = { id: cleanId, ...data, mistakes: data.mistakes||[], subjProg: data.subjProg||{} };
+        // --- BULLETPROOF DATA FALLBACKS ---
+        currentUser = { 
+            id: cleanId, 
+            ...data,
+            xp: data.xp || 0,
+            coins: data.coins || 0,
+            studyMins: data.studyMins || 0,
+            streak: data.streak || 1,
+            activityData: data.activityData || [0,0,0,0,0,0,0], 
+            mistakes: data.mistakes || [], 
+            subjProg: data.subjProg || {} 
+        };
+        
         let today = new Date().toLocaleDateString();
         if(currentUser.lastLogin !== today) {
-            let lastDate = new Date(currentUser.lastLogin); let curDate = new Date(today);
-            let diff = (curDate - lastDate) / (1000*60*60*24);
-            if(diff === 1) currentUser.streak += 1; else currentUser.streak = 1;
+            if(currentUser.lastLogin) {
+                let lastDate = new Date(currentUser.lastLogin); let curDate = new Date(today);
+                let diff = (curDate - lastDate) / (1000*60*60*24);
+                if(diff === 1) currentUser.streak += 1; else currentUser.streak = 1;
+            } else {
+                currentUser.streak = 1;
+            }
             currentUser.lastLogin = today;
-            currentUser.activityData.shift(); currentUser.activityData.push(0);
+            if(currentUser.activityData.length > 0) currentUser.activityData.shift(); 
+            currentUser.activityData.push(0);
             saveUserDB({ streak: currentUser.streak, lastLogin: today, activityData: currentUser.activityData });
         }
-        updateUIHeader(); navTo('pageHome', 0); fetchDBData(); fetchFlashcards();
+        
+        updateUIHeader(); 
+        navTo('pageHome', 0); 
+        fetchDBData(); 
+        fetchFlashcards();
     })
-    .catch(err => { 
-        alert("Login Error: " + err.message); 
-        document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`; 
-    });
+    .catch(err => { alert("Login Error: " + err.message); document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`; });
 }
 
 function logout() { currentUser = {}; navTo('pageAuth'); }
@@ -505,17 +610,31 @@ function getStage(xp) {
 }
 
 function updateUIHeader() {
-    let stage = getStage(currentUser.xp); let fn = (currentUser.name || "User").split(" ")[0]; let fl = fn.charAt(0).toUpperCase();
-    document.getElementById('headName').innerText = fn; document.getElementById('headAvatar').innerText = fl;
-    document.getElementById('headAvatar').style.borderColor = stage.color; document.getElementById('headAvatar').style.boxShadow = `0 0 10px ${stage.glow}`;
-    let b = document.getElementById('headBadge'); b.innerText = stage.name; b.style.color = stage.color; b.style.borderColor = stage.color;
-    document.getElementById('headCoins').innerText = currentUser.coins;
+    let stage = getStage(currentUser.xp || 0); 
+    let fn = (currentUser.name || "User").split(" ")[0]; 
+    let fl = fn.charAt(0).toUpperCase();
     
-    document.getElementById('profName').innerText = currentUser.name; document.getElementById('profAvatar').innerText = fl;
-    document.getElementById('profAvatar').style.borderColor = stage.color; document.getElementById('profId').innerText = currentUser.id.replace(/_/g, '.');
-    let pb = document.getElementById('profBadge'); pb.innerText = `${stage.icon} ${stage.name} Level`; pb.style.color = stage.color; pb.style.borderColor = stage.color; pb.style.boxShadow = `0 0 10px ${stage.glow}`;
-    document.getElementById('profCoins').innerText = currentUser.coins; document.getElementById('profXp').innerText = currentUser.xp;
-    document.getElementById('profStudy').innerText = currentUser.studyMins; document.getElementById('progStreak').innerText = currentUser.streak;
+    document.getElementById('headName').innerText = fn; 
+    document.getElementById('headAvatar').innerText = fl;
+    document.getElementById('headAvatar').style.borderColor = stage.color; 
+    document.getElementById('headAvatar').style.boxShadow = `0 0 10px ${stage.glow}`;
+    
+    let b = document.getElementById('headBadge'); 
+    b.innerText = stage.name; b.style.color = stage.color; b.style.borderColor = stage.color;
+    document.getElementById('headCoins').innerText = currentUser.coins || 0;
+    
+    document.getElementById('profName').innerText = currentUser.name || "User"; 
+    document.getElementById('profAvatar').innerText = fl;
+    document.getElementById('profAvatar').style.borderColor = stage.color; 
+    document.getElementById('profId').innerText = (currentUser.id || "").replace(/_/g, '.');
+    
+    let pb = document.getElementById('profBadge'); 
+    pb.innerText = `${stage.icon} ${stage.name} Level`; pb.style.color = stage.color; pb.style.borderColor = stage.color; pb.style.boxShadow = `0 0 10px ${stage.glow}`;
+    
+    document.getElementById('profCoins').innerText = currentUser.coins || 0; 
+    document.getElementById('profXp').innerText = currentUser.xp || 0;
+    document.getElementById('profStudy').innerText = currentUser.studyMins || 0; 
+    document.getElementById('progStreak').innerText = currentUser.streak || 1;
 
     let achHtml = "";
     if(currentUser.streak >= 7) achHtml += `<div class="badge" style="border-color:var(--warning); color:var(--warning);">🔥 7-Day Streak</div>`;
@@ -530,19 +649,43 @@ function saveUserDB(updates) { Object.assign(currentUser, updates); fetch(`${DB}
 // 4. QUICK REVISE & DUAL LEADERBOARDS
 // ==========================================
 function fetchFlashcards() {
-    fetch(`${DB}/ultimate_flashcards.json`).then(r=>{if(r.ok) return r.json(); return null;}).then(data => {
-        if(data && !data.error) { flashcards = Object.keys(data).map(k=>({id:k,...data[k]})); if(flashcards.length>0) renderFlashcard(); }
-        else flashcards = [{q: "No flashcards yet. Admin will add soon!", a: "Keep learning!"}];
-    }).catch(e=>console.log("Flashcard Fetch Error: ", e.message));
+    fetch(`${DB}/ultimate_flashcards.json`)
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+        if(data && !data.error) { 
+            flashcards = Object.keys(data).map(k=>({id:k,...data[k]})); 
+        } else {
+            flashcards = [{q: "No flashcards yet. Admin will add soon!", a: "Keep learning!"}];
+        }
+        renderFlashcard(); // GUARANTEED TO RUN
+    })
+    .catch(e => {
+        flashcards = [{q: "Database empty or blocked.", a: "Check Firebase Rules!"}];
+        renderFlashcard();
+    });
 }
-function renderFlashcard() { fcFlipped = false; document.getElementById("fcText").innerText = flashcards[fcIndex].q; document.getElementById("fcText").style.color = "white"; }
-function flipFlashcard() { if(!fcFlipped) { document.getElementById("fcText").innerText = flashcards[fcIndex].a; document.getElementById("fcText").style.color = "#38bdf8"; fcFlipped = true; } else renderFlashcard(); }
-function nextFlashcard(e) { e.stopPropagation(); fcIndex = (fcIndex + 1) % flashcards.length; renderFlashcard(); }
-function prevFlashcard(e) { e.stopPropagation(); fcIndex = (fcIndex - 1 + flashcards.length) % flashcards.length; renderFlashcard(); }
+
+function renderFlashcard() { 
+    fcFlipped = false; 
+    if(!flashcards || flashcards.length === 0) return;
+    document.getElementById("fcText").innerText = flashcards[fcIndex].q; 
+    document.getElementById("fcText").style.color = "white"; 
+}
+function flipFlashcard() { 
+    if(!flashcards || flashcards.length === 0) return;
+    if(!fcFlipped) { document.getElementById("fcText").innerText = flashcards[fcIndex].a; document.getElementById("fcText").style.color = "#38bdf8"; fcFlipped = true; } else renderFlashcard(); 
+}
+function nextFlashcard(e) { e.stopPropagation(); if(flashcards.length>0){ fcIndex = (fcIndex + 1) % flashcards.length; renderFlashcard(); } }
+function prevFlashcard(e) { e.stopPropagation(); if(flashcards.length>0){ fcIndex = (fcIndex - 1 + flashcards.length) % flashcards.length; renderFlashcard(); } }
 
 function loadLeaderboards() {
-    fetch(`${DB}/ultimate_users.json`).then(r=>{if(r.ok) return r.json(); return null;}).then(data => {
-        if(!data || data.error) return; allUsers = Object.values(data);
+    fetch(`${DB}/ultimate_users.json`).then(r=>r.ok?r.json():null).then(data => {
+        if(!data || data.error) {
+            document.getElementById('homeLeaderboard').innerHTML = "<div class='text-center text-muted'>Database empty. No users yet.</div>";
+            document.getElementById('fullLeaderboard').innerHTML = "<div class='text-center text-muted'>Database empty. No users yet.</div>";
+            return;
+        }
+        allUsers = Object.values(data);
         let xpUsers = [...allUsers].sort((a,b) => (b.xp||0) - (a.xp||0)).slice(0,10); let xpHtmlHome = ''; let xpHtmlFull = '';
         xpUsers.forEach((u, i) => {
             let stg = getStage(u.xp||0);
@@ -560,7 +703,7 @@ function loadLeaderboards() {
         let studyUsers = [...allUsers].sort((a,b) => (b.studyMins||0) - (a.studyMins||0)).slice(0,10); let sHtml = '';
         studyUsers.forEach((u, i) => { sHtml += `<div class="rank-row"><div style="font-weight:bold;width:20px;">${i+1}</div><div style="flex:1; margin-left:12px;"><div style="font-weight:bold; font-size:14px;">${u.name||"User"}</div></div><div style="color:var(--danger); font-weight:bold;">${u.studyMins||0} <small>Mins</small></div></div>`; });
         document.getElementById('studyRankList').innerHTML = sHtml || "<div class='text-center text-muted'>No data yet.</div>";
-    }).catch(e=>console.log("Leaderboard Fetch Error: ", e.message));
+    }).catch(e=>console.log("Leaderboard Fetch Error"));
 }
 
 // ==========================================
@@ -581,7 +724,7 @@ function togglePomodoro() {
                 if(pMode === 'study') {
                     let minsAdded = parseInt(document.getElementById('tStudyInp').value);
                     alert(`🎉 Session Complete! +${minsAdded} Mins added!`);
-                    saveUserDB({ studyMins: currentUser.studyMins + minsAdded, xp: currentUser.xp + 5 }); pMode = 'break';
+                    saveUserDB({ studyMins: (currentUser.studyMins||0) + minsAdded, xp: (currentUser.xp||0) + 5 }); pMode = 'break';
                 } else { alert("Break over! Time to focus."); pMode = 'study'; }
                 resetPomodoro(); loadLeaderboards();
             }
@@ -594,18 +737,15 @@ function resetPomodoro() { clearInterval(pTimer); isPRunning = false; pTimeLeft 
 // 6. DB FETCH & LEARN
 // ==========================================
 function fetchDBData() {
-    // Note for User: Make sure your questions in Firebase are inside the "ultimate_questions" node!
     fetch(`${DB}/ultimate_questions.json`)
-    .then(r => {
-        if(!r.ok) console.error("Could not fetch questions. Check Database Rules!");
-        return r.json();
-    })
-    .then(data => { 
-        if(data && !data.error) allQuestions = Object.keys(data).map(k => ({ id: k, ...data[k] })); 
-    })
-    .catch(err => console.log("DB Data Fetch Error: ", err.message));
+    .then(r => r.ok ? r.json() : null)
+    .then(data => { if(data && !data.error) allQuestions = Object.keys(data).map(k => ({ id: k, ...data[k] })); })
+    .catch(err => console.log("DB Q Error"));
     
-    fetch(`${DB}/ultimate_notes.json`).then(r=>{if(r.ok) return r.json(); return null;}).then(data => { if(data && !data.error) allNotes = Object.keys(data).map(k => ({ id: k, ...data[k] })); });
+    fetch(`${DB}/ultimate_notes.json`)
+    .then(r => r.ok ? r.json() : null)
+    .then(data => { if(data && !data.error) allNotes = Object.keys(data).map(k => ({ id: k, ...data[k] })); })
+    .catch(err => console.log("DB Note Error"));
 }
 
 function loadShortNotes() {
@@ -633,7 +773,7 @@ function loadQBank() {
     if(!sub) return alert("Select subject!");
     let html = ''; let filtered = allQuestions.filter(q => q.subject === sub && (chap === 'All' || q.chapter === chap));
     
-    if(allQuestions.length === 0) html = "<div class='text-center mt-1 text-muted'>Database is empty or could not be loaded. Please add questions from Admin Console.</div>";
+    if(allQuestions.length === 0) html = "<div class='text-center mt-1 text-muted'>Database is empty. Please add questions from Admin Console.</div>";
     else if(filtered.length === 0) html = "<div class='text-center mt-1 text-muted'>No questions available for this subject yet.</div>";
     
     filtered.forEach((q, i) => {
@@ -652,9 +792,8 @@ function toggleBookmark(id, el) {
     let idx = currentUser.bookmarks.indexOf(id);
     if(idx > -1) { currentUser.bookmarks.splice(idx, 1); el.classList.remove('active'); } else { currentUser.bookmarks.push(id); el.classList.add('active'); }
     saveUserDB({ bookmarks: currentUser.bookmarks });
-}
-
-// ==========================================
+    }
+    // ==========================================
 // 7. MOCK EXAM BUILDER
 // ==========================================
 function addMockBlock() {
@@ -673,7 +812,7 @@ function startMockExam() {
         examState.questions = examState.questions.concat(matched.slice(0, cfg.limit));
     });
     if(examState.questions.length === 0) return alert("No questions available for config!");
-    saveUserDB({ coins: currentUser.coins - 10 });
+    saveUserDB({ coins: (currentUser.coins||0) - 10 });
     examState.sub = examState.config.length === 1 ? examState.config[0].sub : "Custom Mock Test";
     examState.answers = new Array(examState.questions.length).fill(null); examState.time = examState.questions.length * 60; 
     renderLiveExam();
@@ -738,7 +877,7 @@ function submitExam() {
     if(percent >= 80) { earnXp += 20; successSound.play().catch(e=>{}); } else if (percent < 40) { failSound.play().catch(e=>{}); }
 
     let newAct = [...(currentUser.activityData || [0,0,0,0,0,0,0])]; newAct[newAct.length-1] += earnXp; 
-    saveUserDB({ xp: currentUser.xp + earnXp, coins: currentUser.coins + earnCoin, activityData: newAct, mistakes: mistakesArr, subjProg: sp });
+    saveUserDB({ xp: (currentUser.xp||0) + earnXp, coins: (currentUser.coins||0) + earnCoin, activityData: newAct, mistakes: mistakesArr, subjProg: sp });
     
     fetch(`${DB}/ultimate_history.json`, { method: "POST", body: JSON.stringify({ name: currentUser.name, subject: examState.sub, percent: percent, total: examState.questions.length, c: correct, w: wrong, time: new Date().toLocaleDateString() }) });
 
@@ -790,7 +929,7 @@ function renderProgressUI() {
     document.getElementById('calMonthTitle').innerText = `${monthNames[month]} Streak`;
     
     let sHtml = ''; let startActive = Math.max(1, today - (currentUser.streak || 1) + 1);
-    for(let i=0; i<firstDay; i++) sHtml += `<div style="width:100%; aspect-ratio:1;"></div>`; // padding
+    for(let i=0; i<firstDay; i++) sHtml += `<div style="width:100%; aspect-ratio:1;"></div>`; 
     for(let i=1; i<=daysInMonth; i++) {
         let isActive = (i >= startActive && i <= today) ? 'active' : '';
         let isToday = (i === today) ? 'today' : '';
@@ -800,7 +939,7 @@ function renderProgressUI() {
 }
 
 function loadHistory() {
-    fetch(`${DB}/ultimate_history.json`).then(r=>{if(r.ok) return r.json(); return null;}).then(data => {
+    fetch(`${DB}/ultimate_history.json`).then(r=>r.ok?r.json():null).then(data => {
         let html = '';
         if(data && !data.error) {
             Object.values(data).reverse().forEach(res => {
@@ -834,9 +973,8 @@ function loadMistakes() {
         });
     } else mHtml = "<div class='text-center text-muted'>Great job! No mistakes recorded yet.</div>";
     document.getElementById('mistakeArea').innerHTML = mHtml;
-}
-
-// ==========================================
+    }
+    // ==========================================
 // 9. ADMIN CONSOLE
 // ==========================================
 function teacherLogin() { if(document.getElementById('adminUser').value === 'admin' && document.getElementById('adminPass').value === '1234') { navTo('pageAdmin'); adminSearchQ(); fetchAdminFc(); } }
@@ -872,7 +1010,7 @@ function adminSaveFlashcard() {
     });
 }
 function fetchAdminFc() {
-    fetch(`${DB}/ultimate_flashcards.json`).then(r=>{if(r.ok) return r.json(); return null;}).then(data => {
+    fetch(`${DB}/ultimate_flashcards.json`).then(r=>r.ok?r.json():null).then(data => {
         let html = ''; if(data && !data.error) { Object.keys(data).forEach(k => { html += `<div style="background:var(--bg-main); padding:8px; margin-bottom:5px; border-radius:5px;"><b>Q:</b> ${data[k].q} <br><button class="btn-danger" style="padding:4px; font-size:10px; margin-top:5px;" onclick="delFc('${k}')">Delete</button></div>`; }); }
         document.getElementById('adminFcList').innerHTML = html;
     });
