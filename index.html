@@ -266,7 +266,52 @@
             <button class="btn-primary mt-1" onclick="saveProfileEdit()">Save Changes</button>
         </div>
 
-          <div class="grid-2 mb-1">
+         <div class="grid-3 mb-1 text-center">
+            <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--warning);" id="profCoins">0</div><div style="font-size: 10px; color: var(--text-muted);">Coins</div></div>
+            <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--accent);" id="profXp">0</div><div style="font-size: 10px; color: var(--text-muted);">XP</div></div>
+            <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--primary);" id="profStudy">0</div><div style="font-size: 10px; color: var(--text-muted);">Study Mins</div></div>
+        </div>
+        
+        <button class="btn-danger mt-1" onclick="logout()"><i class="fa-solid fa-power-off"></i> Logout</button>
+    </div>
+
+    <div id="pageExam" class="hidden" style="min-height: 100vh;">
+        <div style="position: sticky; top:0; background: var(--card-bg); padding: 15px; border-bottom: 1px solid var(--border); z-index:50;">
+            <div class="flex-between">
+                <div style="color: var(--text-muted); font-weight: bold;" id="examProgressTxt">0/0</div>
+                <div style="font-size: 20px; font-weight: bold; color: var(--danger); font-family: monospace;" id="examTimerTxt">00:00</div>
+            </div>
+        </div>
+        <div class="p-2" id="liveExamContainer" style="padding-bottom:80px;"></div>
+        <div class="p-2" style="position: fixed; bottom: 0; width: 100%; max-width: 500px; background: var(--card-bg); border-top: 1px solid var(--border);">
+            <button class="btn-primary" onclick="submitExam()"><i class="fa-solid fa-check-double"></i> Submit</button>
+        </div>
+    </div>
+
+    <div id="pageResult" class="hidden p-2">
+        <div id="printableResult">
+            <div class="card text-center glass-card">
+                <h2><i class="fa-solid fa-medal"></i> Report Card</h2>
+                <div style="font-size: 40px; font-weight: bold; color: var(--primary); margin: 10px 0;" id="resPercent">0%</div>
+                <p style="color: var(--warning); font-weight: bold;">Earned: +<span id="resXp">0</span> XP | +<span id="resCoin">0</span> Coins</p>
+                <div id="subjectProgressArea" style="margin-top:10px;"></div>
+            </div>
+            <h3 class="mb-1">Detailed Analysis</h3>
+            <div id="reviewContainer"></div>
+        </div>
+        <div class="grid-2 mt-1">
+            <button class="btn-accent mb-1" onclick="downloadResult()"><i class="fa-solid fa-file-pdf"></i> Save PDF</button>
+            <button class="btn-outline mb-1" onclick="navTo('pageHome', 0)"><i class="fa-solid fa-house"></i> Home</button>
+        </div>
+    </div>
+
+    <div id="pageAdmin" class="hidden p-2">
+        <div class="flex-between mb-1">
+            <h3 style="color: var(--danger);"><i class="fa-solid fa-shield-halved"></i> Admin Console</h3>
+            <button class="btn-outline" style="width:auto; padding: 5px 10px;" onclick="navTo('pageAuth')">Exit</button>
+        </div>
+        
+        <div class="grid-2 mb-1">
             <button class="btn-primary" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adQBox')">Add Q</button>
             <button class="btn-warning" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adBulkBox')">Bulk Qs</button>
             <button class="btn-accent" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adNoteBox')">Add Note/PDF</button>
@@ -332,15 +377,17 @@
 
 <script>
 // ==========================================
-// 1. DATA & CONSTANTS
+// 1. DATA & CONSTANTS (Your Config)
 // ==========================================
-const DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com";
+const DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com"; 
+// The REST API uses only the database URL. Your other API keys (AIzaSy...) are needed if using the full SDK.
+
 let currentUser = {};
 let allQuestions = []; let allNotes = []; let allUsers = []; let flashcards = [];
 let examState = { config: [], questions: [], answers: [], time: 0, interval: null, sub: "" };
 let lineChartInst = null; let currentEditId = null;
 
-// Sound Effects Setup (Using accessible short sounds)
+// Sound Effects Setup
 const timerSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
 const successSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
 const failSound = new Audio('https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg');
@@ -422,7 +469,7 @@ function updateMockChaps() { updateChapDropdown('mockSub', 'mockChap'); }
 function updateReadChaps() { updateChapDropdown('readSub', 'readChap'); }
 
 // ==========================================
-// 3. AUTHENTICATION & PROFILE
+// 3. AUTHENTICATION (With Fixed Error Handling)
 // ==========================================
 let isRegMode = false;
 function toggleAuth() {
@@ -438,33 +485,59 @@ function handleRegister() {
     let name = document.getElementById('regName').value.trim(), batch = document.getElementById('regBatch').value, rawId = document.getElementById('authId').value.trim(), pass = document.getElementById('authPass').value.trim();
     if(!name || !batch || !rawId || !pass) return alert("Fill all fields!");
     let cleanId = rawId.replace(/\./g, '_'); document.getElementById('btnReg').innerHTML = "Registering...";
-    fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r=>r.json()).then(data => {
-        if(data) { alert("Account exists!"); document.getElementById('btnReg').innerHTML = "Register"; return; }
+    
+    fetch(`${DB}/ultimate_users/${cleanId}.json`)
+    .then(r => {
+        if(!r.ok) throw new Error(`HTTP Status ${r.status}. Firebase Rules might be blocking access.`);
+        return r.json();
+    })
+    .then(data => {
+        if(data && !data.error) { alert("Account already exists with this ID!"); document.getElementById('btnReg').innerHTML = "Register"; return; }
+        
         let newUser = { name, batch, pass, coins: 100, xp: 0, studyMins: 0, streak: 1, lastLogin: new Date().toLocaleDateString(), activityData: [0,0,0,0,0,0,0], bookmarks: [], mistakes: [], subjProg: {} }; 
-        fetch(`${DB}/ultimate_users/${cleanId}.json`, { method: "PUT", body: JSON.stringify(newUser) }).then(() => { alert("Success! +100 Coins!"); document.getElementById('btnReg').innerHTML = "Register"; toggleAuth(); });
-    }).catch(() => { alert("Error!"); document.getElementById('btnReg').innerHTML = "Register"; });
+        return fetch(`${DB}/ultimate_users/${cleanId}.json`, { method: "PUT", body: JSON.stringify(newUser) })
+        .then(res => {
+            if(!res.ok) throw new Error("Could not save to Database. Check Firebase Rules.");
+            alert("Registration Success! +100 Coins Bonus!"); 
+            document.getElementById('btnReg').innerHTML = "Register"; toggleAuth(); 
+        });
+    })
+    .catch(err => { 
+        alert("Registration Error: " + err.message); 
+        document.getElementById('btnReg').innerHTML = "Register"; 
+    });
 }
 
 function handleLogin() {
     let rawId = document.getElementById('authId').value.trim(), pass = document.getElementById('authPass').value.trim();
     if(!rawId || !pass) return alert("Enter credentials!");
     let cleanId = rawId.replace(/\./g, '_'); document.getElementById('btnLogin').innerHTML = "Loading...";
-    fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r=>r.json()).then(data => {
+    
+    fetch(`${DB}/ultimate_users/${cleanId}.json`)
+    .then(r => {
+        if(!r.ok) throw new Error(`HTTP Status ${r.status}. Please check your Firebase Database Rules.`);
+        return r.json();
+    })
+    .then(data => {
         document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`;
-        if(!data || data.pass !== pass) return alert("❌ Invalid Login!");
+        if(!data || data.error || data.pass !== pass) return alert("❌ Invalid Login Credentials or Account not found!");
+        
         currentUser = { id: cleanId, ...data, mistakes: data.mistakes||[], subjProg: data.subjProg||{} };
         let today = new Date().toLocaleDateString();
         if(currentUser.lastLogin !== today) {
-            // Complex streak logic for new day
             let lastDate = new Date(currentUser.lastLogin); let curDate = new Date(today);
             let diff = (curDate - lastDate) / (1000*60*60*24);
-            if(diff === 1) currentUser.streak += 1; else currentUser.streak = 1; // Reset if missed day
+            if(diff === 1) currentUser.streak += 1; else currentUser.streak = 1;
             currentUser.lastLogin = today;
             currentUser.activityData.shift(); currentUser.activityData.push(0);
             saveUserDB({ streak: currentUser.streak, lastLogin: today, activityData: currentUser.activityData });
         }
         updateUIHeader(); navTo('pageHome', 0); fetchDBData(); fetchFlashcards();
-    }).catch(() => { alert("Error!"); document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`; });
+    })
+    .catch(err => { 
+        alert("Login Error: " + err.message); 
+        document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`; 
+    });
 }
 
 function logout() { currentUser = {}; navTo('pageAuth'); }
@@ -490,7 +563,6 @@ function updateUIHeader() {
     document.getElementById('profCoins').innerText = currentUser.coins; document.getElementById('profXp').innerText = currentUser.xp;
     document.getElementById('profStudy').innerText = currentUser.studyMins; document.getElementById('progStreak').innerText = currentUser.streak;
 
-    // Badges
     let achHtml = "";
     if(currentUser.streak >= 7) achHtml += `<div class="badge" style="border-color:var(--warning); color:var(--warning);">🔥 7-Day Streak</div>`;
     if(currentUser.studyMins >= 600) achHtml += `<div class="badge" style="border-color:var(--primary); color:var(--primary);">🕒 10hr Focus</div>`;
@@ -498,16 +570,16 @@ function updateUIHeader() {
 }
 
 function saveProfileEdit() { let n = document.getElementById('epName').value.trim(); let b = document.getElementById('epBatch').value; if(n) { saveUserDB({ name: n, batch: b }); alert("Updated!"); document.getElementById('editProfBox').classList.add('hidden'); } }
-function saveUserDB(updates) { Object.assign(currentUser, updates); fetch(`${DB}/ultimate_users/${currentUser.id}.json`, { method: "PATCH", body: JSON.stringify(updates) }); updateUIHeader(); }
-
+function saveUserDB(updates) { Object.assign(currentUser, updates); fetch(`${DB}/ultimate
+        
 // ==========================================
 // 4. QUICK REVISE & DUAL LEADERBOARDS
 // ==========================================
 function fetchFlashcards() {
-    fetch(`${DB}/ultimate_flashcards.json`).then(r=>r.json()).then(data => {
-        if(data) { flashcards = Object.keys(data).map(k=>({id:k,...data[k]})); if(flashcards.length>0) renderFlashcard(); }
+    fetch(`${DB}/ultimate_flashcards.json`).then(r=>{if(r.ok) return r.json(); return null;}).then(data => {
+        if(data && !data.error) { flashcards = Object.keys(data).map(k=>({id:k,...data[k]})); if(flashcards.length>0) renderFlashcard(); }
         else flashcards = [{q: "No flashcards yet. Admin will add soon!", a: "Keep learning!"}];
-    });
+    }).catch(e=>console.log("Flashcard Fetch Error: ", e.message));
 }
 function renderFlashcard() { fcFlipped = false; document.getElementById("fcText").innerText = flashcards[fcIndex].q; document.getElementById("fcText").style.color = "white"; }
 function flipFlashcard() { if(!fcFlipped) { document.getElementById("fcText").innerText = flashcards[fcIndex].a; document.getElementById("fcText").style.color = "#38bdf8"; fcFlipped = true; } else renderFlashcard(); }
@@ -515,8 +587,8 @@ function nextFlashcard(e) { e.stopPropagation(); fcIndex = (fcIndex + 1) % flash
 function prevFlashcard(e) { e.stopPropagation(); fcIndex = (fcIndex - 1 + flashcards.length) % flashcards.length; renderFlashcard(); }
 
 function loadLeaderboards() {
-    fetch(`${DB}/ultimate_users.json`).then(r=>r.json()).then(data => {
-        if(!data) return; allUsers = Object.values(data);
+    fetch(`${DB}/ultimate_users.json`).then(r=>{if(r.ok) return r.json(); return null;}).then(data => {
+        if(!data || data.error) return; allUsers = Object.values(data);
         let xpUsers = [...allUsers].sort((a,b) => (b.xp||0) - (a.xp||0)).slice(0,10); let xpHtmlHome = ''; let xpHtmlFull = '';
         xpUsers.forEach((u, i) => {
             let stg = getStage(u.xp||0);
@@ -534,7 +606,7 @@ function loadLeaderboards() {
         let studyUsers = [...allUsers].sort((a,b) => (b.studyMins||0) - (a.studyMins||0)).slice(0,10); let sHtml = '';
         studyUsers.forEach((u, i) => { sHtml += `<div class="rank-row"><div style="font-weight:bold;width:20px;">${i+1}</div><div style="flex:1; margin-left:12px;"><div style="font-weight:bold; font-size:14px;">${u.name||"User"}</div></div><div style="color:var(--danger); font-weight:bold;">${u.studyMins||0} <small>Mins</small></div></div>`; });
         document.getElementById('studyRankList').innerHTML = sHtml || "<div class='text-center text-muted'>No data yet.</div>";
-    });
+    }).catch(e=>console.log("Leaderboard Fetch Error: ", e.message));
 }
 
 // ==========================================
@@ -568,8 +640,18 @@ function resetPomodoro() { clearInterval(pTimer); isPRunning = false; pTimeLeft 
 // 6. DB FETCH & LEARN
 // ==========================================
 function fetchDBData() {
-    fetch(`${DB}/ultimate_questions.json`).then(r=>r.json()).then(data => { if(data) allQuestions = Object.keys(data).map(k => ({ id: k, ...data[k] })); });
-    fetch(`${DB}/ultimate_notes.json`).then(r=>r.json()).then(data => { if(data) allNotes = Object.keys(data).map(k => ({ id: k, ...data[k] })); });
+    // Note for User: Make sure your questions in Firebase are inside the "ultimate_questions" node!
+    fetch(`${DB}/ultimate_questions.json`)
+    .then(r => {
+        if(!r.ok) console.error("Could not fetch questions. Check Database Rules!");
+        return r.json();
+    })
+    .then(data => { 
+        if(data && !data.error) allQuestions = Object.keys(data).map(k => ({ id: k, ...data[k] })); 
+    })
+    .catch(err => console.log("DB Data Fetch Error: ", err.message));
+    
+    fetch(`${DB}/ultimate_notes.json`).then(r=>{if(r.ok) return r.json(); return null;}).then(data => { if(data && !data.error) allNotes = Object.keys(data).map(k => ({ id: k, ...data[k] })); });
 }
 
 function loadShortNotes() {
@@ -583,7 +665,7 @@ function loadShortNotes() {
             <h4 style="color:var(--text-main); margin:5px 0;">${n.title}</h4>
             <div style="font-size:13px; white-space: pre-wrap; margin-bottom: 10px;">${n.content}</div>`;
         if(n.pdfUrl) {
-            let embedUrl = n.pdfUrl.replace('/view?usp=sharing', '/preview').replace('/view', '/preview'); // Try adapt gdrive links
+            let embedUrl = n.pdfUrl.replace('/view?usp=sharing', '/preview').replace('/view', '/preview');
             html += `<iframe src="${embedUrl}" class="pdf-frame"></iframe>
                      <a href="${n.pdfUrl}" target="_blank" style="display:block; margin-top:5px; font-size:12px; color:var(--accent);">Open PDF in new tab</a>`;
         }
@@ -596,7 +678,10 @@ function loadQBank() {
     let sub = document.getElementById('readSub').value, chap = document.getElementById('readChap').value;
     if(!sub) return alert("Select subject!");
     let html = ''; let filtered = allQuestions.filter(q => q.subject === sub && (chap === 'All' || q.chapter === chap));
-    if(filtered.length === 0) html = "<div class='text-center mt-1 text-muted'>No questions available yet.</div>";
+    
+    if(allQuestions.length === 0) html = "<div class='text-center mt-1 text-muted'>Database is empty or could not be loaded. Please add questions from Admin Console.</div>";
+    else if(filtered.length === 0) html = "<div class='text-center mt-1 text-muted'>No questions available for this subject yet.</div>";
+    
     filtered.forEach((q, i) => {
         let isBookmarked = currentUser.bookmarks && currentUser.bookmarks.includes(q.id);
         html += `<div class="card"><div class="flex-between mb-1"><span class="badge" style="border-color:var(--primary); color:var(--primary);">${q.level||'Academic'}</span><i class="fa-solid fa-bookmark bookmark-btn ${isBookmarked?'active':''}" onclick="toggleBookmark('${q.id}', this)"></i></div>
@@ -613,9 +698,8 @@ function toggleBookmark(id, el) {
     let idx = currentUser.bookmarks.indexOf(id);
     if(idx > -1) { currentUser.bookmarks.splice(idx, 1); el.classList.remove('active'); } else { currentUser.bookmarks.push(id); el.classList.add('active'); }
     saveUserDB({ bookmarks: currentUser.bookmarks });
-}
-
-// ==========================================
+    }
+    // ==========================================
 // 7. MOCK EXAM BUILDER
 // ==========================================
 function addMockBlock() {
@@ -656,7 +740,7 @@ function renderLiveExam() {
         if(examState.time > 0) {
             examState.time--; let m = Math.floor(examState.time/60); let s = examState.time%60;
             document.getElementById('examTimerTxt').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-            if(examState.time === 60) timerSound.play().catch(e=>{}); // Warning beep at 1 min
+            if(examState.time === 60) timerSound.play().catch(e=>{}); 
         } else submitExam();
     }, 1000);
 }
@@ -677,11 +761,11 @@ function submitExam() {
         if(userAns === q.tempCorrect) {
             correct++;
             if(!sp[q.subject]) sp[q.subject] = { c:0, w:0 }; sp[q.subject].c++;
-            mistakesArr = mistakesArr.filter(id => id !== q.id); // Remove from mistakes if correct now
+            mistakesArr = mistakesArr.filter(id => id !== q.id); 
         } else if(userAns !== null) {
             wrong++;
             if(!sp[q.subject]) sp[q.subject] = { c:0, w:0 }; sp[q.subject].w++;
-            if(!mistakesArr.includes(q.id)) mistakesArr.push(q.id); // Add to mistake book
+            if(!mistakesArr.includes(q.id)) mistakesArr.push(q.id); 
         }
         
         revHtml += `<div class="card" style="border-color: ${userAns===q.tempCorrect?'var(--primary)':userAns===null?'var(--border)':'var(--danger)'}">
@@ -706,11 +790,8 @@ function submitExam() {
     document.getElementById('resPercent').innerText = `${percent}%`; document.getElementById('resPercent').style.color = percent>=50 ? 'var(--primary)' : 'var(--danger)';
     document.getElementById('resXp').innerText = earnXp; document.getElementById('resCoin').innerText = earnCoin;
     
-    // Subject Progress Breakdown
     let spHtml = `<div style="font-size:12px; text-align:left; margin-top:15px; border-top:1px solid var(--border); padding-top:10px;"><b>Subject Accuracy:</b><br>`;
-    examState.config.forEach(c => {
-        let d = sp[c.sub]; if(d) { let acc = Math.round((d.c/(d.c+d.w))*100)||0; spHtml += `${c.sub}: ${acc}% <br>`; }
-    });
+    examState.config.forEach(c => { let d = sp[c.sub]; if(d) { let acc = Math.round((d.c/(d.c+d.w))*100)||0; spHtml += `${c.sub}: ${acc}% <br>`; } });
     spHtml += `</div>`; document.getElementById('subjectProgressArea').innerHTML = spHtml;
 
     document.getElementById('reviewContainer').innerHTML = revHtml;
@@ -748,7 +829,6 @@ function renderProgressUI() {
         options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#1e293b' } } } }
     });
 
-    // Dynamic Monthly Calendar
     let d = new Date(); let year = d.getFullYear(); let month = d.getMonth(); let today = d.getDate();
     let daysInMonth = new Date(year, month + 1, 0).getDate(); let firstDay = new Date(year, month, 1).getDay();
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -765,9 +845,9 @@ function renderProgressUI() {
 }
 
 function loadHistory() {
-    fetch(`${DB}/ultimate_history.json`).then(r=>r.json()).then(data => {
+    fetch(`${DB}/ultimate_history.json`).then(r=>{if(r.ok) return r.json(); return null;}).then(data => {
         let html = '';
-        if(data) {
+        if(data && !data.error) {
             Object.values(data).reverse().forEach(res => {
                 if(res.name === currentUser.name) {
                     html += `<div class="card" style="border-left: 4px solid var(--primary); padding: 12px;">
@@ -811,7 +891,10 @@ function adminSaveQ() {
     let data = { subject: document.getElementById('adSub').value, chapter: document.getElementById('adChap').value, level: document.getElementById('adLevel').value, stars: parseInt(document.getElementById('adStars').value), q: document.getElementById('adQ').value, img: document.getElementById('adImg').value, a: [document.getElementById('adO1').value, document.getElementById('adO2').value, document.getElementById('adO3').value, document.getElementById('adO4').value], correct: parseInt(document.getElementById('adCorrect').value), exp: document.getElementById('adExp').value };
     if(!data.subject || !data.q) return alert("Fill mandatory fields!");
     let url = currentEditId ? `${DB}/ultimate_questions/${currentEditId}.json` : `${DB}/ultimate_questions.json`; let method = currentEditId ? "PUT" : "POST";
-    fetch(url, { method: method, body: JSON.stringify(data) }).then(() => { alert("Saved!"); cancelEdit(); fetchDBData(); setTimeout(adminSearchQ, 1000); });
+    fetch(url, { method: method, body: JSON.stringify(data) }).then(r => { 
+        if(!r.ok) return alert("Firebase Rule Error! Cannot save.");
+        alert("Saved!"); cancelEdit(); fetchDBData(); setTimeout(adminSearchQ, 1000); 
+    });
 }
 
 function adminBulkAdd() { try { let arr = JSON.parse(document.getElementById('adBulkJson').value); if(Array.isArray(arr)) { arr.forEach(q => { fetch(`${DB}/ultimate_questions.json`, {method:'POST', body:JSON.stringify(q)}); }); alert('Success!'); fetchDBData(); setTimeout(adminSearchQ, 1000); } } catch(e) { alert('Invalid JSON!'); } }
@@ -819,17 +902,23 @@ function adminBulkAdd() { try { let arr = JSON.parse(document.getElementById('ad
 function adminSaveNote() {
     let data = { subject: document.getElementById('adNoteSub').value, chapter: document.getElementById('adNoteChap').value, title: document.getElementById('adNoteTitle').value, content: document.getElementById('adNoteContent').value, pdfUrl: document.getElementById('adNotePdf').value };
     if(!data.subject || (!data.content && !data.pdfUrl)) return alert("Fill data or provide PDF!");
-    fetch(`${DB}/ultimate_notes.json`, { method: "POST", body: JSON.stringify(data) }).then(() => { alert("Published!"); document.getElementById('adNoteTitle').value=""; document.getElementById('adNoteContent').value=""; document.getElementById('adNotePdf').value=""; fetchDBData(); });
+    fetch(`${DB}/ultimate_notes.json`, { method: "POST", body: JSON.stringify(data) }).then(r => { 
+        if(!r.ok) return alert("Firebase Rule Error!");
+        alert("Published!"); document.getElementById('adNoteTitle').value=""; document.getElementById('adNoteContent').value=""; document.getElementById('adNotePdf').value=""; fetchDBData(); 
+    });
 }
 
 function adminSaveFlashcard() {
     let data = { q: document.getElementById('adFcQ').value, a: document.getElementById('adFcA').value };
     if(!data.q || !data.a) return alert("Fill both fields!");
-    fetch(`${DB}/ultimate_flashcards.json`, { method: "POST", body: JSON.stringify(data) }).then(() => { alert("Flashcard Added!"); document.getElementById('adFcQ').value=""; document.getElementById('adFcA').value=""; fetchAdminFc(); fetchFlashcards(); });
+    fetch(`${DB}/ultimate_flashcards.json`, { method: "POST", body: JSON.stringify(data) }).then(r => { 
+        if(!r.ok) return alert("Firebase Rule Error!");
+        alert("Flashcard Added!"); document.getElementById('adFcQ').value=""; document.getElementById('adFcA').value=""; fetchAdminFc(); fetchFlashcards(); 
+    });
 }
 function fetchAdminFc() {
-    fetch(`${DB}/ultimate_flashcards.json`).then(r=>r.json()).then(data => {
-        let html = ''; if(data) { Object.keys(data).forEach(k => { html += `<div style="background:var(--bg-main); padding:8px; margin-bottom:5px; border-radius:5px;"><b>Q:</b> ${data[k].q} <br><button class="btn-danger" style="padding:4px; font-size:10px; margin-top:5px;" onclick="delFc('${k}')">Delete</button></div>`; }); }
+    fetch(`${DB}/ultimate_flashcards.json`).then(r=>{if(r.ok) return r.json(); return null;}).then(data => {
+        let html = ''; if(data && !data.error) { Object.keys(data).forEach(k => { html += `<div style="background:var(--bg-main); padding:8px; margin-bottom:5px; border-radius:5px;"><b>Q:</b> ${data[k].q} <br><button class="btn-danger" style="padding:4px; font-size:10px; margin-top:5px;" onclick="delFc('${k}')">Delete</button></div>`; }); }
         document.getElementById('adminFcList').innerHTML = html;
     });
 }
