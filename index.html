@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EduNexus Pro Ultimate V2</title>
+    <title>EduNexus Pro Ultimate V3</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -31,13 +31,8 @@
         }
         
         body.light-mode { 
-            --bg-main: #f1f5f9; 
-            --card-bg: #ffffff; 
-            --card-glass: rgba(255, 255, 255, 0.95); 
-            --text-main: #0f172a; 
-            --text-muted: #64748b; 
-            --border: #cbd5e1; 
-            --surface: #e2e8f0; 
+            --bg-main: #f1f5f9; --card-bg: #ffffff; --card-glass: rgba(255, 255, 255, 0.95); 
+            --text-main: #0f172a; --text-muted: #64748b; --border: #cbd5e1; --surface: #e2e8f0; 
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -65,6 +60,7 @@
         .btn-warning { background: linear-gradient(135deg, #d97706, #fbbf24); color: #020617; }
         .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text-main); }
         .btn-outline:active { background: var(--surface); }
+        .btn-outline.active { border-color: var(--primary); background: rgba(56, 189, 248, 0.1); color: var(--primary); }
 
         /* Header & Navbar */
         .header { position: sticky; top: 0; z-index: 50; background: var(--card-glass); backdrop-filter: blur(20px); padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
@@ -94,8 +90,6 @@
         /* Flashcard Box */
         .fc-box { background: linear-gradient(135deg, #1e1b4b, #312e81); border: 2px solid #6366f1; border-radius: 28px; padding: 35px 25px; text-align: center; cursor: pointer; user-select: none; min-height: 200px; display:flex; flex-direction:column; justify-content:center; box-shadow: 0 15px 35px rgba(99,102,241,0.3); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position:relative; overflow:hidden;}
         .fc-box:active { transform: scale(0.95); }
-        .fc-box::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); opacity: 0; transition: 0.5s; pointer-events: none; }
-        .fc-box:hover::before { opacity: 1; }
         
         /* PWA Install Banner */
         #installBanner { background: linear-gradient(135deg, var(--accent), var(--primary)); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; color: #020617; border-radius: 0 0 24px 24px; font-weight:800; box-shadow: 0 8px 25px var(--accent-glow); z-index: 200; position:relative;}
@@ -109,10 +103,15 @@
         /* Daily Mission Card */
         .mission-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
         .mission-icon { width: 45px; height: 45px; border-radius: 12px; background: rgba(245,158,11,0.1); color: var(--warning); display: flex; justify-content: center; align-items: center; font-size: 20px; }
+        
+        /* Tracker Items */
+        .tracker-item { display: flex; align-items: center; padding: 14px; background: var(--surface); border-radius: 14px; margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border); transition: 0.3s;}
+        .tracker-item:hover { border-color: var(--primary); }
+        .tracker-item.done { border-color: var(--primary); background: rgba(56, 189, 248, 0.1); }
+        .tracker-item.done .t-text { text-decoration: line-through; color: var(--text-muted); }
     </style>
 </head>
 <body>
-
 <div class="container">
     <div id="installBanner" class="hidden">
         <div style="font-size: 15px;"><i class="fa-solid fa-download"></i> Install EduNexus App</div>
@@ -173,7 +172,7 @@
         </div>
         
         <div class="text-center mt-1" style="margin-top: 50px;">
-            <span onclick="document.getElementById('adminBox').classList.toggle('hidden')" style="cursor:pointer; color:var(--border); font-size:14px; font-weight:700; padding:10px;"><i class="fa-solid fa-shield-halved"></i> Developer / Admin Access</span>
+            <span onclick="document.getElementById('adminBox').classList.toggle('hidden')" style="cursor:pointer; color:var(--border); font-size:14px; font-weight:700; padding:10px;"><i class="fa-solid fa-shield-halved"></i> Developer / Admin Console</span>
         </div>
         <div class="card hidden mt-1" id="adminBox" style="border-color: var(--danger); background: rgba(244, 63, 94, 0.05);">
             <h4 style="color: var(--danger); margin-bottom: 15px; font-size:18px;"><i class="fa-solid fa-lock"></i> Admin Console</h4>
@@ -182,8 +181,8 @@
             <button class="btn-danger mt-1" onclick="teacherLogin()">Enter Console</button>
         </div>
     </div>
-        <div id="pageHome" class="hidden p-2">
-        
+
+    <div id="pageHome" class="hidden p-2">
         <div id="notiModal" class="card hidden" style="position: absolute; top: 10px; left: 16px; right: 16px; z-index: 200; background: var(--card-bg); border-color:var(--primary); box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
             <div class="flex-between mb-1">
                 <h3 style="color:var(--primary);"><i class="fa-solid fa-bell"></i> Notifications</h3>
@@ -283,26 +282,10 @@
             <div id="qbankArea"></div>
         </div>
     </div>
-        <div id="pageTimer" class="hidden p-2">
-        <h3 class="mb-1" style="font-size: 22px;"><i class="fa-solid fa-brain" style="color: var(--accent);"></i> Focus Timer</h3>
-        <div class="card glass-card text-center" style="border-color: var(--accent); padding: 40px 20px; box-shadow: 0 10px 40px rgba(129, 140, 248, 0.15);">
-            <div class="grid-3 mb-1" style="margin-bottom: 30px;">
-                <div><label style="font-size:12px; color:var(--text-muted); font-weight:800;">HOURS</label><input type="number" id="tH" value="0" min="0" max="10" style="text-align:center; font-size:24px; font-weight:800; padding:12px;"></div>
-                <div><label style="font-size:12px; color:var(--text-muted); font-weight:800;">MINS</label><input type="number" id="tM" value="25" min="0" max="59" style="text-align:center; font-size:24px; font-weight:800; padding:12px;"></div>
-                <div><label style="font-size:12px; color:var(--text-muted); font-weight:800;">SECS</label><input type="number" id="tS" value="0" min="0" max="59" style="text-align:center; font-size:24px; font-weight:800; padding:12px;"></div>
-            </div>
-            <div style="font-size: 65px; font-weight: 800; font-family: 'Plus Jakarta Sans', monospace; color: var(--text-main); margin: 15px 0; text-shadow: 0 0 25px var(--accent-glow); letter-spacing: -2px;" id="timerDisplay">00:25:00</div>
-            <div id="timerStatus" style="color: var(--accent); font-size: 16px; margin-bottom: 35px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Ready to Focus</div>
-            <div class="grid-2">
-                <button class="btn-accent" id="btnTimerStart" style="padding: 18px; font-size: 16px;" onclick="togglePomodoro()"><i class="fa-solid fa-play"></i> Start</button>
-                <button class="btn-outline" style="padding: 18px; font-size: 16px;" onclick="resetPomodoro()"><i class="fa-solid fa-rotate-right"></i> Reset</button>
-            </div>
-        </div>
-    </div>
 
     <div id="pageLeaderboard" class="hidden p-2">
-        <h3 class="mb-1" style="font-size: 22px;"><i class="fa-solid fa-trophy" style="color: gold;"></i> Hall of Fame</h3>
-        <div class="card glass-card" style="padding: 15px;">
+        <h3 class="mb-1" style="font-size: 22px;"><i class="fa-solid fa-trophy" style="color: gold;"></i> Global Leaderboard</h3>
+        <div class="card glass-card">
             <div class="grid-2">
                 <select id="lbBatchFilter" onchange="loadLeaderboards()">
                     <option value="All">All Batches</option>
@@ -313,26 +296,26 @@
                 </select>
                 <select id="lbTypeFilter" onchange="loadLeaderboards()">
                     <option value="XP">By Total XP</option>
-                    <option value="Coins">By Coins</option>
-                    <option value="Study">By Focus Time</option>
+                    <option value="Coins">By Total Coins</option>
+                    <option value="Study">By Focus Mins</option>
                 </select>
             </div>
         </div>
-        <div id="fullLeaderboard" style="margin-top: 15px;"></div>
-    </div>
-
-    <div id="pageMock" class="hidden p-2">
-        <h3 class="mb-1" style="font-size: 22px;"><i class="fa-solid fa-layer-group" style="color: var(--primary);"></i> Build Exam</h3>
-        <div class="card glass-card">
-            <div class="grid-2"><select id="mockSub" onchange="updateMockChaps()"></select><select id="mockChap"><option value="All">All Chapters</option></select></div>
-            <div class="grid-2 mt-1">
-                <input type="number" id="mockLimit" placeholder="No. of Qs" min="1">
-                <button class="btn-outline" onclick="addMockBlock()"><i class="fa-solid fa-plus"></i> Add Block</button>
+        <div id="fullLeaderboard" style="margin-top: 20px;"></div>
+                </div>
+        <div id="pageTimer" class="hidden p-2">
+        <h3 class="mb-1" style="font-size: 22px;"><i class="fa-solid fa-brain" style="color: var(--accent);"></i> Focus Timer</h3>
+        <div class="card glass-card text-center" style="border-color: var(--accent); padding: 40px 20px; box-shadow: 0 10px 40px rgba(129, 140, 248, 0.15);">
+            <div class="grid-3 mb-1" style="margin-bottom: 30px;">
+                <div><label style="font-size:12px; color:var(--text-muted); font-weight:800;">HOURS</label><input type="number" id="tH" value="0" min="0" max="10" style="text-align:center; font-size:24px; font-weight:800; padding:12px; border-radius:14px;"></div>
+                <div><label style="font-size:12px; color:var(--text-muted); font-weight:800;">MINS</label><input type="number" id="tM" value="25" min="0" max="59" style="text-align:center; font-size:24px; font-weight:800; padding:12px; border-radius:14px;"></div>
+                <div><label style="font-size:12px; color:var(--text-muted); font-weight:800;">SECS</label><input type="number" id="tS" value="0" min="0" max="59" style="text-align:center; font-size:24px; font-weight:800; padding:12px; border-radius:14px;"></div>
             </div>
-            <div id="mockConfigList" style="margin-top: 15px; padding: 10px; background: var(--surface); border-radius: 16px; border: 1px solid var(--border);"></div>
-            <div class="flex-between mt-1" style="margin-top: 20px;">
-                <div style="font-size: 14px; color: var(--warning); font-weight: 800;"><i class="fa-solid fa-coins"></i> Cost: 10 Coins</div>
-                <button class="btn-primary" style="width: 60%;" onclick="startMockExam()">Launch Exam <i class="fa-solid fa-rocket"></i></button>
+            <div style="font-size: 65px; font-weight: 800; font-family: 'Plus Jakarta Sans', monospace; color: var(--text-main); margin: 15px 0; text-shadow: 0 0 25px var(--accent-glow); letter-spacing: -2px;" id="timerDisplay">00:25:00</div>
+            <div id="timerStatus" style="color: var(--accent); font-size: 16px; margin-bottom: 35px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Ready to Focus</div>
+            <div class="grid-2">
+                <button class="btn-accent" id="btnTimerStart" style="padding: 18px; font-size: 16px;" onclick="togglePomodoro()"><i class="fa-solid fa-play"></i> Start</button>
+                <button class="btn-outline" style="padding: 18px; font-size: 16px; border-radius:16px;" onclick="resetPomodoro()"><i class="fa-solid fa-rotate-right"></i> Reset</button>
             </div>
         </div>
     </div>
@@ -383,7 +366,7 @@
                 <b id="profJoinDate" style="color: var(--text-main);">--</b>
             </div>
             <div style="padding: 18px; display: flex; justify-content: space-between; font-size: 14px; font-weight: 600;">
-                <span style="color: var(--text-muted);"><i class="fa-solid fa-clock"></i> Total Focus Time</span>
+                <span style="color: var(--text-muted);"><i class="fa-solid fa-clock"></i> Focus Time</span>
                 <b style="color: var(--accent);"><span id="profStudy">0</span> Mins</b>
             </div>
         </div>
@@ -418,6 +401,22 @@
             <button class="btn-outline" id="btnM2" style="padding: 10px; font-size: 13px; border:none;" onclick="renderMistakeData('saved')">Saved Qs</button>
         </div>
         <div id="mistakeArea"></div>
+    </div>
+
+    <div id="pageMock" class="hidden p-2">
+        <h3 class="mb-1" style="font-size: 22px;"><i class="fa-solid fa-layer-group" style="color: var(--primary);"></i> Build Custom Exam</h3>
+        <div class="card glass-card">
+            <div class="grid-2"><select id="mockSub" onchange="updateMockChaps()"></select><select id="mockChap"><option value="All">All Chapters</option></select></div>
+            <div class="grid-2 mt-1">
+                <input type="number" id="mockLimit" placeholder="No. of Qs" min="1">
+                <button class="btn-outline" onclick="addMockBlock()"><i class="fa-solid fa-plus"></i> Add Block</button>
+            </div>
+            <div id="mockConfigList" style="margin-top: 15px; padding: 10px; background: var(--surface); border-radius: 16px; border: 1px solid var(--border);"></div>
+            <div class="flex-between mt-1" style="margin-top: 20px;">
+                <div style="font-size: 13px; color: var(--warning); font-weight: 800;"><i class="fa-solid fa-coins"></i> Cost: 10 Coins</div>
+                <button class="btn-primary" style="width: 60%;" onclick="startMockExam()">Launch Exam <i class="fa-solid fa-rocket"></i></button>
+            </div>
+        </div>
     </div>
 
     <div id="pageExam" class="hidden" style="min-height: 100vh; background: var(--bg-main);">
@@ -518,7 +517,29 @@
         
         <div id="adNotiBox" class="card hidden">
             <h4>Send Global Notification</h4>
-        <script>
+            <input id="adNotiTitle" placeholder="Notification Title">
+            <textarea id="adNotiBody" placeholder="Message body..." rows="3"></textarea>
+            <button class="btn-primary mt-1" onclick="adminSendNotification()"><i class="fa-solid fa-paper-plane"></i> Send Push</button>
+        </div>
+
+        <div class="card mt-1">
+            <h4>Database Search & Edit Questions</h4>
+            <div class="grid-2 mt-1"><select id="adSearchSub" onchange="updateChapDropdown('adSearchSub','adSearchChap')"></select><select id="adSearchChap"><option value="All">All</option></select></div>
+            <input id="adSearch" placeholder="Search keywords..." onkeyup="adminSearchQ()">
+            <div id="adQList" style="max-height: 300px; overflow-y: auto; margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <div class="bottom-nav" id="bottomNav" style="display: none;">
+        <div class="bottom-nav" id="bottomNav" style="display: none;">
+        <div class="nav-item active" onclick="navTo('pageHome', 0); navToTimer(false);"><i class="fa-solid fa-house"></i><span>Home</span></div>
+        <div class="nav-item" onclick="navTo('pageNotes', 1); navToTimer(false);"><i class="fa-solid fa-book-open"></i><span>Learn</span></div>
+        <div class="nav-item" onclick="navTo('pageTimer', -1); navToTimer(true);"><i class="fa-solid fa-stopwatch"></i><span>Timer</span></div>
+        <div class="nav-item" onclick="navTo('pageLeaderboard', 3); navToTimer(false);"><i class="fa-solid fa-ranking-star"></i><span>Rank</span></div>
+        <div class="nav-item" onclick="navTo('pageProfile', 4); navToTimer(false);"><i class="fa-solid fa-user"></i><span>Profile</span></div>
+    </div>
+    </div>
+<script>
 // ==========================================
 // 0. PWA INSTALLATION LOGIC
 // ==========================================
@@ -538,7 +559,7 @@ function installApp() {
 }
 
 // ==========================================
-// 1. FIREBASE URL & GLOBAL VARS
+// 1. FIREBASE URL & GLOBAL VARIABLES
 // ==========================================
 const DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com"; 
 
@@ -547,12 +568,11 @@ let examState = { config: [], questions: [], answers: [], time: 0, interval: nul
 let practiceState = { questions: [] };
 let lineChartInst = null; let radarChartInst = null; let currentEditId = null;
 
-// Sound Effects
 const timerSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
 const successSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
 const failSound = new Audio('https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg');
 
-// Exact Chapters Requirement 
+// EXACT CHAPTERS AS REQUESTED
 const hscData = {
     "Physics 1st Paper": Array.from({length: 10}, (_, i) => `Chapter ${i+1}`),
     "Physics 2nd Paper": Array.from({length: 11}, (_, i) => `Chapter ${i+1}`),
@@ -560,8 +580,8 @@ const hscData = {
     "Chemistry 2nd Paper": Array.from({length: 10}, (_, i) => `Chapter ${i+1}`),
     "Biology 1st Paper": Array.from({length: 12}, (_, i) => `Chapter ${i+1}`),
     "Biology 2nd Paper": Array.from({length: 12}, (_, i) => `Chapter ${i+1}`),
-    "Math 1st Paper": Array.from({length: 20}, (_, i) => `Chapter ${i+1}`),
-    "Math 2nd Paper": Array.from({length: 20}, (_, i) => `Chapter ${i+1}`),
+    "Higher Math 1st Paper": Array.from({length: 20}, (_, i) => `Chapter ${i+1}`),
+    "Higher Math 2nd Paper": Array.from({length: 20}, (_, i) => `Chapter ${i+1}`),
     "Bangla 1st Paper": ["গদ্য", "পদ্য", "উপন্যাস", "নাটক"],
     "Bangla 2nd Paper": ["ব্যাকরণ", "নির্মিতি"],
     "English 1st Paper": ["Seen Comprehension", "Vocabulary", "Writing"],
@@ -629,7 +649,7 @@ function handleRegister() {
         if(data && !data.error) { alert("Account already exists!"); document.getElementById('btnReg').innerHTML = "Create Account"; return; }
         let newUser = { name, batch, pass, joinDate: new Date().toLocaleDateString(), coins: 100, xp: 0, studyMins: 0, streak: 1, lastLogin: new Date().toLocaleDateString(), activityData: [0,0,0,0,0,0,0], bookmarks: [], mistakes: [], subjProg: {}, tracker: {} }; 
         return fetch(`${DB}/ultimate_users/${cleanId}.json`, { method: "PUT", body: JSON.stringify(newUser) }).then(res => { alert("Success! +100 Coins Bonus!"); document.getElementById('btnReg').innerHTML = "Create Account"; toggleAuth(); });
-    }).catch(err => { alert("Error"); document.getElementById('btnReg').innerHTML = "Create Account"; });
+    }).catch(err => { alert("Registration Error"); document.getElementById('btnReg').innerHTML = "Create Account"; });
 }
 
 function handleLogin() {
@@ -644,7 +664,7 @@ function handleLogin() {
         if(currentUser.lastLogin !== today) {
             if(currentUser.lastLogin) { let diff = (new Date(today) - new Date(currentUser.lastLogin)) / (1000*60*60*24); if(diff === 1) currentUser.streak += 1; else currentUser.streak = 1; } else currentUser.streak = 1;
             currentUser.lastLogin = today; 
-            currentUser.coins += 100; // Daily Login 100 Coin Reward
+            currentUser.coins += 100; // 🎁 Daily Login 100 Coin Reward
             if(currentUser.activityData.length > 0) currentUser.activityData.shift(); currentUser.activityData.push(0);
             saveUserDB({ streak: currentUser.streak, coins: currentUser.coins, lastLogin: today, activityData: currentUser.activityData });
             alert("🎁 Daily Login Bonus: +100 Coins!");
@@ -670,6 +690,9 @@ function getStage(xp) {
     return { name: "Legend", next: "Max", target: xp, color: "gold", glow: "rgba(255,215,0,0.5)" };
 }
 
+// ==========================================
+// 4. PROFILE OVERHAUL & LEADERBOARD
+// ==========================================
 function updateProfileOverhaul() {
     let stage = getStage(currentUser.xp || 0); let fn = (currentUser.name || "User").split(" ")[0]; let fl = fn.charAt(0).toUpperCase();
     document.getElementById('profName').innerText = currentUser.name; document.getElementById('profId').innerText = (currentUser.id||"").replace(/_/g, '.');
@@ -691,13 +714,13 @@ function updateProfileOverhaul() {
                     hHtml += `<div class="card" style="border-left: 4px solid var(--primary); padding: 16px; cursor:pointer; background:var(--surface);" onclick="showHistoryDetails('${res.id}')">
                         <div class="flex-between"><b style="font-size:15px;">${res.subject}</b><span style="color:var(--text-muted); font-size:11px; font-weight:bold;">${res.time}</span></div>
                         <div style="color:var(--text-main); margin-top:8px; font-size:14px; font-weight:600;">🎯 Score: <span style="color:var(--primary); font-weight:900;">${res.percent}%</span> | ✅ ${res.c} ❌ ${res.w}</div>
-                        <div style="font-size:11px; color:var(--warning); text-align:right; margin-top:10px; font-weight:bold;">Tap to view details <i class="fa-solid fa-arrow-right"></i></div>
+                        <div style="font-size:11px; color:var(--warning); text-align:right; margin-top:10px; font-weight:bold;">Tap to view exact paper <i class="fa-solid fa-arrow-right"></i></div>
                     </div>`;
                 }
             });
         }
         document.getElementById('profExams').innerText = exams;
-        document.getElementById('historyArea').innerHTML = hHtml || "<div class='text-center text-muted'>No exams yet.</div>";
+        document.getElementById('historyArea').innerHTML = hHtml || "<div class='text-center text-muted'>No exams given yet.</div>";
         let acc = (tc+tw)===0 ? 0 : Math.round((tc/(tc+tw))*100); document.getElementById('profAcc').innerText = `${acc}%`;
     });
 
@@ -705,11 +728,30 @@ function updateProfileOverhaul() {
         if(data) { let sorted = Object.values(data).sort((a,b)=>(b.xp||0)-(a.xp||0)); let myRank = sorted.findIndex(u => u.name === currentUser.name) + 1; document.getElementById('profRank').innerText = `#${myRank>0?myRank:'--'}`; }
     });
 }
-function saveProfileEdit() { let n = document.getElementById('epName').value.trim(); let b = document.getElementById('epBatch').value; if(n) { saveUserDB({ name: n, batch: b }); alert("Updated!"); document.getElementById('editProfBox').classList.add('hidden'); updateProfileOverhaul(); } }
+function saveProfileEdit() { let n = document.getElementById('epName').value.trim(); let b = document.getElementById('epBatch').value; if(n) { saveUserDB({ name: n, batch: b }); alert("Profile Updated!"); document.getElementById('editProfBox').classList.add('hidden'); updateProfileOverhaul(); } }
 function saveUserDB(updates) { Object.assign(currentUser, updates); fetch(`${DB}/ultimate_users/${currentUser.id}.json`, { method: "PATCH", body: JSON.stringify(updates) }); updateUIHeader(); }
 
-// ==========================================
-// 4. LEARN: SYLLABUS, NOTES & PRACTICE QBANK
+function loadLeaderboards() {
+    let batchFilter = document.getElementById('lbBatchFilter') ? document.getElementById('lbBatchFilter').value : "All";
+    let typeFilter = document.getElementById('lbTypeFilter') ? document.getElementById('lbTypeFilter').value : "XP";
+    let users = [...allUsers];
+    if(batchFilter !== "All") users = users.filter(u => u.batch === batchFilter);
+    if(typeFilter === "XP") users.sort((a,b) => (b.xp||0) - (a.xp||0)); else if(typeFilter === "Coins") users.sort((a,b) => (b.coins||0) - (a.coins||0)); else users.sort((a,b) => (b.studyMins||0) - (a.studyMins||0));
+    
+    let html = '';
+    users.slice(0,25).forEach((u, i) => {
+        let stg = getStage(u.xp||0); let val = typeFilter==="XP" ? `${u.xp||0} XP` : typeFilter==="Coins" ? `${u.coins||0} <i class="fa-solid fa-coins"></i>` : `${u.studyMins||0} Mins`;
+        html += `<div class="rank-row">
+            <div style="font-weight:900; width:35px; color:${i===0?'gold':i===1?'silver':i===2?'#cd7f32':'var(--text-muted)'}; font-size:18px;">${i+1}</div>
+            <div style="width:40px;height:40px;font-size:16px;font-weight:bold;border:2px solid ${stg.color}; border-radius:50%; display:flex; justify-content:center; align-items:center; background:var(--card-bg);">${(u.name||"U").charAt(0).toUpperCase()}</div>
+            <div style="flex:1; margin-left:15px;"><div style="font-weight:800; font-size:15px;">${u.name||"User"}</div><div style="font-size:11px; color:${stg.color}; font-weight:600;">${stg.name} • ${u.batch||'No Batch'}</div></div>
+            <div style="color:var(--primary); font-weight:800; font-size:15px;">${val}</div>
+        </div>`;
+    });
+    let lbEl = document.getElementById('fullLeaderboard'); if(lbEl) lbEl.innerHTML = html || "<div class='text-muted text-center'>No data found for this filter.</div>";
+}
+    // ==========================================
+// 5. SYLLABUS TRACKER LOGIC
 // ==========================================
 function switchLearnTab(tab) {
     ['viewNotes', 'viewQbank'].forEach(id => document.getElementById(id).classList.add('hidden'));
@@ -722,8 +764,15 @@ function renderSyllabusTracker() {
     let total=0, done=0; let html='';
     for(let sub in hscData) {
         let subTotal = hscData[sub].length * sylTopics.length; let subDone = 0;
-        if(currentUser.tracker && currentUser.tracker[sub]) { for(let chap in currentUser.tracker[sub]) { for(let top in currentUser.tracker[sub][chap]) { if(currentUser.tracker[sub][chap][top]) subDone++; } } }
-        total += subTotal; done += subDone; let pct = Math.round((subDone/subTotal)*100)||0;
+        if(currentUser.tracker && currentUser.tracker[sub]) { 
+            for(let chap in currentUser.tracker[sub]) { 
+                for(let top in currentUser.tracker[sub][chap]) { 
+                    if(currentUser.tracker[sub][chap][top]) subDone++; 
+                } 
+            } 
+        }
+        total += subTotal; done += subDone; 
+        let pct = Math.round((subDone/subTotal)*100)||0;
         
         html += `<div class="card text-center glass-card" style="padding: 20px 10px; margin: 0; cursor:pointer;" onclick="openChapterTracker('${sub}')">
             <div class="ring-container" style="width: 70px; height: 70px; margin-bottom: 12px;">
@@ -734,20 +783,26 @@ function renderSyllabusTracker() {
         </div>`;
     }
     document.getElementById('sylSubjectList').innerHTML = html;
-    document.getElementById('sylTotal').innerText = total; document.getElementById('sylDone').innerText = done; document.getElementById('sylLeft').innerText = total-done;
+    document.getElementById('sylTotal').innerText = total; 
+    document.getElementById('sylDone').innerText = done; 
+    document.getElementById('sylLeft').innerText = total-done;
     document.getElementById('sylOverallProg').innerText = `${Math.round((done/total)*100)||0}%`;
-    document.getElementById('sylSubjectList').classList.remove('hidden'); document.getElementById('sylChapterView').classList.add('hidden');
+    
+    document.getElementById('sylSubjectList').classList.remove('hidden'); 
+    document.getElementById('sylChapterView').classList.add('hidden');
 }
 
 function openChapterTracker(sub) {
     document.getElementById('sylActiveSubTitle').innerText = sub; let html = '';
     hscData[sub].forEach((chap, i) => {
         let chTotal = sylTopics.length; let chDone = 0;
-        if(currentUser.tracker && currentUser.tracker[sub] && currentUser.tracker[sub][chap]) { for(let t in currentUser.tracker[sub][chap]) { if(currentUser.tracker[sub][chap][t]) chDone++; } }
+        if(currentUser.tracker && currentUser.tracker[sub] && currentUser.tracker[sub][chap]) { 
+            for(let t in currentUser.tracker[sub][chap]) { if(currentUser.tracker[sub][chap][t]) chDone++; } 
+        }
         html += `<div class="card" style="padding:0; overflow:hidden; margin-bottom:12px; border-color:var(--border);">
             <div style="padding:16px; background:var(--surface); cursor:pointer; display:flex; justify-content:space-between; align-items:center;" onclick="this.nextElementSibling.classList.toggle('hidden')">
                 <div style="font-weight:700; font-size:15px;"><span style="color:var(--primary); margin-right:8px;">${i+1}.</span> ${chap}</div>
-                <div class="badge" style="background:${chDone===chTotal?'var(--primary)':'transparent'}; border-color:var(--primary); color:${chDone===chTotal?'white':'var(--primary)'}">${chDone}/${chTotal}</div>
+                <div class="badge" style="background:${chDone===chTotal?'var(--primary)':'transparent'}; border-color:var(--primary); color:${chDone===chTotal?'#020617':'var(--primary)'}">${chDone}/${chTotal}</div>
             </div>
             <div class="hidden" style="padding: 15px;">`;
         sylTopics.forEach(top => {
@@ -758,108 +813,240 @@ function openChapterTracker(sub) {
         });
         html += `</div></div>`;
     });
-    document.getElementById('sylChapterList').innerHTML = html; document.getElementById('sylSubjectList').classList.add('hidden'); document.getElementById('sylChapterView').classList.remove('hidden');
-}
-function closeChapterView() { renderSyllabusTracker(); }
-function toggleTrackerItem(sub, chap, top, el) {
-    if(!currentUser.tracker) currentUser.tracker = {}; if(!currentUser.tracker[sub]) currentUser.tracker[sub] = {}; if(!currentUser.tracker[sub][chap]) currentUser.tracker[sub][chap] = {};
-    let isNowDone = !currentUser.tracker[sub][chap][top]; currentUser.tracker[sub][chap][top] = isNowDone;
-    if(isNowDone) { el.classList.add('done'); el.innerHTML = `<div class="t-text" style="font-size:14px; font-weight:700;">✔ ${top}</div>`; } 
-    else { el.classList.remove('done'); el.innerHTML = `<div class="t-text" style="font-size:14px; font-weight:700;">+ ${top}</div>`; }
-    saveUserDB({ tracker: currentUser.tracker });
-    let badge = el.parentElement.previousElementSibling.querySelector('.badge'); let chDone = 0; for(let t in currentUser.tracker[sub][chap]) { if(currentUser.tracker[sub][chap][t]) chDone++; }
-    badge.innerText = `${chDone}/${sylTopics.length}`; if(chDone === sylTopics.length) { badge.style.background = 'var(--primary)'; badge.style.color = 'white'; } else { badge.style.background = 'transparent'; badge.style.color = 'var(--primary)'; }
+    document.getElementById('sylChapterList').innerHTML = html; 
+    document.getElementById('sylSubjectList').classList.add('hidden'); 
+    document.getElementById('sylChapterView').classList.remove('hidden');
 }
 
+function closeChapterView() { renderSyllabusTracker(); }
+
+function toggleTrackerItem(sub, chap, top, el) {
+    if(!currentUser.tracker) currentUser.tracker = {}; 
+    if(!currentUser.tracker[sub]) currentUser.tracker[sub] = {}; 
+    if(!currentUser.tracker[sub][chap]) currentUser.tracker[sub][chap] = {};
+    
+    let isNowDone = !currentUser.tracker[sub][chap][top]; 
+    currentUser.tracker[sub][chap][top] = isNowDone;
+    
+    if(isNowDone) { 
+        el.classList.add('done'); 
+        el.innerHTML = `<div class="t-text" style="font-size:14px; font-weight:700;">✔ ${top}</div>`; 
+    } else { 
+        el.classList.remove('done'); 
+        el.innerHTML = `<div class="t-text" style="font-size:14px; font-weight:700;">+ ${top}</div>`; 
+    }
+    saveUserDB({ tracker: currentUser.tracker });
+    
+    let badge = el.parentElement.previousElementSibling.querySelector('.badge'); 
+    let chDone = 0; 
+    for(let t in currentUser.tracker[sub][chap]) { if(currentUser.tracker[sub][chap][t]) chDone++; }
+    badge.innerText = `${chDone}/${sylTopics.length}`; 
+    if(chDone === sylTopics.length) { 
+        badge.style.background = 'var(--primary)'; badge.style.color = '#020617'; 
+    } else { 
+        badge.style.background = 'transparent'; badge.style.color = 'var(--primary)'; 
+    }
+}
+
+// ==========================================
+// 6. PDF NOTES & PRACTICE Q-BANK
+// ==========================================
 function loadShortNotes() {
     let sub = document.getElementById('readSub').value, chap = document.getElementById('readChap').value;
-    if(!sub) return alert("Select subject!"); let html = ''; let filtered = allNotes.filter(n => n.subject === sub && (chap === 'All' || n.chapter === chap));
-    if(filtered.length === 0) html = "<div class='text-center mt-1 text-muted'>No notes/PDFs available yet.</div>";
+    if(!sub) return alert("Please select a subject first!"); 
+    let html = ''; 
+    let filtered = allNotes.filter(n => n.subject === sub && (chap === 'All' || n.chapter === chap));
+    
+    if(filtered.length === 0) html = "<div class='text-center mt-1 text-muted'>No notes or PDFs available for this selection yet.</div>";
+    
     filtered.forEach(n => {
         html += `<div class="card" style="border-left: 4px solid var(--accent); background: rgba(129, 140, 248, 0.05);">
-            <div style="font-size:13px; color:var(--text-muted); font-weight:bold;">${n.chapter}</div><h4 style="color:var(--text-main); margin:8px 0; font-size:18px;">${n.title}</h4><div style="font-size:14px; white-space: pre-wrap; margin-bottom: 12px; color:var(--text-muted);">${n.content}</div>`;
-        if(n.pdfUrl) { let embedUrl = n.pdfUrl.replace('/view?usp=sharing', '/preview').replace('/view', '/preview'); html += `<iframe src="${embedUrl}" style="width:100%; height:300px; border:none; border-radius:12px; margin-top:10px; background:#fff;"></iframe><a href="${n.pdfUrl}" target="_blank" download="EduNexus_${n.title}.pdf" style="display:block; margin-top:15px; font-size:14px; font-weight:bold; color:#020617; background:var(--accent); text-align:center; padding:12px; border-radius:12px; text-decoration:none;"><i class="fa-solid fa-download"></i> Open / Download PDF</a>`; }
+            <div style="font-size:13px; color:var(--text-muted); font-weight:bold;">${n.chapter}</div>
+            <h4 style="color:var(--text-main); margin:8px 0; font-size:18px;">${n.title}</h4>
+            <div style="font-size:14px; white-space: pre-wrap; margin-bottom: 12px; color:var(--text-muted);">${n.content}</div>`;
+        if(n.pdfUrl) { 
+            let embedUrl = n.pdfUrl.replace('/view?usp=sharing', '/preview').replace('/view', '/preview'); 
+            html += `<iframe src="${embedUrl}" style="width:100%; height:300px; border:none; border-radius:12px; margin-top:10px; background:#fff;"></iframe>
+            <a href="${n.pdfUrl}" target="_blank" download="EduNexus_${n.title}.pdf" style="display:block; margin-top:15px; font-size:14px; font-weight:bold; color:#020617; background:var(--accent); text-align:center; padding:12px; border-radius:12px; text-decoration:none; box-shadow: 0 5px 15px var(--accent-glow);"><i class="fa-solid fa-download"></i> Open / Download PDF</a>`; 
+        }
         html += `</div>`;
     });
     document.getElementById('notesArea').innerHTML = html;
 }
 
-// Practice Mode Q-Bank (Shuffle Options, Instant Validation, Lock)
 function loadPracticeQBank() {
     let sub = document.getElementById('qbSub').value, chap = document.getElementById('qbChap').value;
-    if(!sub) return alert("Select subject!"); let matched = allQuestions.filter(q => q.subject === sub && (chap === 'All' || q.chapter === chap));
-    if(matched.length === 0) return alert("No questions available in database!");
+    if(!sub) return alert("Please select a subject!"); 
     
+    let matched = allQuestions.filter(q => q.subject === sub && (chap === 'All' || q.chapter === chap));
+    if(matched.length === 0) return alert("No questions available in the database for this chapter!");
+    
+    // Randomize Practice Questions
     practiceState.questions = matched.sort(() => 0.5 - Math.random());
     let html = '';
+    
     practiceState.questions.forEach((q, i) => {
-        html += `<div class="card" id="pqBox_${i}"><div style="font-weight:800; margin-bottom:15px; font-size:17px; line-height:1.4;">${i+1}. ${q.q}</div>`;
+        html += `<div class="card" id="pqBox_${i}">
+            <div class="flex-between mb-1">
+                <span class="badge" style="border-color:var(--primary); color:var(--primary);">${q.level||'Academic'}</span>
+                <i class="fa-solid fa-bookmark bookmark-btn ${currentUser.bookmarks && currentUser.bookmarks.includes(q.id)?'active':''}" style="font-size:20px; cursor:pointer; color:var(--text-muted);" onclick="toggleBookmark('${q.id}', this)"></i>
+            </div>
+            <div style="font-weight:800; margin-bottom:15px; font-size:17px; line-height:1.4;">${i+1}. ${q.q}</div>`;
+            
         if(q.img) html += `<img src="${q.img}" style="width:100%; border-radius:12px; margin-bottom:12px;">`;
+        
+        // Shuffle Options for Practice Mode
         let opts = q.a.map((txt, idx) => ({ text: txt, isCorr: idx === q.correct })).sort(() => 0.5 - Math.random());
-        q.tempCorrect = opts.findIndex(o => o.isCorr); q.tempOpts = opts; 
-        opts.forEach((optObj, idx) => { html += `<div class="opt-btn" id="popt_${i}_${idx}" onclick="selectPracticeOpt(${i}, ${idx}, ${q.tempCorrect})"><span style="margin-right:10px; font-weight:bold;">${String.fromCharCode(65+idx)}.</span> ${optObj.text}</div>`; });
-        html += `<div id="pexp_${i}" class="hidden" style="margin-top:12px; font-size:13px; color:var(--text-main); background:var(--surface); padding:12px; border-radius:12px; border-left:3px solid var(--primary);"><b style="color:var(--primary);">💡 Explanation:</b><br> ${q.exp||'No explanation provided.'}</div></div>`;
+        q.tempCorrect = opts.findIndex(o => o.isCorr); 
+        q.tempOpts = opts; 
+        
+        opts.forEach((optObj, idx) => { 
+            html += `<div class="opt-btn" id="popt_${i}_${idx}" onclick="selectPracticeOpt(${i}, ${idx}, ${q.tempCorrect})">
+                <span style="margin-right:10px; font-weight:bold;">${String.fromCharCode(65+idx)}.</span> ${optObj.text}
+            </div>`; 
+        });
+        
+        html += `<div id="pexp_${i}" class="hidden" style="margin-top:12px; font-size:13px; color:var(--text-main); background:var(--surface); padding:12px; border-radius:12px; border-left:3px solid var(--primary);">
+            <b style="color:var(--primary);">💡 Explanation:</b><br> ${q.exp||'No explanation provided by the teacher.'}
+        </div></div>`;
     });
+    
     document.getElementById('qbankArea').innerHTML = html;
-    document.getElementById('qbScoreTxt').innerText = `Practice Mode Active: ${practiceState.questions.length} Qs`;
+    document.getElementById('qbScoreTxt').innerText = `Practice Mode Active: ${practiceState.questions.length} Questions`;
 }
+
 function selectPracticeOpt(qIdx, oIdx, corrIdx) {
-    let qBox = document.getElementById(`pqBox_${qIdx}`);
-    for(let i=0; i<4; i++) { let el = document.getElementById(`popt_${qIdx}_${i}`); if(el) el.classList.add('locked'); }
-    let selectedEl = document.getElementById(`popt_${qIdx}_${oIdx}`); let correctEl = document.getElementById(`popt_${qIdx}_${corrIdx}`);
-    if(oIdx === corrIdx) { selectedEl.classList.add('correct'); successSound.play().catch(e=>{}); } 
-    else { selectedEl.classList.add('wrong'); correctEl.classList.add('correct'); failSound.play().catch(e=>{}); }
-    let expEl = document.getElementById(`pexp_${qIdx}`); expEl.classList.remove('hidden');
+    // Lock all options for this question
+    for(let i=0; i<4; i++) { 
+        let el = document.getElementById(`popt_${qIdx}_${i}`); 
+        if(el) el.classList.add('locked'); 
+    }
+    
+    let selectedEl = document.getElementById(`popt_${qIdx}_${oIdx}`); 
+    let correctEl = document.getElementById(`popt_${qIdx}_${corrIdx}`);
+    
+    // Check answer and add colors
+    if(oIdx === corrIdx) { 
+        selectedEl.classList.add('correct'); 
+        successSound.play().catch(e=>{}); 
+    } else { 
+        selectedEl.classList.add('wrong'); 
+        correctEl.classList.add('correct'); 
+        failSound.play().catch(e=>{}); 
+    }
+    
+    // Show Explanation
+    let expEl = document.getElementById(`pexp_${qIdx}`); 
+    expEl.classList.remove('hidden');
+}
+
+function toggleBookmark(id, el) {
+    if(!currentUser.bookmarks) currentUser.bookmarks = []; 
+    let idx = currentUser.bookmarks.indexOf(id);
+    if(idx > -1) { 
+        currentUser.bookmarks.splice(idx, 1); 
+        el.style.color = "var(--text-muted)"; 
+    } else { 
+        currentUser.bookmarks.push(id); 
+        el.style.color = "var(--warning)"; 
+    }
+    saveUserDB({ bookmarks: currentUser.bookmarks });
 }
 
 // ==========================================
-// 5. FOCUS TIMER (HH:MM:SS)
+// 7. FOCUS TIMER (HH:MM:SS)
 // ==========================================
 let pTimer = null; let pTimeLeft = 0; let isPRunning = false;
+
 function togglePomodoro() {
-    if(isPRunning) { clearInterval(pTimer); isPRunning = false; document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-play"></i> Resume Session'; document.getElementById('timerStatus').innerText = "Paused"; }
-    else {
+    if(isPRunning) { 
+        clearInterval(pTimer); 
+        isPRunning = false; 
+        document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-play"></i> Resume Session'; 
+        document.getElementById('timerStatus').innerText = "Paused"; 
+    } else {
         if(pTimeLeft <= 0) { 
-            let h = parseInt(document.getElementById('tH').value)||0, m = parseInt(document.getElementById('tM').value)||0, s = parseInt(document.getElementById('tS').value)||0;
+            let h = parseInt(document.getElementById('tH').value)||0, 
+                m = parseInt(document.getElementById('tM').value)||0, 
+                s = parseInt(document.getElementById('tS').value)||0;
             pTimeLeft = (h * 3600) + (m * 60) + s; 
-            if(pTimeLeft <= 0) return alert("Please set a valid time!");
+            if(pTimeLeft <= 0) return alert("Please set a valid time greater than 0!");
         }
-        isPRunning = true; document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-pause"></i> Pause Timer'; document.getElementById('timerStatus').innerText = "Deep Focus Mode 🔥";
+        
+        isPRunning = true; 
+        document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-pause"></i> Pause Timer'; 
+        document.getElementById('timerStatus').innerText = "Deep Focus Mode 🔥";
+        
         pTimer = setInterval(() => {
             if(pTimeLeft > 0) {
                 pTimeLeft--; 
-                let th = Math.floor(pTimeLeft/3600); let tm = Math.floor((pTimeLeft%3600)/60); let ts = pTimeLeft%60;
+                let th = Math.floor(pTimeLeft/3600); 
+                let tm = Math.floor((pTimeLeft%3600)/60); 
+                let ts = pTimeLeft%60;
                 document.getElementById('timerDisplay').innerText = `${th<10?'0'+th:th}:${tm<10?'0'+tm:tm}:${ts<10?'0'+ts:ts}`;
             } else {
-                clearInterval(pTimer); isPRunning = false; timerSound.play().catch(e=>{});
-                let h = parseInt(document.getElementById('tH').value)||0, m = parseInt(document.getElementById('tM').value)||0; let minsAdded = (h*60) + m;
+                clearInterval(pTimer); 
+                isPRunning = false; 
+                timerSound.play().catch(e=>{});
+                
+                let h = parseInt(document.getElementById('tH').value)||0, 
+                    m = parseInt(document.getElementById('tM').value)||0; 
+                let minsAdded = (h*60) + m;
+                
+                triggerConfetti();
                 alert(`🎉 Session Complete! You focused for ${minsAdded} Minutes!`);
                 saveUserDB({ studyMins: (currentUser.studyMins||0) + minsAdded, xp: (currentUser.xp||0) + 15 });
-                triggerConfetti();
+                
                 resetPomodoro();
             }
         }, 1000);
     }
 }
-function resetPomodoro() { clearInterval(pTimer); isPRunning = false; pTimeLeft = 0; let h = parseInt(document.getElementById('tH').value)||0, m = parseInt(document.getElementById('tM').value)||0, s = parseInt(document.getElementById('tS').value)||0; document.getElementById('timerDisplay').innerText = `${h<10?'0'+h:h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`; document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-play"></i> Start Session'; document.getElementById('timerStatus').innerText = "Ready to Focus"; }
 
-// ==========================================
-// 6. MOCK EXAM BUILDER & LIVE EXAM 
+function resetPomodoro() { 
+    clearInterval(pTimer); 
+    isPRunning = false; 
+    pTimeLeft = 0; 
+    
+    let h = parseInt(document.getElementById('tH').value)||0, 
+        m = parseInt(document.getElementById('tM').value)||0, 
+        s = parseInt(document.getElementById('tS').value)||0; 
+        
+    document.getElementById('timerDisplay').innerText = `${h<10?'0'+h:h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`; 
+    document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-play"></i> Start Session'; 
+    document.getElementById('timerStatus').innerText = "Ready to Focus"; 
+    }
+    // ==========================================
+// 8. MOCK EXAM BUILDER & LIVE EXAM 
 // ==========================================
 function addMockBlock() {
     let sub = document.getElementById("mockSub").value, chap = document.getElementById("mockChap").value, limit = parseInt(document.getElementById("mockLimit").value);
-    if(!sub || !limit || limit <= 0) return alert("Valid inputs required!"); examState.config.push({sub, chap, limit});
-    let html = ""; examState.config.forEach((c) => { html += `<div style="font-size:14px; color:var(--text-main); margin-bottom:8px; border-left:4px solid var(--primary); padding-left:12px; background: rgba(56, 189, 248, 0.05); padding: 12px; border-radius:10px;"><b>${c.sub}</b> (${c.chap}) <span style="float:right; color:var(--warning); font-weight:bold;">${c.limit} Qs</span></div>`; });
+    if(!sub || !limit || limit <= 0) return alert("Valid inputs required!"); 
+    examState.config.push({sub, chap, limit});
+    let html = ""; 
+    examState.config.forEach((c) => { 
+        html += `<div style="font-size:14px; color:var(--text-main); margin-bottom:8px; border-left:4px solid var(--primary); padding-left:12px; background: rgba(56, 189, 248, 0.05); padding: 12px; border-radius:10px;"><b>${c.sub}</b> (${c.chap}) <span style="float:right; color:var(--warning); font-weight:bold;">${c.limit} Qs</span></div>`; 
+    });
     document.getElementById("mockConfigList").innerHTML = html;
 }
 
 function startMockExam() {
-    if (examState.config.length === 0) return alert("Add block first!"); if((currentUser.coins||0) < 10) return alert("Insufficient coins! You need 10 coins.");
+    if (examState.config.length === 0) return alert("Add block first!"); 
+    if((currentUser.coins||0) < 10) return alert("Insufficient coins! You need 10 coins.");
+    
     examState.questions = [];
-    examState.config.forEach(cfg => { let matched = allQuestions.filter(q => q.subject === cfg.sub && (cfg.chap === 'All' || q.chapter === cfg.chap)).sort(() => 0.5 - Math.random()); examState.questions = examState.questions.concat(matched.slice(0, cfg.limit)); });
+    examState.config.forEach(cfg => { 
+        let matched = allQuestions.filter(q => q.subject === cfg.sub && (cfg.chap === 'All' || q.chapter === cfg.chap)).sort(() => 0.5 - Math.random()); 
+        examState.questions = examState.questions.concat(matched.slice(0, cfg.limit)); 
+    });
+    
     if(examState.questions.length === 0) return alert("No questions available for config!");
+    
     saveUserDB({ coins: (currentUser.coins||0) - 10 });
-    examState.sub = examState.config.length === 1 ? examState.config[0].sub : "Custom Mock Test"; examState.answers = new Array(examState.questions.length).fill(null); examState.time = examState.questions.length * 60; 
+    examState.sub = examState.config.length === 1 ? examState.config[0].sub : "Custom Mock Test"; 
+    examState.answers = new Array(examState.questions.length).fill(null); 
+    examState.time = examState.questions.length * 60; // 1 Min per Question
+    
     renderLiveExam();
 }
 
@@ -868,86 +1055,137 @@ function renderLiveExam() {
     examState.questions.forEach((q, i) => {
         html += `<div class="card" id="qBox_${i}"><div style="font-weight:800; margin-bottom:15px; font-size:17px; line-height:1.4;">${i+1}. ${q.q}</div>`;
         if(q.img) html += `<img src="${q.img}" style="width:100%; border-radius:12px; margin-bottom:12px;">`;
+        
         let opts = q.a.map((txt, idx) => ({ text: txt, isCorr: idx === q.correct })).sort(() => 0.5 - Math.random());
-        q.tempCorrect = opts.findIndex(o => o.isCorr); q.tempOpts = opts; 
-        opts.forEach((optObj, idx) => { html += `<div class="opt-btn" id="opt_${i}_${idx}" onclick="selectOpt(${i}, ${idx})"><span style="margin-right:10px; font-weight:bold;">${String.fromCharCode(65+idx)}.</span> ${optObj.text}</div>`; });
+        q.tempCorrect = opts.findIndex(o => o.isCorr); 
+        q.tempOpts = opts; 
+        
+        opts.forEach((optObj, idx) => { 
+            html += `<div class="opt-btn" id="opt_${i}_${idx}" onclick="selectOpt(${i}, ${idx})"><span style="margin-right:10px; font-weight:bold;">${String.fromCharCode(65+idx)}.</span> ${optObj.text}</div>`; 
+        });
         html += `</div>`;
     });
-    document.getElementById('liveExamContainer').innerHTML = html; document.getElementById('examProgressTxt').innerText = `Progress: 0/${examState.questions.length}`;
+    
+    document.getElementById('liveExamContainer').innerHTML = html; 
+    document.getElementById('examProgressTxt').innerText = `Progress: 0/${examState.questions.length}`;
     navTo('pageExam');
+    
     examState.interval = setInterval(() => {
         if(examState.time > 0) {
-            examState.time--; let m = Math.floor(examState.time/60); let s = examState.time%60;
+            examState.time--; 
+            let m = Math.floor(examState.time/60); 
+            let s = examState.time%60;
             document.getElementById('examTimerTxt').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-            if(examState.time === 60) timerSound.play().catch(e=>{}); 
+            if(examState.time === 60) timerSound.play().catch(e=>{}); // 1 min warning beep
         } else submitExam();
     }, 1000);
 }
 
 function selectOpt(qIdx, oIdx) {
     examState.answers[qIdx] = oIdx;
-    for(let i=0; i<4; i++) { let el = document.getElementById(`opt_${qIdx}_${i}`); if(el) el.classList.remove('selected'); }
+    for(let i=0; i<4; i++) { 
+        let el = document.getElementById(`opt_${qIdx}_${i}`); 
+        if(el) el.classList.remove('selected'); 
+    }
     document.getElementById(`opt_${qIdx}_${oIdx}`).classList.add('selected');
-    let c = examState.answers.filter(a => a !== null).length; document.getElementById('examProgressTxt').innerText = `Progress: ${c}/${examState.questions.length}`;
+    let c = examState.answers.filter(a => a !== null).length; 
+    document.getElementById('examProgressTxt').innerText = `Progress: ${c}/${examState.questions.length}`;
 }
 
 function submitExam() {
     clearInterval(examState.interval);
-    let correct = 0, wrong = 0; let revHtml = ''; let mistakesArr = currentUser.mistakes || []; let sp = currentUser.subjProg || {};
+    let correct = 0, wrong = 0; 
+    let revHtml = ''; 
+    let mistakesArr = currentUser.mistakes || []; 
+    let sp = currentUser.subjProg || {};
 
     examState.questions.forEach((q, i) => {
         let userAns = examState.answers[i];
-        if(userAns === q.tempCorrect) { correct++; if(!sp[q.subject]) sp[q.subject] = { c:0, w:0 }; sp[q.subject].c++; mistakesArr = mistakesArr.filter(id => id !== q.id); } 
-        else if(userAns !== null) { wrong++; if(!sp[q.subject]) sp[q.subject] = { c:0, w:0 }; sp[q.subject].w++; if(!mistakesArr.includes(q.id)) mistakesArr.push(q.id); }
+        if(userAns === q.tempCorrect) { 
+            correct++; 
+            if(!sp[q.subject]) sp[q.subject] = { c:0, w:0 }; 
+            sp[q.subject].c++; 
+            mistakesArr = mistakesArr.filter(id => id !== q.id); 
+        } 
+        else if(userAns !== null) { 
+            wrong++; 
+            if(!sp[q.subject]) sp[q.subject] = { c:0, w:0 }; 
+            sp[q.subject].w++; 
+            if(!mistakesArr.includes(q.id)) mistakesArr.push(q.id); 
+        }
         
-        revHtml += `<div class="card" style="border-color: ${userAns===q.tempCorrect?'var(--primary)':userAns===null?'var(--border)':'var(--danger)'}">
+        revHtml += `<div class="card" style="border-color: ${userAns===q.tempCorrect?'var(--success)':userAns===null?'var(--border)':'var(--danger)'}">
             <div class="flex-between mb-1"><div style="font-weight:bold; font-size:16px;">Q. ${q.q}</div><i class="fa-solid fa-bookmark bookmark-btn ${currentUser.bookmarks && currentUser.bookmarks.includes(q.id)?'active':''}" style="font-size:20px; cursor:pointer;" onclick="toggleBookmark('${q.id}', this)"></i></div>`;
+        
         q.tempOpts.forEach((optObj, idx) => {
-            let cls = "opt-btn"; if(idx === q.tempCorrect) cls += " correct"; else if(idx === userAns) cls += " wrong";
+            let cls = "opt-btn locked"; 
+            if(idx === q.tempCorrect) cls += " correct"; 
+            else if(idx === userAns) cls += " wrong";
             revHtml += `<div class="${cls}" style="padding: 12px; margin-bottom:8px;">${String.fromCharCode(65+idx)}. ${optObj.text}</div>`;
         });
+        
         if(q.exp) revHtml += `<div style="margin-top:12px; font-size:13px; color:var(--text-main); background:rgba(56, 189, 248, 0.1); padding:12px; border-radius:12px; border-left: 3px solid var(--primary);"><b style="color:var(--primary);">💡 Explanation:</b><br> ${q.exp}</div>`;
         revHtml += `</div>`;
     });
 
-    // Scoring Logic: Negative marking 0.25, +5 Coins right, -1 wrong. +2 XP right, -1 XP wrong.
+    // Scoring Logic: Negative marking 0.25
     let negMarks = wrong * 0.25;
     let score = Math.max(0, correct - negMarks); 
     let percent = Math.round((score / examState.questions.length) * 100);
     
+    // Exact requested logic: +5 Coins right, -1 wrong. +2 XP right, -1 XP wrong.
     let earnXp = Math.max(0, (correct * 2) - (wrong * 1)); 
     let earnCoin = Math.max(0, (correct * 5) - (wrong * 1));
     
     if(percent >= 80) { earnXp += 20; earnCoin += 10; successSound.play().catch(e=>{}); triggerConfetti(); } 
     else if (percent < 40) { failSound.play().catch(e=>{}); }
 
-    let newAct = [...(currentUser.activityData || [0,0,0,0,0,0,0])]; newAct[newAct.length-1] += earnXp; 
+    let newAct = [...(currentUser.activityData || [0,0,0,0,0,0,0])]; 
+    newAct[newAct.length-1] += earnXp; 
+    
     saveUserDB({ xp: (currentUser.xp||0) + earnXp, coins: (currentUser.coins||0) + earnCoin, activityData: newAct, mistakes: mistakesArr, subjProg: sp });
     
     // Save Exact History
     let examDataToSave = { id: Date.now().toString(), name: currentUser.name, subject: examState.sub, percent: percent, total: examState.questions.length, c: correct, w: wrong, neg: negMarks, time: new Date().toLocaleDateString(), detailsHtml: revHtml };
     fetch(`${DB}/ultimate_history.json`, { method: "POST", body: JSON.stringify(examDataToSave) });
 
-    document.getElementById('resPercent').innerText = `${percent}%`; document.getElementById('resPercent').style.color = percent>=50 ? 'var(--primary)' : 'var(--danger)';
-    document.getElementById('resXp').innerText = earnXp; document.getElementById('resCoin').innerText = earnCoin; document.getElementById('resNeg').innerText = negMarks;
+    document.getElementById('resPercent').innerText = `${percent}%`; 
+    document.getElementById('resPercent').style.color = percent>=50 ? 'var(--primary)' : 'var(--danger)';
+    document.getElementById('resXp').innerText = earnXp; 
+    document.getElementById('resCoin').innerText = earnCoin; 
+    document.getElementById('resNeg').innerText = negMarks;
     
-    document.getElementById('reviewContainer').innerHTML = revHtml; examState.config = []; document.getElementById("mockConfigList").innerHTML = ""; navTo('pageResult');
+    document.getElementById('reviewContainer').innerHTML = revHtml; 
+    examState.config = []; 
+    document.getElementById("mockConfigList").innerHTML = ""; 
+    navTo('pageResult');
 }
-function downloadResult() { let el = document.getElementById('printableResult'); let opt = { margin: 10, filename: 'EduNexus_Exam_Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; html2pdf().set(opt).from(el).save(); }
+
+function downloadResult() { 
+    let el = document.getElementById('printableResult'); 
+    let opt = { margin: 10, filename: 'EduNexus_Exam_Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; 
+    html2pdf().set(opt).from(el).save(); 
+}
 function triggerConfetti() { confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); }
 
 // ==========================================
-// 7. LEADERBOARD & PROGRESS CHARTS
+// 9. LEADERBOARD & PROGRESS CHARTS
 // ==========================================
 function loadLeaderboards() {
     let batchFilter = document.getElementById('lbBatchFilter') ? document.getElementById('lbBatchFilter').value : "All";
     let typeFilter = document.getElementById('lbTypeFilter') ? document.getElementById('lbTypeFilter').value : "XP";
     let users = [...allUsers];
+    
     if(batchFilter !== "All") users = users.filter(u => u.batch === batchFilter);
-    if(typeFilter === "XP") users.sort((a,b) => (b.xp||0) - (a.xp||0)); else if(typeFilter === "Coins") users.sort((a,b) => (b.coins||0) - (a.coins||0)); else users.sort((a,b) => (b.studyMins||0) - (a.studyMins||0));
+    
+    if(typeFilter === "XP") users.sort((a,b) => (b.xp||0) - (a.xp||0)); 
+    else if(typeFilter === "Coins") users.sort((a,b) => (b.coins||0) - (a.coins||0)); 
+    else users.sort((a,b) => (b.studyMins||0) - (a.studyMins||0));
+    
     let html = '';
-    users.slice(0,20).forEach((u, i) => {
-        let stg = getStage(u.xp||0); let val = typeFilter==="XP" ? `${u.xp||0} XP` : typeFilter==="Coins" ? `${u.coins||0} <i class="fa-solid fa-coins"></i>` : `${u.studyMins||0} Mins`;
+    users.slice(0,25).forEach((u, i) => {
+        let stg = getStage(u.xp||0); 
+        let val = typeFilter==="XP" ? `${u.xp||0} XP` : typeFilter==="Coins" ? `${u.coins||0} <i class="fa-solid fa-coins"></i>` : `${u.studyMins||0} Mins`;
         html += `<div class="rank-row">
             <div style="font-weight:900; width:35px; color:${i===0?'gold':i===1?'silver':i===2?'#cd7f32':'var(--text-muted)'}; font-size:18px;">${i+1}</div>
             <div style="width:40px;height:40px;font-size:16px;font-weight:bold;border:2px solid ${stg.color}; border-radius:50%; display:flex; justify-content:center; align-items:center; background:var(--card-bg);">${(u.name||"U").charAt(0).toUpperCase()}</div>
@@ -955,7 +1193,8 @@ function loadLeaderboards() {
             <div style="color:var(--primary); font-weight:800; font-size:15px;">${val}</div>
         </div>`;
     });
-    let lbEl = document.getElementById('fullLeaderboard'); if(lbEl) lbEl.innerHTML = html || "<div class='text-muted text-center'>No data found for this filter.</div>";
+    let lbEl = document.getElementById('fullLeaderboard'); 
+    if(lbEl) lbEl.innerHTML = html || "<div class='text-muted text-center' style='margin-top:20px;'>No data found for this filter.</div>";
 }
 
 function renderProgressUI() {
@@ -964,23 +1203,45 @@ function renderProgressUI() {
     if(rCtx && currentUser.subjProg) {
         if(radarChartInst) radarChartInst.destroy();
         let labels=[], data=[];
-        for(let s in currentUser.subjProg) { labels.push(s.split(" ")[0]); data.push(Math.round(currentUser.subjProg[s].c / (currentUser.subjProg[s].c+currentUser.subjProg[s].w)*100)); }
+        for(let s in currentUser.subjProg) { 
+            labels.push(s.split(" ")[0]); 
+            data.push(Math.round(currentUser.subjProg[s].c / (currentUser.subjProg[s].c+currentUser.subjProg[s].w)*100)); 
+        }
         if(labels.length > 0) {
-            radarChartInst = new Chart(rCtx.getContext('2d'), { type: 'radar', data: { labels: labels, datasets: [{ label: 'Accuracy %', data: data, backgroundColor: 'rgba(56, 189, 248, 0.2)', borderColor: '#38bdf8', pointBackgroundColor: '#38bdf8', borderWidth:2 }] }, options: { scales: { r: { angleLines: { color: 'rgba(255,255,255,0.1)' }, grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: '#94a3b8' }, ticks: { display: false, max: 100 } } }, plugins: { legend: { display: false } } } });
+            radarChartInst = new Chart(rCtx.getContext('2d'), { 
+                type: 'radar', 
+                data: { labels: labels, datasets: [{ label: 'Accuracy %', data: data, backgroundColor: 'rgba(56, 189, 248, 0.2)', borderColor: '#38bdf8', pointBackgroundColor: '#38bdf8', borderWidth:2 }] }, 
+                options: { scales: { r: { angleLines: { color: 'rgba(255,255,255,0.1)' }, grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: '#94a3b8' }, ticks: { display: false, max: 100 } } }, plugins: { legend: { display: false } } } 
+            });
         }
     }
 }
 
+// ==========================================
+// 10. HISTORY & MISTAKES MODAL
+// ==========================================
 function loadHistoryModal() { document.getElementById('historyModal').classList.remove('hidden'); }
 function showHistoryDetails(id) {
-    let exam = historyData.find(x => x.id === id); if(!exam || !exam.detailsHtml) return alert("Details unavailable for this old exam.");
-    document.getElementById('printableResult').innerHTML = `<div class="card text-center glass-card" style="padding: 30px 20px; border-color: var(--primary);"><h2 style="color: var(--text-main); font-size: 24px;"><i class="fa-solid fa-medal" style="color: gold;"></i> Past Exam Report</h2><div style="font-size: 50px; font-weight: 800; color: var(--primary); margin: 15px 0;">${exam.percent}%</div><div style="font-size: 12px; color: var(--danger); margin-top: 10px;">Negative Marks Deducted: <span>${exam.neg||0}</span></div></div><h3 class="mb-1"><i class="fa-solid fa-microscope"></i> Answer Review</h3><div id="reviewContainer">${exam.detailsHtml}</div>`;
-    navTo('pageResult'); document.getElementById('historyModal').classList.add('hidden');
+    let exam = historyData.find(x => x.id === id); 
+    if(!exam || !exam.detailsHtml) return alert("Details unavailable for this old exam.");
+    document.getElementById('printableResult').innerHTML = `
+        <div class="card text-center glass-card" style="padding: 30px 20px; border-color: var(--primary);">
+            <h2 style="color: var(--text-main); font-size: 24px;"><i class="fa-solid fa-medal" style="color: gold;"></i> Past Exam Report</h2>
+            <div style="font-size: 50px; font-weight: 800; color: var(--primary); margin: 15px 0;">${exam.percent}%</div>
+            <div style="font-size: 12px; color: var(--danger); margin-top: 10px;">Negative Marks Deducted: <span>${exam.neg||0}</span></div>
+        </div>
+        <h3 class="mb-1"><i class="fa-solid fa-microscope"></i> Answer Review</h3>
+        <div id="reviewContainer">${exam.detailsHtml}</div>`;
+    navTo('pageResult'); 
+    document.getElementById('historyModal').classList.add('hidden');
 }
+
 function loadMistakesModal() { document.getElementById('mistakesModal').classList.remove('hidden'); renderMistakeData('mistake'); }
 function renderMistakeData(type) {
-    document.getElementById('btnM1').className = type==='mistake'?'btn-accent':'btn-outline'; document.getElementById('btnM2').className = type==='saved'?'btn-accent':'btn-outline';
-    let arr = type==='mistake' ? currentUser.mistakes||[] : currentUser.bookmarks||[]; let html = '';
+    document.getElementById('btnM1').className = type==='mistake'?'btn-accent':'btn-outline'; 
+    document.getElementById('btnM2').className = type==='saved'?'btn-accent':'btn-outline';
+    let arr = type==='mistake' ? currentUser.mistakes||[] : currentUser.bookmarks||[]; 
+    let html = '';
     if(arr.length > 0) {
         arr.forEach(id => {
             let q = allQuestions.find(x => x.id === id);
@@ -993,7 +1254,7 @@ function renderMistakeData(type) {
 }
 
 // ==========================================
-// 8. FLASHCARDS & NOTIFICATIONS
+// 11. FLASHCARDS & NOTIFICATIONS
 // ==========================================
 function fetchFlashcards() { fetch(`${DB}/ultimate_flashcards.json`).then(r=>r.ok?r.json():null).then(data => { if(data && !data.error) flashcards = Object.keys(data).map(k=>({id:k,...data[k]})); else flashcards = [{q: "Start Learning!", a: "Success is near"}]; renderFlashcard(); }).catch(e=>{}); }
 function renderFlashcard() { fcFlipped = false; if(!flashcards || flashcards.length === 0) return; document.getElementById("fcText").innerText = flashcards[fcIndex].q; document.getElementById("fcText").style.color = "white"; }
@@ -1014,7 +1275,7 @@ function fetchNotifications() {
 }
 
 // ==========================================
-// 9. DB FETCH & ADMIN CONSOLE LOGIC
+// 12. DB FETCH & ADMIN CONSOLE LOGIC
 // ==========================================
 function fetchDBData() {
     fetch(`${DB}/ultimate_questions.json`).then(r=>r.ok?r.json():null).then(data => { if(data && !data.error) allQuestions = Object.keys(data).map(k => ({ id: k, ...data[k] })); }).catch(e=>{});
