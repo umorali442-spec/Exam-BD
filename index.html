@@ -1,154 +1,158 @@
-lml<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EduNexus Pro Ultimate</title>
+    <title>EduNexus Pro Ultimate V2</title>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         
         :root { 
-            --bg-main: #0b0c10; 
-            --card-bg: #1f2833; 
-            --card-glass: rgba(31, 40, 51, 0.8); 
-            --text-main: #c5c6c7; 
-            --text-muted: #8b949e; 
-            --primary: #45a29e; 
-            --primary-glow: rgba(69, 162, 158, 0.4); 
-            --accent: #66fcf1; 
-            --accent-glow: rgba(102, 252, 241, 0.4); 
+            --bg-main: #020617; 
+            --card-bg: #0f172a; 
+            --card-glass: rgba(15, 23, 42, 0.85); 
+            --text-main: #f8fafc; 
+            --text-muted: #94a3b8; 
+            --primary: #38bdf8; 
+            --primary-glow: rgba(56, 189, 248, 0.35); 
+            --accent: #818cf8; 
+            --accent-glow: rgba(129, 140, 248, 0.35); 
             --danger: #f43f5e; 
-            --warning: #fbbf24; 
-            --border: #2c3542; 
-            --surface: #141824; 
+            --warning: #f59e0b; 
+            --success: #10b981;
+            --border: #1e293b; 
+            --surface: #1e293b; 
         }
         
         body.light-mode { 
-            --bg-main: #f4f7f6; 
+            --bg-main: #f1f5f9; 
             --card-bg: #ffffff; 
-            --card-glass: rgba(255, 255, 255, 0.9); 
-            --text-main: #1f2833; 
+            --card-glass: rgba(255, 255, 255, 0.95); 
+            --text-main: #0f172a; 
             --text-muted: #64748b; 
-            --border: #e2e8f0; 
-            --surface: #f8fafc; 
+            --border: #cbd5e1; 
+            --surface: #e2e8f0; 
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 100px; overflow-x: hidden; transition: 0.3s; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 110px; overflow-x: hidden; transition: background-color 0.4s, color 0.4s; }
         .container { max-width: 500px; margin: 0 auto; min-height: 100vh; position: relative; }
         
         .hidden { display: none !important; } 
-        .p-2 { padding: 16px; } .mt-1 { margin-top: 15px; } .mb-1 { margin-bottom: 15px; } 
+        .p-2 { padding: 18px; } .mt-1 { margin-top: 16px; } .mb-1 { margin-bottom: 16px; } 
         .text-center { text-align: center; } 
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
         
-        /* Premium Card UI like Examora */
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); transition: 0.3s; }
-        .glass-card { background: var(--card-glass); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        /* Premium Card UI */
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 22px; margin-bottom: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: 0.3s; position: relative; overflow: hidden; }
+        .glass-card { background: var(--card-glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.08); }
         
         /* Inputs & Buttons */
-        input, select, textarea { width: 100%; padding: 16px; margin: 8px 0; background: var(--surface); border: 2px solid var(--border); border-radius: 16px; color: var(--text-main); font-size: 15px; font-weight: 500; outline: none; transition: 0.3s; }
-        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 12px var(--primary-glow); }
+        input, select, textarea { width: 100%; padding: 16px 20px; margin: 10px 0; background: var(--surface); border: 2px solid transparent; border-radius: 16px; color: var(--text-main); font-size: 15px; font-weight: 600; outline: none; transition: 0.3s; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); background: var(--card-bg); box-shadow: 0 0 15px var(--primary-glow); }
         
-        button { width: 100%; padding: 16px; border: none; border-radius: 16px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; letter-spacing: 0.5px;}
-        button:active { transform: scale(0.96); }
-        .btn-primary { background: linear-gradient(135deg, #45a29e, #1f2833); color: white; box-shadow: 0 6px 20px var(--primary-glow); }
-        .btn-accent { background: linear-gradient(135deg, #66fcf1, #45a29e); color: #0b0c10; box-shadow: 0 6px 20px var(--accent-glow); }
-        .btn-danger { background: linear-gradient(135deg, #e11d48, #be123c); color: white; }
-        .btn-warning { background: linear-gradient(135deg, #fbbf24, #d97706); color: #000; }
+        button { width: 100%; padding: 16px; border: none; border-radius: 16px; font-weight: 800; font-size: 15px; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 0.5px;}
+        button:active { transform: scale(0.95); }
+        .btn-primary { background: linear-gradient(135deg, #0ea5e9, #38bdf8); color: #020617; box-shadow: 0 8px 25px var(--primary-glow); }
+        .btn-accent { background: linear-gradient(135deg, #6366f1, #818cf8); color: white; box-shadow: 0 8px 25px var(--accent-glow); }
+        .btn-danger { background: linear-gradient(135deg, #e11d48, #fb7185); color: white; box-shadow: 0 8px 25px rgba(244,63,94,0.3); }
+        .btn-warning { background: linear-gradient(135deg, #d97706, #fbbf24); color: #020617; }
         .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text-main); }
-        .btn-outline.active { border-color: var(--primary); background: rgba(69, 162, 158, 0.1); color: var(--primary); }
+        .btn-outline:active { background: var(--surface); }
 
         /* Header & Navbar */
-        .header { position: sticky; top: 0; z-index: 50; background: var(--card-glass); backdrop-filter: blur(15px); padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: var(--card-glass); backdrop-filter: blur(25px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 15px 0 25px; z-index: 100; border-radius: 35px 35px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); cursor: pointer; font-size: 11px; font-weight: 700; width: 20%; transition: 0.3s; }
-        .nav-item i { font-size: 22px; padding: 10px; border-radius: 16px; transition: 0.3s; }
-        .nav-item.active { color: var(--accent); } 
-        .nav-item.active i { background: rgba(102, 252, 241, 0.15); transform: translateY(-5px); box-shadow: 0 4px 15px var(--accent-glow); color: var(--accent);}
+        .header { position: sticky; top: 0; z-index: 50; background: var(--card-glass); backdrop-filter: blur(20px); padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: var(--card-glass); backdrop-filter: blur(30px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 15px 0 25px; z-index: 100; border-radius: 40px 40px 0 0; box-shadow: 0 -15px 40px rgba(0,0,0,0.3); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); cursor: pointer; font-size: 11px; font-weight: 800; width: 20%; transition: 0.3s; position: relative;}
+        .nav-item i { font-size: 22px; padding: 12px; border-radius: 18px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .nav-item.active { color: var(--primary); } 
+        .nav-item.active i { background: rgba(56, 189, 248, 0.15); transform: translateY(-8px); box-shadow: 0 8px 20px var(--primary-glow); color: var(--primary);}
 
         /* Grids & Badges */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } 
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; border: 1px solid; text-transform: uppercase; letter-spacing: 1px;}
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } 
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;}
         
-        /* Leaderboard Rows */
-        .rank-row { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border); background: var(--surface); border-radius: 20px; margin-bottom: 10px; transition: 0.2s; border: 1px solid transparent;}
-        .rank-row:hover { border-color: var(--primary); transform: translateX(5px); }
+        /* Leaderboard & Lists */
+        .rank-row { display: flex; align-items: center; padding: 18px; border-bottom: 1px solid var(--border); background: var(--surface); border-radius: 20px; margin-bottom: 12px; transition: 0.2s; border: 2px solid transparent;}
+        .rank-row:hover { border-color: var(--primary); transform: translateX(5px) scale(1.02); box-shadow: 0 5px 15px var(--primary-glow);}
         
-        /* Exam & Q-Bank Options */
-        .opt-btn { background: var(--surface); padding: 16px; border: 2px solid var(--border); border-radius: 16px; margin-bottom: 12px; cursor: pointer; color: var(--text-main); font-weight:600; transition: 0.2s; display: flex; align-items: center;}
-        .opt-btn.correct { background: rgba(16, 185, 129, 0.15); border-color: #10b981; color:#10b981; }
-        .opt-btn.wrong { background: rgba(244, 63, 94, 0.15); border-color: #f43f5e; color:#f43f5e; }
-        .opt-btn.selected { border-color: var(--primary); background: rgba(69, 162, 158, 0.15); }
-        .opt-btn.locked { pointer-events: none; }
+        /* Exam Options (Shuffle & Lock logic styles) */
+        .opt-btn { background: var(--surface); padding: 18px; border: 2px solid var(--border); border-radius: 18px; margin-bottom: 14px; cursor: pointer; color: var(--text-main); font-weight:700; transition: 0.2s; display: flex; align-items: center;}
+        .opt-btn:active { transform: scale(0.98); }
+        .opt-btn.selected { border-color: var(--primary); background: rgba(56, 189, 248, 0.1); color: var(--primary); box-shadow: inset 0 0 10px var(--primary-glow); }
+        .opt-btn.correct { background: rgba(16, 185, 129, 0.15); border-color: var(--success); color: var(--success); }
+        .opt-btn.wrong { background: rgba(244, 63, 94, 0.15); border-color: var(--danger); color: var(--danger); text-decoration: line-through;}
+        .opt-btn.locked { pointer-events: none; opacity: 0.9; }
         
         /* Flashcard Box */
-        .fc-box { background: linear-gradient(135deg, var(--card-bg), var(--surface)); border: 2px dashed var(--primary); border-radius: 24px; padding: 30px 20px; text-align: center; cursor: pointer; user-select: none; min-height: 180px; display:flex; flex-direction:column; justify-content:center; box-shadow: 0 10px 30px var(--primary-glow); transition: 0.3s; }
+        .fc-box { background: linear-gradient(135deg, #1e1b4b, #312e81); border: 2px solid #6366f1; border-radius: 28px; padding: 35px 25px; text-align: center; cursor: pointer; user-select: none; min-height: 200px; display:flex; flex-direction:column; justify-content:center; box-shadow: 0 15px 35px rgba(99,102,241,0.3); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position:relative; overflow:hidden;}
+        .fc-box:active { transform: scale(0.95); }
+        .fc-box::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); opacity: 0; transition: 0.5s; pointer-events: none; }
+        .fc-box:hover::before { opacity: 1; }
         
-        /* Notifications & Banner */
-        .noti-badge { position: absolute; top: 5px; right: 8px; background: var(--danger); color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid var(--card-glass); }
-        #installBanner { background: linear-gradient(135deg, var(--accent), var(--primary)); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; color: #0b0c10; border-radius: 0 0 20px 20px; font-weight:bold; box-shadow: 0 5px 15px var(--accent-glow);}
+        /* PWA Install Banner */
+        #installBanner { background: linear-gradient(135deg, var(--accent), var(--primary)); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; color: #020617; border-radius: 0 0 24px 24px; font-weight:800; box-shadow: 0 8px 25px var(--accent-glow); z-index: 200; position:relative;}
         
-        /* Syllabus Tracker Details */
-        .tracker-item { display: flex; align-items: center; padding: 14px; background: var(--surface); border-radius: 14px; margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border); transition: 0.3s;}
-        .tracker-item:hover { border-color: var(--primary); }
-        .tracker-item.done { border-color: var(--primary); background: rgba(69, 162, 158, 0.1); }
-        .tracker-item.done .t-text { text-decoration: line-through; color: var(--text-muted); }
-        
-        /* Circular Progress Rings for Profile & Syllabus */
-        .ring-container { position: relative; width: 100px; height: 100px; margin: 0 auto; display: flex; justify-content: center; align-items: center; }
-        .ring-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+        /* Circular Progress Rings */
+        .ring-container { position: relative; width: 110px; height: 110px; margin: 0 auto; display: flex; justify-content: center; align-items: center; }
+        .ring-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); filter: drop-shadow(0 0 8px var(--primary-glow)); }
         .ring-circle-bg { fill: none; stroke: var(--surface); stroke-width: 8; }
-        .ring-circle-prog { fill: none; stroke: var(--accent); stroke-width: 8; stroke-dasharray: 283; stroke-dashoffset: 283; stroke-linecap: round; transition: stroke-dashoffset 1s ease-out; }
+        .ring-circle-prog { fill: none; stroke: var(--primary); stroke-width: 8; stroke-dasharray: 283; stroke-dashoffset: 283; stroke-linecap: round; transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Daily Mission Card */
+        .mission-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .mission-icon { width: 45px; height: 45px; border-radius: 12px; background: rgba(245,158,11,0.1); color: var(--warning); display: flex; justify-content: center; align-items: center; font-size: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="installBanner" class="hidden">
-        <div style="font-size: 14px;"><i class="fa-solid fa-download"></i> Install EduNexus App</div>
-        <button class="btn-primary" style="width: auto; padding: 8px 16px; font-size: 13px; border-radius: 20px; box-shadow: none;" onclick="installApp()">Install Now</button>
+        <div style="font-size: 15px;"><i class="fa-solid fa-download"></i> Install EduNexus App</div>
+        <button class="btn-primary" style="width: auto; padding: 10px 20px; font-size: 13px; border-radius: 20px; box-shadow: none; background: #020617; color: white;" onclick="installApp()">Install Now</button>
     </div>
 
     <div id="appHeader" class="header hidden">
         <div class="flex-between" style="width: 100%;">
-            <div style="display: flex; align-items: center; gap: 12px;" onclick="navTo('pageProfile', 4)">
-                <div style="width: 46px; height: 46px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px; background:var(--surface); border: 2px solid var(--accent); box-shadow: 0 0 12px var(--accent-glow); color:var(--text-main);" id="headAvatar">U</div>
+            <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="navTo('pageProfile', 4)">
+                <div style="width: 48px; height: 48px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 20px; background:var(--surface); border: 2px solid var(--primary); box-shadow: 0 0 15px var(--primary-glow); color:var(--primary);" id="headAvatar">U</div>
                 <div>
                     <div style="font-weight: 800; font-size: 16px; color: var(--text-main);" id="headName">User</div>
-                    <div style="font-size: 12px; color:var(--accent); font-weight:700;">EduNexus Pro</div>
+                    <div style="font-size: 12px; color:var(--text-muted); font-weight:600;" id="headBatch">HSC Batch</div>
                 </div>
             </div>
-            <div style="display: flex; gap: 15px; align-items: center; position: relative;">
-                <i class="fa-solid fa-circle-half-stroke" style="font-size: 20px; color: var(--text-muted); cursor: pointer;" onclick="toggleTheme()"></i>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <i class="fa-solid fa-moon" id="themeToggleBtn" style="font-size: 22px; color: var(--text-muted); cursor: pointer;" onclick="toggleTheme()"></i>
                 <div style="position:relative;" onclick="openNotifications()">
                     <i class="fa-solid fa-bell" style="font-size: 22px; color: var(--text-muted); cursor: pointer;"></i>
-                    <div id="notiCount" class="noti-badge hidden">0</div>
+                    <div id="notiCount" style="position:absolute; top:-5px; right:-5px; background:var(--danger); color:white; width:18px; height:18px; border-radius:50%; font-size:10px; display:flex; justify-content:center; align-items:center; font-weight:bold; border:2px solid var(--card-bg);" class="hidden">0</div>
                 </div>
-                <div style="background: rgba(251, 191, 36, 0.15); border: 1px solid rgba(251, 191, 36, 0.4); padding: 6px 14px; border-radius: 20px; color: var(--warning); font-size: 14px; font-weight: 800;"><i class="fa-solid fa-coins"></i> <span id="headCoins">0</span></div>
+                <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 8px 16px; border-radius: 20px; color: var(--warning); font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-coins"></i> <span id="headCoins">0</span></div>
             </div>
         </div>
     </div>
 
     <div id="pageAuth" class="p-2">
-        <div class="text-center" style="margin: 60px 0 40px;">
-            <div style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 30px; display: flex; justify-content: center; align-items: center; margin: 0 auto 25px; box-shadow: 0 15px 40px var(--primary-glow); transform: rotate(-10deg);">
-                <i class="fa-solid fa-rocket" style="font-size: 50px; color: #0b0c10; transform: rotate(10deg);"></i>
+        <div class="text-center" style="margin: 80px 0 50px;">
+            <div style="width: 110px; height: 110px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 35px; display: flex; justify-content: center; align-items: center; margin: 0 auto 30px; box-shadow: 0 20px 50px var(--primary-glow); transform: rotate(-10deg);">
+                <i class="fa-solid fa-rocket" style="font-size: 55px; color: #020617; transform: rotate(10deg);"></i>
             </div>
-            <h1 style="font-size: 32px; font-weight: 800; color: var(--text-main);">EduNexus Pro</h1>
-            <p style="color: var(--primary); font-size: 15px; margin-top: 5px; font-weight: 600; letter-spacing: 1px;">THE ULTIMATE LEARNING ECOSYSTEM</p>
+            <h1 style="font-size: 36px; font-weight: 800; color: var(--text-main); letter-spacing: -1px;">EduNexus Pro</h1>
+            <p style="color: var(--primary); font-size: 15px; margin-top: 8px; font-weight: 700; letter-spacing: 2px;">ULTIMATE LEARNING ECOSYSTEM</p>
         </div>
         
-        <div class="card glass-card" style="padding: 30px 20px;">
-            <h3 id="authTitle" class="text-center mb-1" style="font-size: 22px;">Welcome Back</h3>
+        <div class="card glass-card" style="padding: 35px 25px;">
+            <h3 id="authTitle" class="text-center mb-1" style="font-size: 24px;">Welcome Back</h3>
             
             <div id="regFields" class="hidden">
-                <input id="regName" type="text" placeholder="Full Name">
+                <input id="regName" type="text" placeholder="Enter Full Name">
                 <select id="regBatch">
                     <option value="">-- Select Your Batch --</option>
                     <option value="HSC 27">HSC 27</option>
@@ -158,29 +162,29 @@ lml<!DOCTYPE html>
                 </select>
             </div>
             <input id="authId" type="text" placeholder="Phone Number or Email">  
-            <input type="password" id="authPass" placeholder="Password"> 
+            <input type="password" id="authPass" placeholder="Secret Password"> 
             
-            <button id="btnLogin" class="btn-primary mt-1" onclick="handleLogin()">Login to Dashboard <i class="fa-solid fa-arrow-right"></i></button> 
+            <button id="btnLogin" class="btn-primary mt-1" onclick="handleLogin()">Login Securely <i class="fa-solid fa-arrow-right"></i></button> 
             <button id="btnReg" class="btn-accent mt-1 hidden" onclick="handleRegister()">Create Account <i class="fa-solid fa-user-plus"></i></button> 
             
-            <div class="text-center mt-1" style="margin-top: 20px;">
-                <span id="toggleAuth" onclick="toggleAuth()" style="cursor: pointer; color: var(--text-muted); font-size: 14px; font-weight:600; text-decoration: underline;">Create new account</span>
+            <div class="text-center mt-1" style="margin-top: 25px;">
+                <span id="toggleAuth" onclick="toggleAuth()" style="cursor: pointer; color: var(--text-muted); font-size: 15px; font-weight:700; text-decoration: underline; text-underline-offset: 4px;">Create a new account</span>
             </div>
         </div>
         
-        <div class="text-center mt-1" style="margin-top: 40px;">
-            <span onclick="document.getElementById('adminBox').classList.toggle('hidden')" style="cursor:pointer; color:var(--border); font-size:13px; font-weight:600;"><i class="fa-solid fa-shield-halved"></i> Developer / Admin Console</span>
+        <div class="text-center mt-1" style="margin-top: 50px;">
+            <span onclick="document.getElementById('adminBox').classList.toggle('hidden')" style="cursor:pointer; color:var(--border); font-size:14px; font-weight:700; padding:10px;"><i class="fa-solid fa-shield-halved"></i> Developer / Admin Access</span>
         </div>
         <div class="card hidden mt-1" id="adminBox" style="border-color: var(--danger); background: rgba(244, 63, 94, 0.05);">
-            <h4 style="color: var(--danger); margin-bottom: 15px;"><i class="fa-solid fa-lock"></i> Admin Access</h4>
+            <h4 style="color: var(--danger); margin-bottom: 15px; font-size:18px;"><i class="fa-solid fa-lock"></i> Admin Console</h4>
             <input id="adminUser" placeholder="Admin ID"> 
             <input type="password" id="adminPass" placeholder="Admin Password">
             <button class="btn-danger mt-1" onclick="teacherLogin()">Enter Console</button>
         </div>
     </div>
-         <div id="pageHome" class="hidden p-2">
+        <div id="pageHome" class="hidden p-2">
         
-         <div id="notiModal" class="card hidden" style="position: absolute; top: 10px; left: 16px; right: 16px; z-index: 200; background: var(--card-bg); border-color:var(--primary); box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+        <div id="notiModal" class="card hidden" style="position: absolute; top: 10px; left: 16px; right: 16px; z-index: 200; background: var(--card-bg); border-color:var(--primary); box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
             <div class="flex-between mb-1">
                 <h3 style="color:var(--primary);"><i class="fa-solid fa-bell"></i> Notifications</h3>
                 <i class="fa-solid fa-times" onclick="closeNotifications()" style="cursor:pointer; font-size: 20px; color: var(--danger);"></i>
@@ -188,74 +192,83 @@ lml<!DOCTYPE html>
             <div id="notiList" style="max-height: 350px; overflow-y: auto; font-size: 13px;"></div>
         </div>
 
-        <div class="card" style="background: linear-gradient(135deg, var(--surface), rgba(69, 162, 158, 0.15)); border-color: var(--primary); cursor: pointer;" onclick="navTo('pageSyllabus', -1)">
+        <div class="mission-card mb-1">
+            <div class="mission-icon"><i class="fa-solid fa-fire"></i></div>
+            <div style="flex:1;">
+                <h4 style="font-size: 15px; color: var(--text-main);">Daily Mission</h4>
+                <div style="font-size: 12px; color: var(--text-muted);">Complete 1 Mock Test today</div>
+            </div>
+            <div class="badge" style="background: rgba(16, 185, 129, 0.2); color: var(--success); border: none;">+20 XP</div>
+        </div>
+
+        <div class="card" style="background: linear-gradient(135deg, var(--surface), rgba(56, 189, 248, 0.15)); border-color: var(--primary); cursor: pointer;" onclick="navTo('pageSyllabus', -1)">
             <div class="flex-between">
                 <div>
                     <h3 style="color: var(--primary); font-size: 18px;"><i class="fa-solid fa-bars-progress"></i> Syllabus Tracker</h3>
                     <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500;">Track your HSC preparation progress</div>
                 </div>
-                <div style="width: 42px; height: 42px; border-radius: 50%; background: var(--primary); display: flex; justify-content: center; align-items: center; color: white; box-shadow: 0 4px 15px var(--primary-glow);"><i class="fa-solid fa-arrow-right"></i></div>
+                <div style="width: 42px; height: 42px; border-radius: 50%; background: var(--primary); display: flex; justify-content: center; align-items: center; color: #020617; box-shadow: 0 4px 15px var(--primary-glow); font-size: 18px;"><i class="fa-solid fa-arrow-right"></i></div>
             </div>
         </div>
 
         <div class="fc-box mb-1" onclick="flipFlashcard()">
             <div style="color:var(--accent); font-size:13px; margin-bottom:12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;"><i class="fa-solid fa-bolt" style="color: #fbbf24;"></i> Quick Revise</div>
-            <div id="fcText" style="font-size:18px; font-weight:700; color:white; line-height: 1.4;">Loading amazing things...</div>
-            <div style="margin-top:20px; font-size:11px; color:var(--text-muted); opacity: 0.8; font-weight:600;">[ Tap anywhere to Flip ]</div>
+            <div id="fcText" style="font-size:20px; font-weight:800; color:white; line-height: 1.5;">Loading flashcards...</div>
+            <div style="margin-top:25px; font-size:12px; color:var(--text-muted); font-weight:600; background: rgba(0,0,0,0.2); padding: 6px 12px; border-radius: 12px; display: inline-block;">Tap anywhere to Flip</div>
         </div>
         <div class="grid-2 mb-1">
-            <button class="btn-outline" style="padding: 12px; border-radius: 14px;" onclick="prevFlashcard(event)">◀ Prev</button>
-            <button class="btn-outline" style="padding: 12px; border-radius: 14px;" onclick="nextFlashcard(event)">Next ▶</button>
+            <button class="btn-outline" style="padding: 14px; border-radius: 16px;" onclick="prevFlashcard(event)"><i class="fa-solid fa-arrow-left"></i> Prev</button>
+            <button class="btn-outline" style="padding: 14px; border-radius: 16px;" onclick="nextFlashcard(event)">Next <i class="fa-solid fa-arrow-right"></i></button>
         </div>
 
         <div class="grid-2 mb-1">
-            <div class="card text-center glass-card" style="padding: 20px 10px; margin: 0; cursor:pointer;" onclick="navTo('pageNotes', 1)">
-                <div style="width: 54px; height: 54px; border-radius: 18px; background: rgba(69, 162, 158, 0.15); display: flex; justify-content: center; align-items: center; margin: 0 auto 12px;"><i class="fa-solid fa-book-journal-whills" style="font-size: 26px; color: var(--primary);"></i></div>
-                <div style="font-weight: 800; font-size: 14px; color: var(--text-main);">Notes & Q-Bank</div>
+            <div class="card text-center glass-card" style="padding: 22px 10px; margin: 0; cursor:pointer; border: 1px solid rgba(56, 189, 248, 0.2);" onclick="navTo('pageNotes', 1)">
+                <div style="width: 58px; height: 58px; border-radius: 20px; background: rgba(56, 189, 248, 0.15); display: flex; justify-content: center; align-items: center; margin: 0 auto 12px; box-shadow: inset 0 0 10px rgba(56, 189, 248, 0.2);"><i class="fa-solid fa-book-journal-whills" style="font-size: 28px; color: var(--primary);"></i></div>
+                <div style="font-weight: 800; font-size: 15px; color: var(--text-main);">Notes & Q-Bank</div>
             </div>
-            <div class="card text-center glass-card" style="padding: 20px 10px; margin: 0; cursor:pointer;" onclick="navTo('pageMock', 2)">
-                <div style="width: 54px; height: 54px; border-radius: 18px; background: rgba(251, 191, 36, 0.15); display: flex; justify-content: center; align-items: center; margin: 0 auto 12px;"><i class="fa-solid fa-pen-ruler" style="font-size: 26px; color: var(--warning);"></i></div>
-                <div style="font-weight: 800; font-size: 14px; color: var(--text-main);">Mock Test</div>
+            <div class="card text-center glass-card" style="padding: 22px 10px; margin: 0; cursor:pointer; border: 1px solid rgba(245, 158, 11, 0.2);" onclick="navTo('pageMock', 2)">
+                <div style="width: 58px; height: 58px; border-radius: 20px; background: rgba(245, 158, 11, 0.15); display: flex; justify-content: center; align-items: center; margin: 0 auto 12px; box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.2);"><i class="fa-solid fa-pen-ruler" style="font-size: 28px; color: var(--warning);"></i></div>
+                <div style="font-weight: 800; font-size: 15px; color: var(--text-main);">Mock Test</div>
             </div>
         </div>
     </div>
 
     <div id="pageSyllabus" class="hidden p-2">
         <div class="flex-between mb-1">
-            <h3 style="font-size: 20px;"><i class="fa-solid fa-bars-progress" style="color: var(--primary);"></i> Master Tracker</h3>
-            <button class="btn-outline" style="width: auto; padding: 8px 14px; font-size: 12px; border-radius: 12px;" onclick="navTo('pageHome', 0)"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            <h3 style="font-size: 22px;"><i class="fa-solid fa-bars-progress" style="color: var(--primary);"></i> Master Tracker</h3>
+            <button class="btn-outline" style="width: auto; padding: 10px 16px; font-size: 13px; border-radius: 14px;" onclick="navTo('pageHome', 0)"><i class="fa-solid fa-arrow-left"></i> Back</button>
         </div>
         
-        <div class="card text-center" style="background: linear-gradient(135deg, var(--surface), var(--bg-main)); border-color: var(--primary);">
-            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; text-transform: uppercase;">Overall HSC Progress</div>
-            <div style="font-size: 42px; font-weight: 800; color: var(--primary); text-shadow: 0 0 20px var(--primary-glow);" id="sylOverallProg">0%</div>
-            <div class="grid-3 mt-1" style="border-top: 1px solid var(--border); padding-top: 15px;">
-                <div><div style="font-size: 18px; font-weight: 800; color: var(--text-main);" id="sylTotal">0</div><div style="font-size: 10px; color: var(--text-muted); font-weight:600; text-transform: uppercase;">Total Topics</div></div>
-                <div><div style="font-size: 18px; font-weight: 800; color: var(--primary);" id="sylDone">0</div><div style="font-size: 10px; color: var(--text-muted); font-weight:600; text-transform: uppercase;">Completed</div></div>
-                <div><div style="font-size: 18px; font-weight: 800; color: var(--warning);" id="sylLeft">0</div><div style="font-size: 10px; color: var(--text-muted); font-weight:600; text-transform: uppercase;">Remaining</div></div>
+        <div class="card text-center" style="background: linear-gradient(135deg, var(--surface), var(--card-bg)); border-color: var(--primary); box-shadow: 0 10px 30px var(--primary-glow);">
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Overall HSC Progress</div>
+            <div style="font-size: 48px; font-weight: 800; color: var(--primary); text-shadow: 0 0 25px var(--primary-glow);" id="sylOverallProg">0%</div>
+            <div class="grid-3 mt-1" style="border-top: 1px solid var(--border); padding-top: 18px;">
+                <div><div style="font-size: 20px; font-weight: 800; color: var(--text-main);" id="sylTotal">0</div><div style="font-size: 11px; color: var(--text-muted); font-weight:700; text-transform: uppercase;">Total</div></div>
+                <div><div style="font-size: 20px; font-weight: 800; color: var(--success);" id="sylDone">0</div><div style="font-size: 11px; color: var(--text-muted); font-weight:700; text-transform: uppercase;">Done</div></div>
+                <div><div style="font-size: 20px; font-weight: 800; color: var(--warning);" id="sylLeft">0</div><div style="font-size: 11px; color: var(--text-muted); font-weight:700; text-transform: uppercase;">Left</div></div>
             </div>
         </div>
 
-        <div id="sylSubjectList" class="grid-2"></div>
+        <div id="sylSubjectList" class="grid-2 mt-1"></div>
         
         <div id="sylChapterView" class="hidden">
             <button class="btn-outline mb-1" onclick="closeChapterView()"><i class="fa-solid fa-arrow-left"></i> Back to Subjects</button>
-            <h3 id="sylActiveSubTitle" style="color: var(--accent); margin-bottom: 15px; font-size: 20px;">Subject</h3>
+            <h3 id="sylActiveSubTitle" style="color: var(--accent); margin-bottom: 18px; font-size: 22px; font-weight: 800;">Subject</h3>
             <div id="sylChapterList"></div>
         </div>
     </div>
 
     <div id="pageNotes" class="hidden p-2">
-        <div class="grid-2 mb-1" style="background: var(--surface); padding: 6px; border-radius: 16px; border: 1px solid var(--border);">
-            <button id="tabNotes" class="btn-accent" style="padding: 12px 5px; border:none; font-size: 13px;" onclick="switchLearnTab('notes')"><i class="fa-solid fa-file-pdf"></i> PDF Notes</button>
-            <button id="tabQbank" class="btn-outline" style="padding: 12px 5px; border:none; font-size: 13px;" onclick="switchLearnTab('qbank')"><i class="fa-solid fa-clipboard-question"></i> Q-Bank</button>
+        <div class="grid-2 mb-1" style="background: var(--surface); padding: 8px; border-radius: 20px; border: 1px solid var(--border);">
+            <button id="tabNotes" class="btn-accent" style="padding: 14px 5px; border:none; font-size: 14px; box-shadow: none;" onclick="switchLearnTab('notes')"><i class="fa-solid fa-file-pdf"></i> PDF Notes</button>
+            <button id="tabQbank" class="btn-outline" style="padding: 14px 5px; border:none; font-size: 14px;" onclick="switchLearnTab('qbank')"><i class="fa-solid fa-clipboard-question"></i> Q-Bank</button>
         </div>
 
         <div id="viewNotes">
             <div class="card glass-card">
                 <select id="readSub" onchange="updateReadChaps()"></select>
                 <select id="readChap"><option value="All">All Chapters</option></select>
-                <button class="btn-primary mt-1" onclick="loadShortNotes()"><i class="fa-solid fa-search"></i> Search Notes</button>
+                <button class="btn-primary mt-1" onclick="loadShortNotes()"><i class="fa-solid fa-search"></i> Find Notes</button>
             </div>
             <div id="notesArea"></div>
         </div>
@@ -266,26 +279,20 @@ lml<!DOCTYPE html>
                 <select id="qbChap"><option value="All">All Chapters</option></select>
                 <button class="btn-accent mt-1" onclick="loadPracticeQBank()"><i class="fa-solid fa-play"></i> Start Practice Mode</button>
             </div>
-            <div class="flex-between mb-1"><b style="color:var(--warning); font-size: 15px;" id="qbScoreTxt"></b></div>
+            <div class="flex-between mb-1"><b style="color:var(--warning); font-size: 16px;" id="qbScoreTxt"></b></div>
             <div id="qbankArea"></div>
         </div>
     </div>
-
-    <div id="pageTimer" class="hidden p-2">
-        <h3 class="mb-1" style="font-size: 20px;"><i class="fa-solid fa-brain" style="color: var(--accent);"></i> Focus Timer</h3>
-        
-        <div class="card glass-card text-center" style="border-color: var(--accent); padding: 35px 20px; box-shadow: 0 10px 40px rgba(102, 252, 241, 0.1);">
-            
-            <div class="grid-3 mb-1" style="margin-bottom: 25px;">
-                <div><label style="font-size:12px; color:var(--text-muted); font-weight:bold;">HOURS</label><input type="number" id="tH" value="0" min="0" max="10" style="text-align:center; font-size:20px; font-weight:bold;"></div>
-                <div><label style="font-size:12px; color:var(--text-muted); font-weight:bold;">MINS</label><input type="number" id="tM" value="25" min="0" max="59" style="text-align:center; font-size:20px; font-weight:bold;"></div>
-                <div><label style="font-size:12px; color:var(--text-muted); font-weight:bold;">SECS</label><input type="number" id="tS" value="0" min="0" max="59" style="text-align:center; font-size:20px; font-weight:bold;"></div>
+        <div id="pageTimer" class="hidden p-2">
+        <h3 class="mb-1" style="font-size: 22px;"><i class="fa-solid fa-brain" style="color: var(--accent);"></i> Focus Timer</h3>
+        <div class="card glass-card text-center" style="border-color: var(--accent); padding: 40px 20px; box-shadow: 0 10px 40px rgba(129, 140, 248, 0.15);">
+            <div class="grid-3 mb-1" style="margin-bottom: 30px;">
+                <div><label style="font-size:12px; color:var(--text-muted); font-weight:800;">HOURS</label><input type="number" id="tH" value="0" min="0" max="10" style="text-align:center; font-size:24px; font-weight:800; padding:12px;"></div>
+                <div><label style="font-size:12px; color:var(--text-muted); font-weight:800;">MINS</label><input type="number" id="tM" value="25" min="0" max="59" style="text-align:center; font-size:24px; font-weight:800; padding:12px;"></div>
+                <div><label style="font-size:12px; color:var(--text-muted); font-weight:800;">SECS</label><input type="number" id="tS" value="0" min="0" max="59" style="text-align:center; font-size:24px; font-weight:800; padding:12px;"></div>
             </div>
-            
-            <div style="font-size: 65px; font-weight: 800; font-family: monospace; color: var(--text-main); margin: 15px 0; text-shadow: 0 0 20px var(--accent-glow); letter-spacing: -2px;" id="timerDisplay">00:25:00</div>
-            
-            <div id="timerStatus" style="color: var(--accent); font-size: 15px; margin-bottom: 30px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Ready to Focus</div>
-            
+            <div style="font-size: 65px; font-weight: 800; font-family: 'Plus Jakarta Sans', monospace; color: var(--text-main); margin: 15px 0; text-shadow: 0 0 25px var(--accent-glow); letter-spacing: -2px;" id="timerDisplay">00:25:00</div>
+            <div id="timerStatus" style="color: var(--accent); font-size: 16px; margin-bottom: 35px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Ready to Focus</div>
             <div class="grid-2">
                 <button class="btn-accent" id="btnTimerStart" style="padding: 18px; font-size: 16px;" onclick="togglePomodoro()"><i class="fa-solid fa-play"></i> Start</button>
                 <button class="btn-outline" style="padding: 18px; font-size: 16px;" onclick="resetPomodoro()"><i class="fa-solid fa-rotate-right"></i> Reset</button>
@@ -294,8 +301,8 @@ lml<!DOCTYPE html>
     </div>
 
     <div id="pageLeaderboard" class="hidden p-2">
-        <h3 class="mb-1" style="font-size: 20px;"><i class="fa-solid fa-trophy" style="color: gold;"></i> Global Leaderboard</h3>
-        <div class="card glass-card">
+        <h3 class="mb-1" style="font-size: 22px;"><i class="fa-solid fa-trophy" style="color: gold;"></i> Hall of Fame</h3>
+        <div class="card glass-card" style="padding: 15px;">
             <div class="grid-2">
                 <select id="lbBatchFilter" onchange="loadLeaderboards()">
                     <option value="All">All Batches</option>
@@ -305,17 +312,17 @@ lml<!DOCTYPE html>
                     <option value="HSC 30">HSC 30</option>
                 </select>
                 <select id="lbTypeFilter" onchange="loadLeaderboards()">
-                    <option value="XP">By XP</option>
+                    <option value="XP">By Total XP</option>
                     <option value="Coins">By Coins</option>
                     <option value="Study">By Focus Time</option>
                 </select>
             </div>
         </div>
-        <div id="fullLeaderboard" style="margin-top: 20px;"></div>
+        <div id="fullLeaderboard" style="margin-top: 15px;"></div>
     </div>
 
     <div id="pageMock" class="hidden p-2">
-        <h3 class="mb-1" style="font-size: 20px;"><i class="fa-solid fa-layer-group" style="color: var(--primary);"></i> Build Custom Exam</h3>
+        <h3 class="mb-1" style="font-size: 22px;"><i class="fa-solid fa-layer-group" style="color: var(--primary);"></i> Build Exam</h3>
         <div class="card glass-card">
             <div class="grid-2"><select id="mockSub" onchange="updateMockChaps()"></select><select id="mockChap"><option value="All">All Chapters</option></select></div>
             <div class="grid-2 mt-1">
@@ -324,45 +331,50 @@ lml<!DOCTYPE html>
             </div>
             <div id="mockConfigList" style="margin-top: 15px; padding: 10px; background: var(--surface); border-radius: 16px; border: 1px solid var(--border);"></div>
             <div class="flex-between mt-1" style="margin-top: 20px;">
-                <div style="font-size: 13px; color: var(--warning); font-weight: 800;"><i class="fa-solid fa-coins"></i> Cost: 10 Coins</div>
+                <div style="font-size: 14px; color: var(--warning); font-weight: 800;"><i class="fa-solid fa-coins"></i> Cost: 10 Coins</div>
                 <button class="btn-primary" style="width: 60%;" onclick="startMockExam()">Launch Exam <i class="fa-solid fa-rocket"></i></button>
             </div>
         </div>
     </div>
 
     <div id="pageProfile" class="hidden p-2">
-        <div class="card" style="margin-top: 10px; padding: 30px 20px; background: linear-gradient(180deg, var(--surface), var(--bg-main)); border-color: var(--primary); box-shadow: 0 10px 40px rgba(69, 162, 158, 0.1);">
+        <div class="card" style="margin-top: 10px; padding: 30px 20px; background: linear-gradient(180deg, var(--surface), var(--card-bg)); border-color: var(--primary); box-shadow: 0 10px 40px rgba(56, 189, 248, 0.15);">
             <div class="flex-between">
                 <div>
-                    <h2 id="profName" style="font-size: 24px; color: var(--primary); font-weight: 800;">Name</h2>
-                    <div style="color: var(--text-muted); font-size: 13px; margin-bottom: 5px; font-weight: 600;"><i class="fa-solid fa-id-badge"></i> <span id="profId">ID</span></div>
-                    <div class="badge" id="profBadge" style="background: var(--accent); color: #0b0c10; border: none; margin-top: 8px; font-size: 12px;">Basic</div>
+                    <h2 id="profName" style="font-size: 24px; color: var(--text-main); font-weight: 800;">Name</h2>
+                    <div style="color: var(--primary); font-size: 13px; margin-bottom: 5px; font-weight: 700;"><i class="fa-solid fa-id-badge"></i> <span id="profId">ID</span></div>
+                    <div class="badge" id="profBadge" style="background: var(--accent); color: white; border: none; margin-top: 8px; font-size: 12px;">Basic</div>
                 </div>
-                <div style="width: 86px; height: 86px; border-radius: 50%; background: var(--surface); display: flex; justify-content: center; align-items: center; font-size: 35px; font-weight: bold; border: 4px solid var(--primary); box-shadow: 0 0 20px var(--primary-glow); color: var(--text-main);" id="profAvatar">U</div>
+                <div style="width: 86px; height: 86px; border-radius: 50%; background: var(--surface); display: flex; justify-content: center; align-items: center; font-size: 35px; font-weight: bold; border: 4px solid var(--primary); box-shadow: 0 0 25px var(--primary-glow); color: var(--text-main);" id="profAvatar">U</div>
             </div>
             
-            <div class="grid-2 mt-1" style="background: var(--card-bg); padding: 16px; border-radius: 16px; margin-top:25px; border: 1px solid var(--border);">
-                <div class="text-center"><div style="font-size: 24px; font-weight: 800; color: var(--warning);" id="profCoinsList">0</div><div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">COINS</div></div>
-                <div class="text-center" style="border-left: 2px solid var(--border);"><div style="font-size: 24px; font-weight: 800; color: var(--primary);" id="profXpList">0</div><div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">TOTAL XP</div></div>
+            <div class="grid-2 mt-1" style="background: var(--bg-main); padding: 16px; border-radius: 16px; margin-top:25px; border: 1px solid var(--border);">
+                <div class="text-center"><div style="font-size: 24px; font-weight: 800; color: var(--warning);" id="profCoinsList">0</div><div style="font-size: 11px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">COINS</div></div>
+                <div class="text-center" style="border-left: 2px solid var(--border);"><div style="font-size: 24px; font-weight: 800; color: var(--primary);" id="profXpList">0</div><div style="font-size: 11px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">TOTAL XP</div></div>
             </div>
         </div>
 
         <div class="grid-3 mb-1 text-center">
-            <div class="card" style="padding: 15px 5px; margin: 0;">
-                <i class="fa-solid fa-file-lines" style="color: var(--primary); font-size: 22px; margin-bottom: 10px;"></i>
-                <div style="font-size: 20px; font-weight: 800;" id="profExams">0</div>
-                <div style="font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Exams Given</div>
+            <div class="card" style="padding: 18px 5px; margin: 0;">
+                <i class="fa-solid fa-file-lines" style="color: var(--primary); font-size: 24px; margin-bottom: 12px;"></i>
+                <div style="font-size: 22px; font-weight: 800;" id="profExams">0</div>
+                <div style="font-size: 10px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Exams Given</div>
             </div>
-            <div class="card" style="padding: 15px 5px; margin: 0;">
-                <i class="fa-solid fa-bullseye" style="color: var(--accent); font-size: 22px; margin-bottom: 10px;"></i>
-                <div style="font-size: 20px; font-weight: 800;" id="profAcc">0%</div>
-                <div style="font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Accuracy</div>
+            <div class="card" style="padding: 18px 5px; margin: 0;">
+                <i class="fa-solid fa-bullseye" style="color: var(--accent); font-size: 24px; margin-bottom: 12px;"></i>
+                <div style="font-size: 22px; font-weight: 800;" id="profAcc">0%</div>
+                <div style="font-size: 10px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Accuracy</div>
             </div>
-            <div class="card" style="padding: 15px 5px; margin: 0;">
-                <i class="fa-solid fa-trophy" style="color: gold; font-size: 22px; margin-bottom: 10px;"></i>
-                <div style="font-size: 20px; font-weight: 800;" id="profRank">#--</div>
-                <div style="font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Global Rank</div>
+            <div class="card" style="padding: 18px 5px; margin: 0;">
+                <i class="fa-solid fa-trophy" style="color: gold; font-size: 24px; margin-bottom: 12px;"></i>
+                <div style="font-size: 22px; font-weight: 800;" id="profRank">#--</div>
+                <div style="font-size: 10px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Global Rank</div>
             </div>
+        </div>
+
+        <div class="card text-center" style="padding: 20px;">
+            <h4 style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Subject Proficiency</h4>
+            <canvas id="radarChart" style="width: 100%; max-height: 250px;"></canvas>
         </div>
 
         <div class="card" style="padding: 0; overflow: hidden; border-radius: 20px;">
@@ -370,8 +382,8 @@ lml<!DOCTYPE html>
                 <span style="color: var(--text-muted);"><i class="fa-regular fa-calendar"></i> Joined On</span>
                 <b id="profJoinDate" style="color: var(--text-main);">--</b>
             </div>
-            <div style="padding: 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 14px; font-weight: 600;">
-                <span style="color: var(--text-muted);"><i class="fa-solid fa-clock"></i> Focus Time</span>
+            <div style="padding: 18px; display: flex; justify-content: space-between; font-size: 14px; font-weight: 600;">
+                <span style="color: var(--text-muted);"><i class="fa-solid fa-clock"></i> Total Focus Time</span>
                 <b style="color: var(--accent);"><span id="profStudy">0</span> Mins</b>
             </div>
         </div>
@@ -394,12 +406,12 @@ lml<!DOCTYPE html>
         </div>
     </div>
 
-    <div id="historyModal" class="card hidden" style="position: absolute; top: 10px; left: 16px; right: 16px; z-index: 200; background: var(--bg-main); border-color:var(--primary); min-height: 90vh;">
+    <div id="historyModal" class="card hidden" style="position: absolute; top: 10px; left: 16px; right: 16px; z-index: 200; background: var(--bg-main); border: 1px solid var(--primary); min-height: 90vh;">
         <div class="flex-between mb-1"><h3 style="font-size: 20px;">Exam History</h3><button class="btn-danger" style="width:auto; padding:8px 16px; font-size:13px;" onclick="document.getElementById('historyModal').classList.add('hidden')">Close</button></div>
         <div id="historyArea"></div>
     </div>
     
-    <div id="mistakesModal" class="card hidden" style="position: absolute; top: 10px; left: 16px; right: 16px; z-index: 200; background: var(--bg-main); border-color:var(--warning); min-height: 90vh;">
+    <div id="mistakesModal" class="card hidden" style="position: absolute; top: 10px; left: 16px; right: 16px; z-index: 200; background: var(--bg-main); border: 1px solid var(--warning); min-height: 90vh;">
         <div class="flex-between mb-1"><h3 style="font-size: 20px;">Mistakes & Saved</h3><button class="btn-danger" style="width:auto; padding:8px 16px; font-size:13px;" onclick="document.getElementById('mistakesModal').classList.add('hidden')">Close</button></div>
         <div class="grid-2 mb-1" style="background: var(--surface); padding: 6px; border-radius: 16px;">
             <button class="btn-accent" id="btnM1" style="padding: 10px; font-size: 13px; border:none;" onclick="renderMistakeData('mistake')">Mistakes</button>
@@ -407,11 +419,12 @@ lml<!DOCTYPE html>
         </div>
         <div id="mistakeArea"></div>
     </div>
-        <div id="pageExam" class="hidden" style="min-height: 100vh;">
+
+    <div id="pageExam" class="hidden" style="min-height: 100vh; background: var(--bg-main);">
         <div style="position: sticky; top:0; background: var(--card-glass); backdrop-filter: blur(15px); padding: 20px; border-bottom: 1px solid var(--border); z-index:50;">
             <div class="flex-between">
                 <div style="color: var(--text-muted); font-weight: 800; font-size: 15px;" id="examProgressTxt">Progress: 0/0</div>
-                <div style="font-size: 26px; font-weight: 800; color: var(--danger); font-family: monospace; text-shadow: 0 0 15px rgba(244,63,94,0.5);" id="examTimerTxt">00:00</div>
+                <div style="font-size: 28px; font-weight: 800; color: var(--danger); font-family: monospace; text-shadow: 0 0 15px rgba(244,63,94,0.5);" id="examTimerTxt">00:00</div>
             </div>
         </div>
         <div class="p-2" id="liveExamContainer" style="padding-bottom:120px;"></div>
@@ -422,20 +435,20 @@ lml<!DOCTYPE html>
 
     <div id="pageResult" class="hidden p-2">
         <div id="printableResult">
-            <div class="card text-center glass-card" style="padding: 40px 20px; background: linear-gradient(135deg, var(--surface), rgba(69, 162, 158, 0.15)); border-color: var(--primary); box-shadow: 0 10px 40px var(--primary-glow);">
+            <div class="card text-center glass-card" style="padding: 40px 20px; background: linear-gradient(135deg, var(--surface), rgba(56, 189, 248, 0.15)); border-color: var(--primary); box-shadow: 0 10px 40px var(--primary-glow);">
                 <h2 style="color: var(--text-main); font-size: 26px; font-weight: 800;"><i class="fa-solid fa-medal" style="color: gold; font-size: 30px;"></i> Final Report</h2>
-                <div style="font-size: 60px; font-weight: 900; color: var(--primary); margin: 20px 0; text-shadow: 0 0 30px var(--primary-glow);" id="resPercent">0%</div>
+                <div style="font-size: 65px; font-weight: 900; color: var(--primary); margin: 20px 0; text-shadow: 0 0 30px var(--primary-glow);" id="resPercent">0%</div>
                 
                 <div style="display: inline-block; background: var(--bg-main); padding: 12px 24px; border-radius: 25px; font-weight: 800; border: 2px solid var(--border); font-size: 16px;">
                     <span style="color: var(--primary);"><span id="resXp">0</span> XP</span> <span style="color:var(--border); margin: 0 10px;">|</span> <span style="color: var(--warning);"><span id="resCoin">0</span> Coins</span>
                 </div>
                 
-                <div style="font-size: 13px; color: var(--danger); margin-top: 15px; font-weight: 700; background: rgba(244,63,94,0.1); padding: 8px; border-radius: 10px;">
+                <div style="font-size: 14px; color: var(--danger); margin-top: 18px; font-weight: 700; background: rgba(244,63,94,0.1); padding: 10px; border-radius: 12px; display: inline-block;">
                     <i class="fa-solid fa-circle-minus"></i> Negative Marks: <span id="resNeg">0</span>
                 </div>
             </div>
             
-            <h3 class="mb-1" style="font-size: 22px; margin-top: 25px;"><i class="fa-solid fa-microscope" style="color: var(--accent);"></i> Detailed Solution</h3>
+            <h3 class="mb-1" style="font-size: 22px; margin-top: 30px;"><i class="fa-solid fa-microscope" style="color: var(--accent);"></i> Detailed Solution</h3>
             <div id="reviewContainer"></div>
         </div>
         <div class="grid-2 mt-1">
@@ -505,40 +518,41 @@ lml<!DOCTYPE html>
         
         <div id="adNotiBox" class="card hidden">
             <h4>Send Global Notification</h4>
-            <input id="adNotiTitle" placeholder="Notification Title">
-            <textarea id="adNotiBody" placeholder="Message body..." rows="3"></textarea>
-            <button class="btn-primary mt-1" onclick="adminSendNotification()"><i class="fa-solid fa-paper-plane"></i> Send Push</button>
-        </div>
-
-        <div class="card mt-1">
-            <h4>Database Search & Edit Questions</h4>
-            <div class="grid-2 mt-1"><select id="adSearchSub" onchange="updateChapDropdown('adSearchSub','adSearchChap')"></select><select id="adSearchChap"><option value="All">All</option></select></div>
-            <input id="adSearch" placeholder="Search keywords..." onkeyup="adminSearchQ()">
-            <div id="adQList" style="max-height: 300px; overflow-y: auto; margin-top: 10px;"></div>
-        </div>
-    </div>
-
-    <div class="bottom-nav" id="bottomNav" style="display: none;">
-        <div class="nav-item active" onclick="navTo('pageHome', 0); navToTimer(false);"><i class="fa-solid fa-house"></i><span>Home</span></div>
-        <div class="nav-item" onclick="navTo('pageNotes', 1); navToTimer(false);"><i class="fa-solid fa-book-open"></i><span>Learn</span></div>
-        <div class="nav-item" onclick="navTo('pageTimer', -1); navToTimer(true);"><i class="fa-solid fa-stopwatch"></i><span>Timer</span></div>
-        <div class="nav-item" onclick="navTo('pageLeaderboard', 3); navToTimer(false);"><i class="fa-solid fa-ranking-star"></i><span>Rank</span></div>
-        <div class="nav-item" onclick="navTo('pageProfile', 4); navToTimer(false);"><i class="fa-solid fa-user"></i><span>Profile</span></div>
-    </div>
-</div>
-
-<script>
+        <script>
 // ==========================================
-// 0. FIREBASE URL & GLOBAL VARS
+// 0. PWA INSTALLATION LOGIC
+// ==========================================
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); deferredPrompt = e;
+    document.getElementById('installBanner').classList.remove('hidden');
+});
+function installApp() {
+    if(deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choice) => {
+            if(choice.outcome === 'accepted') document.getElementById('installBanner').classList.add('hidden');
+            deferredPrompt = null;
+        });
+    }
+}
+
+// ==========================================
+// 1. FIREBASE URL & GLOBAL VARS
 // ==========================================
 const DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com"; 
 
 let currentUser = {}; let allQuestions = []; let allNotes = []; let allUsers = []; let flashcards = []; let notifications = []; let historyData = [];
 let examState = { config: [], questions: [], answers: [], time: 0, interval: null, sub: "" };
 let practiceState = { questions: [] };
-let lineChartInst = null; let currentEditId = null;
+let lineChartInst = null; let radarChartInst = null; let currentEditId = null;
 
-// Exact Chapters Requirement (Generated carefully)
+// Sound Effects
+const timerSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+const successSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+const failSound = new Audio('https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg');
+
+// Exact Chapters Requirement 
 const hscData = {
     "Physics 1st Paper": Array.from({length: 10}, (_, i) => `Chapter ${i+1}`),
     "Physics 2nd Paper": Array.from({length: 11}, (_, i) => `Chapter ${i+1}`),
@@ -560,7 +574,7 @@ let fcIndex = 0; let fcFlipped = false;
 function toggleTheme() { document.body.classList.toggle('light-mode'); }
 
 // ==========================================
-// 1. CORE NAVIGATION & UI UPDATES
+// 2. CORE NAVIGATION
 // ==========================================
 function navTo(pageId, navIdx = -1) {
     const pages = ['pageAuth', 'pageHome', 'pageNotes', 'pageMock', 'pageLeaderboard', 'pageProfile', 'pageExam', 'pageResult', 'pageAdmin', 'pageTimer', 'pageSyllabus'];
@@ -599,20 +613,20 @@ function updateMockChaps() { updateChapDropdown('mockSub', 'mockChap'); }
 function updateReadChaps() { updateChapDropdown('readSub', 'readChap'); }
 
 // ==========================================
-// 2. AUTHENTICATION & LOGIN LOGIC
+// 3. AUTHENTICATION & LOGIN LOGIC
 // ==========================================
 let isRegMode = false;
 function toggleAuth() {
     isRegMode = !isRegMode; document.getElementById('regFields').classList.toggle('hidden', !isRegMode);
     document.getElementById('btnLogin').classList.toggle('hidden', isRegMode); document.getElementById('btnReg').classList.toggle('hidden', !isRegMode);
-    document.getElementById('authTitle').innerText = isRegMode ? "Create New Account" : "Welcome Back"; document.getElementById('toggleAuth').innerText = isRegMode ? "Already have an account? Login" : "Create new account";
+    document.getElementById('authTitle').innerText = isRegMode ? "Create New Account" : "Welcome Back"; document.getElementById('toggleAuth').innerText = isRegMode ? "Already have an account? Login" : "Create a new account";
 }
 
 function handleRegister() {
     let name = document.getElementById('regName').value.trim(), batch = document.getElementById('regBatch').value, rawId = document.getElementById('authId').value.trim(), pass = document.getElementById('authPass').value.trim();
     if(!name || !batch || !rawId || !pass) return alert("Fill all fields!"); let cleanId = rawId.replace(/\./g, '_'); document.getElementById('btnReg').innerHTML = "Registering...";
     fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r=>r.ok?r.json():null).then(data => {
-        if(data && !data.error) { alert("Account exists!"); document.getElementById('btnReg').innerHTML = "Create Account"; return; }
+        if(data && !data.error) { alert("Account already exists!"); document.getElementById('btnReg').innerHTML = "Create Account"; return; }
         let newUser = { name, batch, pass, joinDate: new Date().toLocaleDateString(), coins: 100, xp: 0, studyMins: 0, streak: 1, lastLogin: new Date().toLocaleDateString(), activityData: [0,0,0,0,0,0,0], bookmarks: [], mistakes: [], subjProg: {}, tracker: {} }; 
         return fetch(`${DB}/ultimate_users/${cleanId}.json`, { method: "PUT", body: JSON.stringify(newUser) }).then(res => { alert("Success! +100 Coins Bonus!"); document.getElementById('btnReg').innerHTML = "Create Account"; toggleAuth(); });
     }).catch(err => { alert("Error"); document.getElementById('btnReg').innerHTML = "Create Account"; });
@@ -622,25 +636,28 @@ function handleLogin() {
     let rawId = document.getElementById('authId').value.trim(), pass = document.getElementById('authPass').value.trim();
     if(!rawId || !pass) return alert("Enter credentials!"); let cleanId = rawId.replace(/\./g, '_'); document.getElementById('btnLogin').innerHTML = "Loading...";
     fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r=>r.ok?r.json():null).then(data => {
-        document.getElementById('btnLogin').innerHTML = `Login to Dashboard <i class="fa-solid fa-arrow-right"></i>`;
+        document.getElementById('btnLogin').innerHTML = `Login Securely <i class="fa-solid fa-arrow-right"></i>`;
         if(!data || data.error || data.pass !== pass) return alert("❌ Invalid Login Credentials!");
         currentUser = { id: cleanId, ...data, tracker: data.tracker||{}, xp: data.xp||0, coins: data.coins||0, studyMins: data.studyMins||0, streak: data.streak||1, activityData: data.activityData||[0,0,0,0,0,0,0], mistakes: data.mistakes||[], subjProg: data.subjProg||{} };
+        
         let today = new Date().toLocaleDateString();
         if(currentUser.lastLogin !== today) {
             if(currentUser.lastLogin) { let diff = (new Date(today) - new Date(currentUser.lastLogin)) / (1000*60*60*24); if(diff === 1) currentUser.streak += 1; else currentUser.streak = 1; } else currentUser.streak = 1;
-            currentUser.lastLogin = today; currentUser.coins += 100; // Daily Login 100 Coin Reward
+            currentUser.lastLogin = today; 
+            currentUser.coins += 100; // Daily Login 100 Coin Reward
             if(currentUser.activityData.length > 0) currentUser.activityData.shift(); currentUser.activityData.push(0);
             saveUserDB({ streak: currentUser.streak, coins: currentUser.coins, lastLogin: today, activityData: currentUser.activityData });
             alert("🎁 Daily Login Bonus: +100 Coins!");
         }
         updateUIHeader(); fetchDBData(); fetchFlashcards(); navTo('pageHome', 0); 
-    }).catch(err => { alert("Login Error"); document.getElementById('btnLogin').innerHTML = `Login to Dashboard <i class="fa-solid fa-arrow-right"></i>`; });
+    }).catch(err => { alert("Login Error"); document.getElementById('btnLogin').innerHTML = `Login Securely <i class="fa-solid fa-arrow-right"></i>`; });
 }
 function logout() { currentUser = {}; navTo('pageAuth'); }
 
 function updateUIHeader() {
     let fn = (currentUser.name || "User").split(" ")[0]; let fl = fn.charAt(0).toUpperCase();
     document.getElementById('headName').innerText = fn; document.getElementById('headAvatar').innerText = fl;
+    document.getElementById('headBatch').innerText = currentUser.batch || "HSC Batch";
     document.getElementById('headCoins').innerText = currentUser.coins || 0;
 }
 
@@ -692,7 +709,7 @@ function saveProfileEdit() { let n = document.getElementById('epName').value.tri
 function saveUserDB(updates) { Object.assign(currentUser, updates); fetch(`${DB}/ultimate_users/${currentUser.id}.json`, { method: "PATCH", body: JSON.stringify(updates) }); updateUIHeader(); }
 
 // ==========================================
-// 3. LEARN: SYLLABUS, NOTES & QBANK
+// 4. LEARN: SYLLABUS, NOTES & PRACTICE QBANK
 // ==========================================
 function switchLearnTab(tab) {
     ['viewNotes', 'viewQbank'].forEach(id => document.getElementById(id).classList.add('hidden'));
@@ -759,9 +776,9 @@ function loadShortNotes() {
     if(!sub) return alert("Select subject!"); let html = ''; let filtered = allNotes.filter(n => n.subject === sub && (chap === 'All' || n.chapter === chap));
     if(filtered.length === 0) html = "<div class='text-center mt-1 text-muted'>No notes/PDFs available yet.</div>";
     filtered.forEach(n => {
-        html += `<div class="card" style="border-left: 4px solid var(--accent); background: rgba(102, 252, 241, 0.05);">
+        html += `<div class="card" style="border-left: 4px solid var(--accent); background: rgba(129, 140, 248, 0.05);">
             <div style="font-size:13px; color:var(--text-muted); font-weight:bold;">${n.chapter}</div><h4 style="color:var(--text-main); margin:8px 0; font-size:18px;">${n.title}</h4><div style="font-size:14px; white-space: pre-wrap; margin-bottom: 12px; color:var(--text-muted);">${n.content}</div>`;
-        if(n.pdfUrl) { let embedUrl = n.pdfUrl.replace('/view?usp=sharing', '/preview').replace('/view', '/preview'); html += `<iframe src="${embedUrl}" style="width:100%; height:300px; border:none; border-radius:12px; margin-top:10px; background:#fff;"></iframe><a href="${n.pdfUrl}" target="_blank" download="EduNexus_${n.title}.pdf" style="display:block; margin-top:15px; font-size:14px; font-weight:bold; color:#0b0c10; background:var(--accent); text-align:center; padding:12px; border-radius:12px; text-decoration:none;"><i class="fa-solid fa-download"></i> Open / Download PDF</a>`; }
+        if(n.pdfUrl) { let embedUrl = n.pdfUrl.replace('/view?usp=sharing', '/preview').replace('/view', '/preview'); html += `<iframe src="${embedUrl}" style="width:100%; height:300px; border:none; border-radius:12px; margin-top:10px; background:#fff;"></iframe><a href="${n.pdfUrl}" target="_blank" download="EduNexus_${n.title}.pdf" style="display:block; margin-top:15px; font-size:14px; font-weight:bold; color:#020617; background:var(--accent); text-align:center; padding:12px; border-radius:12px; text-decoration:none;"><i class="fa-solid fa-download"></i> Open / Download PDF</a>`; }
         html += `</div>`;
     });
     document.getElementById('notesArea').innerHTML = html;
@@ -796,7 +813,7 @@ function selectPracticeOpt(qIdx, oIdx, corrIdx) {
 }
 
 // ==========================================
-// 4. FOCUS TIMER (HH:MM:SS)
+// 5. FOCUS TIMER (HH:MM:SS)
 // ==========================================
 let pTimer = null; let pTimeLeft = 0; let isPRunning = false;
 function togglePomodoro() {
@@ -818,6 +835,7 @@ function togglePomodoro() {
                 let h = parseInt(document.getElementById('tH').value)||0, m = parseInt(document.getElementById('tM').value)||0; let minsAdded = (h*60) + m;
                 alert(`🎉 Session Complete! You focused for ${minsAdded} Minutes!`);
                 saveUserDB({ studyMins: (currentUser.studyMins||0) + minsAdded, xp: (currentUser.xp||0) + 15 });
+                triggerConfetti();
                 resetPomodoro();
             }
         }, 1000);
@@ -826,12 +844,12 @@ function togglePomodoro() {
 function resetPomodoro() { clearInterval(pTimer); isPRunning = false; pTimeLeft = 0; let h = parseInt(document.getElementById('tH').value)||0, m = parseInt(document.getElementById('tM').value)||0, s = parseInt(document.getElementById('tS').value)||0; document.getElementById('timerDisplay').innerText = `${h<10?'0'+h:h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`; document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-play"></i> Start Session'; document.getElementById('timerStatus').innerText = "Ready to Focus"; }
 
 // ==========================================
-// 5. MOCK EXAM BUILDER & LIVE EXAM (Scoring Logic)
+// 6. MOCK EXAM BUILDER & LIVE EXAM 
 // ==========================================
 function addMockBlock() {
     let sub = document.getElementById("mockSub").value, chap = document.getElementById("mockChap").value, limit = parseInt(document.getElementById("mockLimit").value);
     if(!sub || !limit || limit <= 0) return alert("Valid inputs required!"); examState.config.push({sub, chap, limit});
-    let html = ""; examState.config.forEach((c) => { html += `<div style="font-size:14px; color:var(--text-main); margin-bottom:8px; border-left:4px solid var(--primary); padding-left:12px; background: rgba(0,242,254,0.05); padding: 12px; border-radius:10px;"><b>${c.sub}</b> (${c.chap}) <span style="float:right; color:var(--warning); font-weight:bold;">${c.limit} Qs</span></div>`; });
+    let html = ""; examState.config.forEach((c) => { html += `<div style="font-size:14px; color:var(--text-main); margin-bottom:8px; border-left:4px solid var(--primary); padding-left:12px; background: rgba(56, 189, 248, 0.05); padding: 12px; border-radius:10px;"><b>${c.sub}</b> (${c.chap}) <span style="float:right; color:var(--warning); font-weight:bold;">${c.limit} Qs</span></div>`; });
     document.getElementById("mockConfigList").innerHTML = html;
 }
 
@@ -888,11 +906,11 @@ function submitExam() {
             let cls = "opt-btn"; if(idx === q.tempCorrect) cls += " correct"; else if(idx === userAns) cls += " wrong";
             revHtml += `<div class="${cls}" style="padding: 12px; margin-bottom:8px;">${String.fromCharCode(65+idx)}. ${optObj.text}</div>`;
         });
-        if(q.exp) revHtml += `<div style="margin-top:12px; font-size:13px; color:var(--text-main); background:rgba(69, 162, 158, 0.1); padding:12px; border-radius:12px; border-left: 3px solid var(--primary);"><b style="color:var(--primary);">💡 Explanation:</b><br> ${q.exp}</div>`;
+        if(q.exp) revHtml += `<div style="margin-top:12px; font-size:13px; color:var(--text-main); background:rgba(56, 189, 248, 0.1); padding:12px; border-radius:12px; border-left: 3px solid var(--primary);"><b style="color:var(--primary);">💡 Explanation:</b><br> ${q.exp}</div>`;
         revHtml += `</div>`;
     });
 
-    // Exact Logic Calculation: 0.25 Negative mark. +5 Coins right, -1 wrong. +2 XP right, -1 XP wrong.
+    // Scoring Logic: Negative marking 0.25, +5 Coins right, -1 wrong. +2 XP right, -1 XP wrong.
     let negMarks = wrong * 0.25;
     let score = Math.max(0, correct - negMarks); 
     let percent = Math.round((score / examState.questions.length) * 100);
@@ -900,14 +918,14 @@ function submitExam() {
     let earnXp = Math.max(0, (correct * 2) - (wrong * 1)); 
     let earnCoin = Math.max(0, (correct * 5) - (wrong * 1));
     
-    if(percent >= 80) { earnXp += 20; earnCoin += 10; successSound.play().catch(e=>{}); } 
+    if(percent >= 80) { earnXp += 20; earnCoin += 10; successSound.play().catch(e=>{}); triggerConfetti(); } 
     else if (percent < 40) { failSound.play().catch(e=>{}); }
 
     let newAct = [...(currentUser.activityData || [0,0,0,0,0,0,0])]; newAct[newAct.length-1] += earnXp; 
     saveUserDB({ xp: (currentUser.xp||0) + earnXp, coins: (currentUser.coins||0) + earnCoin, activityData: newAct, mistakes: mistakesArr, subjProg: sp });
     
-    // Save detailed history for Profile Review
-    let examDataToSave = { name: currentUser.name, subject: examState.sub, percent: percent, total: examState.questions.length, c: correct, w: wrong, neg: negMarks, time: new Date().toLocaleDateString(), detailsHtml: revHtml };
+    // Save Exact History
+    let examDataToSave = { id: Date.now().toString(), name: currentUser.name, subject: examState.sub, percent: percent, total: examState.questions.length, c: correct, w: wrong, neg: negMarks, time: new Date().toLocaleDateString(), detailsHtml: revHtml };
     fetch(`${DB}/ultimate_history.json`, { method: "POST", body: JSON.stringify(examDataToSave) });
 
     document.getElementById('resPercent').innerText = `${percent}%`; document.getElementById('resPercent').style.color = percent>=50 ? 'var(--primary)' : 'var(--danger)';
@@ -916,25 +934,20 @@ function submitExam() {
     document.getElementById('reviewContainer').innerHTML = revHtml; examState.config = []; document.getElementById("mockConfigList").innerHTML = ""; navTo('pageResult');
 }
 function downloadResult() { let el = document.getElementById('printableResult'); let opt = { margin: 10, filename: 'EduNexus_Exam_Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; html2pdf().set(opt).from(el).save(); }
+function triggerConfetti() { confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); }
 
 // ==========================================
-// 6. LEADERBOARD & PROGRESS CHARTS
+// 7. LEADERBOARD & PROGRESS CHARTS
 // ==========================================
 function loadLeaderboards() {
     let batchFilter = document.getElementById('lbBatchFilter') ? document.getElementById('lbBatchFilter').value : "All";
     let typeFilter = document.getElementById('lbTypeFilter') ? document.getElementById('lbTypeFilter').value : "XP";
-    
     let users = [...allUsers];
     if(batchFilter !== "All") users = users.filter(u => u.batch === batchFilter);
-    
-    if(typeFilter === "XP") users.sort((a,b) => (b.xp||0) - (a.xp||0));
-    else if(typeFilter === "Coins") users.sort((a,b) => (b.coins||0) - (a.coins||0));
-    else users.sort((a,b) => (b.studyMins||0) - (a.studyMins||0));
-    
+    if(typeFilter === "XP") users.sort((a,b) => (b.xp||0) - (a.xp||0)); else if(typeFilter === "Coins") users.sort((a,b) => (b.coins||0) - (a.coins||0)); else users.sort((a,b) => (b.studyMins||0) - (a.studyMins||0));
     let html = '';
     users.slice(0,20).forEach((u, i) => {
-        let stg = getStage(u.xp||0);
-        let val = typeFilter==="XP" ? `${u.xp||0} XP` : typeFilter==="Coins" ? `${u.coins||0} <i class="fa-solid fa-coins"></i>` : `${u.studyMins||0} Mins`;
+        let stg = getStage(u.xp||0); let val = typeFilter==="XP" ? `${u.xp||0} XP` : typeFilter==="Coins" ? `${u.coins||0} <i class="fa-solid fa-coins"></i>` : `${u.studyMins||0} Mins`;
         html += `<div class="rank-row">
             <div style="font-weight:900; width:35px; color:${i===0?'gold':i===1?'silver':i===2?'#cd7f32':'var(--text-muted)'}; font-size:18px;">${i+1}</div>
             <div style="width:40px;height:40px;font-size:16px;font-weight:bold;border:2px solid ${stg.color}; border-radius:50%; display:flex; justify-content:center; align-items:center; background:var(--card-bg);">${(u.name||"U").charAt(0).toUpperCase()}</div>
@@ -946,14 +959,41 @@ function loadLeaderboards() {
 }
 
 function renderProgressUI() {
-    let ctx = document.getElementById('lineChart'); if(!ctx) return; ctx = ctx.getContext('2d');
-    if(lineChartInst) lineChartInst.destroy();
-    lineChartInst = new Chart(ctx, { type: 'line', data: { labels: ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'Today'], datasets: [{ label: 'XP Earned', data: currentUser.activityData || [0,0,0,0,0,0,0], borderColor: '#45a29e', backgroundColor: 'rgba(69, 162, 158, 0.2)', borderWidth: 3, fill: true, tension: 0.4 }] }, options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#2c3542' } } } } });
-    document.getElementById('progStreak').innerText = currentUser.streak||1;
+    // Subject Proficiency Radar Chart
+    let rCtx = document.getElementById('radarChart');
+    if(rCtx && currentUser.subjProg) {
+        if(radarChartInst) radarChartInst.destroy();
+        let labels=[], data=[];
+        for(let s in currentUser.subjProg) { labels.push(s.split(" ")[0]); data.push(Math.round(currentUser.subjProg[s].c / (currentUser.subjProg[s].c+currentUser.subjProg[s].w)*100)); }
+        if(labels.length > 0) {
+            radarChartInst = new Chart(rCtx.getContext('2d'), { type: 'radar', data: { labels: labels, datasets: [{ label: 'Accuracy %', data: data, backgroundColor: 'rgba(56, 189, 248, 0.2)', borderColor: '#38bdf8', pointBackgroundColor: '#38bdf8', borderWidth:2 }] }, options: { scales: { r: { angleLines: { color: 'rgba(255,255,255,0.1)' }, grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: '#94a3b8' }, ticks: { display: false, max: 100 } } }, plugins: { legend: { display: false } } } });
+        }
+    }
+}
+
+function loadHistoryModal() { document.getElementById('historyModal').classList.remove('hidden'); }
+function showHistoryDetails(id) {
+    let exam = historyData.find(x => x.id === id); if(!exam || !exam.detailsHtml) return alert("Details unavailable for this old exam.");
+    document.getElementById('printableResult').innerHTML = `<div class="card text-center glass-card" style="padding: 30px 20px; border-color: var(--primary);"><h2 style="color: var(--text-main); font-size: 24px;"><i class="fa-solid fa-medal" style="color: gold;"></i> Past Exam Report</h2><div style="font-size: 50px; font-weight: 800; color: var(--primary); margin: 15px 0;">${exam.percent}%</div><div style="font-size: 12px; color: var(--danger); margin-top: 10px;">Negative Marks Deducted: <span>${exam.neg||0}</span></div></div><h3 class="mb-1"><i class="fa-solid fa-microscope"></i> Answer Review</h3><div id="reviewContainer">${exam.detailsHtml}</div>`;
+    navTo('pageResult'); document.getElementById('historyModal').classList.add('hidden');
+}
+function loadMistakesModal() { document.getElementById('mistakesModal').classList.remove('hidden'); renderMistakeData('mistake'); }
+function renderMistakeData(type) {
+    document.getElementById('btnM1').className = type==='mistake'?'btn-accent':'btn-outline'; document.getElementById('btnM2').className = type==='saved'?'btn-accent':'btn-outline';
+    let arr = type==='mistake' ? currentUser.mistakes||[] : currentUser.bookmarks||[]; let html = '';
+    if(arr.length > 0) {
+        arr.forEach(id => {
+            let q = allQuestions.find(x => x.id === id);
+            if(q) {
+                html += `<div class="card" style="border-left: 4px solid ${type==='mistake'?'var(--danger)':'var(--warning)'};"><small style="color:var(--text-muted); font-weight:bold;">${q.subject}</small><div style="font-size:15px; font-weight:bold; margin:8px 0;">Q. ${q.q}</div><div style="font-size:14px; color:var(--success); font-weight:bold;">✔ Ans: ${q.a[q.correct]}</div>${q.exp?`<div style="font-size:12px; margin-top:10px; color:var(--text-muted); background:var(--surface); padding:8px; border-radius:8px;">💡 ${q.exp}</div>`:''}</div>`;
+            }
+        });
+    } else html = `<div class='text-center text-muted' style='margin-top:20px;'>No ${type==='mistake'?'mistakes':'saved questions'} found.</div>`;
+    document.getElementById('mistakeArea').innerHTML = html;
 }
 
 // ==========================================
-// 7. FLASHCARDS & NOTIFICATIONS
+// 8. FLASHCARDS & NOTIFICATIONS
 // ==========================================
 function fetchFlashcards() { fetch(`${DB}/ultimate_flashcards.json`).then(r=>r.ok?r.json():null).then(data => { if(data && !data.error) flashcards = Object.keys(data).map(k=>({id:k,...data[k]})); else flashcards = [{q: "Start Learning!", a: "Success is near"}]; renderFlashcard(); }).catch(e=>{}); }
 function renderFlashcard() { fcFlipped = false; if(!flashcards || flashcards.length === 0) return; document.getElementById("fcText").innerText = flashcards[fcIndex].q; document.getElementById("fcText").style.color = "white"; }
@@ -967,14 +1007,14 @@ function fetchNotifications() {
     fetch(`${DB}/ultimate_notifications.json`).then(r=>r.ok?r.json():null).then(data => {
         let html = ''; if(data && !data.error) {
             notifications = Object.values(data).reverse(); document.getElementById('notiCount').innerText = notifications.length; if(notifications.length>0) document.getElementById('notiCount').classList.remove('hidden');
-            notifications.forEach(n => { html += `<div style="background:var(--surface); padding:12px; margin-bottom:10px; border-radius:12px; border-left:4px solid var(--accent);"><b style="font-size:14px; color:var(--primary);">${n.title}</b><div style="color:var(--text-main); margin-top:6px; font-size:13px; line-height:1.4;">${n.body}</div><div style="font-size:10px; text-align:right; color:var(--text-muted); margin-top:5px; font-weight:bold;">${n.date}</div></div>`; });
+            notifications.forEach(n => { html += `<div style="background:var(--surface); padding:15px; margin-bottom:12px; border-radius:12px; border-left:4px solid var(--accent);"><b style="font-size:15px; color:var(--primary);">${n.title}</b><div style="color:var(--text-main); margin-top:6px; font-size:13px; line-height:1.4;">${n.body}</div><div style="font-size:11px; text-align:right; color:var(--text-muted); margin-top:8px; font-weight:bold;">${n.date}</div></div>`; });
         }
         document.getElementById('notiList').innerHTML = html || "<div class='text-muted text-center'>No new notifications.</div>";
     });
 }
 
 // ==========================================
-// 8. DB FETCH & ADMIN CONSOLE LOGIC
+// 9. DB FETCH & ADMIN CONSOLE LOGIC
 // ==========================================
 function fetchDBData() {
     fetch(`${DB}/ultimate_questions.json`).then(r=>r.ok?r.json():null).then(data => { if(data && !data.error) allQuestions = Object.keys(data).map(k => ({ id: k, ...data[k] })); }).catch(e=>{});
