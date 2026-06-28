@@ -266,58 +266,12 @@
             <button class="btn-primary mt-1" onclick="saveProfileEdit()">Save Changes</button>
         </div>
 
-         <div class="grid-3 mb-1 text-center">
+        <div class="grid-3 mb-1 text-center">
             <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--warning);" id="profCoins">0</div><div style="font-size: 10px; color: var(--text-muted);">Coins</div></div>
             <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--accent);" id="profXp">0</div><div style="font-size: 10px; color: var(--text-muted);">XP</div></div>
             <div class="card" style="padding: 10px; margin: 0;"><div style="font-size: 18px; font-weight: bold; color: var(--primary);" id="profStudy">0</div><div style="font-size: 10px; color: var(--text-muted);">Study Mins</div></div>
         </div>
         
-        <button class="btn-danger mt-1" onclick="logout()"><i class="fa-solid fa-power-off"></i> Logout</button>
-    </div>
-
-    <div id="pageExam" class="hidden" style="min-height: 100vh;">
-        <div style="position: sticky; top:0; background: var(--card-bg); padding: 15px; border-bottom: 1px solid var(--border); z-index:50;">
-            <div class="flex-between">
-                <div style="color: var(--text-muted); font-weight: bold;" id="examProgressTxt">0/0</div>
-                <div style="font-size: 20px; font-weight: bold; color: var(--danger); font-family: monospace;" id="examTimerTxt">00:00</div>
-            </div>
-        </div>
-        <div class="p-2" id="liveExamContainer" style="padding-bottom:80px;"></div>
-        <div class="p-2" style="position: fixed; bottom: 0; width: 100%; max-width: 500px; background: var(--card-bg); border-top: 1px solid var(--border);">
-            <button class="btn-primary" onclick="submitExam()"><i class="fa-solid fa-check-double"></i> Submit</button>
-        </div>
-    </div>
-
-    <div id="pageResult" class="hidden p-2">
-        <div id="printableResult">
-            <div class="card text-center glass-card">
-                <h2><i class="fa-solid fa-medal"></i> Report Card</h2>
-                <div style="font-size: 40px; font-weight: bold; color: var(--primary); margin: 10px 0;" id="resPercent">0%</div>
-                <p style="color: var(--warning); font-weight: bold;">Earned: +<span id="resXp">0</span> XP | +<span id="resCoin">0</span> Coins</p>
-                <div id="subjectProgressArea" style="margin-top:10px;"></div>
-            </div>
-            <h3 class="mb-1">Detailed Analysis</h3>
-            <div id="reviewContainer"></div>
-        </div>
-        <div class="grid-2 mt-1">
-            <button class="btn-accent mb-1" onclick="downloadResult()"><i class="fa-solid fa-file-pdf"></i> Save PDF</button>
-            <button class="btn-outline mb-1" onclick="navTo('pageHome', 0)"><i class="fa-solid fa-house"></i> Home</button>
-        </div>
-    </div>
-
-    <div id="pageAdmin" class="hidden p-2">
-        <div class="flex-between mb-1">
-            <h3 style="color: var(--danger);"><i class="fa-solid fa-shield-halved"></i> Admin Console</h3>
-            <button class="btn-outline" style="width:auto; padding: 5px 10px;" onclick="navTo('pageAuth')">Exit</button>
-        </div>
-        
-        <div class="grid-2 mb-1">
-            <button class="btn-primary" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adQBox')">Add Q</button>
-            <button class="btn-warning" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adBulkBox')">Bulk Qs</button>
-            <button class="btn-accent" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adNoteBox')">Add Note/PDF</button>
-            <button class="btn-danger" style="font-size:12px; padding:10px;" onclick="switchAdminTab('adFcBox')">Flashcards</button>
-        </div>
-
         <div id="adQBox" class="card">
             <h4 id="adModeText">Add Question</h4>
             <div class="grid-2 mt-1"><select id="adSub" onchange="updateChapDropdown('adSub','adChap')"></select><select id="adChap"><option value="All">Chapter</option></select></div>
@@ -570,8 +524,8 @@ function updateUIHeader() {
 }
 
 function saveProfileEdit() { let n = document.getElementById('epName').value.trim(); let b = document.getElementById('epBatch').value; if(n) { saveUserDB({ name: n, batch: b }); alert("Updated!"); document.getElementById('editProfBox').classList.add('hidden'); } }
-function saveUserDB(updates) { Object.assign(currentUser, updates); fetch(`${DB}/ultimate
-        
+function saveUserDB(updates) { Object.assign(currentUser, updates); fetch(`${DB}/ultimate_users/${currentUser.id}.json`, { method: "PATCH", body: JSON.stringify(updates) }); updateUIHeader(); }
+
 // ==========================================
 // 4. QUICK REVISE & DUAL LEADERBOARDS
 // ==========================================
@@ -698,8 +652,9 @@ function toggleBookmark(id, el) {
     let idx = currentUser.bookmarks.indexOf(id);
     if(idx > -1) { currentUser.bookmarks.splice(idx, 1); el.classList.remove('active'); } else { currentUser.bookmarks.push(id); el.classList.add('active'); }
     saveUserDB({ bookmarks: currentUser.bookmarks });
-    }
-    // ==========================================
+}
+
+// ==========================================
 // 7. MOCK EXAM BUILDER
 // ==========================================
 function addMockBlock() {
