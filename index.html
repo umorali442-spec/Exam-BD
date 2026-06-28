@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EduNexus Pro Ultimate V4</title>
+    <title>EduNexus Pro Ultimate V5</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,7 +12,6 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        
         :root { 
             --bg-main: #020617; --card-bg: #0f172a; --card-glass: rgba(15, 23, 42, 0.85); 
             --text-main: #f8fafc; --text-muted: #94a3b8; 
@@ -21,64 +20,48 @@
             --danger: #f43f5e; --warning: #f59e0b; --success: #10b981; 
             --border: #1e293b; --surface: #1e293b; 
         }
-        
         body.light-mode { 
             --bg-main: #f1f5f9; --card-bg: #ffffff; --card-glass: rgba(255, 255, 255, 0.95); 
-            --text-main: #0f172a; --text-muted: #64748b; 
-            --border: #cbd5e1; --surface: #e2e8f0; 
+            --text-main: #0f172a; --text-muted: #64748b; --border: #cbd5e1; --surface: #e2e8f0; 
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 110px; overflow-x: hidden; transition: 0.3s; }
         .container { max-width: 500px; margin: 0 auto; min-height: 100vh; position: relative; }
-        
         .hidden { display: none !important; } 
         .p-2 { padding: 18px; } .mt-1 { margin-top: 16px; } .mb-1 { margin-bottom: 16px; } 
         .text-center { text-align: center; } .flex-between { display: flex; justify-content: space-between; align-items: center; }
-        
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 22px; margin-bottom: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: 0.3s; position: relative; overflow: hidden; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 22px; margin-bottom: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .glass-card { background: var(--card-glass); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.08); }
-        
         input, select, textarea { width: 100%; padding: 16px 20px; margin: 10px 0; background: var(--surface); border: 2px solid transparent; border-radius: 16px; color: var(--text-main); font-size: 15px; font-weight: 600; outline: none; transition: 0.3s; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); background: var(--card-bg); box-shadow: 0 0 15px var(--primary-glow); }
-        
-        button { width: 100%; padding: 16px; border: none; border-radius: 16px; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 0.5px;}
-        button:active { transform: scale(0.95); }
+        button { width: 100%; padding: 16px; border: none; border-radius: 16px; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; }
         .btn-primary { background: linear-gradient(135deg, #0ea5e9, #38bdf8); color: #020617; box-shadow: 0 8px 25px var(--primary-glow); }
         .btn-accent { background: linear-gradient(135deg, #6366f1, #818cf8); color: white; box-shadow: 0 8px 25px var(--accent-glow); }
-        .btn-danger { background: linear-gradient(135deg, #e11d48, #fb7185); color: white; box-shadow: 0 8px 25px rgba(244,63,94,0.3); }
+        .btn-danger { background: linear-gradient(135deg, #e11d48, #fb7185); color: white; }
         .btn-warning { background: linear-gradient(135deg, #d97706, #fbbf24); color: #020617; }
         .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text-main); }
-        .btn-outline.active { border-color: var(--primary); background: rgba(56, 189, 248, 0.1); color: var(--primary); }
-
         .header { position: sticky; top: 0; z-index: 50; background: var(--card-glass); backdrop-filter: blur(20px); padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: var(--card-glass); backdrop-filter: blur(30px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 15px 0 25px; z-index: 100; border-radius: 40px 40px 0 0; box-shadow: 0 -15px 40px rgba(0,0,0,0.3); }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: var(--card-glass); backdrop-filter: blur(30px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 15px 0 25px; z-index: 100; border-radius: 40px 40px 0 0; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); cursor: pointer; font-size: 11px; font-weight: 800; width: 20%; transition: 0.3s;}
-        .nav-item i { font-size: 22px; padding: 12px; border-radius: 18px; transition: 0.3s; }
+        .nav-item i { font-size: 22px; padding: 12px; border-radius: 18px; }
         .nav-item.active { color: var(--primary); } 
-        .nav-item.active i { background: rgba(56, 189, 248, 0.15); transform: translateY(-8px); box-shadow: 0 8px 20px var(--primary-glow); color: var(--primary);}
-
+        .nav-item.active i { background: rgba(56, 189, 248, 0.15); transform: translateY(-8px); color: var(--primary);}
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-        .badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;}
-        .rank-row { display: flex; align-items: center; padding: 18px; border-bottom: 1px solid var(--border); background: var(--surface); border-radius: 20px; margin-bottom: 12px; transition: 0.2s; border: 2px solid transparent;}
-        
-        .opt-btn { background: var(--surface); padding: 18px; border: 2px solid var(--border); border-radius: 18px; margin-bottom: 14px; cursor: pointer; color: var(--text-main); font-weight:700; transition: 0.2s; display: flex; align-items: center;}
-        .opt-btn.selected { border-color: var(--primary); background: rgba(56, 189, 248, 0.1); color: var(--primary); box-shadow: inset 0 0 10px var(--primary-glow); }
+        .badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+        .rank-row { display: flex; align-items: center; padding: 18px; border-bottom: 1px solid var(--border); background: var(--surface); border-radius: 20px; margin-bottom: 12px; }
+        .opt-btn { background: var(--surface); padding: 18px; border: 2px solid var(--border); border-radius: 18px; margin-bottom: 14px; cursor: pointer; color: var(--text-main); font-weight:700; display: flex; align-items: center;}
+        .opt-btn.selected { border-color: var(--primary); background: rgba(56, 189, 248, 0.1); color: var(--primary); }
         .opt-btn.correct { background: rgba(16, 185, 129, 0.15); border-color: var(--success); color: var(--success); }
-        .opt-btn.wrong { background: rgba(244, 63, 94, 0.15); border-color: var(--danger); color: var(--danger); text-decoration: line-through;}
+        .opt-btn.wrong { background: rgba(244, 63, 94, 0.15); border-color: var(--danger); color: var(--danger); }
         .opt-btn.locked { pointer-events: none; opacity: 0.9; }
-        
-        .fc-box { background: linear-gradient(135deg, #1e1b4b, #312e81); border: 2px solid #6366f1; border-radius: 28px; padding: 35px 25px; text-align: center; cursor: pointer; user-select: none; min-height: 200px; display:flex; flex-direction:column; justify-content:center; box-shadow: 0 15px 35px rgba(99,102,241,0.3); transition: 0.4s; position:relative; overflow:hidden;}
-        #installBanner { background: linear-gradient(135deg, var(--accent), var(--primary)); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; color: #020617; border-radius: 0 0 24px 24px; font-weight:800; box-shadow: 0 8px 25px var(--accent-glow); z-index: 200; position:relative;}
-        
+        .fc-box { background: linear-gradient(135deg, #1e1b4b, #312e81); border: 2px solid #6366f1; border-radius: 28px; padding: 35px 25px; text-align: center; cursor: pointer; min-height: 200px; display:flex; flex-direction:column; justify-content:center; }
         .ring-container { position: relative; width: 110px; height: 110px; margin: 0 auto; display: flex; justify-content: center; align-items: center; }
-        .ring-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); filter: drop-shadow(0 0 8px var(--primary-glow)); }
+        .ring-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
         .ring-circle-bg { fill: none; stroke: var(--surface); stroke-width: 8; }
-        .ring-circle-prog { fill: none; stroke: var(--primary); stroke-width: 8; stroke-dasharray: 283; stroke-dashoffset: 283; stroke-linecap: round; transition: stroke-dashoffset 1.5s; }
-        
+        .ring-circle-prog { fill: none; stroke: var(--primary); stroke-width: 8; stroke-dasharray: 283; stroke-dashoffset: 283; stroke-linecap: round; transition: 1.5s; }
         .mission-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
         .mission-icon { width: 45px; height: 45px; border-radius: 12px; background: rgba(245,158,11,0.1); color: var(--warning); display: flex; justify-content: center; align-items: center; font-size: 20px; }
-        .tracker-item { display: flex; align-items: center; padding: 14px; background: var(--surface); border-radius: 14px; margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border); transition: 0.3s;}
+        .tracker-item { display: flex; align-items: center; padding: 14px; background: var(--surface); border-radius: 14px; margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border); }
         .tracker-item.done { border-color: var(--primary); background: rgba(56, 189, 248, 0.1); }
         .tracker-item.done .t-text { text-decoration: line-through; color: var(--text-muted); }
     </style>
@@ -88,36 +71,36 @@
 <div class="container">
     <div id="installBanner" class="hidden">
         <div style="font-size: 15px;"><i class="fa-solid fa-download"></i> Install EduNexus App</div>
-        <button class="btn-primary" style="width: auto; padding: 10px 20px; font-size: 13px; border-radius: 20px; box-shadow: none; background: #020617; color: white;" onclick="installApp()">Install Now</button>
+        <button class="btn-primary" style="width: auto; padding: 10px 20px;" onclick="installApp()">Install Now</button>
     </div>
 
     <div id="appHeader" class="header hidden">
         <div class="flex-between" style="width: 100%;">
             <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="navTo('pageProfile', 4)">
-                <div style="width: 48px; height: 48px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 20px; background:var(--surface); border: 2px solid var(--primary); box-shadow: 0 0 15px var(--primary-glow); color:var(--primary);" id="headAvatar">U</div>
+                <div style="width: 48px; height: 48px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 20px; background:var(--surface); border: 2px solid var(--primary); color:var(--primary);" id="headAvatar">U</div>
                 <div>
                     <div style="font-weight: 800; font-size: 16px; color: var(--text-main);" id="headName">User</div>
-                    <div style="font-size: 12px; color:var(--text-muted); font-weight:600;" id="headBatch">HSC Batch</div>
+                    <div style="font-size: 12px; color:var(--text-muted);" id="headBatch">HSC Batch</div>
                 </div>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
-                <i class="fa-solid fa-moon" id="themeToggleBtn" style="font-size: 22px; color: var(--text-muted); cursor: pointer;" onclick="toggleTheme()"></i>
+                <i class="fa-solid fa-moon" style="font-size: 22px; cursor: pointer;" onclick="toggleTheme()"></i>
                 <div style="position:relative;" onclick="openNotifications()">
-                    <i class="fa-solid fa-bell" style="font-size: 22px; color: var(--text-muted); cursor: pointer;"></i>
-                    <div id="notiCount" style="position:absolute; top:-5px; right:-5px; background:var(--danger); color:white; width:18px; height:18px; border-radius:50%; font-size:10px; display:flex; justify-content:center; align-items:center; font-weight:bold; border:2px solid var(--card-bg);" class="hidden">0</div>
+                    <i class="fa-solid fa-bell" style="font-size: 22px; cursor: pointer;"></i>
+                    <div id="notiCount" style="position:absolute; top:-5px; right:-5px; background:var(--danger); color:white; width:18px; height:18px; border-radius:50%; font-size:10px; display:flex; justify-content:center; align-items:center;" class="hidden">0</div>
                 </div>
-                <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 8px 16px; border-radius: 20px; color: var(--warning); font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-coins"></i> <span id="headCoins">0</span></div>
+                <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 8px 16px; border-radius: 20px; color: var(--warning); font-size: 15px; font-weight: 800;"><i class="fa-solid fa-coins"></i> <span id="headCoins">0</span></div>
             </div>
         </div>
     </div>
 
     <div id="pageAuth" class="p-2">
         <div class="text-center" style="margin: 80px 0 50px;">
-            <div style="width: 110px; height: 110px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 35px; display: flex; justify-content: center; align-items: center; margin: 0 auto 30px; box-shadow: 0 20px 50px var(--primary-glow); transform: rotate(-10deg);">
+            <div style="width: 110px; height: 110px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 35px; display: flex; justify-content: center; align-items: center; margin: 0 auto 30px; transform: rotate(-10deg);">
                 <i class="fa-solid fa-rocket" style="font-size: 55px; color: #020617; transform: rotate(10deg);"></i>
             </div>
-            <h1 style="font-size: 36px; font-weight: 800; color: var(--text-main); letter-spacing: -1px;">EduNexus Pro</h1>
-            <p style="color: var(--primary); font-size: 15px; margin-top: 8px; font-weight: 700; letter-spacing: 2px;">ULTIMATE LEARNING ECOSYSTEM</p>
+            <h1 style="font-size: 36px; font-weight: 800;">EduNexus Pro</h1>
+            <p style="color: var(--primary); font-size: 15px; margin-top: 8px; font-weight: 700; letter-spacing: 2px;">ULTIMATE ecosystem</p>
         </div>
         
         <div class="card glass-card" style="padding: 35px 25px;">
@@ -130,633 +113,437 @@
             <input type="password" id="authPass" placeholder="Secret Password"> 
             <button id="btnLogin" class="btn-primary mt-1" onclick="handleLogin()">Login Securely <i class="fa-solid fa-arrow-right"></i></button> 
             <button id="btnReg" class="btn-accent mt-1 hidden" onclick="handleRegister()">Create Account <i class="fa-solid fa-user-plus"></i></button> 
-            <div class="text-center mt-1" style="margin-top: 25px;"><span id="toggleAuth" onclick="toggleAuth()" style="cursor: pointer; color: var(--text-muted); font-size: 15px; font-weight:700; text-decoration: underline;">Create a new account</span></div>
+            <div class="text-center mt-1" style="margin-top: 25px;"><span id="toggleAuth" onclick="toggleAuth()" style="cursor: pointer; color: var(--text-muted); text-decoration: underline;">Create a new account</span></div>
         </div>
         
-        <div class="text-center mt-1" style="margin-top: 50px;"><span onclick="document.getElementById('adminBox').classList.toggle('hidden')" style="cursor:pointer; color:var(--border); font-size:14px; font-weight:700; padding:10px;"><i class="fa-solid fa-shield-halved"></i> Developer / Admin Console</span></div>
-        <div class="card hidden mt-1" id="adminBox" style="border-color: var(--danger); background: rgba(244, 63, 94, 0.05);">
-            <h4 style="color: var(--danger); margin-bottom: 15px; font-size:18px;"><i class="fa-solid fa-lock"></i> Admin Console</h4>
+        <div class="text-center mt-1" style="margin-top: 50px;"><span onclick="document.getElementById('adminBox').classList.toggle('hidden')" style="cursor:pointer; color:var(--border); font-size:14px; font-weight:700;"><i class="fa-solid fa-shield-halved"></i> Admin Console</span></div>
+        <div class="card hidden mt-1" id="adminBox" style="border-color: var(--danger);">
             <input id="adminUser" placeholder="Admin ID"> <input type="password" id="adminPass" placeholder="Admin Password">
             <button class="btn-danger mt-1" onclick="teacherLogin()">Enter Console</button>
         </div>
     </div>
 
     <div id="pageHome" class="hidden p-2">
-        <div id="notiModal" class="card hidden" style="position: absolute; top: 10px; left: 16px; right: 16px; z-index: 200; background: var(--card-bg); border-color:var(--primary); box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
-            <div class="flex-between mb-1"><h3 style="color:var(--primary);"><i class="fa-solid fa-bell"></i> Notifications</h3><i class="fa-solid fa-times" onclick="closeNotifications()" style="cursor:pointer; font-size: 20px; color: var(--danger);"></i></div>
-            <div id="notiList" style="max-height: 350px; overflow-y: auto; font-size: 13px;"></div>
-        </div>
-
         <div class="mission-card mb-1">
             <div class="mission-icon"><i class="fa-solid fa-fire"></i></div>
-            <div style="flex:1;"><h4 style="font-size: 15px; color: var(--text-main);">Daily Mission</h4><div style="font-size: 12px; color: var(--text-muted);">Complete 1 Mock Test today</div></div>
-            <div class="badge" style="background: rgba(16, 185, 129, 0.2); color: var(--success); border: none;">+20 XP</div>
+            <div style="flex:1;"><h4>Daily Mission</h4><div style="font-size: 12px; color: var(--text-muted);">Complete 1 Mock Test today</div></div>
+            <div class="badge" style="background: rgba(16, 185, 129, 0.2); color: var(--success);">+20 XP</div>
         </div>
-
         <div class="card" style="background: linear-gradient(135deg, var(--surface), rgba(56, 189, 248, 0.15)); border-color: var(--primary); cursor: pointer;" onclick="navTo('pageSyllabus', -1)">
             <div class="flex-between">
-                <div><h3 style="color: var(--primary); font-size: 18px;"><i class="fa-solid fa-bars-progress"></i> Syllabus Tracker</h3><div style="font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500;">Track your HSC preparation progress</div></div>
-                <div style="width: 42px; height: 42px; border-radius: 50%; background: var(--primary); display: flex; justify-content: center; align-items: center; color: #020617; box-shadow: 0 4px 15px var(--primary-glow); font-size: 18px;"><i class="fa-solid fa-arrow-right"></i></div>
+                <div><h3><i class="fa-solid fa-bars-progress"></i> Syllabus Tracker</h3><div style="font-size:12px; color:var(--text-muted);">Track your HSC preparation progress</div></div>
+                <div style="width: 42px; height: 42px; border-radius: 50%; background: var(--primary); display: flex; justify-content: center; align-items: center; color: #020617;"><i class="fa-solid fa-arrow-right"></i></div>
             </div>
         </div>
-
         <div class="fc-box mb-1" onclick="flipFlashcard()">
-            <div style="color:var(--accent); font-size:13px; margin-bottom:12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;"><i class="fa-solid fa-bolt" style="color: #fbbf24;"></i> Quick Revise</div>
-            <div id="fcText" style="font-size:20px; font-weight:800; color:white; line-height: 1.5;">Loading flashcards...</div>
-            <div style="margin-top:25px; font-size:12px; color:var(--text-muted); font-weight:600; background: rgba(0,0,0,0.2); padding: 6px 12px; border-radius: 12px; display: inline-block;">Tap anywhere to Flip</div>
+            <div style="color:var(--accent); font-size:13px; margin-bottom:12px; font-weight: 800;"><i class="fa-solid fa-bolt"></i> Quick Revise</div>
+            <div id="fcText" style="font-size:20px; font-weight:800; color:white;">Loading...</div>
         </div>
         <div class="grid-2 mb-1">
-            <button class="btn-outline" style="padding: 14px; border-radius: 16px;" onclick="prevFlashcard(event)"><i class="fa-solid fa-arrow-left"></i> Prev</button>
-            <button class="btn-outline" style="padding: 14px; border-radius: 16px;" onclick="nextFlashcard(event)">Next <i class="fa-solid fa-arrow-right"></i></button>
+            <button class="btn-outline" onclick="prevFlashcard(event)"><i class="fa-solid fa-arrow-left"></i> Prev</button>
+            <button class="btn-outline" onclick="nextFlashcard(event)">Next <i class="fa-solid fa-arrow-right"></i></button>
         </div>
-
         <div class="grid-2 mb-1">
-            <div class="card text-center glass-card" style="padding: 22px 10px; margin: 0; cursor:pointer; border: 1px solid rgba(56, 189, 248, 0.2);" onclick="navTo('pageNotes', 1)">
-                <div style="width: 58px; height: 58px; border-radius: 20px; background: rgba(56, 189, 248, 0.15); display: flex; justify-content: center; align-items: center; margin: 0 auto 12px; box-shadow: inset 0 0 10px rgba(56, 189, 248, 0.2);"><i class="fa-solid fa-book-journal-whills" style="font-size: 28px; color: var(--primary);"></i></div>
-                <div style="font-weight: 800; font-size: 15px; color: var(--text-main);">Notes & Q-Bank</div>
+            <div class="card text-center glass-card" style="cursor:pointer;" onclick="navTo('pageNotes', 1)">
+                <i class="fa-solid fa-book-journal-whills" style="font-size: 28px; color: var(--primary);"></i><div style="font-weight: 800; margin-top:8px;">Notes & Q-Bank</div>
             </div>
-            <div class="card text-center glass-card" style="padding: 22px 10px; margin: 0; cursor:pointer; border: 1px solid rgba(245, 158, 11, 0.2);" onclick="navTo('pageMock', 2)">
-                <div style="width: 58px; height: 58px; border-radius: 20px; background: rgba(245, 158, 11, 0.15); display: flex; justify-content: center; align-items: center; margin: 0 auto 12px; box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.2);"><i class="fa-solid fa-pen-ruler" style="font-size: 28px; color: var(--warning);"></i></div>
-                <div style="font-weight: 800; font-size: 15px; color: var(--text-main);">Mock Test</div>
+            <div class="card text-center glass-card" style="cursor:pointer;" onclick="navTo('pageMock', 2)">
+                <i class="fa-solid fa-pen-ruler" style="font-size: 28px; color: var(--warning);"></i><div style="font-weight: 800; margin-top:8px;">Mock Test</div>
             </div>
         </div>
     </div>
 
     <div id="pageSyllabus" class="hidden p-2">
-        <div class="flex-between mb-1">
-            <h3 style="font-size: 22px;"><i class="fa-solid fa-bars-progress" style="color: var(--primary);"></i> Master Tracker</h3>
-            <button class="btn-outline" style="width: auto; padding: 10px 16px; font-size: 13px; border-radius: 14px;" onclick="navTo('pageHome', 0)"><i class="fa-solid fa-arrow-left"></i> Back</button>
-        </div>
-        
-        <div class="card text-center" style="background: linear-gradient(135deg, var(--surface), var(--card-bg)); border-color: var(--primary); box-shadow: 0 10px 30px var(--primary-glow);">
-            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Overall HSC Progress</div>
-            <div style="font-size: 48px; font-weight: 800; color: var(--primary); text-shadow: 0 0 25px var(--primary-glow);" id="sylOverallProg">0%</div>
-            <div class="grid-3 mt-1" style="border-top: 1px solid var(--border); padding-top: 18px;">
-                <div><div style="font-size: 20px; font-weight: 800; color: var(--text-main);" id="sylTotal">0</div><div style="font-size: 11px; color: var(--text-muted); font-weight:700; text-transform: uppercase;">Total</div></div>
-                <div><div style="font-size: 20px; font-weight: 800; color: var(--success);" id="sylDone">0</div><div style="font-size: 11px; color: var(--text-muted); font-weight:700; text-transform: uppercase;">Done</div></div>
-                <div><div style="font-size: 20px; font-weight: 800; color: var(--warning);" id="sylLeft">0</div><div style="font-size: 11px; color: var(--text-muted); font-weight:700; text-transform: uppercase;">Left</div></div>
+        <div class="flex-between mb-1"><h3><i class="fa-solid fa-bars-progress"></i> Master Tracker</h3><button class="btn-outline" style="width: auto;" onclick="navTo('pageHome', 0)">Back</button></div>
+        <div class="card text-center">
+            <div style="font-size: 13px; color: var(--text-muted);">Overall HSC Progress</div>
+            <div style="font-size: 48px; font-weight: 800; color: var(--primary);" id="sylOverallProg">0%</div>
+            <div class="grid-3 mt-1">
+                <div><div id="sylTotal">0</div><small>Total</small></div>
+                <div><div id="sylDone" style="color: var(--success);">0</div><small>Done</small></div>
+                <div><div id="sylLeft" style="color: var(--warning);">0</div><small>Left</small></div>
             </div>
         </div>
-
         <div id="sylSubjectList" class="grid-2 mt-1"></div>
-        
         <div id="sylChapterView" class="hidden">
-            <button class="btn-outline mb-1" onclick="closeChapterView()"><i class="fa-solid fa-arrow-left"></i> Back to Subjects</button>
-            <h3 id="sylActiveSubTitle" style="color: var(--accent); margin-bottom: 18px; font-size: 22px; font-weight: 800;">Subject</h3>
+            <button class="btn-outline mb-1" onclick="closeChapterView()">Back</button>
+            <h3 id="sylActiveSubTitle" style="color: var(--accent);">Subject</h3>
             <div id="sylChapterList"></div>
         </div>
     </div>
-        <div id="pageTimer" class="hidden p-2">
-        <h3 class="mb-1" style="font-size: 22px;"><i class="fa-solid fa-brain" style="color: var(--accent);"></i> Focus Timer</h3>
-        <div class="card glass-card text-center" style="border-color: var(--accent); padding: 40px 20px; box-shadow: 0 10px 40px rgba(129, 140, 248, 0.15);">
-            <div class="grid-3 mb-1" style="margin-bottom: 30px;">
-                <div><label style="font-size:12px; color:var(--text-muted); font-weight:800;">HOURS</label><input type="number" id="tH" value="0" min="0" max="10" style="text-align:center; font-size:24px; font-weight:800; padding:12px; border-radius:14px;"></div>
-                <div><label style="font-size:12px; color:var(--text-muted); font-weight:800;">MINS</label><input type="number" id="tM" value="25" min="0" max="59" style="text-align:center; font-size:24px; font-weight:800; padding:12px; border-radius:14px;"></div>
-                <div><label style="font-size:12px; color:var(--text-muted); font-weight:800;">SECS</label><input type="number" id="tS" value="0" min="0" max="59" style="text-align:center; font-size:24px; font-weight:800; padding:12px; border-radius:14px;"></div>
+
+    <div id="pageNotes" class="hidden p-2">
+        <div class="grid-2 mb-1" style="background: var(--surface); padding: 8px; border-radius: 20px;">
+            <button id="tabNotes" class="btn-accent" onclick="switchLearnTab('notes')">PDF Notes</button>
+            <button id="tabQbank" class="btn-outline" onclick="switchLearnTab('qbank')">Q-Bank</button>
+        </div>
+        <div id="viewNotes">
+            <div class="card glass-card">
+                <select id="readSub" onchange="updateReadChaps()"></select><select id="readChap"><option value="All">All Chapters</option></select>
+                <button class="btn-primary mt-1" onclick="loadShortNotes()">Find Notes</button>
             </div>
-            <div style="font-size: 65px; font-weight: 800; font-family: 'Plus Jakarta Sans', monospace; color: var(--text-main); margin: 15px 0; text-shadow: 0 0 25px var(--accent-glow); letter-spacing: -2px;" id="timerDisplay">00:25:00</div>
-            <div id="timerStatus" style="color: var(--accent); font-size: 16px; margin-bottom: 35px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Ready to Focus</div>
-            <div class="grid-2">
-                <button class="btn-accent" id="btnTimerStart" style="padding: 18px; font-size: 16px;" onclick="togglePomodoro()"><i class="fa-solid fa-play"></i> Start</button>
-                <button class="btn-outline" style="padding: 18px; font-size: 16px; border-radius:16px;" onclick="resetPomodoro()"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+            <div id="notesArea"></div>
+        </div>
+        <div id="viewQbank" class="hidden">
+            <div class="card glass-card">
+                <select id="qbSub" onchange="updateChapDropdown('qbSub','qbChap')"></select><select id="qbChap"><option value="All">All Chapters</option></select>
+                <button class="btn-accent mt-1" onclick="loadPracticeQBank()">Start Practice</button>
             </div>
+            <div id="qbankArea"></div>
+        </div>
+    </div>
+
+    <div id="pageLeaderboard" class="hidden p-2">
+        <h3><i class="fa-solid fa-trophy" style="color: gold;"></i> Leaderboard</h3>
+        <div class="grid-2 mt-1"><select id="lbBatchFilter" onchange="loadLeaderboards()"><option value="All">All Batches</option><option value="HSC 27">HSC 27</option></select><select id="lbTypeFilter" onchange="loadLeaderboards()"><option value="XP">By XP</option><option value="Coins">By Coins</option></select></div>
+        <div id="fullLeaderboard" style="margin-top: 20px;"></div>
+    </div>
+
+    <div id="pageTimer" class="hidden p-2">
+        <div class="card glass-card text-center">
+            <div class="grid-3 mb-1">
+                <input type="number" id="tH" value="0" placeholder="H"><input type="number" id="tM" value="25" placeholder="M"><input type="number" id="tS" value="0" placeholder="S">
+            </div>
+            <div style="font-size: 55px; font-weight: 800;" id="timerDisplay">00:25:00</div>
+            <div class="grid-2 mt-1"><button class="btn-accent" id="btnTimerStart" onclick="togglePomodoro()">Start</button><button class="btn-outline" onclick="resetPomodoro()">Reset</button></div>
         </div>
     </div>
 
     <div id="pageProfile" class="hidden p-2">
-        <div class="card" style="margin-top: 10px; padding: 30px 20px; background: linear-gradient(180deg, var(--surface), var(--card-bg)); border-color: var(--primary); box-shadow: 0 10px 40px rgba(56, 189, 248, 0.15);">
+        <div class="card">
             <div class="flex-between">
-                <div>
-                    <h2 id="profName" style="font-size: 24px; color: var(--text-main); font-weight: 800;">Name</h2>
-                    <div style="color: var(--primary); font-size: 13px; margin-bottom: 5px; font-weight: 700;"><i class="fa-solid fa-id-badge"></i> <span id="profId">ID</span></div>
-                    <div class="badge" id="profBadge" style="background: var(--accent); color: white; border: none; margin-top: 8px; font-size: 12px;">Basic</div>
-                </div>
-                <div style="width: 86px; height: 86px; border-radius: 50%; background: var(--surface); display: flex; justify-content: center; align-items: center; font-size: 35px; font-weight: bold; border: 4px solid var(--primary); box-shadow: 0 0 25px var(--primary-glow); color: var(--text-main);" id="profAvatar">U</div>
+                <div><h2 id="profName">Name</h2><small id="profId">ID</small><br><span class="badge" id="profBadge" style="background:var(--accent);">Basic</span></div>
+                <div style="width:70px; height:70px; border-radius:50%; border:3px solid var(--primary); display:flex; justify-content:center; align-items:center; font-weight:bold;" id="profAvatar">U</div>
             </div>
-            
-            <div class="grid-2 mt-1" style="background: var(--bg-main); padding: 16px; border-radius: 16px; margin-top:25px; border: 1px solid var(--border);">
-                <div class="text-center"><div style="font-size: 24px; font-weight: 800; color: var(--warning);" id="profCoinsList">0</div><div style="font-size: 11px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">COINS</div></div>
-                <div class="text-center" style="border-left: 2px solid var(--border);"><div style="font-size: 24px; font-weight: 800; color: var(--primary);" id="profXpList">0</div><div style="font-size: 11px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">TOTAL XP</div></div>
+            <div class="grid-2 mt-1">
+                <div>Coins: <span id="profCoinsList" style="color:var(--warning);">0</span></div><div>XP: <span id="profXpList" style="color:var(--primary);">0</span></div>
             </div>
         </div>
-
-        <div class="grid-3 mb-1 text-center">
-            <div class="card" style="padding: 18px 5px; margin: 0;">
-                <i class="fa-solid fa-file-lines" style="color: var(--primary); font-size: 24px; margin-bottom: 12px;"></i>
-                <div style="font-size: 22px; font-weight: 800;" id="profExams">0</div>
-                <div style="font-size: 10px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Exams</div>
-            </div>
-            <div class="card" style="padding: 18px 5px; margin: 0;">
-                <i class="fa-solid fa-bullseye" style="color: var(--accent); font-size: 24px; margin-bottom: 12px;"></i>
-                <div style="font-size: 22px; font-weight: 800;" id="profAcc">0%</div>
-                <div style="font-size: 10px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Accuracy</div>
-            </div>
-            <div class="card" style="padding: 18px 5px; margin: 0;">
-                <i class="fa-solid fa-trophy" style="color: gold; font-size: 24px; margin-bottom: 12px;"></i>
-                <div style="font-size: 22px; font-weight: 800;" id="profRank">#--</div>
-                <div style="font-size: 10px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Rank</div>
-            </div>
+        <div class="grid-3 text-center mb-1">
+            <div class="card">Exams:<br><b id="profExams">0</b></div><div class="card">Acc:<br><b id="profAcc">0%</b></div><div class="card">Rank:<br><b id="profRank">#--</b></div>
         </div>
-
-        <div class="card text-center" style="padding: 20px;">
-            <h4 style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Subject Proficiency</h4>
-            <canvas id="radarChart" style="width: 100%; max-height: 250px;"></canvas>
-        </div>
-
-        <div class="card" style="padding: 0; overflow: hidden; border-radius: 20px;">
-            <div style="padding: 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 14px; font-weight: 600;">
-                <span style="color: var(--text-muted);"><i class="fa-regular fa-calendar"></i> Joined On</span>
-                <b id="profJoinDate" style="color: var(--text-main);">--</b>
-            </div>
-            <div style="padding: 18px; display: flex; justify-content: space-between; font-size: 14px; font-weight: 600;">
-                <span style="color: var(--text-muted);"><i class="fa-solid fa-clock"></i> Focus Time</span>
-                <b style="color: var(--accent);"><span id="profStudy">0</span> Mins</b>
-            </div>
-        </div>
-
-        <div class="grid-2 mt-1 mb-1">
-            <button class="btn-primary" onclick="loadHistoryModal()"><i class="fa-solid fa-clock-rotate-left"></i> Exam History</button>
-            <button class="btn-warning" onclick="loadMistakesModal()"><i class="fa-solid fa-book-skull"></i> Mistake Book</button>
-        </div>
-
-        <div id="editProfBox" class="hidden card glass-card">
-            <h4 class="mb-1" style="font-size: 18px;">Edit Profile</h4>
-            <input id="epName" placeholder="New Name">
-            <select id="epBatch"><option value="HSC 27">HSC 27</option><option value="HSC 28">HSC 28</option><option value="HSC 29">HSC 29</option><option value="HSC 30">HSC 30</option></select>
-            <button class="btn-primary mt-1" onclick="saveProfileEdit()">Save Changes</button>
-        </div>
-        
-        <div class="grid-2 mt-1">
-            <button class="btn-outline" onclick="document.getElementById('editProfBox').classList.toggle('hidden')"><i class="fa-solid fa-pen"></i> Edit Profile</button>
-            <button class="btn-danger" style="background: transparent; border: 2px solid var(--danger); color: var(--danger);" onclick="logout()"><i class="fa-solid fa-power-off"></i> Logout</button>
-        </div>
+        <div class="card"><canvas id="radarChart" style="max-height: 200px;"></canvas></div>
+        <div class="card"><canvas id="lineChart" style="max-height: 150px;"></canvas></div>
+        <div class="grid-2"><button class="btn-primary" onclick="loadHistoryModal()">History</button><button class="btn-warning" onclick="loadMistakesModal()">Mistakes</button></div>
+        <div id="editProfBox" class="hidden card mt-1"><input id="epName" placeholder="New Name"><select id="epBatch"><option value="HSC 27">HSC 27</option></select><button class="btn-primary" onclick="saveProfileEdit()">Save</button></div>
+        <button class="btn-outline mt-1" onclick="document.getElementById('editProfBox').classList.toggle('hidden')">Edit Profile</button>
+        <button class="btn-danger mt-1" onclick="logout()">Logout</button>
     </div>
 
-    <div id="historyModal" class="card hidden" style="position: absolute; top: 10px; left: 16px; right: 16px; z-index: 200; background: var(--bg-main); border: 1px solid var(--primary); min-height: 90vh;">
-        <div class="flex-between mb-1"><h3 style="font-size: 20px;">Exam History</h3><button class="btn-danger" style="width:auto; padding:8px 16px; font-size:13px;" onclick="document.getElementById('historyModal').classList.add('hidden')">Close</button></div>
-        <div id="historyArea"></div>
-    </div>
-    
-    <div id="mistakesModal" class="card hidden" style="position: absolute; top: 10px; left: 16px; right: 16px; z-index: 200; background: var(--bg-main); border: 1px solid var(--warning); min-height: 90vh;">
-        <div class="flex-between mb-1"><h3 style="font-size: 20px;">Mistakes & Saved</h3><button class="btn-danger" style="width:auto; padding:8px 16px; font-size:13px;" onclick="document.getElementById('mistakesModal').classList.add('hidden')">Close</button></div>
-        <div class="grid-2 mb-1" style="background: var(--surface); padding: 6px; border-radius: 16px;">
-            <button class="btn-accent" id="btnM1" style="padding: 10px; font-size: 13px; border:none;" onclick="renderMistakeData('mistake')">Mistakes</button>
-            <button class="btn-outline" id="btnM2" style="padding: 10px; font-size: 13px; border:none;" onclick="renderMistakeData('saved')">Saved Qs</button>
-        </div>
-        <div id="mistakeArea"></div>
-    </div>
+    <div id="historyModal" class="card hidden" style="position: absolute; top: 10px; left:16px; right:16px; z-index:200; background:var(--bg-main); min-height:80vh;"><div class="flex-between"><h3>History</h3><button class="btn-danger" style="width:auto; padding:6px 12px;" onclick="document.getElementById('historyModal').classList.add('hidden')">Close</button></div><div id="historyArea"></div></div>
+    <div id="mistakesModal" class="card hidden" style="position: absolute; top: 10px; left:16px; right:16px; z-index:200; background:var(--bg-main); min-height:80vh;"><div class="flex-between"><h3>Mistakes</h3><button class="btn-danger" style="width:auto; padding:6px 12px;" onclick="document.getElementById('mistakesModal').classList.add('hidden')">Close</button></div><div class="grid-2 mb-1"><button class="btn-accent" id="btnM1" onclick="renderMistakeData('mistake')">Mistakes</button><button class="btn-outline" id="btnM2" onclick="renderMistakeData('saved')">Saved</button></div><div id="mistakeArea"></div></div>
 
     <div id="pageMock" class="hidden p-2">
-        <h3 class="mb-1" style="font-size: 22px;"><i class="fa-solid fa-layer-group" style="color: var(--primary);"></i> Build Custom Exam</h3>
-        <div class="card glass-card">
-            <div class="grid-2"><select id="mockSub" onchange="updateMockChaps()"></select><select id="mockChap"><option value="All">All Chapters</option></select></div>
-            <div class="grid-2 mt-1">
-                <input type="number" id="mockLimit" placeholder="No. of Qs" min="1">
-                <button class="btn-outline" onclick="addMockBlock()"><i class="fa-solid fa-plus"></i> Add Block</button>
-            </div>
-            <div id="mockConfigList" style="margin-top: 15px; padding: 10px; background: var(--surface); border-radius: 16px; border: 1px solid var(--border);"></div>
-            <div class="flex-between mt-1" style="margin-top: 20px;">
-                <div style="font-size: 14px; color: var(--warning); font-weight: 800;"><i class="fa-solid fa-coins"></i> Cost: 10 Coins</div>
-                <button class="btn-primary" style="width: 60%;" onclick="startMockExam()">Launch Exam <i class="fa-solid fa-rocket"></i></button>
-            </div>
+        <div class="card">
+            <select id="mockSub" onchange="updateMockChaps()"></select><select id="mockChap"><option value="All">All Chapters</option></select>
+            <input type="number" id="mockLimit" placeholder="Count"><button class="btn-outline" onclick="addMockBlock()">Add Block</button>
+            <div id="mockConfigList" class="mt-1"></div><button class="btn-primary mt-1" onclick="startMockExam()">Launch Exam</button>
         </div>
     </div>
 
-    <div id="pageExam" class="hidden" style="min-height: 100vh; background: var(--bg-main);">
-        <div style="position: sticky; top:0; background: var(--card-glass); backdrop-filter: blur(15px); padding: 20px; border-bottom: 1px solid var(--border); z-index:50;">
-            <div class="flex-between">
-                <div style="color: var(--text-muted); font-weight: 800; font-size: 15px;" id="examProgressTxt">Progress: 0/0</div>
-                <div style="font-size: 28px; font-weight: 800; color: var(--danger); font-family: monospace; text-shadow: 0 0 15px rgba(244,63,94,0.5);" id="examTimerTxt">00:00</div>
-            </div>
-        </div>
-        <div class="p-2" id="liveExamContainer" style="padding-bottom:120px;"></div>
-        <div class="p-2" style="position: fixed; bottom: 0; width: 100%; max-width: 500px; background: var(--card-glass); backdrop-filter: blur(25px); border-top: 1px solid var(--border); z-index: 100;">
-            <button class="btn-primary" style="padding: 18px; font-size: 18px; border-radius: 20px;" onclick="submitExam()">Submit Exam <i class="fa-solid fa-check-double"></i></button>
-        </div>
+    <div id="pageExam" class="hidden">
+        <div style="position: sticky; top:0; background:var(--card-glass); padding:15px; z-index:50;" class="flex-between"><span id="examProgressTxt">0/0</span><b id="examTimerTxt" style="color:var(--danger);">00:00</b></div>
+        <div id="liveExamContainer" class="p-2"></div><button class="btn-primary" onclick="submitExam()">Submit</button>
     </div>
 
     <div id="pageResult" class="hidden p-2">
-        <div id="printableResult">
-            <div class="card text-center glass-card" style="padding: 40px 20px; background: linear-gradient(135deg, var(--surface), rgba(56, 189, 248, 0.15)); border-color: var(--primary); box-shadow: 0 10px 40px var(--primary-glow);">
-                <h2 style="color: var(--text-main); font-size: 26px; font-weight: 800;"><i class="fa-solid fa-medal" style="color: gold; font-size: 30px;"></i> Final Report</h2>
-                <div style="font-size: 65px; font-weight: 900; color: var(--primary); margin: 20px 0; text-shadow: 0 0 30px var(--primary-glow);" id="resPercent">0%</div>
-                
-                <div style="display: inline-block; background: var(--bg-main); padding: 12px 24px; border-radius: 25px; font-weight: 800; border: 2px solid var(--border); font-size: 16px;">
-                    <span style="color: var(--primary);"><span id="resXp">0</span> XP</span> <span style="color:var(--border); margin: 0 10px;">|</span> <span style="color: var(--warning);"><span id="resCoin">0</span> Coins</span>
-                </div>
-                
-                <div style="font-size: 14px; color: var(--danger); margin-top: 18px; font-weight: 700; background: rgba(244,63,94,0.1); padding: 10px; border-radius: 12px; display: inline-block;">
-                    <i class="fa-solid fa-circle-minus"></i> Negative Marks: <span id="resNeg">0</span>
-                </div>
-            </div>
-            
-            <h3 class="mb-1" style="font-size: 22px; margin-top: 30px;"><i class="fa-solid fa-microscope" style="color: var(--accent);"></i> Detailed Solution</h3>
-            <div id="reviewContainer"></div>
+        <div id="printableResult" class="card text-center">
+            <h1 id="resPercent" style="font-size:50px; color:var(--primary);">0%</h1>
+            <div>XP: <span id="resXp">0</span> | Coins: <span id="resCoin">0</span> | Neg: <span id="resNeg">0</span></div>
+            <div id="reviewContainer" class="mt-1 text-start"></div>
         </div>
-        <div class="grid-2 mt-1">
-            <button class="btn-accent mb-1" onclick="downloadResult()"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
-            <button class="btn-outline mb-1" onclick="navTo('pageHome', 0)"><i class="fa-solid fa-house"></i> Go Home</button>
-        </div>
+        <div class="grid-2 mt-1"><button class="btn-accent" onclick="downloadResult()">PDF</button><button class="btn-outline" onclick="navTo('pageHome', 0)">Home</button></div>
     </div>
 
     <div id="pageAdmin" class="hidden p-2">
-        <div class="flex-between mb-1">
-            <h3 style="color: var(--danger); font-size: 22px;"><i class="fa-solid fa-shield-halved"></i> Admin Console</h3>
-            <button class="btn-outline" style="width:auto; padding: 8px 16px; font-size: 13px; border-radius: 12px;" onclick="navTo('pageAuth')">Exit</button>
-        </div>
-        
-        <div class="grid-3 mb-1">
-            <button class="btn-primary" style="font-size:12px; padding:12px;" onclick="switchAdminTab('adQBox')">Add Q</button>
-            <button class="btn-warning" style="font-size:12px; padding:12px;" onclick="switchAdminTab('adBulkBox')">Bulk Qs</button>
-            <button class="btn-accent" style="font-size:12px; padding:12px;" onclick="switchAdminTab('adNoteBox')">PDFs</button>
-            <button class="btn-danger" style="font-size:12px; padding:12px;" onclick="switchAdminTab('adFcBox')">Cards</button>
-            <button class="btn-outline" style="font-size:12px; padding:12px; color:var(--text-main);" onclick="switchAdminTab('adNotiBox')">Notify</button>
-            <button class="btn-outline" style="font-size:12px; padding:12px; color:var(--text-main);" onclick="switchAdminTab('adPdfManageBox')">Manage</button>
-        </div>
-
+        <div class="grid-3 mb-1"><button onclick="switchAdminTab('adQBox')">Add Q</button><button onclick="switchAdminTab('adBulkBox')">Bulk</button><button onclick="switchAdminTab('adNoteBox')">PDF</button></div>
         <div id="adQBox" class="card">
-            <h4 id="adModeText">Add Single Question</h4>
-            <div class="grid-2 mt-1"><select id="adSub" onchange="updateChapDropdown('adSub','adChap')"></select><select id="adChap"><option value="All">Chapter</option></select></div>
-            <div class="grid-2 mt-1"><select id="adLevel"><option value="Academic">Academic</option><option value="Advanced">Advanced</option></select><select id="adStars"><option value="1">⭐ 1 Star</option><option value="2">⭐⭐ 2</option><option value="3">⭐⭐⭐ 3</option><option value="4">⭐⭐⭐⭐ 4</option><option value="5">⭐⭐⭐⭐⭐ 5</option></select></div>
-            <textarea id="adQ" placeholder="Question Text..." rows="3"></textarea>
-            <input id="adImg" placeholder="Image URL (Optional)">
-            <input id="adO1" placeholder="Option A"><input id="adO2" placeholder="Option B"><input id="adO3" placeholder="Option C"><input id="adO4" placeholder="Option D">
-            <select id="adCorrect"><option value="0">A is Correct</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
-            <input id="adExp" placeholder="Explanation (Optional)">
-            <button class="btn-danger mt-1" id="adSaveBtn" onclick="adminSaveQ()">Save Question</button>
-            <button class="btn-outline mt-1 hidden" id="adCancelBtn" onclick="cancelEdit()">Cancel Edit</button>
+            <select id="adSub" onchange="updateChapDropdown('adSub','adChap')"></select><select id="adChap"></select>
+            <input id="adQ" placeholder="Q"><input id="adO1"><input id="adO2"><input id="adO3"><input id="adO4"><select id="adCorrect"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
+            <input id="adExp" placeholder="Exp"><input id="adImg" placeholder="Img"><button class="btn-danger" onclick="adminSaveQ()">Save</button>
         </div>
-
-        <div id="adBulkBox" class="card hidden">
-            <h4>Bulk Add Questions (JSON Array)</h4>
-            <div class="grid-2 mt-1"><select id="adBulkSub" onchange="updateChapDropdown('adBulkSub','adBulkChap')"></select><select id="adBulkChap"><option value="All">Chapter</option></select></div>
-            <div class="grid-2 mt-1"><select id="adBulkLevel"><option value="Academic">Academic</option><option value="Advanced">Advanced</option></select><select id="adBulkStars"><option value="1">1 Star</option><option value="5">5 Star</option></select></div>
-            <textarea id="adBulkJson" placeholder='[{"q":"Q?", "a":["A", "B", "C", "D"], "correct":1, "exp":"Exp"}]' rows="6"></textarea>
-            <button class="btn-warning mt-1" onclick="adminBulkAdd()">Upload Bulk JSON</button>
-        </div>
-
-        <div id="adNoteBox" class="card hidden">
-            <h4>Publish PDF or Note</h4>
-            <div class="grid-2 mt-1"><select id="adNoteSub" onchange="updateChapDropdown('adNoteSub','adNoteChap')"></select><select id="adNoteChap"></select></div>
-            <input id="adNoteTitle" placeholder="Document Title"> <input id="adNotePdf" placeholder="PDF Direct/Drive URL">
-            <textarea id="adNoteContent" placeholder="Text content (Optional)..." rows="4"></textarea>
-            <button class="btn-accent mt-1" onclick="adminSaveNote()">Publish PDF/Note</button>
-        </div>
-        
-        <div id="adPdfManageBox" class="card hidden">
-            <h4>Manage Uploaded PDFs</h4>
-            <div class="grid-2 mt-1"><select id="adPdfSub" onchange="updateChapDropdown('adPdfSub','adPdfChap')"></select><select id="adPdfChap"><option value="All">All</option></select></div>
-            <button class="btn-outline mt-1" onclick="loadAdminPdfList()">Search PDFs</button>
-            <div id="adminPdfListArea" style="max-height: 250px; overflow-y:auto; margin-top:10px;"></div>
-        </div>
-
-        <div id="adFcBox" class="card hidden">
-            <h4>Bulk Flashcards (JSON Array)</h4>
-            <div class="grid-2 mt-1"><select id="adFcSub" onchange="updateChapDropdown('adFcSub','adFcChap')"></select><select id="adFcChap"><option value="All">Chapter</option></select></div>
-            <textarea id="adFcJson" placeholder='[{"q":"Question", "a":"Answer"}]' rows="5"></textarea>
-            <button class="btn-primary mt-1" onclick="adminBulkFcAdd()">Upload Flashcards</button>
-            <div id="adminFcList" style="margin-top:10px; max-height: 200px; overflow-y:auto; font-size:12px;"></div>
-        </div>
-        
-        <div id="adNotiBox" class="card hidden">
-            <h4>Send Global Notification</h4>
-            <input id="adNotiTitle" placeholder="Notification Title">
-            <textarea id="adNotiBody" placeholder="Message body..." rows="3"></textarea>
-            <button class="btn-primary mt-1" onclick="adminSendNotification()"><i class="fa-solid fa-paper-plane"></i> Send Push</button>
-        </div>
-
-        <div class="card mt-1">
-            <h4>Database Search & Edit Questions</h4>
-            <div class="grid-2 mt-1"><select id="adSearchSub" onchange="updateChapDropdown('adSearchSub','adSearchChap')"></select><select id="adSearchChap"><option value="All">All</option></select></div>
-            <input id="adSearch" placeholder="Search keywords..." onkeyup="adminSearchQ()">
-            <div id="adQList" style="max-height: 300px; overflow-y: auto; margin-top: 10px;"></div>
-        </div>
+        <div id="adBulkBox" class="card hidden"><select id="adBulkSub" onchange="updateChapDropdown('adBulkSub','adBulkChap')"></select><select id="adBulkChap"></select><textarea id="adBulkJson"></textarea><button onclick="adminBulkAdd()">Bulk Save</button></div>
+        <div id="adNoteBox" class="card hidden"><select id="adNoteSub" onchange="updateChapDropdown('adNoteSub','adNoteChap')"></select><select id="adNoteChap"></select><input id="adNoteTitle"><input id="adNotePdf"><textarea id="adNoteContent"></textarea><button onclick="adminSaveNote()">Publish</button></div>
+        <div id="adPdfManageBox" class="card hidden"><select id="adPdfSub"></select><button onclick="loadAdminPdfList()">Search</button><div id="adminPdfListArea"></div></div>
+        <div id="adFcBox" class="card hidden"><textarea id="adFcJson"></textarea><button onclick="adminBulkFcAdd()">Upload Flashcard</button><div id="adminFcList"></div></div>
+        <div id="adNotiBox" class="card hidden"><input id="adNotiTitle"><textarea id="adNotiBody"></textarea><button onclick="adminSendNotification()">Send</button></div>
+        <input id="adSearch" placeholder="Search Database Qs..." onkeyup="adminSearchQ()"><div id="adQList"></div>
     </div>
 
-</div> <div class="bottom-nav" id="bottomNav" style="display: none;">
-    <div class="nav-item active" onclick="navTo('pageHome', 0); navToTimer(false);"><i class="fa-solid fa-house"></i><span>Home</span></div>
-    <div class="nav-item" onclick="navTo('pageNotes', 1); navToTimer(false);"><i class="fa-solid fa-book-open"></i><span>Learn</span></div>
-    <div class="nav-item" onclick="navTo('pageTimer', -1); navToTimer(true);"><i class="fa-solid fa-stopwatch"></i><span>Timer</span></div>
-    <div class="nav-item" onclick="navTo('pageLeaderboard', 3); navToTimer(false);"><i class="fa-solid fa-ranking-star"></i><span>Rank</span></div>
-    <div class="nav-item" onclick="navTo('pageProfile', 4); navToTimer(false);"><i class="fa-solid fa-user"></i><span>Profile</span></div>
+    <div class="bottom-nav" id="bottomNav" style="display: none;">
+        <div class="nav-item active" onclick="navTo('pageHome', 0); navToTimer(false);"><i class="fa-solid fa-house"></i><span>Home</span></div>
+        <div class="nav-item" onclick="navTo('pageNotes', 1); navToTimer(false);"><i class="fa-solid fa-book-open"></i><span>Learn</span></div>
+        <div class="nav-item" onclick="navTo('pageTimer', -1); navToTimer(true);"><i class="fa-solid fa-stopwatch"></i><span>Timer</span></div>
+        <div class="nav-item" onclick="navTo('pageLeaderboard', 3); navToTimer(false);"><i class="fa-solid fa-ranking-star"></i><span>Rank</span></div>
+        <div class="nav-item" onclick="navTo('pageProfile', 4); navToTimer(false);"><i class="fa-solid fa-user"></i><span>Profile</span></div>
+    </div>
 </div>
+
 <script>
 // ==========================================
-// 1. DATA CONFIGURATION & CONSTANTS
+// CORE APP JAVASCRIPT LOGIC (CRASH FREE)
 // ==========================================
-function switchLearnTab(tab) {
-    ['viewNotes', 'viewQbank'].forEach(id => document.getElementById(id).classList.add('hidden'));
-    ['tabNotes', 'tabQbank'].forEach(id => { document.getElementById(id).className = 'btn-outline'; document.getElementById(id).style.border = 'none'; });
-    if(tab==='notes') { document.getElementById('viewNotes').classList.remove('hidden'); document.getElementById('tabNotes').className = 'btn-accent'; }
-    if(tab==='qbank') { document.getElementById('viewQbank').classList.remove('hidden'); document.getElementById('tabQbank').className = 'btn-accent'; }
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installBanner').classList.remove('hidden'); });
+function installApp() { if(deferredPrompt) { deferredPrompt.prompt(); document.getElementById('installBanner').classList.add('hidden'); } }
+
+const DB = "https://exam-bd-b9668-default-rtdb.firebaseio.com"; 
+let currentUser = {}; let allQuestions = []; let allNotes = []; let allUsers = []; let flashcards = []; let notifications = []; let historyData = [];
+let examState = { config: [], questions: [], answers: [], time: 0, interval: null, sub: "" };
+let practiceState = { questions: [] };
+let lineChartInst = null; let radarChartInst = null; let currentEditId = null;
+
+const timerSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+const successSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+const failSound = new Audio('https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg');
+
+const hscData = {
+    "Physics 1st Paper": Array.from({length: 10}, (_, i) => `Chapter ${i+1}`),
+    "Physics 2nd Paper": Array.from({length: 11}, (_, i) => `Chapter ${i+1}`),
+    "Chemistry 1st Paper": Array.from({length: 10}, (_, i) => `Chapter ${i+1}`),
+    "Chemistry 2nd Paper": Array.from({length: 10}, (_, i) => `Chapter ${i+1}`),
+    "Biology 1st Paper": Array.from({length: 12}, (_, i) => `Chapter ${i+1}`),
+    "Biology 2nd Paper": Array.from({length: 12}, (_, i) => `Chapter ${i+1}`),
+    "Higher Math 1st Paper": Array.from({length: 20}, (_, i) => `Chapter ${i+1}`),
+    "Higher Math 2nd Paper": Array.from({length: 20}, (_, i) => `Chapter ${i+1}`),
+    "Bangla 1st Paper": ["গদ্য", "পদ্য", "উপন্যাস", "নাটক"], "Bangla 2nd Paper": ["ব্যাকরণ", "নির্মিতি"],
+    "English 1st Paper": ["Comprehension", "Vocabulary"], "English 2nd Paper": ["Grammar", "Composition"], "ICT": ["Chapter 1", "Chapter 2", "Chapter 3", "Chapter 4", "Chapter 5"]
+};
+const sylTopics = ["Basic Concept", "MCQ Practice", "CQ Practice", "1st Revision", "Final Polish"];
+let fcIndex = 0; let fcFlipped = false;
+function toggleTheme() { document.body.classList.toggle('light-mode'); }
+
+function navTo(pageId, navIdx = -1) {
+    const pages = ['pageAuth', 'pageHome', 'pageNotes', 'pageMock', 'pageLeaderboard', 'pageProfile', 'pageExam', 'pageResult', 'pageAdmin', 'pageTimer', 'pageSyllabus'];
+    pages.forEach(p => { if(document.getElementById(p)) document.getElementById(p).classList.add('hidden'); });
+    if(document.getElementById(pageId)) document.getElementById(pageId).classList.remove('hidden');
+    
+    if (['pageAuth', 'pageExam', 'pageResult', 'pageAdmin', 'pageSyllabus'].includes(pageId)) {
+        document.getElementById('bottomNav').style.display = 'none';
+        document.getElementById('appHeader').classList.add('hidden');
+    } else {
+        document.getElementById('bottomNav').style.display = 'flex';
+        document.getElementById('appHeader').classList.remove('hidden');
+        if(navIdx >= 0) { let items = document.querySelectorAll('.nav-item'); items.forEach(i => i.classList.remove('active')); items[navIdx].classList.add('active'); }
+    }
+    if(pageId === 'pageHome') { renderFlashcard(); fetchNotifications(); }
+    if(pageId === 'pageProfile') { updateProfileOverhaul(); renderProgressUI(); }
+    if(pageId === 'pageLeaderboard') { loadLeaderboards(); }
+    if(pageId === 'pageNotes' || pageId === 'pageMock' || pageId === 'pageAdmin') { initDropdowns(); fetchDBData(); }
+}
+function navToTimer(act) { if(act) { let items = document.querySelectorAll('.nav-item'); items.forEach(i => i.classList.remove('active')); items[2].classList.add('active'); } }
+
+function initDropdowns() {
+    let subHtml = '<option value="">-- Select Subject --</option>';
+    for (let sub in hscData) subHtml += `<option value="${sub}">${sub}</option>`;
+    ['mockSub', 'readSub', 'qbSub', 'adSub', 'adSearchSub', 'adNoteSub', 'adPdfSub', 'adBulkSub', 'adFcSub'].forEach(id => { let el = document.getElementById(id); if(el) el.innerHTML = subHtml; });
+}
+function updateChapDropdown(subId, chapId) {
+    let sub = document.getElementById(subId).value; let html = '<option value="All">All Chapters</option>';
+    if (hscData[sub]) hscData[sub].forEach(c => html += `<option value="${c}">${c}</option>`);
+    if(document.getElementById(chapId)) document.getElementById(chapId).innerHTML = html;
+}
+function updateMockChaps() { updateChapDropdown('mockSub', 'mockChap'); }
+function updateReadChaps() { updateChapDropdown('readSub', 'readChap'); }
+
+function toggleAuth() {
+    isRegMode = !isRegMode; document.getElementById('regFields').classList.toggle('hidden', !isRegMode);
+    document.getElementById('btnLogin').classList.toggle('hidden', isRegMode); document.getElementById('btnReg').classList.toggle('hidden', !isRegMode);
+    document.getElementById('authTitle').innerText = isRegMode ? "Create New Account" : "Welcome Back";
+}
+function handleRegister() {
+    let name = document.getElementById('regName').value, batch = document.getElementById('regBatch').value, rawId = document.getElementById('authId').value, pass = document.getElementById('authPass').value;
+    if(!name || !batch || !rawId || !pass) return alert("Fill all fields"); let cleanId = rawId.replace(/\./g, '_');
+    let newUser = { name, batch, pass, joinDate: new Date().toLocaleDateString(), coins: 100, xp: 0, studyMins: 0, activityData: [0,0,0,0,0,0,0], mistakes: [], bookmarks: [], tracker: {} };
+    fetch(`${DB}/ultimate_users/${cleanId}.json`, { method: "PUT", body: JSON.stringify(newUser) }).then(() => { alert("Registered!"); toggleAuth(); });
+}
+function handleLogin() {
+    let rawId = document.getElementById('authId').value, pass = document.getElementById('authPass').value;
+    if(!rawId || !pass) return alert("Credentials missing"); let cleanId = rawId.replace(/\./g, '_');
+    fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r=>r.json()).then(data => {
+        if(!data || data.pass !== pass) return alert("Invalid Login");
+        currentUser = { id: cleanId, ...data, tracker: data.tracker||{}, xp: data.xp||0, coins: data.coins||0, studyMins: data.studyMins||0, activityData: data.activityData||[0,0,0,0,0,0,0], mistakes: data.mistakes||[], bookmarks: data.bookmarks||[] };
+        updateUIHeader(); fetchDBData(); fetchFlashcards(); navTo('pageHome', 0);
+    });
+}
+function logout() { currentUser = {}; navTo('pageAuth'); }
+function updateUIHeader() {
+    document.getElementById('headName').innerText = (currentUser.name||"User").split(" ")[0];
+    document.getElementById('headAvatar').innerText = (currentUser.name||"U").charAt(0).toUpperCase();
+    document.getElementById('headBatch').innerText = currentUser.batch||"HSC";
+    document.getElementById('headCoins').innerText = currentUser.coins||0;
+}
+function saveUserDB(updates) { Object.assign(currentUser, updates); fetch(`${DB}/ultimate_users/${currentUser.id}.json`, { method: "PATCH", body: JSON.stringify(updates) }); updateUIHeader(); }
+function getStage(xp) { if(xp<500) return {name:"Initiate", color:"#94a3b8"}; if(xp<2000) return {name:"Pro", color:"#38bdf8"}; return {name:"Master", color:"gold"}; }
+
+function updateProfileOverhaul() {
+    let stage = getStage(currentUser.xp||0);
+    document.getElementById('profName').innerText = currentUser.name||"User";
+    document.getElementById('profId').innerText = (currentUser.id||"").replace(/_/g, '.');
+    document.getElementById('profAvatar').innerText = (currentUser.name||"U").charAt(0).toUpperCase();
+    document.getElementById('profBadge').innerText = stage.name; document.getElementById('profBadge').style.background = stage.color;
+    document.getElementById('profCoinsList').innerText = currentUser.coins||0;
+    document.getElementById('profXpList').innerText = currentUser.xp||0;
+    document.getElementById('profStudy').innerText = currentUser.studyMins||0;
+    fetch(`${DB}/ultimate_history.json`).then(r=>r.json()).then(data => {
+        let exams=0, tc=0, tw=0; let hHtml = '';
+        if(data) {
+            historyData = Object.keys(data).map(k=>({id:k,...data[k]})).reverse();
+            historyData.forEach(res => {
+                if(res.name === currentUser.name) {
+                    exams++; tc+=res.c; tw+=res.w;
+                    hHtml += `<div class="card" style="background:var(--surface); margin-bottom:10px; padding:15px; cursor:pointer;" onclick="showHistoryDetails('${res.id}')"><b>${res.subject}</b> - ${res.percent}%<br><small>Tap to view exam paper</small></div>`;
+                }
+            });
+        }
+        document.getElementById('profExams').innerText = exams;
+        document.getElementById('profAcc').innerText = (tc+tw)===0 ? '0%' : `${Math.round((tc/(tc+tw))*100)}%`;
+        document.getElementById('historyArea').innerHTML = hHtml || "No exams given.";
+    });
+}
+function showHistoryDetails(id) {
+    let exam = historyData.find(x => x.id === id); if(!exam) return;
+    document.getElementById('printableResult').innerHTML = `<h3>${exam.subject} Report</h3><h1>${exam.percent}%</h1><hr><div id="reviewContainer">${exam.detailsHtml}</div>`;
+    navTo('pageResult'); document.getElementById('historyModal').classList.add('hidden');
 }
 
-// Syllabus Dynamic Progress Circle System
 function renderSyllabusTracker() {
     let total=0, done=0; let html='';
     for(let sub in hscData) {
         let subTotal = hscData[sub].length * sylTopics.length; let subDone = 0;
-        if(currentUser.tracker && currentUser.tracker[sub]) { 
-            for(let chap in currentUser.tracker[sub]) { 
-                for(let top in currentUser.tracker[sub][chap]) { if(currentUser.tracker[sub][chap][top]) subDone++; } 
-            } 
-        }
+        if(currentUser.tracker && currentUser.tracker[sub]) { for(let ch in currentUser.tracker[sub]) { for(let top in currentUser.tracker[sub][ch]) { if(currentUser.tracker[sub][ch][top]) subDone++; } } }
         total += subTotal; done += subDone; let pct = Math.round((subDone/subTotal)*100)||0;
-        
-        html += `<div class="card text-center glass-card" style="padding: 25px 15px; margin: 0; cursor:pointer;" onclick="openChapterTracker('${sub}')">
-            <div class="ring-container" style="width: 80px; height: 80px; margin-bottom: 15px;">
-                <svg class="ring-svg"><circle class="ring-circle-bg" cx="40" cy="40" r="35" stroke-width="7"></circle><circle class="ring-circle-prog" cx="40" cy="40" r="35" stroke-width="7" style="stroke:var(--primary); stroke-dasharray:220; stroke-dashoffset:${220 - (220*pct/100)}"></circle></svg>
-                <div style="position:absolute; font-weight:800; font-size:18px; color:var(--text-main);">${pct}%</div>
-            </div>
-            <div style="font-weight:800; font-size:15px; line-height:1.4;">${sub}</div>
-        </div>`;
+        html += `<div class="card text-center glass-card" style="cursor:pointer;" onclick="openChapterTracker('${sub}')">
+            <div class="ring-container" style="width:70px; height:70px;"><svg class="ring-svg"><circle class="ring-circle-bg" cx="35" cy="35" r="30"></circle><circle class="ring-circle-prog" cx="35" cy="35" r="30" style="stroke-dasharray:188; stroke-dashoffset:${188 - (188*pct/100)}"></circle></svg><div style="position:absolute;">${pct}%</div></div>
+            <div style="margin-top:8px; font-size:13px; font-weight:bold;">${sub}</div></div>`;
     }
     document.getElementById('sylSubjectList').innerHTML = html;
     document.getElementById('sylTotal').innerText = total; document.getElementById('sylDone').innerText = done; document.getElementById('sylLeft').innerText = total-done;
     document.getElementById('sylOverallProg').innerText = `${Math.round((done/total)*100)||0}%`;
     document.getElementById('sylSubjectList').classList.remove('hidden'); document.getElementById('sylChapterView').classList.add('hidden');
 }
-
 function openChapterTracker(sub) {
     document.getElementById('sylActiveSubTitle').innerText = sub; let html = '';
     hscData[sub].forEach((chap, i) => {
-        let chTotal = sylTopics.length; let chDone = 0;
-        if(currentUser.tracker && currentUser.tracker[sub] && currentUser.tracker[sub][chap]) { 
-            for(let t in currentUser.tracker[sub][chap]) { if(currentUser.tracker[sub][chap][t]) chDone++; } 
-        }
-        html += `<div class="card" style="padding:0; overflow:hidden; margin-bottom:12px; border-color:var(--border);">
-            <div style="padding:16px; background:var(--surface); cursor:pointer; display:flex; justify-content:space-between; align-items:center;" onclick="this.nextElementSibling.classList.toggle('hidden')">
-                <div style="font-weight:700; font-size:15px;"><span style="color:var(--primary); margin-right:8px;">${i+1}.</span> ${chap}</div>
-                <div class="badge" style="background:${chDone===chTotal?'var(--primary)':'transparent'}; border-color:var(--primary); color:${chDone===chTotal?'#020617':'var(--primary)'}">${chDone}/${chTotal}</div>
-            </div>
-            <div class="hidden" style="padding: 15px;">`;
+        html += `<div class="card" style="padding:12px; margin-bottom:8px;"><b style="cursor:pointer;" onclick="this.nextElementSibling.classList.toggle('hidden')">${i+1}. ${chap}</b><div class="hidden mt-1">`;
         sylTopics.forEach(top => {
             let isDone = currentUser.tracker && currentUser.tracker[sub] && currentUser.tracker[sub][chap] && currentUser.tracker[sub][chap][top];
-            html += `<div class="tracker-item ${isDone?'done':''}" onclick="toggleTrackerItem('${sub}', '${chap}', '${top}', this)">
-                <div class="t-text" style="font-size:14px; font-weight:700;">${isDone?'<i class="fa-solid fa-check" style="color:var(--primary);"></i> ':'<i class="fa-solid fa-circle" style="color:var(--border);"></i> '} ${top}</div>
-            </div>`;
+            html += `<div class="tracker-item ${isDone?'done':''}" onclick="toggleTrackerItem('${sub}', '${chap}', '${top}', this)"><span class="t-text">${top}</span></div>`;
         });
         html += `</div></div>`;
     });
     document.getElementById('sylChapterList').innerHTML = html; document.getElementById('sylSubjectList').classList.add('hidden'); document.getElementById('sylChapterView').classList.remove('hidden');
 }
 function closeChapterView() { renderSyllabusTracker(); }
-
 function toggleTrackerItem(sub, chap, top, el) {
     if(!currentUser.tracker) currentUser.tracker = {}; if(!currentUser.tracker[sub]) currentUser.tracker[sub] = {}; if(!currentUser.tracker[sub][chap]) currentUser.tracker[sub][chap] = {};
     let isNowDone = !currentUser.tracker[sub][chap][top]; currentUser.tracker[sub][chap][top] = isNowDone;
-    if(isNowDone) { el.classList.add('done'); el.innerHTML = `<div class="t-text" style="font-size:14px; font-weight:700;"><i class="fa-solid fa-check" style="color:var(--primary);"></i> ${top}</div>`; } 
-    else { el.classList.remove('done'); el.innerHTML = `<div class="t-text" style="font-size:14px; font-weight:700;"><i class="fa-solid fa-circle" style="color:var(--border);"></i> ${top}</div>`; }
-    saveUserDB({ tracker: currentUser.tracker });
-    let badge = el.parentElement.previousElementSibling.querySelector('.badge'); let chDone = 0; for(let t in currentUser.tracker[sub][chap]) { if(currentUser.tracker[sub][chap][t]) chDone++; }
-    badge.innerText = `${chDone}/${sylTopics.length}`; if(chDone === sylTopics.length) { badge.style.background = 'var(--primary)'; badge.style.color = '#020617'; } else { badge.style.background = 'transparent'; badge.style.color = 'var(--primary)'; }
+    el.classList.toggle('done', isNowDone); saveUserDB({ tracker: currentUser.tracker });
 }
 
-// ==========================================
-// 2. NOTES & PRACTICE MODE Q-BANK (With Options Shuffle & Lock)
-// ==========================================
 function loadShortNotes() {
     let sub = document.getElementById('readSub').value, chap = document.getElementById('readChap').value;
-    if(!sub) return alert("Please select a subject first!"); let html = ''; let filtered = allNotes.filter(n => n.subject === sub && (chap === 'All' || n.chapter === chap));
-    if(filtered.length === 0) html = "<div class='text-center mt-1 text-muted'>No notes or PDFs available for this selection yet.</div>";
-    filtered.forEach(n => {
-        html += `<div class="card" style="border-left: 4px solid var(--accent); background: rgba(129, 140, 248, 0.05);"><div style="font-size:13px; color:var(--text-muted); font-weight:bold;">${n.chapter}</div><h4 style="color:var(--text-main); margin:8px 0; font-size:18px;">${n.title}</h4><div style="font-size:14px; white-space: pre-wrap; margin-bottom: 12px; color:var(--text-muted);">${n.content}</div>`;
-        if(n.pdfUrl) { let embedUrl = n.pdfUrl.replace('/view?usp=sharing', '/preview').replace('/view', '/preview'); html += `<iframe src="${embedUrl}" style="width:100%; height:300px; border:none; border-radius:12px; margin-top:10px; background:#fff;"></iframe><a href="${n.pdfUrl}" target="_blank" style="display:block; margin-top:15px; font-size:14px; font-weight:bold; color:#020617; background:var(--accent); text-align:center; padding:12px; border-radius:12px; text-decoration:none;"><i class="fa-solid fa-download"></i> Open / Download PDF</a>`; }
-        html += `</div>`;
-    });
-    document.getElementById('notesArea').innerHTML = html;
+    let html = ''; let filtered = allNotes.filter(n => n.subject === sub && (chap === 'All' || n.chapter === chap));
+    filtered.forEach(n => { html += `<div class="card"><h4>${n.title}</h4><p>${n.content}</p>${n.pdfUrl?`<iframe src="${n.pdfUrl.replace('/view', '/preview')}" style="width:100%; height:250px; border:none; margin-top:10px;"></iframe>`:''}</div>`; });
+    document.getElementById('notesArea').innerHTML = html || "No notes found.";
 }
-
 function loadPracticeQBank() {
     let sub = document.getElementById('qbSub').value, chap = document.getElementById('qbChap').value;
-    if(!sub) return alert("Please select a subject!"); let matched = allQuestions.filter(q => q.subject === sub && (chap === 'All' || q.chapter === chap));
-    if(matched.length === 0) return alert("No questions available in the database!");
-    practiceState.questions = matched.sort(() => 0.5 - Math.random()); let html = '';
+    let matched = allQuestions.filter(q => q.subject === sub && (chap === 'All' || q.chapter === chap));
+    let html = ''; practiceState.questions = matched.sort(() => 0.5 - Math.random());
     practiceState.questions.forEach((q, i) => {
-        html += `<div class="card" id="pqBox_${i}"><div class="flex-between mb-1"><span class="badge" style="border-color:var(--primary); color:var(--primary);">${q.level||'Academic'}</span><i class="fa-solid fa-bookmark bookmark-btn ${currentUser.bookmarks && currentUser.bookmarks.includes(q.id)?'active':''}" style="font-size:20px; cursor:pointer;" onclick="toggleBookmark('${q.id}', this)"></i></div><div style="font-weight:800; margin-bottom:15px; font-size:17px; line-height:1.4;">${i+1}. ${q.q}</div>`;
-        if(q.img) html += `<img src="${q.img}" style="width:100%; border-radius:12px; margin-bottom:12px;">`;
+        html += `<div class="card" id="pqBox_${i}"><b>${i+1}. ${q.q}</b>`;
         let opts = q.a.map((txt, idx) => ({ text: txt, isCorr: idx === q.correct })).sort(() => 0.5 - Math.random());
-        q.tempCorrect = opts.findIndex(o => o.isCorr); q.tempOpts = opts; 
-        opts.forEach((optObj, idx) => { html += `<div class="opt-btn" id="popt_${i}_${idx}" onclick="selectPracticeOpt(${i}, ${idx}, ${q.tempCorrect})"><span style="margin-right:10px; font-weight:bold;">${String.fromCharCode(65+idx)}.</span> ${optObj.text}</div>`; });
-        html += `<div id="pexp_${i}" class="hidden" style="margin-top:12px; font-size:13px; color:var(--text-main); background:var(--surface); padding:15px; border-radius:12px; border-left:4px solid var(--primary);"><b style="color:var(--primary); font-size:15px;"><i class="fa-solid fa-lightbulb"></i> Explanation:</b><br><br> ${q.exp||'No explanation provided.'}</div></div>`;
+        q.tempCorrect = opts.findIndex(o => o.isCorr); q.tempOpts = opts;
+        opts.forEach((optObj, idx) => { html += `<div class="opt-btn" id="popt_${i}_${idx}" onclick="selectPracticeOpt(${i}, ${idx}, ${q.tempCorrect})">${optObj.text}</div>`; });
+        html += `<div id="pexp_${i}" class="hidden mt-1" style="color:var(--primary); font-size:13px;">Exp: ${q.exp||'N/A'}</div></div>`;
     });
-    document.getElementById('qbankArea').innerHTML = html; document.getElementById('qbScoreTxt').innerText = `Practice Mode: ${practiceState.questions.length} Questions`;
+    document.getElementById('viewQbank').innerHTML = html || "No questions found.";
 }
-
 function selectPracticeOpt(qIdx, oIdx, corrIdx) {
     for(let i=0; i<4; i++) { let el = document.getElementById(`popt_${qIdx}_${i}`); if(el) el.classList.add('locked'); }
-    let selectedEl = document.getElementById(`popt_${qIdx}_${oIdx}`); let correctEl = document.getElementById(`popt_${qIdx}_${corrIdx}`);
-    if(oIdx === corrIdx) { selectedEl.classList.add('correct'); successSound.play().catch(e=>{}); } 
-    else { selectedEl.classList.add('wrong'); correctEl.classList.add('correct'); failSound.play().catch(e=>{}); }
+    if(oIdx === corrIdx) document.getElementById(`popt_${qIdx}_${oIdx}`).classList.add('correct');
+    else { document.getElementById(`popt_${qIdx}_${oIdx}`).classList.add('wrong'); document.getElementById(`popt_${qIdx}_${corrIdx}`).classList.add('correct'); }
     document.getElementById(`pexp_${qIdx}`).classList.remove('hidden');
 }
-function toggleBookmark(id, el) {
-    if(!currentUser.bookmarks) currentUser.bookmarks = []; let idx = currentUser.bookmarks.indexOf(id);
-    if(idx > -1) { currentUser.bookmarks.splice(idx, 1); el.style.color = "var(--text-muted)"; } else { currentUser.bookmarks.push(id); el.style.color = "var(--warning)"; }
-    saveUserDB({ bookmarks: currentUser.bookmarks });
-}
 
-// ==========================================
-// 3. EXAMORA FOCUS TIMER (HH:MM:SS) & LIVE MOCK EXAM
-// ==========================================
 let pTimer = null; let pTimeLeft = 0; let isPRunning = false;
 function togglePomodoro() {
-    if(isPRunning) { clearInterval(pTimer); isPRunning = false; document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-play"></i> Resume Session'; document.getElementById('timerStatus').innerText = "Paused"; }
+    if(isPRunning) { clearInterval(pTimer); isPRunning = false; document.getElementById('btnTimerStart').innerText = 'Start'; }
     else {
-        if(pTimeLeft <= 0) { 
-            let h = parseInt(document.getElementById('tH').value)||0, m = parseInt(document.getElementById('tM').value)||0, s = parseInt(document.getElementById('tS').value)||0;
-            pTimeLeft = (h * 3600) + (m * 60) + s; if(pTimeLeft <= 0) return alert("Set valid timer!");
-        }
-        isPRunning = true; document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-pause"></i> Pause Timer'; document.getElementById('timerStatus').innerText = "Deep Focus Mode 🔥";
+        if(pTimeLeft <= 0) { pTimeLeft = (parseInt(document.getElementById('tH').value)||0)*3600 + (parseInt(document.getElementById('tM').value)||0)*60 + (parseInt(document.getElementById('tS').value)||0); }
+        if(pTimeLeft<=0) return alert("Set time!"); isPRunning = true; document.getElementById('btnTimerStart').innerText = 'Pause';
         pTimer = setInterval(() => {
-            if(pTimeLeft > 0) {
-                pTimeLeft--; let th = Math.floor(pTimeLeft/3600); let tm = Math.floor((pTimeLeft%3600)/60); let ts = pTimeLeft%60;
-                document.getElementById('timerDisplay').innerText = `${th<10?'0'+th:th}:${tm<10?'0'+tm:tm}:${ts<10?'0'+ts:ts}`;
-            } else {
-                clearInterval(pTimer); isPRunning = false; timerSound.play().catch(e=>{});
-                let h = parseInt(document.getElementById('tH').value)||0, m = parseInt(document.getElementById('tM').value)||0;
-                alert(`🎉 Focus session done! Mins added: ${(h*60)+m}`); saveUserDB({ studyMins: (currentUser.studyMins||0) + (h*60)+m, xp: (currentUser.xp||0) + 15 }); triggerConfetti(); resetPomodoro();
-            }
+            if(pTimeLeft > 0) { pTimeLeft--; let th=Math.floor(pTimeLeft/3600), tm=Math.floor((pTimeLeft%3600)/60), ts=pTimeLeft%60; document.getElementById('timerDisplay').innerText = `${th<10?'0'+th:th}:${tm<10?'0'+tm:tm}:${ts<10?'0'+ts:ts}`; }
+            else { clearInterval(pTimer); isPRunning = false; alert("Timer Finished!"); resetPomodoro(); }
         }, 1000);
     }
 }
-function resetPomodoro() { clearInterval(pTimer); isPRunning = false; pTimeLeft = 0; let h = parseInt(document.getElementById('tH').value)||0, m = parseInt(document.getElementById('tM').value)||0, s = parseInt(document.getElementById('tS').value)||0; document.getElementById('timerDisplay').innerText = `${h<10?'0'+h:h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`; document.getElementById('btnTimerStart').innerHTML = '<i class="fa-solid fa-play"></i> Start Session'; document.getElementById('timerStatus').innerText = "Ready to Focus"; }
+function resetPomodoro() { clearInterval(pTimer); isPRunning = false; pTimeLeft = 0; document.getElementById('timerDisplay').innerText = "00:25:00"; document.getElementById('btnTimerStart').innerText = 'Start'; }
 
 function addMockBlock() {
     let sub = document.getElementById("mockSub").value, chap = document.getElementById("mockChap").value, limit = parseInt(document.getElementById("mockLimit").value);
-    if(!sub || !limit || limit <= 0) return alert("Valid inputs required!"); examState.config.push({sub, chap, limit});
-    let html = ""; examState.config.forEach((c) => { html += `<div style="font-size:14px; color:var(--text-main); margin-bottom:8px; border-left:4px solid var(--primary); padding-left:12px; background: rgba(56, 189, 248, 0.05); padding: 12px; border-radius:10px;"><b>${c.sub}</b> (${c.chap}) <span style="float:right; color:var(--warning); font-weight:bold;">${c.limit} Qs</span></div>`; });
-    document.getElementById("mockConfigList").innerHTML = html;
+    if(!sub || !limit) return; examState.config.push({sub, chap, limit});
+    document.getElementById("mockConfigList").innerHTML += `<div>${sub} (${chap}) - ${limit} Qs</div>`;
 }
 function startMockExam() {
-    if (examState.config.length === 0) return alert("Add block first!"); if((currentUser.coins||0) < 10) return alert("Insufficient coins! (10 needed)");
     examState.questions = [];
-    examState.config.forEach(cfg => { let matched = allQuestions.filter(q => q.subject === cfg.sub && (cfg.chap === 'All' || q.chapter === cfg.chap)).sort(() => 0.5 - Math.random()); examState.questions = examState.questions.concat(matched.slice(0, cfg.limit)); });
-    if(examState.questions.length === 0) return alert("No questions available for config!");
-    saveUserDB({ coins: (currentUser.coins||0) - 10 });
-    examState.sub = examState.config.length === 1 ? examState.config[0].sub : "Custom Mock Test"; examState.answers = new Array(examState.questions.length).fill(null); examState.time = examState.questions.length * 60; 
-    renderLiveExam();
-}
-function renderLiveExam() {
+    examState.config.forEach(cfg => { let matched = allQuestions.filter(q => q.subject === cfg.sub && (cfg.chap === 'All' || q.chapter === cfg.chap)); examState.questions = examState.questions.concat(matched.slice(0, cfg.limit)); });
+    if(examState.questions.length === 0) return alert("No Qs found");
+    examState.answers = new Array(examState.questions.length).fill(null); examState.time = examState.questions.length * 60;
     let html = '';
     examState.questions.forEach((q, i) => {
-        html += `<div class="card" id="qBox_${i}"><div style="font-weight:800; margin-bottom:15px; font-size:17px; line-height:1.4;">${i+1}. ${q.q}</div>`;
-        if(q.img) html += `<img src="${q.img}" style="width:100%; border-radius:12px; margin-bottom:12px;">`;
+        html += `<div class="card"><b>${i+1}. ${q.q}</b>`;
         let opts = q.a.map((txt, idx) => ({ text: txt, isCorr: idx === q.correct })).sort(() => 0.5 - Math.random());
-        q.tempCorrect = opts.findIndex(o => o.isCorr); q.tempOpts = opts; 
-        opts.forEach((optObj, idx) => { html += `<div class="opt-btn" id="opt_${i}_${idx}" onclick="selectOpt(${i}, ${idx})">${String.fromCharCode(65+idx)}. ${optObj.text}</div>`; });
+        q.tempCorrect = opts.findIndex(o => o.isCorr); q.tempOpts = opts;
+        opts.forEach((optObj, idx) => { html += `<div class="opt-btn" id="opt_${i}_${idx}" onclick="selectOpt(${i}, ${idx})">${optObj.text}</div>`; });
         html += `</div>`;
     });
-    document.getElementById('liveExamContainer').innerHTML = html; document.getElementById('examProgressTxt').innerText = `Progress: 0/${examState.questions.length}`;
-    navTo('pageExam');
-    examState.interval = setInterval(() => {
-        if(examState.time > 0) { examState.time--; let m = Math.floor(examState.time/60); let s = examState.time%60; document.getElementById('examTimerTxt').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`; if(examState.time === 60) timerSound.play().catch(e=>{}); } else submitExam();
-    }, 1000);
+    document.getElementById('liveExamContainer').innerHTML = html; navTo('pageExam');
+    examState.interval = setInterval(() => { if(examState.time>0) { examState.time--; document.getElementById('examTimerTxt').innerText = `${Math.floor(examState.time/60)}:${examState.time%60}`; } else submitExam(); }, 1000);
 }
-function selectOpt(qIdx, oIdx) { examState.answers[qIdx] = oIdx; for(let i=0; i<4; i++) { let el = document.getElementById(`opt_${qIdx}_${i}`); if(el) el.classList.remove('selected'); } document.getElementById(`opt_${qIdx}_${oIdx}`).classList.add('selected'); let c = examState.answers.filter(a => a !== null).length; document.getElementById('examProgressTxt').innerText = `Progress: ${c}/${examState.questions.length}`; }
+function selectOpt(qIdx, oIdx) { examState.answers[qIdx] = oIdx; for(let i=0; i<4; i++) { let el = document.getElementById(`opt_${qIdx}_${i}`); if(el) el.classList.remove('selected'); } document.getElementById(`opt_${qIdx}_${oIdx}`).classList.add('selected'); }
 
-// Exam Submit Scoring Logic (+5 coin/+2xp right, -1 coin/-1xp wrong, 0.25 neg)
 function submitExam() {
-    clearInterval(examState.interval); let correct = 0, wrong = 0; let revHtml = ''; let mistakesArr = currentUser.mistakes || []; let sp = currentUser.subjProg || {};
+    clearInterval(examState.interval); let correct = 0, wrong = 0; let revHtml = '';
     examState.questions.forEach((q, i) => {
-        let userAns = examState.answers[i];
-        if(userAns === q.tempCorrect) { correct++; if(!sp[q.subject]) sp[q.subject] = { c:0, w:0 }; sp[q.subject].c++; mistakesArr = mistakesArr.filter(id => id !== q.id); } 
-        else if(userAns !== null) { wrong++; if(!sp[q.subject]) sp[q.subject] = { c:0, w:0 }; sp[q.subject].w++; if(!mistakesArr.includes(q.id)) mistakesArr.push(q.id); }
-        revHtml += `<div class="card" style="border-color: ${userAns===q.tempCorrect?'var(--success)':userAns===null?'var(--border)':'var(--danger)'}"><div class="flex-between mb-1"><div style="font-weight:bold; font-size:16px;">Q. ${q.q}</div></div>`;
-        q.tempOpts.forEach((optObj, idx) => { let cls = "opt-btn locked"; if(idx === q.tempCorrect) cls += " correct"; else if(idx === userAns) cls += " wrong"; revHtml += `<div class="${cls}">${String.fromCharCode(65+idx)}. ${optObj.text}</div>`; });
-        if(q.exp) revHtml += `<div style="margin-top:12px; font-size:13px; color:var(--text-main); background:rgba(56, 189, 248, 0.1); padding:12px; border-radius:12px;"><b style="color:var(--primary);">💡 Explanation:</b><br> ${q.exp}</div>`;
+        let uAns = examState.answers[i];
+        if(uAns === q.tempCorrect) correct++; else if(uAns !== null) wrong++;
+        revHtml += `<div class="card"><b>Q. ${q.q}</b>`;
+        q.tempOpts.forEach((optObj, idx) => { let cls = "opt-btn locked"; if(idx === q.tempCorrect) cls += " correct"; else if(idx === uAns) cls += " wrong"; revHtml += `<div class="${cls}">${optObj.text}</div>`; });
         revHtml += `</div>`;
     });
-    let negMarks = wrong * 0.25; let score = Math.max(0, correct - negMarks); let percent = Math.round((score / examState.questions.length) * 100);
-    let earnXp = Math.max(0, (correct * 2) - (wrong * 1)); let earnCoin = Math.max(0, (correct * 5) - (wrong * 1));
-    if(percent >= 80) { earnXp += 20; earnCoin += 10; successSound.play().catch(e=>{}); triggerConfetti(); } else if (percent < 40) { failSound.play().catch(e=>{}); }
-    let newAct = [...(currentUser.activityData || [0,0,0,0,0,0,0])]; newAct[newAct.length-1] += earnXp;
-    saveUserDB({ xp: (currentUser.xp||0) + earnXp, coins: (currentUser.coins||0) + earnCoin, activityData: newAct, mistakes: mistakesArr, subjProg: sp });
-    
-    let examDataToSave = { id: Date.now().toString(), name: currentUser.name, subject: examState.sub, percent: percent, total: examState.questions.length, c: correct, w: wrong, neg: negMarks, time: new Date().toLocaleDateString(), detailsHtml: revHtml };
-    fetch(`${DB}/ultimate_history.json`, { method: "POST", body: JSON.stringify(examDataToSave) });
-    document.getElementById('resPercent').innerText = `${percent}%`; document.getElementById('resXp').innerText = earnXp; document.getElementById('resCoin').innerText = earnCoin; document.getElementById('resNeg').innerText = negMarks;
-    document.getElementById('reviewContainer').innerHTML = revHtml; examState.config = []; document.getElementById("mockConfigList").innerHTML = ""; navTo('pageResult');
+    let neg = wrong * 0.25; let score = Math.max(0, correct - neg); let pct = Math.round((score / examState.questions.length) * 100);
+    saveUserDB({ xp: (currentUser.xp||0) + (correct*2), coins: (currentUser.coins||0) + (correct*5) });
+    let examData = { name: currentUser.name, subject: "Mock Test", percent: pct, c: correct, w: wrong, neg: neg, time: new Date().toLocaleDateString(), detailsHtml: revHtml };
+    fetch(`${DB}/ultimate_history.json`, { method: "POST", body: JSON.stringify(examData) });
+    document.getElementById('resPercent').innerText = `${pct}%`; document.getElementById('reviewContainer').innerHTML = revHtml; navTo('pageResult');
 }
-function downloadResult() { let el = document.getElementById('printableResult'); let opt = { margin: 10, filename: 'Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; html2pdf().set(opt).from(el).save(); }
-function triggerConfetti() { confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); }
 
-// ==========================================
-// 4. CHARTS, HISTORY DETAILS & FLASHCARDS & NOTIFICATIONS
-// ==========================================
-function showHistoryDetails(id) {
-    let exam = historyData.find(x => x.id === id); if(!exam || !exam.detailsHtml) return alert("Detailed solution view expired or unavailable.");
-    document.getElementById('printableResult').innerHTML = `<div class="card text-center glass-card" style="padding: 30px 20px; border-color: var(--primary);"><h2><i class="fa-solid fa-medal" style="color: gold;"></i> Review Paper</h2><div style="font-size: 50px; font-weight: 800; color: var(--primary); margin: 15px 0;">${exam.percent}%</div><div>Negative Marks: <span>${exam.neg||0}</span></div></div><h3><i class="fa-solid fa-microscope"></i> Solutions</h3><div id="reviewContainer">${exam.detailsHtml}</div>`;
-    navTo('pageResult'); document.getElementById('historyModal').classList.add('hidden');
-}
-function loadHistoryModal() { document.getElementById('historyModal').classList.remove('hidden'); }
-function loadMistakesModal() { document.getElementById('mistakesModal').classList.remove('hidden'); renderMistakeData('mistake'); }
-function renderMistakeData(type) {
-    document.getElementById('btnM1').className = type==='mistake'?'btn-accent':'btn-outline'; document.getElementById('btnM2').className = type==='saved'?'btn-accent':'btn-outline';
-    let arr = type==='mistake' ? currentUser.mistakes||[] : currentUser.bookmarks||[]; let html = '';
-    if(arr.length > 0) { arr.forEach(id => { let q = allQuestions.find(x => x.id === id); if(q) html += `<div class="card" style="border-left: 4px solid var(--danger);"><small>${q.subject}</small><div style="font-size:15px; font-weight:bold; margin:8px 0;">Q. ${q.q}</div><div style="font-size:14px; color:var(--success);">✔ Ans: ${q.a[q.correct]}</div></div>`; }); }
-    else html = `<div class='text-center text-muted'>No entries found.</div>`; document.getElementById('mistakeArea').innerHTML = html;
+function loadLeaderboards() {
+    fetch(`${DB}/ultimate_users.json`).then(r=>r.json()).then(data => {
+        if(!data) return; allUsers = Object.values(data);
+        let html = ''; allUsers.sort((a,b)=>(b.xp||0)-(a.xp||0)).forEach((u,i) => {
+            html += `<div class="rank-row"><b>${i+1}.</b> ${u.name} - ${u.xp||0} XP</div>`;
+        });
+        document.getElementById('fullLeaderboard').innerHTML = html;
+    });
 }
 function renderProgressUI() {
-    let ctx = document.getElementById('lineChart'); if(!ctx) return;
-    if(lineChartInst) lineChartInst.destroy();
-    lineChartInst = new Chart(ctx.getContext('2d'), { type: 'line', data: { labels: ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'Today'], datasets: [{ label: 'XP', data: currentUser.activityData||[0,0,0,0,0,0,0], borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.2)', borderWidth: 3, fill: true, tension: 0.4 }] }, options: { plugins: { legend: { display: false } }, scales: { x: { display:false }, y: { grid: { color: '#1e293b' } } } } });
-    
-    let rCtx = document.getElementById('radarChart'); if(!rCtx || !currentUser.subjProg) return;
-    if(radarChartInst) radarChartInst.destroy(); let labels=[], data=[];
-    for(let s in currentUser.subjProg) { labels.push(s.split(" ")[0]); data.push(Math.round(currentUser.subjProg[s].c / (currentUser.subjProg[s].c+currentUser.subjProg[s].w)*100)); }
-    if(labels.length > 0) radarChartInst = new Chart(rCtx.getContext('2d'), { type: 'radar', data: { labels: labels, datasets: [{ data: data, backgroundColor: 'rgba(56, 189, 248, 0.2)', borderColor: '#38bdf8', borderWidth:2 }] }, options: { scales: { r: { angleLines: { color: 'rgba(255,255,255,0.1)' }, grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: '#94a3b8' }, ticks: { display: false } } }, plugins: { legend: { display: false } } } });
+    let ctx = document.getElementById('radarChart'); if(ctx) { if(radarChartInst) radarChartInst.destroy(); radarChartInst = new Chart(ctx.getContext('2d'), { type:'radar', data:{ labels:['Physics', 'Chemistry', 'Math', 'Biology'], datasets:[{label:'Proficiency', data:[80, 70, 90, 65], borderColor:'#38bdf8'}] } }); }
 }
-function loadLeaderboards() {
-    let bf = document.getElementById('lbBatchFilter').value, tf = document.getElementById('lbTypeFilter').value, users = [...allUsers];
-    if(bf !== "All") users = users.filter(u => u.batch === bf);
-    if(tf === "XP") users.sort((a,b) => (b.xp||0) - (a.xp||0)); else if(tf === "Coins") users.sort((a,b) => (b.coins||0) - (a.coins||0)); else users.sort((a,b) => (b.studyMins||0) - (a.studyMins||0));
-    let html = ''; users.slice(0,25).forEach((u, i) => {
-        let stg = getStage(u.xp||0); let val = tf==="XP" ? `${u.xp||0} XP` : tf==="Coins" ? `${u.coins||0} 🪙` : `${u.studyMins||0} Mins`;
-        html += `<div class="rank-row"><div style="font-weight:900; width:35px; color:${i<3?'gold':''}">${i+1}</div><div style="width:40px;height:40px;font-size:16px;font-weight:bold;border:2px solid ${stg.color}; border-radius:50%; display:flex; justify-content:center; align-items:center;">${(u.name||"U").charAt(0).toUpperCase()}</div><div style="flex:1; margin-left:15px;"><div style="font-weight:800; font-size:15px;">${u.name||"User"}</div><div style="font-size:11px; color:${stg.color};">${stg.name} • ${u.batch||'No Batch'}</div></div><div style="color:var(--primary); font-weight:800;">${val}</div></div>`;
-    });
-    document.getElementById('fullLeaderboard').innerHTML = html || "<div class='text-muted text-center'>No entries.</div>";
-}
-function fetchFlashcards() { fetch(`${DB}/ultimate_flashcards.json`).then(r=>r.ok?r.json():null).then(data => { if(data && !data.error) flashcards = Object.keys(data).map(k=>({id:k,...data[k]})); else flashcards = [{q: "Start Learning!", a: "Success is near"}]; renderFlashcard(); }); }
-function renderFlashcard() { fcFlipped = false; if(!flashcards || flashcards.length === 0) return; document.getElementById("fcText").innerText = flashcards[fcIndex].q; document.getElementById("fcText").style.color = "white"; }
-function flipFlashcard() { if(!flashcards || flashcards.length === 0) return; if(!fcFlipped) { document.getElementById("fcText").innerText = flashcards[fcIndex].a; document.getElementById("fcText").style.color = "var(--primary)"; fcFlipped = true; } else renderFlashcard(); }
-function nextFlashcard(e) { e.stopPropagation(); if(flashcards.length>0){ fcIndex = (fcIndex + 1) % flashcards.length; renderFlashcard(); } }
-function prevFlashcard(e) { e.stopPropagation(); if(flashcards.length>0){ fcIndex = (fcIndex - 1 + flashcards.length) % flashcards.length; renderFlashcard(); } }
-function openNotifications() { document.getElementById('notiModal').classList.remove('hidden'); document.getElementById('notiCount').classList.add('hidden'); }
-function closeNotifications() { document.getElementById('notiModal').classList.add('hidden'); }
-function fetchNotifications() {
-    fetch(`${DB}/ultimate_notifications.json`).then(r=>r.ok?r.json():null).then(data => {
-        let html = ''; if(data && !data.error) {
-            notifications = Object.values(data).reverse(); document.getElementById('notiCount').innerText = notifications.length; if(notifications.length>0) document.getElementById('notiCount').classList.remove('hidden');
-            notifications.forEach(n => { html += `<div style="background:var(--surface); padding:15px; margin-bottom:12px; border-radius:12px; border-left:4px solid var(--accent);"><b style="font-size:15px; color:var(--primary);">${n.title}</b><div>${n.body}</div></div>`; });
-        }
-        document.getElementById('notiList').innerHTML = html || "<div class='text-muted text-center'>No new notifications.</div>";
-    });
-}
-
-// ==========================================
-// 5. DATABASE SEARCH & ADMIN CONSOLE LOGIC
-// ==========================================
+function renderFlashcard() { if(flashcards.length>0) document.getElementById('fcText').innerText = flashcards[fcIndex].q; }
+function flipFlashcard() { if(flashcards.length>0) { fcFlipped = !fcFlipped; document.getElementById('fcText').innerText = fcFlipped ? flashcards[fcIndex].a : flashcards[fcIndex].q; } }
+function nextFlashcard(e) { e.stopPropagation(); if(flashcards.length>0) { fcIndex = (fcIndex+1)%flashcards.length; renderFlashcard(); } }
+function prevFlashcard(e) { e.stopPropagation(); if(flashcards.length>0) { fcIndex = (fcIndex-1+flashcards.length)%flashcards.length; renderFlashcard(); } }
+function fetchNotifications() { fetch(`${DB}/ultimate_notifications.json`).then(r=>r.json()).then(data => { let html = ''; if(data) Object.values(data).forEach(n => html += `<div><b>${n.title}</b><p>${n.body}</p></div>`); document.getElementById('notiList').innerHTML = html || "No updates."; }); }
+function fetchFlashcards() { fetch(`${DB}/ultimate_flashcards.json`).then(r=>r.json()).then(data => { if(data) flashcards = Object.values(data); renderFlashcard(); }); }
 function fetchDBData() {
-    fetch(`${DB}/ultimate_questions.json`).then(r=>r.ok?r.json():null).then(data => { if(data && !data.error) allQuestions = Object.keys(data).map(k => ({ id: k, ...data[k] })); });
-    fetch(`${DB}/ultimate_notes.json`).then(r=>r.ok?r.json():null).then(data => { if(data && !data.error) allNotes = Object.keys(data).map(k => ({ id: k, ...data[k] })); });
-    fetch(`${DB}/ultimate_users.json`).then(r=>r.ok?r.json():null).then(data => { if(data && !data.error) allUsers = Object.values(data); });
+    fetch(`${DB}/ultimate_questions.json`).then(r=>r.json()).then(data => { if(data) allQuestions = Object.keys(data).map(k=>({id:k,...data[k]})); });
+    fetch(`${DB}/ultimate_notes.json`).then(r=>r.json()).then(data => { if(data) allNotes = Object.keys(data).map(k=>({id:k,...data[k]})); });
 }
-function teacherLogin() { if(document.getElementById('adminUser').value === 'admin' && document.getElementById('adminPass').value === '1234') { navTo('pageAdmin'); adminSearchQ(); fetchAdminFc(); } }
-function switchAdminTab(tab) { ['adQBox', 'adBulkBox', 'adNoteBox', 'adFcBox', 'adNotiBox', 'adPdfManageBox'].forEach(t => document.getElementById(t).classList.add('hidden')); document.getElementById(tab).classList.remove('hidden'); }
-function adminSaveQ() {
-    let data = { subject: document.getElementById('adSub').value, chapter: document.getElementById('adChap').value, level: document.getElementById('adLevel').value, stars: parseInt(document.getElementById('adStars').value), q: document.getElementById('adQ').value, img: document.getElementById('adImg').value, a: [document.getElementById('adO1').value, document.getElementById('adO2').value, document.getElementById('adO3').value, document.getElementById('adO4').value], correct: parseInt(document.getElementById('adCorrect').value), exp: document.getElementById('adExp').value };
-    if(!data.subject || !data.q) return alert("Fill mandatory fields!"); let url = currentEditId ? `${DB}/ultimate_questions/${currentEditId}.json` : `${DB}/ultimate_questions.json`; let method = currentEditId ? "PUT" : "POST";
-    fetch(url, { method: method, body: JSON.stringify(data) }).then(r => { alert("Saved!"); cancelEdit(); fetchDBData(); setTimeout(adminSearchQ, 1000); });
-}
-function adminBulkAdd() { 
-    let sub = document.getElementById('adBulkSub').value, chap = document.getElementById('adBulkChap').value, level = document.getElementById('adBulkLevel').value, stars = parseInt(document.getElementById('adBulkStars').value);
-    if(!sub || !chap || chap === 'All') return alert("Select Subject & Chapter!");
-    try { 
-        let arr = JSON.parse(document.getElementById('adBulkJson').value); 
-        if(Array.isArray(arr)) { 
-            let promises = arr.map(q => { q.subject = sub; q.chapter = chap; q.level = level; q.stars = stars; return fetch(`${DB}/ultimate_questions.json`, {method:'POST', body:JSON.stringify(q)}); });
-            Promise.all(promises).then(() => { alert('Bulk Upload Successful!'); document.getElementById('adBulkJson').value = ""; fetchDBData(); setTimeout(adminSearchQ, 1000); });
-        } else alert("Format must be a JSON Array!");
-    } catch(e) { alert('Invalid JSON format!'); } 
-}
-function adminSaveNote() {
-    let data = { subject: document.getElementById('adNoteSub').value, chapter: document.getElementById('adNoteChap').value, title: document.getElementById('adNoteTitle').value, content: document.getElementById('adNoteContent').value, pdfUrl: document.getElementById('adNotePdf').value };
-    if(!data.subject || (!data.content && !data.pdfUrl)) return alert("Fill data!"); fetch(`${DB}/ultimate_notes.json`, { method: "POST", body: JSON.stringify(data) }).then(r => { alert("Published!"); document.getElementById('adNoteTitle').value=""; document.getElementById('adNoteContent').value=""; document.getElementById('adNotePdf').value=""; fetchDBData(); });
-}
-function loadAdminPdfList() {
-    let sub = document.getElementById('adPdfSub').value; let chap = document.getElementById('adPdfChap').value;
-    let html = ''; let filtered = allNotes.filter(n => (sub === '' || n.subject === sub) && (chap === 'All' || n.chapter === chap));
-    filtered.forEach(n => { html += `<div class="card" style="padding:15px; font-size:13px;"><div class="flex-between"><b>${n.title}</b> <button class="btn-danger" style="display:inline; width:auto; padding:6px 12px; font-size:11px;" onclick="delPdf('${n.id}')">Delete</button></div><div>${n.subject} - ${n.chapter}</div></div>`; });
-    document.getElementById('adminPdfListArea').innerHTML = html || "No PDFs found.";
-}
-function delPdf(id) { if(confirm("Delete PDF?")) fetch(`${DB}/ultimate_notes/${id}.json`, { method: "DELETE" }).then(()=>{ alert("Deleted!"); fetchDBData(); setTimeout(loadAdminPdfList, 1000); }); }
-function adminBulkFcAdd() {
-    let sub = document.getElementById('adFcSub').value, chap = document.getElementById('adFcChap').value;
-    try { 
-        let arr = JSON.parse(document.getElementById('adFcJson').value); 
-        if(Array.isArray(arr)) { 
-            let promises = arr.map(fc => { fc.subject = sub; fc.chapter = chap; return fetch(`${DB}/ultimate_flashcards.json`, {method:'POST', body:JSON.stringify(fc)}); });
-            Promise.all(promises).then(() => { alert('Flashcards Uploaded!'); document.getElementById('adFcJson').value = ""; fetchAdminFc(); fetchFlashcards(); });
-        } else alert("Must be JSON Array!");
-    } catch(e) { alert('Invalid JSON!'); }
-}
-function fetchAdminFc() { fetch(`${DB}/ultimate_flashcards.json`).then(r=>r.ok?r.json():null).then(data => { let html = ''; if(data && !data.error) { Object.keys(data).forEach(k => { html += `<div style="background:var(--surface); padding:10px; margin-bottom:8px; border-radius:8px;"><b>Q:</b> ${data[k].q} <br><button class="btn-danger" style="padding:6px; font-size:11px; margin-top:8px;" onclick="delFc('${k}')">Delete</button></div>`; }); } document.getElementById('adminFcList').innerHTML = html; }); }
-function delFc(id) { if(confirm("Delete?")) fetch(`${DB}/ultimate_flashcards/${id}.json`, { method:"DELETE" }).then(()=>{fetchAdminFc(); fetchFlashcards();}); }
-function adminSendNotification() {
-    let data = { title: document.getElementById('adNotiTitle').value, body: document.getElementById('adNotiBody').value, date: new Date().toLocaleDateString() }; if(!data.title) return alert("Enter title!");
-    fetch(`${DB}/ultimate_notifications.json`, { method: "POST", body: JSON.stringify(data) }).then(r => { alert("Notification Sent!"); document.getElementById('adNotiTitle').value=""; document.getElementById('adNotiBody').value=""; fetchNotifications(); });
-}
-function adminSearchQ() {
-    let txt = document.getElementById('adSearch').value.toLowerCase(); let subF = document.getElementById('adSearchSub').value; let chapF = document.getElementById('adSearchChap').value; let html = '';
-    allQuestions.forEach(q => { if((subF && q.subject !== subF) || (chapF && chapF !== 'All' && q.chapter !== chapF) || (txt && !q.q.toLowerCase().includes(txt))) return; html += `<div class="card" style="padding:15px; font-size:13px;"><div class="flex-between"><b style="color:var(--primary);">${q.subject} - ${q.chapter}</b><div><button class="btn-warning" style="display:inline; width:auto; padding:6px 12px; font-size:11px;" onclick="editQ('${q.id}')">Edit</button> <button class="btn-danger" style="display:inline; width:auto; padding:6px 12px; font-size:11px;" onclick="delQ('${q.id}')">Del</button></div></div><div style="margin-top:10px; font-weight:bold;">Q: ${q.q}</div></div>`; });
-    document.getElementById('adQList').innerHTML = html;
-}
-function editQ(id) { let q = allQuestions.find(x => x.id === id); if(!q) return; currentEditId = id; document.getElementById('adSub').value = q.subject; updateChapDropdown('adSub','adChap'); document.getElementById('adChap').value = q.chapter; document.getElementById('adQ').value = q.q; document.getElementById('adO1').value = q.a[0]||''; document.getElementById('adO2').value = q.a[1]||''; document.getElementById('adO3').value = q.a[2]||''; document.getElementById('adO4').value = q.a[3]||''; document.getElementById('adCorrect').value = q.correct; document.getElementById('adExp').value = q.exp || ''; document.getElementById('adModeText').innerText = "Edit Question"; document.getElementById('adSaveBtn').innerText = "Update"; document.getElementById('adCancelBtn').classList.remove('hidden'); switchAdminTab('adQBox'); window.scrollTo(0,0); }
-function cancelEdit() { currentEditId = null; document.getElementById('adModeText').innerText = "Add Question"; document.getElementById('adSaveBtn').innerText = "Save Question"; document.getElementById('adCancelBtn').classList.add('hidden'); document.getElementById('adQ').value=""; }
-function delQ(id) { if(confirm("Delete?")) fetch(`${DB}/ultimate_questions/${id}.json`, { method: "DELETE" }).then(()=>{ alert("Deleted!"); fetchDBData(); setTimeout(adminSearchQ, 1000); }); }
-
-window.onload = function(){ initDropdowns(); fetchDBData(); fetchFlashcards(); fetchNotifications(); };
+function teacherLogin() { if(document.getElementById('adminUser').value==='admin') navTo('pageAdmin'); }
+window.onload = function() { navTo('pageAuth'); };
 </script>
 </body>
 </html>
