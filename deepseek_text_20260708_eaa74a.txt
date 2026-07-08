@@ -11199,3 +11199,6 @@ aiAddQuestion: async (index) => {
         logout: () => esAdmin.logout()
     };
 }
+</script>
+</body>
+</html>
