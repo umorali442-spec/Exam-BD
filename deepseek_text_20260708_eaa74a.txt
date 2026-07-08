@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="...">
+    <title>EduNexus Pro — Ultimate Learning</title>
+    <!-- Firebase SDKs (same as in a12f82) -->
+    <!-- Other script tags (Chart.js, etc.) -->
+    <!-- PWA Manifest inline -->
+    <style>
+        /* Merge all CSS from all files here */
+    </style>
+</head>
+<body>
+    <!-- HTML from a12f82: splash screen, bg particles, install banner, header, pageAuth, pageHome, pageSyllabus -->
+    <!-- HTML from d84f05: pageNotes, pageMock, pageLeaderboard, pageTimer, pageProfile, pageShop, pageEvents, pageBattle, pageTournament, pageCertificates, pageExam, pageResult, pageAdmin, bottom nav -->
+    <!-- Possibly missing the closing of the container? a12f82 ends with </div> for container? Actually, a12f82 ends with the closing of the container? Let's check: it ends with </div> after pageSyllabus? I think the container div is still open, so we need to close it after all pages. The d84f05 file includes the bottom nav and then </div> for the container? Actually, d84f05 ends with the bottom nav and then </div> for the container? It includes the bottom nav and then the closing of the container? The bottom nav is inside the container? The bottom nav is outside the container? In a12f82, the container starts with <div class="container" id="appRoot"> and then includes pages. The bottom nav is after the pages but still inside the container? In d84f05, the bottom nav is defined inside the container? Actually, d84f05 has the bottom nav after the pageAdmin, and then the closing of the container? Let's see: the bottom nav div is inside the container? It says `</div> <!-- end #appRoot -->`? In a12f82, the container is opened but not closed. In d84f05, the bottom nav is placed and then the container is closed. So we need to ensure the container is closed after the bottom nav.
+
+    So the order: container opens at the start of a12f82. Then pages. Then bottom nav. Then close container. Then the script tags.
+
+    <!-- Script tags for JS modules -->
+    <script>
+        /* Merge all JavaScript from all JS files in order */
+    </script>
+</body>
+</html>
