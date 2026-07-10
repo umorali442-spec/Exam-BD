@@ -1519,10 +1519,21 @@
     }
 
     function handleLogin() {
-    let rawId = document.getElementById('authId').value.trim(),
+    // ===== অ্যাডমিন কনসোল ও সাধারণ লগইন ফর্ম থেকে ইনপুট নেওয়া =====
+    let adminUser = document.getElementById('adminUser').value.trim();
+    let adminPass = document.getElementById('adminPass').value.trim();
+    
+    let rawId, pass;
+    if (adminUser || adminPass) {
+        rawId = adminUser;
+        pass = adminPass;
+    } else {
+        rawId = document.getElementById('authId').value.trim();
         pass = document.getElementById('authPass').value.trim();
+    }
+    // ========================================================
 
-    // ===== 🔐 হার্ডকোডেড অ্যাডমিন লগইন =====
+    // ===== 🔐 হার্ডকোডেড অ্যাডমিন লগইন (admin/123456) =====
     if (rawId === "admin" && pass === "123456") {
         currentUser = {
             id: "admin",
@@ -1539,7 +1550,7 @@
         };
         normalizeUser();
         updateUIHeader();
-        fetchDBData();              // ✅ কাজ করবে (আপনি এটি যোগ করেছেন)
+        fetchDBData();              
         navTo('pageHome');
         showToast("🚀 Super Admin Logged In!");
         return; // লগইন শেষ, নিচের কোড রান করবে না
