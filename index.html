@@ -6793,83 +6793,94 @@
     //  ফাংশন ফিক্স (আপনার ফাইলের একদম শেষে পেস্ট করুন)
     // ================================================================
     function loadLeaderboard() {
-    // লিডারবোর্ড ফিচার (ভবিষ্যতে যুক্ত করা হবে)
-    console.log("Leaderboard module loading...");
+        // লিডারবোর্ড ফিচার (ভবিষ্যতে যুক্ত করা হবে)
+        console.log("Leaderboard module loading...");
     }
+    
     function loadAchievements() {
-    // অ্যাচিভমেন্ট ফিচার (ভবিষ্যতে যুক্ত করা হবে)
-    console.log("Achievements module loading...");
+        // অ্যাচিভমেন্ট ফিচার (ভবিষ্যতে যুক্ত করা হবে)
+        console.log("Achievements module loading...");
     }
+    
     function loadTournament() {
-    // টুর্নামেন্ট ফিচার (ভবিষ্যতে যুক্ত করা হবে)
-    console.log("Tournament module loading...");
+        // টুর্নামেন্ট ফিচার (ভবিষ্যতে যুক্ত করা হবে)
+        console.log("Tournament module loading...");
     }
+    
     function loadDailyChallenge() {
-    // ডেইলি চ্যালেঞ্জ ফিচার (ভবিষ্যতে যুক্ত করা হবে)
-    console.log("Daily Challenge module loading...");
+        // ডেইলি চ্যালেঞ্জ ফিচার (ভবিষ্যতে যুক্ত করা হবে)
+        console.log("Daily Challenge module loading...");
     }
+    
     function loadFlashcards() {
-    // ফ্ল্যাশকার্ড ফিচার (ভবিষ্যতে যুক্ত করা হবে)
-    console.log("Flashcards module loading...");
+        // ফ্ল্যাশকার্ড ফিচার (ভবিষ্যতে যুক্ত করা হবে)
+        console.log("Flashcards module loading...");
     }
+    
     function loadMockTests() {
-    // মক টেস্ট ফিচার (ভবিষ্যতে যুক্ত করা হবে)
-    console.log("Mock Tests module loading...");
+        // মক টেস্ট ফিচার (ভবিষ্যতে যুক্ত করা হবে)
+        console.log("Mock Tests module loading...");
     }
+    
     function loadNotifications() {
-    // নোটিফিকেশন ফিচার (ভবিষ্যতে যুক্ত করা হবে)
-    console.log("Notifications module loading...");
+        // নোটিফিকেশন ফিচার (ভবিষ্যতে যুক্ত করা হবে)
+        console.log("Notifications module loading...");
     }
     
     function loadProfile() {
-    // প্রোফাইল ফিচার (ভবিষ্যতে যুক্ত করা হবে)
-    console.log("Profile module loading...");
+        // প্রোফাইল ফিচার (ভবিষ্যতে যুক্ত করা হবে)
+        console.log("Profile module loading...");
     }
+
     // ================================================================
     //  অ্যাডমিন মেনু লোড ফাংশন
     // ================================================================
     function loadAdminMenu() {
-    const menu = document.getElementById('adminMenu');
-    if (!menu) return;
-    menu.innerHTML = `
-        <button onclick="adminNavTo('dashboard')" class="active"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
-        <button onclick="adminNavTo('users')"><i class="fa-solid fa-users"></i> Users</button>
-        <button onclick="adminNavTo('questions')"><i class="fa-solid fa-question-circle"></i> Questions</button>
-        <button onclick="adminNavTo('exams')"><i class="fa-solid fa-file-alt"></i> Exams</button>
-        <button onclick="adminNavTo('tournaments')"><i class="fa-solid fa-trophy"></i> Tournaments</button>
-        <button onclick="adminNavTo('events')"><i class="fa-solid fa-calendar-alt"></i> Events</button>
-        <button onclick="adminNavTo('certificates')"><i class="fa-solid fa-certificate"></i> Certificates</button>
-        <button onclick="adminNavTo('announcements')"><i class="fa-solid fa-bullhorn"></i> Announcements</button>
-        <button onclick="adminNavTo('security')"><i class="fa-solid fa-shield-alt"></i> Security</button>
-        <button onclick="adminNavTo('rewards')"><i class="fa-solid fa-gem"></i> Rewards</button>
-        <button onclick="adminNavTo('reports')"><i class="fa-solid fa-file-export"></i> Reports</button>
-        <button onclick="adminNavTo('settings')"><i class="fa-solid fa-cog"></i> Settings</button>
-        <button onclick="adminNavTo('ai')"><i class="fa-solid fa-robot"></i> AI Tools</button>
-    `;
-}
+        const menu = document.getElementById('adminMenu');
+        if (!menu) return;
+        
+        menu.innerHTML = `
+            <button onclick="adminNavTo('dashboard')" class="active"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
+            <button onclick="adminNavTo('users')"><i class="fa-solid fa-users"></i> Users</button>
+            <button onclick="adminNavTo('questions')"><i class="fa-solid fa-question-circle"></i> Questions</button>
+            <button onclick="adminNavTo('exams')"><i class="fa-solid fa-file-alt"></i> Exams</button>
+            <button onclick="adminNavTo('tournaments')"><i class="fa-solid fa-trophy"></i> Tournaments</button>
+            <button onclick="adminNavTo('events')"><i class="fa-solid fa-calendar-alt"></i> Events</button>
+            <button onclick="adminNavTo('certificates')"><i class="fa-solid fa-certificate"></i> Certificates</button>
+            <button onclick="adminNavTo('announcements')"><i class="fa-solid fa-bullhorn"></i> Announcements</button>
+            <button onclick="adminNavTo('security')"><i class="fa-solid fa-shield-alt"></i> Security</button>
+            <button onclick="adminNavTo('rewards')"><i class="fa-solid fa-gem"></i> Rewards</button>
+            <button onclick="adminNavTo('reports')"><i class="fa-solid fa-file-export"></i> Reports</button>
+            <button onclick="adminNavTo('settings')"><i class="fa-solid fa-cog"></i> Settings</button>
+            <button onclick="adminNavTo('ai')"><i class="fa-solid fa-robot"></i> AI Tools</button>
+        `;
+    }
 
-// ================================================================
-//  অ্যাডমিন নেভিগেশন ফাংশন (এটি নতুন যোগ করা হলো)
-// ================================================================
-function adminNavTo(module) {
-    // সব অ্যাডমিন মডিউল লুকিয়ে ফেলুন
-    document.querySelectorAll('.admin-module').forEach(el => el.classList.remove('active'));
-    
-    // যে মডিউলটিতে ক্লিক করা হয়েছে, সেটি দেখান
-    let target = document.getElementById('admin' + module.charAt(0).toUpperCase() + module.slice(1));
-    if (target) target.classList.add('active');
-    
-    // শিরোনাম (ব্রেডক্রাম্ব) আপডেট করুন
-    let breadcrumb = document.getElementById('adminBreadcrumb');
-    if (breadcrumb) breadcrumb.innerText = module.charAt(0).toUpperCase() + module.slice(1);
-    
-    // ডেটা লোড করার ফাংশন কল করুন (যেগুলো আপনার ফাইলে আছে)
-    if (module === 'dashboard' && typeof adminLoadDashboard === 'function') adminLoadDashboard();
-    if (module === 'users' && typeof adminLoadUsers === 'function') adminLoadUsers();
-    if (module === 'questions' && typeof adminLoadQuestions === 'function') adminLoadQuestions();
-    if (module === 'exams' && typeof adminLoadExams === 'function') adminLoadExams();
-                                                                 }
-
+    // ================================================================
+    //  অ্যাডমিন নেভিগেশন ফাংশন (এটি নতুন যোগ করা হলো)
+    // ================================================================
+    function adminNavTo(module) {
+        // সব অ্যাডমিন মডিউল লুকিয়ে ফেলুন
+        document.querySelectorAll('.admin-module').forEach(el => el.classList.remove('active'));
+        
+        // যে মডিউলটিতে ক্লিক করা হয়েছে, সেটি দেখান
+        let target = document.getElementById('admin' + module.charAt(0).toUpperCase() + module.slice(1));
+        if (target) {
+            target.classList.add('active');
+        }
+        
+        // শিরোনাম (ব্রেডক্রাম্ব) আপডেট করুন
+        let breadcrumb = document.getElementById('adminBreadcrumb');
+        if (breadcrumb) {
+            breadcrumb.innerText = module.charAt(0).toUpperCase() + module.slice(1);
+        }
+        
+        // ডেটা লোড করার ফাংশন কল করুন (যেগুলো আপনার ফাইলে আছে)
+        if (module === 'dashboard' && typeof adminLoadDashboard === 'function') adminLoadDashboard();
+        if (module === 'users' && typeof adminLoadUsers === 'function') adminLoadUsers();
+        if (module === 'questions' && typeof adminLoadQuestions === 'function') adminLoadQuestions();
+        if (module === 'exams' && typeof adminLoadExams === 'function') adminLoadExams();
+    }
 </script>
 
 </body>
