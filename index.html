@@ -1521,6 +1521,30 @@
     function handleLogin() {
         let rawId = document.getElementById('authId').value.trim(),
             pass = document.getElementById('authPass').value.trim();
+        // ===== 🔐 হার্ডকোডেড অ্যাডমিন লগইন =====
+if (rawId === "admin" && pass === "123456") {
+    currentUser = {
+        id: "admin",
+        name: "Super Admin",
+        role: "admin",
+        pass: "123456",
+        coins: 99999,
+        xp: 99999,
+        joinDate: new Date().toLocaleDateString(),
+        lastLogin: new Date().toLocaleDateString(),
+        batch: "HSC 27",
+        school: "EduNexus",
+        country: "Bangladesh"
+    };
+    
+    normalizeUser(); // ডিফল্ট ভ্যালু সেট করতে
+    updateUIHeader();
+    fetchDBData();
+    navTo('pageHome'); // অ্যাডমিন প্যানেলে চলে যাবে
+    showToast("🚀 Super Admin Logged In!");
+    return; // লগইন শেষ, নিচের কোড আর রান করবে না
+}
+// ======================================
             
         if (!rawId || !pass) return alert("Enter credentials!");
         
