@@ -9587,4 +9587,1276 @@
             return div.innerHTML;
         }
     };
+                        
+    // ================================================================
+    //  FLASHCARDS MODULE (Full System Logic)
+    // ================================================================
+
+    // Flashcard Notification
+    const fcNotification = {
+        listeners: [],
+        unreadCount: 0,
+        init: function(userId) {
+            this.userId = userId;
+            if (!userId) return;
+            const ref = fcDbRef(`fc_notifications/${userId}`);
+            ref.on('child_added', (snap) => {
+                const notif = snap.val();
+                if (notif && !notif.read) {
+                    this.unreadCount++;
+                    this.updateBadge();
+                    this.showNotification(notif);
+                }
+            });
+            this.listeners.push(ref);
+        },
+        updateBadge: function() {
+            const badge = document.getElementById('fcNotifBadge');
+            if (badge) {
+                badge.textContent = this.unreadCount > 0 ? this.unreadCount : '';
+                badge.style.display = this.unreadCount > 0 ? 'flex' : 'none';
+            }
+        },
+        showNotification: function(notif) {
+            if (typeof fcUtils !== 'undefined' && fcUtils.toast) {
+                fcUtils.toast(`${notif.icon || '📢'} ${notif.title}: ${notif.body}`, 5000);
+            }
+        },
+        markAllRead: async function() {
+            if (!this.userId) return;
+            const ref = fcDbRef(`fc_notifications/${this.userId}`);
+            const snapshot = await ref.once('value');
+            const data = snapshot.val();
+            if (data) {
+                const updates = {};
+                Object.keys(data).forEach(key => {
+                    updates[key + '/read'] = true;
+                });
+                await ref.update(updates);
+                this.unreadCount = 0;
+                this.updateBadge();
+            }
+        },
+        cleanup: function() {
+            this.listeners.forEach(ref => { if(ref && ref.off) ref.off(); });
+            this.listeners = [];
+        }
+    };
+
+    // Flashcard Analytics
+    const fcAnalytics = {
+        renderStats: function(userId, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            fcOnce(`users/${userId}/flashcards`).then(snap => {
+                const data = snap.val() || {};
+                const decks = Object.values(data);
+                const totalCards = decks.reduce((sum, d) => sum + (d.cards ? d.cards.length : 0), 0);
+                const mastered = decks.reduce((sum, d) => sum + (d.mastered || 0), 0);
+                const percent = totalCards > 0 ? Math.round((mastered / totalCards) * 100) : 0;
+                container.innerHTML = `
+                    <div class="card glass-card"><h4>Flashcard Statistics</h4>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;" class="mt-1">
+                            <div class="stat-box"><div class="num">${totalCards}</div><div class="label">Total</div></div>
+                            <div class="stat-box"><div class="num" style="color:var(--success);">${mastered}</div><div class="label">Mastered</div></div>
+                            <div class="stat-box"><div class="num" style="color:var(--gold);">${percent}%</div><div class="label">Rate</div></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    };
+
+    // Flashcard Admin
+    const fcAdmin = {
+        user: null,
+        init: function(user) {
+            this.user = user;
+            let adminEl = document.getElementById('fcAdmin');
+            let contentEl = document.getElementById('fcAdminContent');
+            if (typeof fcUtils !== 'undefined' && !fcUtils.isAdmin(user)) {
+                if (adminEl) adminEl.innerHTML = '<p class="text-muted">Admin access required.</p>';
+                return;
+            }
+            if (contentEl) {
+                contentEl.innerHTML = `
+                    <div class="card glass-card"><h4>Admin Dashboard</h4>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;" class="mt-1">
+                            <div class="stat-box"><div class="num" id="fcAdminTotalDecks">0</div><div class="label">Decks</div></div>
+                            <div class="stat-box"><div class="num" id="fcAdminTotalCards">0</div><div class="label">Cards</div></div>
+                            <div class="stat-box"><div class="num" id="fcAdminTotalUsers">0</div><div class="label">Users</div></div>
+                            <div class="stat-box"><div class="num" id="fcAdminAvgMastered">0%</div><div class="label">Avg Mastered</div></div>
+                        </div>
+                        <button class="btn-primary mt-1" onclick="fcAdmin.refreshStats()">Refresh</button>
+                    </div>
+                `;
+            }
+            this.refreshStats();
+        },
+        refreshStats: async function() {
+            const userSnap = await fcOnce('users');
+            const users = userSnap.val();
+            let totalDecks = 0, totalCards = 0, totalMastered = 0, totalUsers = 0;
+            if (users) {
+                totalUsers = Object.keys(users).length;
+                for (const u of Object.values(users)) {
+                    if (u.flashcards) {
+                        const decks = Object.values(u.flashcards);
+                        totalDecks += decks.length;
+                        decks.forEach(d => {
+                            if (d.cards) totalCards += d.cards.length;
+                            totalMastered += d.mastered || 0;
+                        });
+                    }
+                }
+            }
+            let tdEl = document.getElementById('fcAdminTotalDecks');
+            let tcEl = document.getElementById('fcAdminTotalCards');
+            let tuEl = document.getElementById('fcAdminTotalUsers');
+            let amEl = document.getElementById('fcAdminAvgMastered');
+            
+            if (tdEl) tdEl.textContent = totalDecks;
+            if (tcEl) tcEl.textContent = totalCards;
+            if (tuEl) tuEl.textContent = totalUsers;
+            if (amEl) amEl.textContent = totalCards > 0 ? Math.round((totalMastered / totalCards) * 100) + '%' : '0%';
+        }
+    };
+
+    // Flashcard Main Core Functions
+    function fcLoadDashboard() {
+        if (typeof fcState === 'undefined' || !fcState.user) {
+            let dashEl = document.getElementById('fcDashboardContent');
+            if (dashEl) dashEl.innerHTML = '<p class="text-muted">Please login.</p>';
+            return;
+        }
+        fcOnce(`users/${fcState.user.id}/flashcards`).then(snap => {
+            const data = snap.val() || {};
+            const decks = Object.values(data);
+            const totalCards = decks.reduce((sum, d) => sum + (d.cards ? d.cards.length : 0), 0);
+            const mastered = decks.reduce((sum, d) => sum + (d.mastered || 0), 0);
+            const due = decks.reduce((sum, d) => sum + (d.due || 0), 0);
+            const streak = fcState.user.streak || 0;
+            
+            let tCardsEl = document.getElementById('fcStatTotal');
+            let mCardsEl = document.getElementById('fcStatMastered');
+            let dueCardsEl = document.getElementById('fcStatDue');
+            let streakCardsEl = document.getElementById('fcStatStreak');
+            
+            if (tCardsEl) tCardsEl.textContent = totalCards;
+            if (mCardsEl) mCardsEl.textContent = mastered;
+            if (dueCardsEl) dueCardsEl.textContent = due;
+            if (streakCardsEl) streakCardsEl.textContent = streak + '🔥';
+
+            let html = '<div class="card glass-card"><h4>Recent Decks</h4><div class="mt-1">';
+            const recent = decks.sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, 5);
+            if (recent.length === 0) {
+                html += '<p class="text-muted">No decks yet.</p>';
+            } else {
+                recent.forEach(d => {
+                    html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); font-size:13px;">
+                                <span><b>${d.name}</b></span> 
+                                <span style="color:var(--primary); font-weight:700;">${d.cards?.length || 0} cards</span>
+                             </div>`;
+                });
+            }
+            html += '</div></div>';
+            let dashContentEl = document.getElementById('fcDashboardContent');
+            if (dashContentEl) dashContentEl.innerHTML = html;
+        });
+    }
+
+    function fcLoadDecks() {
+        if (typeof fcState === 'undefined' || !fcState.user) return;
+        let searchEl = document.getElementById('fcDeckSearch');
+        let subEl = document.getElementById('fcDeckSubject');
+        let statEl = document.getElementById('fcDeckStatus');
+        
+        const search = searchEl?.value?.toLowerCase() || '';
+        const subject = subEl?.value || 'all';
+        const status = statEl?.value || 'all';
+        
+        fcOnce(`users/${fcState.user.id}/flashcards`).then(snap => {
+            const data = snap.val() || {};
+            let decks = Object.keys(data).map(id => ({ id, ...data[id] }));
+            if (search) decks = decks.filter(d => d.name && d.name.toLowerCase().includes(search));
+            if (subject !== 'all') decks = decks.filter(d => d.subject === subject);
+            if (status !== 'all') decks = decks.filter(d => d.status === status);
+
+            const container = document.getElementById('fcDeckList');
+            let loadingEl = document.getElementById('fcLoading');
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (!container) return;
+
+            if (decks.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">No decks found.</p>';
+                return;
+            }
+
+            let html = '';
+            decks.forEach(d => {
+                const cardCount = d.cards?.length || 0;
+                html += `
+                    <div class="card premium-card" onclick="fcMain.startReview('${d.id}')" style="cursor:pointer;">
+                        <div style="font-weight:900; font-size:16px; color:var(--primary);">${d.name}</div>
+                        <div style="font-size:11px; color:var(--text-muted); display:flex; gap:10px; margin:6px 0;">
+                            <span>${d.subject || 'General'}</span>
+                            <span>${cardCount} cards</span>
+                            <span>${d.status || 'private'}</span>
+                        </div>
+                        <div style="display:flex; gap:8px; margin-top:12px;" class="fc-actions">
+                            <button class="btn-primary btn-xs" style="width:auto; padding:4px 10px;" onclick="event.stopPropagation(); fcMain.startReview('${d.id}')">Review</button>
+                            <button class="btn-secondary btn-xs" style="width:auto; padding:4px 10px;" onclick="event.stopPropagation(); fcMain.editDeck('${d.id}')">Edit</button>
+                            <button class="btn-danger btn-xs" style="width:auto; padding:4px 10px;" onclick="event.stopPropagation(); fcMain.deleteDeck('${d.id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+
+            const subSelect = document.getElementById('fcDeckSubject');
+            if (subSelect && subSelect.options.length <= 1) {
+                const subjects = [...new Set(decks.map(d => d.subject).filter(Boolean))];
+                subSelect.innerHTML = '<option value="all">All Subjects</option>' + subjects.map(s => `<option value="${s}">${s}</option>`).join('');
+            }
+            const statusSelect = document.getElementById('fcDeckStatus');
+            if (statusSelect && statusSelect.options.length <= 1) {
+                const statuses = [...new Set(decks.map(d => d.status).filter(Boolean))];
+                statusSelect.innerHTML = '<option value="all">All Status</option>' + statuses.map(s => `<option value="${s}">${s}</option>`).join('');
+            }
+        });
+    }
+
+    function fcCreateDeck() {
+        if (typeof fcState === 'undefined' || !fcState.user) return;
+        const name = document.getElementById('fcDeckName').value.trim();
+        const subject = document.getElementById('fcSubject').value;
+        const chapter = document.getElementById('fcChapter').value;
+        const cardsInput = document.getElementById('fcCardsInput').value.trim();
+        const difficulty = document.getElementById('fcDifficulty').value;
+        const privacy = document.getElementById('fcPrivacy').value;
+        
+        if (!name) { if(typeof fcUtils !== 'undefined') fcUtils.toast('Deck name required.'); return; }
+        
+        const cards = cardsInput.split('\n').filter(line => line.trim()).map(line => {
+            const parts = line.split('|').map(s => s.trim());
+            if (parts.length === 2) return { question: parts[0], answer: parts[1] };
+            return null;
+        }).filter(c => c);
+        
+        if (cards.length === 0) { if(typeof fcUtils !== 'undefined') fcUtils.toast('At least one card required.'); return; }
+
+        const deck = {
+            name, subject, chapter, cards, difficulty,
+            status: privacy === 'public' ? 'published' : 'private',
+            mastered: 0, due: cards.length,
+            createdAt: fcUtils.now(), updatedAt: fcUtils.now()
+        };
+
+        fcPush(`users/${fcState.user.id}/flashcards`, deck).then(ref => {
+            fcUtils.toast('Deck created!');
+            let form = document.getElementById('fcCreateForm');
+            if(form) form.reset();
+            fcLoadDecks();
+            fcLoadDashboard();
+        });
+    }
+
+    function fcStartReview(deckId) {
+        if (typeof fcState === 'undefined' || !fcState.user) return;
+        fcOnce(`users/${fcState.user.id}/flashcards/${deckId}`).then(snap => {
+            const deck = snap.val();
+            if (!deck || !deck.cards || deck.cards.length === 0) { fcUtils.toast('No cards to review.'); return; }
+            fcState.currentDeck = { id: deckId, ...deck };
+            fcState.currentCardIndex = 0;
+            fcShowReview();
+        });
+    }
+
+    function fcShowReview() {
+        const container = document.getElementById('fcReviewContent');
+        if (!container) return;
+        const deck = fcState.currentDeck;
+        if (!deck) {
+            container.innerHTML = '<div class="card"><p class="text-muted text-center">No deck selected.</p></div>';
+            return;
+        }
+        if (fcState.currentCardIndex >= deck.cards.length) {
+            container.innerHTML = `
+                <div class="card text-center" style="border-color:var(--success);">
+                    <h4>🎉 Review Complete!</h4>
+                    <p style="font-size:13px; color:var(--text-muted); margin:6px 0;">You have reviewed all cards in this deck.</p>
+                    <button class="btn-primary btn-sm" style="width:auto; padding:8px 16px;" onclick="fcMain.resetReview()">Reset</button>
+                </div>
+            `;
+            return;
+        }
+        const card = deck.cards[fcState.currentCardIndex];
+        container.innerHTML = `
+            <div class="card text-center" style="position:relative;">
+                <div style="font-size:11px; color:var(--text-muted);">Card ${fcState.currentCardIndex+1}/${deck.cards.length}</div>
+                <div style="font-size:16px; font-weight:800; margin:16px 0;">${card.question}</div>
+                <div style="font-size:15px; color:var(--primary); font-weight:700; margin-bottom:16px; display:none;" id="fcReviewAnswer">${card.answer}</div>
+                <div class="grid-3" style="gap:6px;">
+                    <button class="btn-outline btn-xs" style="font-size:10px; padding:6px;" onclick="fcMain.showAnswer()">Show Answer</button>
+                    <button class="btn-success btn-xs" style="font-size:10px; padding:6px;" onclick="fcMain.markCard(true)">✔ Know</button>
+                    <button class="btn-danger btn-xs" style="font-size:10px; padding:6px;" onclick="fcMain.markCard(false)">✘ Don't Know</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function fcShowAnswer() {
+        let ansEl = document.getElementById('fcReviewAnswer');
+        if(ansEl) ansEl.style.display = 'block';
+    }
+
+    function fcMarkCard(know) {
+        const deck = fcState.currentDeck;
+        if(!deck) return;
+        if (know) {
+            deck.mastered = (deck.mastered || 0) + 1;
+            deck.due = (deck.due || 0) - 1;
+        } else {
+            deck.due = (deck.due || 0) + 1;
+        }
+        fcState.currentCardIndex++;
+        fcUpdate(`users/${fcState.user.id}/flashcards/${deck.id}`, { mastered: deck.mastered, due: deck.due });
+        fcShowReview();
+    }
+
+    function fcMainResetReview() {
+        fcState.currentCardIndex = 0;
+        fcState.currentDeck = null;
+        let revContent = document.getElementById('fcReviewContent');
+        if(revContent) revContent.innerHTML = '<div class="card"><p class="text-muted text-center">Select a deck to start reviewing.</p></div>';
+        fcLoadDecks();
+    }
+
+    function fcLoadStats() {
+        if (typeof fcState === 'undefined' || !fcState.user) {
+            let statsEl = document.getElementById('fcStatsContent');
+            if(statsEl) statsEl.innerHTML = '<p class="text-muted">Please login.</p>';
+            return;
+        }
+        fcAnalytics.renderStats(fcState.user.id, 'fcStatsContent');
+    }
+
+    function fcToggleAdminPanel() {
+        const panel = document.getElementById('fcAdminPanel');
+        if (!panel) return;
+        if (panel.style.display === 'none') {
+            if (!fcState.user || (typeof fcUtils !== 'undefined' && !fcUtils.isAdmin(fcState.user))) {
+                const email = prompt('Admin email:');
+                const password = prompt('Admin password:');
+                if (email && password && typeof fcAuthSignIn === 'function') {
+                    fcAuthSignIn(email, password).then(user => {
+                        fcOnce(`users/${user.uid}`).then(snap => {
+                            const data = snap.val();
+                            if (data && fcUtils.isAdmin(data)) {
+                                fcState.user = { id: user.uid, ...data };
+                                fcAdmin.init(fcState.user);
+                                panel.style.display = 'block';
+                            } else {
+                                if(typeof fcUtils !== 'undefined') fcUtils.toast('You are not an admin.');
+                                if(typeof fcAuthSignOut === 'function') fcAuthSignOut();
+                            }
+                        });
+                    }).catch(() => { if(typeof fcUtils !== 'undefined') fcUtils.toast('Invalid credentials.'); });
+                }
+                return;
+            } else {
+                panel.style.display = 'block';
+                fcAdmin.init(fcState.user);
+            }
+        } else {
+            panel.style.display = 'none';
+        }
+    }
+
+    // Expose Flashcard public API
+    window.fcMain = {
+        loadDashboard: fcLoadDashboard,
+        loadDecks: fcLoadDecks,
+        startReview: fcStartReview,
+        showAnswer: fcShowAnswer,
+        markCard: fcMarkCard,
+        resetReview: fcMainResetReview,
+        loadStats: fcLoadStats,
+        toggleAdminPanel: fcToggleAdminPanel,
+        createDeck: fcCreateDeck,
+        editDeck: (id) => { if(typeof fcUtils !== 'undefined') fcUtils.toast('Edit feature coming soon.'); },
+        deleteDeck: (id) => {
+            if (confirm('Delete this deck?')) {
+                fcRemove(`users/${fcState.user.id}/flashcards/${id}`).then(() => {
+                    if(typeof fcUtils !== 'undefined') fcUtils.toast('Deck deleted.');
+                    fcLoadDecks();
+                });
+            }
+        }
+    };
+
+    // ================================================================
+    //  SMART NOTES MODULE (Global Framework Setup)
+    // ================================================================
+
+    // Smart Notes state
+    const ntState = {
+        user: null,
+        notes: {},
+        folders: {},
+        notification: null,
+        listeners: []
+    };
+
+    // Firebase functions for notes
+    function ntDbRef(path) { return db.ref(path); }
+    function ntOnce(path) { return db.ref(path).once('value'); }
+    function ntPush(path, data) { return db.ref(path).push(data); }
+    function ntUpdate(path, data) { return db.ref(path).update(data); }
+    function ntRemove(path) { return db.ref(path).remove(); }
+    function ntSet(path, data) { return db.ref(path).set(data); }
+
+    const ntUtils = {
+        generateId: () => Date.now().toString(36) + Math.random().toString(36).substr(2, 6),
+        shuffle: (arr) => {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        },
+        formatTime: (seconds) => {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+        },
+        formatDate: (timestamp) => {
+            const d = new Date(timestamp);
+            return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+        },
+        now: () => Date.now(),
+        toast: (msg, duration = 3000) => {
+            const container = document.getElementById('ntToastContainer');
+            if (!container) {
+                if (typeof showToast === 'function') showToast(msg);
+                return;
+            }
+            const el = document.createElement('div');
+            el.className = 'nt-toast';
+            el.textContent = msg;
+            container.appendChild(el);
+            setTimeout(() => el.remove(), duration);
+        },
+        confetti: () => {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 80, spread: 60, origin: { y: 0.5 } });
+            }
+        },
+        debounce: (fn, delay) => {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn(...args), delay);
+            };
+        },
+        clone: (obj) => JSON.parse(JSON.stringify(obj)),
+        isAdmin: (user) => user && (user.role === 'admin' || user.isAdmin === true),
+        truncate: (text, len) => text.length > len ? text.substring(0, len) + '...' : text,
+        escapeHtml: (text) => {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    };
+
+    // Smart Notes Notification
+    const ntNotification = {
+        listeners: [],
+        unreadCount: 0,
+        init: function(userId) {
+            this.userId = userId;
+            if (!userId) return;
+            const ref = ntDbRef(`nt_notifications/${userId}`);
+            ref.on('child_added', (snap) => {
+                const notif = snap.val();
+                if (notif && !notif.read) {
+                    this.unreadCount++;
+                    this.updateBadge();
+                    this.showNotification(notif);
+                }
+            });
+            this.listeners.push(ref);
+        },
+        updateBadge: function() {
+            const badge = document.getElementById('ntNotifBadge');
+            if (badge) {
+                badge.textContent = this.unreadCount > 0 ? this.unreadCount : '';
+                badge.style.display = this.unreadCount > 0 ? 'flex' : 'none';
+            }
+        },
+        showNotification: function(notif) {
+            ntUtils.toast(`${notif.icon || '📢'} ${notif.title}: ${notif.body}`, 5000);
+        },
+        markAllRead: async function() {
+            if (!this.userId) return;
+            const ref = ntDbRef(`nt_notifications/${this.userId}`);
+            const snapshot = await ref.once('value');
+            const data = snapshot.val();
+            if (data) {
+                const updates = {};
+                Object.keys(data).forEach(key => {
+                    updates[key + '/read'] = true;
+                });
+                await ref.update(updates);
+                this.unreadCount = 0;
+                this.updateBadge();
+            }
+        },
+        cleanup: function() {
+            this.listeners.forEach(ref => { if(ref && ref.off) ref.off(); });
+            this.listeners = [];
+        }
+    };
+
+    // Smart Notes Analytics
+    const ntAnalytics = {
+        renderStats: function(userId, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            ntOnce(`users/${userId}/notes`).then(snap => {
+                const data = snap.val() || {};
+                const notes = Object.values(data);
+                const total = notes.length;
+                const fav = notes.filter(n => n.favorite).length;
+                const pinned = notes.filter(n => n.pinned).length;
+                container.innerHTML = `
+                    <div class="card glass-card"><h4>Notes Statistics</h4>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;" class="mt-1">
+                            <div class="stat-box"><div class="num">${total}</div><div class="label">Total</div></div>
+                            <div class="stat-box"><div class="num" style="color:var(--accent);">${fav}</div><div class="label">Favorites</div></div>
+                            <div class="stat-box"><div class="num" style="color:var(--primary);">${pinned}</div><div class="label">Pinned</div></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    };
+
+    // Smart Notes Admin
+    const ntAdmin = {
+        user: null,
+        init: function(user) {
+            this.user = user;
+            let adminEl = document.getElementById('ntAdmin');
+            let contentEl = document.getElementById('ntAdminContent');
+            if (!ntUtils.isAdmin(user)) {
+                if (adminEl) adminEl.innerHTML = '<p class="text-muted">Admin access required.</p>';
+                return;
+            }
+            if (contentEl) {
+                contentEl.innerHTML = `
+                    <div class="card glass-card"><h4>Admin Dashboard</h4>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;" class="mt-1">
+                            <div class="stat-box"><div class="num" id="ntAdminTotalNotes">0</div><div class="label">Notes</div></div>
+                            <div class="stat-box"><div class="num" id="ntAdminTotalFolders">0</div><div class="label">Folders</div></div>
+                            <div class="stat-box"><div class="num" id="ntAdminTotalUsers">0</div><div class="label">Users</div></div>
+                            <div class="stat-box"><div class="num" id="ntAdminAvgNotes">0</div><div class="label">Avg Notes</div></div>
+                        </div>
+                        <button class="btn-primary mt-1" onclick="ntAdmin.refreshStats()">Refresh</button>
+                    </div>
+                `;
+            }
+            this.refreshStats();
+        },
+        refreshStats: async function() {
+            const userSnap = await ntOnce('users');
+            const users = userSnap.val();
+            let totalNotes = 0, totalFolders = 0, totalUsers = 0;
+            if (users) {
+                totalUsers = Object.keys(users).length;
+                for (const u of Object.values(users)) {
+                    if (u.notes) totalNotes += Object.keys(u.notes).length;
+                    if (u.folders) totalFolders += Object.keys(u.folders).length;
+                }
+            }
+            let tnEl = document.getElementById('ntAdminTotalNotes');
+            let tfEl = document.getElementById('ntAdminTotalFolders');
+            let tuEl = document.getElementById('ntAdminTotalUsers');
+            let anEl = document.getElementById('ntAdminAvgNotes');
+            
+            if (tnEl) tnEl.textContent = totalNotes;
+            if (tfEl) tfEl.textContent = totalFolders;
+            if (tuEl) tuEl.textContent = totalUsers;
+            if (anEl) anEl.textContent = totalUsers > 0 ? Math.round(totalNotes / totalUsers) : 0;
+        }
+    };
+    // ================================================================
+    //  SMART NOTES MODULE (Core Main Functions)
+    // ================================================================
+
+    function ntPopulateSubjectDropdowns() {
+        const subSelect = document.getElementById('ntSubject');
+        const chapSelect = document.getElementById('ntChapter');
+        if (typeof hscData !== 'undefined' && subSelect) {
+            let html = '<option value="">Select Subject</option>';
+            for (let s in hscData) html += `<option value="${s}">${s}</option>`;
+            subSelect.innerHTML = html;
+            if (chapSelect) {
+                subSelect.onchange = function() {
+                    const sub = this.value;
+                    chapSelect.innerHTML = '<option value="">All</option>';
+                    if (hscData[sub]) {
+                        hscData[sub].forEach(c => chapSelect.innerHTML += `<option value="${c}">${c}</option>`);
+                    }
+                };
+            }
+        }
+    }
+
+    function ntLoadDashboard() {
+        if (typeof ntState === 'undefined' || !ntState.user) {
+            let contentEl = document.getElementById('ntDashboardContent');
+            if (contentEl) contentEl.innerHTML = '<p class="nt-text-muted">Please login.</p>';
+            return;
+        }
+        ntOnce(`users/${ntState.user.id}/notes`).then(snap => {
+            const data = snap.val() || {};
+            const notes = Object.values(data);
+            const total = notes.length;
+            const fav = notes.filter(n => n.favorite).length;
+            const pinned = notes.filter(n => n.pinned).length;
+            const streak = ntState.user.streak || 0;
+            
+            let statTotal = document.getElementById('ntStatTotal');
+            let statFav = document.getElementById('ntStatFav');
+            let statPinned = document.getElementById('ntStatPinned');
+            let statStreak = document.getElementById('ntStatStreak');
+            
+            if (statTotal) statTotal.textContent = total;
+            if (statFav) statFav.textContent = fav;
+            if (statPinned) statPinned.textContent = pinned;
+            if (statStreak) statStreak.textContent = streak + '🔥';
+
+            let html = '<div class="card glass-card"><h4>Recent Notes</h4><div class="mt-1">';
+            const recent = notes.sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, 5);
+            if (recent.length === 0) {
+                html += '<p class="text-muted">No notes yet.</p>';
+            } else {
+                recent.forEach(n => {
+                    html += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); font-size:13px;">
+                                <span><b>${n.title}</b></span>
+                                <span style="color:var(--primary); font-weight:700;">${n.subject || 'General'}</span>
+                             </div>`;
+                });
+            }
+            html += '</div></div>';
+            let dashboardContent = document.getElementById('ntDashboardContent');
+            if (dashboardContent) dashboardContent.innerHTML = html;
+        });
+    }
+
+    function ntLoadNotes() {
+        if (typeof ntState === 'undefined' || !ntState.user) return;
+        let searchEl = document.getElementById('ntNoteSearch');
+        let subSelectEl = document.getElementById('ntNoteSubject');
+        let statusSelectEl = document.getElementById('ntNoteStatus');
+        
+        const search = searchEl?.value?.toLowerCase() || '';
+        const subject = subSelectEl?.value || 'all';
+        const status = statusSelectEl?.value || 'all';
+        
+        ntOnce(`users/${ntState.user.id}/notes`).then(snap => {
+            const data = snap.val() || {};
+            let notes = Object.keys(data).map(id => ({ id, ...data[id] }));
+            if (search) notes = notes.filter(n => (n.title && n.title.toLowerCase().includes(search)) || (n.content && n.content.toLowerCase().includes(search)));
+            if (subject !== 'all') notes = notes.filter(n => n.subject === subject);
+            if (status !== 'all') notes = notes.filter(n => n.status === status);
+
+            const container = document.getElementById('ntNoteList');
+            let loadingEl = document.getElementById('ntLoading');
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (!container) return;
+
+            if (notes.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">No notes found.</p>';
+                return;
+            }
+            
+            let html = '';
+            notes.forEach(n => {
+                html += `
+                    <div class="card premium-card" onclick="ntMain.viewNote('${n.id}')" style="cursor:pointer;">
+                        <div style="font-weight:900; font-size:16px; color:var(--primary);">${n.title} ${n.pinned ? '📌' : ''} ${n.favorite ? '⭐' : ''}</div>
+                        <div style="font-size:13px; color:var(--text-main); margin:6px 0;">${typeof ntUtils !== 'undefined' ? ntUtils.truncate(n.content || '', 100) : n.content}</div>
+                        <div style="font-size:11px; color:var(--text-muted);">${n.subject || 'General'} · ${n.status || 'private'}</div>
+                        <div style="display:flex; gap:6px; margin-top:12px;" class="nt-actions">
+                            <button class="btn-primary btn-xs" style="width:auto; padding:4px 10px;" onclick="event.stopPropagation(); ntMain.editNote('${n.id}')">Edit</button>
+                            <button class="btn-danger btn-xs" style="width:auto; padding:4px 10px;" onclick="event.stopPropagation(); ntMain.deleteNote('${n.id}')">Delete</button>
+                            <button class="btn-outline btn-xs" style="width:auto; padding:4px 10px;" onclick="event.stopPropagation(); ntMain.toggleFavorite('${n.id}')">${n.favorite ? 'Unfav' : 'Fav'}</button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+
+            const subSelect = document.getElementById('ntNoteSubject');
+            if (subSelect && subSelect.options.length <= 1) {
+                const subjects = [...new Set(notes.map(n => n.subject).filter(Boolean))];
+                subSelect.innerHTML = '<option value="all">All Subjects</option>' + subjects.map(s => `<option value="${s}">${s}</option>`).join('');
+            }
+            const statusSelect = document.getElementById('ntNoteStatus');
+            if (statusSelect && statusSelect.options.length <= 1) {
+                const statuses = [...new Set(notes.map(n => n.status).filter(Boolean))];
+                statusSelect.innerHTML = '<option value="all">All Status</option>' + statuses.map(s => `<option value="${s}">${s}</option>`).join('');
+            }
+        });
+    }
+
+    function ntCreateNote() {
+        if (typeof ntState === 'undefined' || !ntState.user) return;
+        const title = document.getElementById('ntTitle').value.trim();
+        const subject = document.getElementById('ntSubject').value;
+        const chapter = document.getElementById('ntChapter').value;
+        const content = document.getElementById('ntContent').value.trim();
+        const privacy = document.getElementById('ntPrivacy').value;
+        const folder = document.getElementById('ntFolder').value;
+        
+        if (!title || !content) { if(typeof ntUtils !== 'undefined') ntUtils.toast('Title and content required.'); return; }
+
+        const note = {
+            title, subject, chapter, content,
+            status: privacy === 'public' ? 'published' : 'private',
+            folder, favorite: false, pinned: false,
+            createdAt: ntUtils.now(), updatedAt: ntUtils.now()
+        };
+        
+        ntPush(`users/${ntState.user.id}/notes`, note).then(ref => {
+            if(typeof ntUtils !== 'undefined') ntUtils.toast('Note created!');
+            let form = document.getElementById('ntCreateForm');
+            if (form) form.reset();
+            ntLoadNotes();
+            ntLoadDashboard();
+        });
+    }
+
+    function ntLoadFolders() {
+        if (typeof ntState === 'undefined' || !ntState.user) return;
+        ntOnce(`users/${ntState.user.id}/folders`).then(snap => {
+            const data = snap.val() || {};
+            const container = document.getElementById('ntFolderList');
+            if(!container) return;
+            let html = '';
+            for (const [id, f] of Object.entries(data)) {
+                html += `<div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; margin-bottom:6px;">
+                            <span>📁 ${f.name}</span>
+                            <div><button class="btn-danger btn-xs" style="width:auto; padding:4px 10px;" onclick="ntMain.deleteFolder('${id}')">Delete</button></div>
+                         </div>`;
+            }
+            container.innerHTML = html || '<p class="text-muted text-center">No folders created yet.</p>';
+        });
+    }
+
+    function ntAddFolder() {
+        if (typeof ntState === 'undefined' || !ntState.user) return;
+        const name = prompt('Folder name:');
+        if (!name) return;
+        ntPush(`users/${ntState.user.id}/folders`, { name, createdAt: ntUtils.now() }).then(() => {
+            if(typeof ntUtils !== 'undefined') ntUtils.toast('Folder added.');
+            ntLoadFolders();
+        });
+    }
+
+    function ntDeleteFolder(id) {
+        if (typeof ntState === 'undefined' || !ntState.user) return;
+        if (!confirm('Delete this folder?')) return;
+        ntRemove(`users/${ntState.user.id}/folders/${id}`).then(() => {
+            if(typeof ntUtils !== 'undefined') ntUtils.toast('Folder deleted.');
+            ntLoadFolders();
+        });
+    }
+
+    function ntViewNote(id) {
+        if (typeof ntState === 'undefined' || !ntState.user) return;
+        ntOnce(`users/${ntState.user.id}/notes/${id}`).then(snap => {
+            const note = snap.val();
+            if (!note) { if(typeof ntUtils !== 'undefined') ntUtils.toast('Note not found.'); return; }
+            alert(`📝 ${note.title}\n\n${note.content}`);
+        });
+    }
+
+    function ntEditNote(id) {
+        if (typeof ntState === 'undefined' || !ntState.user) return;
+        ntOnce(`users/${ntState.user.id}/notes/${id}`).then(snap => {
+            const note = snap.val();
+            if (!note) { if(typeof ntUtils !== 'undefined') ntUtils.toast('Note not found.'); return; }
+            const newTitle = prompt('Edit title:', note.title);
+            if (newTitle !== null) {
+                const newContent = prompt('Edit content:', note.content);
+                if (newContent !== null) {
+                    ntUpdate(`users/${ntState.user.id}/notes/${id}`, { title: newTitle, content: newContent, updatedAt: ntUtils.now() });
+                    if(typeof ntUtils !== 'undefined') ntUtils.toast('Note updated.');
+                    ntLoadNotes();
+                }
+            }
+        });
+    }
+
+    function ntDeleteNote(id) {
+        if (typeof ntState === 'undefined' || !ntState.user) return;
+        if (!confirm('Delete this note?')) return;
+        ntRemove(`users/${ntState.user.id}/notes/${id}`).then(() => {
+            if(typeof ntUtils !== 'undefined') ntUtils.toast('Note deleted.');
+            ntLoadNotes();
+        });
+    }
+
+    function ntToggleFavorite(id) {
+        if (typeof ntState === 'undefined' || !ntState.user) return;
+        ntOnce(`users/${ntState.user.id}/notes/${id}`).then(snap => {
+            const note = snap.val();
+            if (!note) return;
+            ntUpdate(`users/${ntState.user.id}/notes/${id}`, { favorite: !note.favorite });
+            ntLoadNotes();
+        });
+    }
+
+    function ntLoadStats() {
+        if (typeof ntState === 'undefined' || !ntState.user) {
+            let statsContent = document.getElementById('ntStatsContent');
+            if(statsContent) statsContent.innerHTML = '<p class="text-muted">Please login.</p>';
+            return;
+        }
+        if (typeof ntAnalytics !== 'undefined' && ntAnalytics.renderStats) {
+            ntAnalytics.renderStats(ntState.user.id, 'ntStatsContent');
+        }
+    }
+
+    function ntToggleAdminPanel() {
+        const panel = document.getElementById('ntAdminPanel');
+        if (!panel) return;
+        if (panel.style.display === 'none') {
+            if (typeof ntState === 'undefined' || !ntState.user || (typeof ntUtils !== 'undefined' && !ntUtils.isAdmin(ntState.user))) {
+                const email = prompt('Admin email:');
+                const password = prompt('Admin password:');
+                if (email && password && typeof ntAuthSignIn === 'function') {
+                    ntAuthSignIn(email, password).then(user => {
+                        fcOnce(`users/${user.uid}`).then(snap => {
+                            const data = snap.val();
+                            if (data && ntUtils.isAdmin(data)) {
+                                ntState.user = { id: user.uid, ...data };
+                                if (typeof ntAdmin !== 'undefined' && ntAdmin.init) ntAdmin.init(ntState.user);
+                                panel.style.display = 'block';
+                            } else {
+                                if(typeof ntUtils !== 'undefined') ntUtils.toast('You are not an admin.');
+                                if(typeof ntAuthSignOut === 'function') ntAuthSignOut();
+                            }
+                        });
+                    }).catch(() => { if(typeof ntUtils !== 'undefined') ntUtils.toast('Invalid credentials.'); });
+                }
+                return;
+            } else {
+                panel.style.display = 'block';
+                if (typeof ntAdmin !== 'undefined' && ntAdmin.init) ntAdmin.init(ntState.user);
+            }
+        } else {
+            panel.style.display = 'none';
+        }
+    }
+
+    // Expose Smart Notes public API
+    window.ntMain = {
+        loadDashboard: ntLoadDashboard,
+        loadNotes: ntLoadNotes,
+        createNote: ntCreateNote,
+        loadFolders: ntLoadFolders,
+        addFolder: ntAddFolder,
+        deleteFolder: ntDeleteFolder,
+        viewNote: ntViewNote,
+        editNote: ntEditNote,
+        deleteNote: ntDeleteNote,
+        toggleFavorite: ntToggleFavorite,
+        loadStats: ntLoadStats,
+        toggleAdminPanel: ntToggleAdminPanel
+    };
+
+    // ================================================================
+    //  EXAM SETTINGS MODULE (Control Configuration Engine)
+    // ================================================================
+
+    const esState = { user: null, admin: null };
+
+    // Firebase configuration hooks
+    function esDbRef(path) { return db.ref(path); }
+    function esOnce(path) { return db.ref(path).once('value'); }
+    function esPush(path, data) { return db.ref(path).push(data); }
+    function esUpdate(path, data) { return db.ref(path).update(data); }
+    function esRemove(path) { return db.ref(path).remove(); }
+    function esSet(path, data) { return db.ref(path).set(data); }
+
+    const esUtils = {
+        generateId: () => Date.now().toString(36) + Math.random().toString(36).substr(2, 6),
+        formatTime: (seconds) => {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+        },
+        formatDate: (timestamp) => {
+            const d = new Date(timestamp);
+            return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+        },
+        now: () => Date.now(),
+        toast: (msg, duration = 3000) => {
+            const container = document.getElementById('esToastContainer');
+            if (!container) { if(typeof showToast === 'function') showToast(msg); return; }
+            const el = document.createElement('div');
+            el.className = 'es-toast';
+            el.textContent = msg;
+            container.appendChild(el);
+            setTimeout(() => el.remove(), duration);
+        },
+        debounce: (fn, delay) => {
+            let timer;
+            return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
+        },
+        clone: (obj) => JSON.parse(JSON.stringify(obj)),
+        isAdmin: (user) => user && (user.role === 'admin' || user.isAdmin === true),
+        escapeHtml: (text) => {
+            const div = document.createElement('div'); div.textContent = text; return div.innerHTML;
+        },
+        parseJSON: (str, defaultVal = {}) => {
+            try { return JSON.parse(str); } catch { return defaultVal; }
+        }
+    };
+
+    const esSecurity = {
+        checkAdmin: function(user) { return user && (user.role === 'admin' || user.isAdmin === true); },
+        validateGeneralSettings: function(data) {
+            if (data.questionLimit < 1 || data.questionLimit > 500) return { valid: false, error: 'Question limit must be between 1 and 500.' };
+            return { valid: true };
+        },
+        validateTimerSettings: function(data) {
+            if (data.defaultTimer < 1 || data.defaultTimer > 600) return { valid: false, error: 'Default timer must be between 1 and 600 seconds.' };
+            return { valid: true };
+        },
+        validateRewardSettings: function(data) {
+            if (data.rewardMultiplier < 0.1 || data.rewardMultiplier > 10) return { valid: false, error: 'Multiplier must be between 0.1 and 10.' };
+            if (data.coinsPerCorrect < 0) return { valid: false, error: 'Coins per correct cannot be negative.' };
+            if (data.xpPerCorrect < 0) return { valid: false, error: 'XP per correct cannot be negative.' };
+            return { valid: true };
+        },
+        validateAntiCheatSettings: function(data) {
+            if (data.maxWarnings < 1 || data.maxWarnings > 10) return { valid: false, error: 'Max warnings must be between 1 and 10.' };
+            return { valid: true };
+        },
+        validateSecuritySettings: function(data) {
+            if (data.autoSaveInterval < 1 || data.autoSaveInterval > 60) return { valid: false, error: 'Auto-save interval must be between 1 and 60 seconds.' };
+            return { valid: true };
+        },
+        logAction: async function(adminId, action, details) {
+            await esPush('exam_settings_logs', { adminId, action, details, timestamp: esUtils.now() });
+        },
+        rateLimit: (() => {
+            const timestamps = {};
+            return function(userId, action, limit = 20, windowMs = 60000) {
+                const key = `${userId}_${action}`;
+                const now = Date.now();
+                if (!timestamps[key]) timestamps[key] = [];
+                timestamps[key] = timestamps[key].filter(ts => now - ts < windowMs);
+                if (timestamps[key].length >= limit) return false;
+                timestamps[key].push(now);
+                return true;
+            };
+        })()
+    };
+
+    // Exam Settings Admin Controller
+    const esAdmin = {
+        user: null,
+        settingsRef: null,
+        init: function(user) {
+            this.user = user;
+            if (!esSecurity.checkAdmin(user)) {
+                let moduleEl = document.getElementById('es-module');
+                if(moduleEl) moduleEl.innerHTML = '<div class="es-error">Access Denied. Admin only.</div>';
+                return;
+            }
+            let nameEl = document.getElementById('esAdminName');
+            if(nameEl) nameEl.textContent = user.name || 'Admin';
+            
+            this.setupNav();
+            this.loadAllSettings();
+            this.loadLogs();
+        },
+
+        setupNav: function() {
+            document.querySelectorAll('.es-nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const tab = this.dataset.tab;
+                    document.querySelectorAll('.es-nav-item').forEach(el => el.classList.remove('active'));
+                    this.classList.add('active');
+                    document.querySelectorAll('.es-tab-content').forEach(el => el.classList.remove('active'));
                     
+                    let tabContent = document.getElementById('es' + tab.charAt(0).toUpperCase() + tab.slice(1));
+                    if(tabContent) tabContent.classList.add('active');
+                    if (tab === 'logs') esAdmin.loadLogs();
+                });
+            });
+            
+            let genForm = document.getElementById('esGeneralForm');
+            if(genForm) genForm.onsubmit = (e) => { e.preventDefault(); esAdmin.saveGeneralSettings(); };
+            
+            let timerForm = document.getElementById('esTimerForm');
+            if(timerForm) timerForm.onsubmit = (e) => { e.preventDefault(); esAdmin.saveTimerSettings(); };
+            
+            let rewardForm = document.getElementById('esRewardsForm');
+            if(rewardForm) rewardForm.onsubmit = (e) => { e.preventDefault(); esAdmin.saveRewardSettings(); };
+            
+            let cheatForm = document.getElementById('esAntiCheatForm');
+            if(cheatForm) cheatForm.onsubmit = (e) => { e.preventDefault(); esAdmin.saveAntiCheatSettings(); };
+            
+            let secureForm = document.getElementById('esSecurityForm');
+            if(secureForm) secureForm.onsubmit = (e) => { e.preventDefault(); esAdmin.saveSecuritySettings(); };
+        },
+
+        loadAllSettings: async function() {
+            const snap = await esOnce('exam_settings');
+            const settings = snap.val() || {};
+            this.populateGeneral(settings.general);
+            this.populateTimer(settings.timer);
+            this.populateRewards(settings.rewards);
+            this.populateAntiCheat(settings.antiCheat);
+            this.populateSecurity(settings.security);
+        },
+
+        populateGeneral: function(data) {
+            if (!data) return;
+            let shufQ = document.getElementById('esQuestionShuffle'); if(shufQ) shufQ.value = data.questionShuffle ? 'true' : 'false';
+            let shufO = document.getElementById('esOptionShuffle'); if(shufO) shufO.value = data.optionShuffle ? 'true' : 'false';
+            let rndS = document.getElementById('esRandomSelection'); if(rndS) rndS.value = data.randomSelection ? 'true' : 'false';
+            let qLim = document.getElementById('esQuestionLimit'); if(qLim) qLim.value = data.questionLimit || 50;
+            let qOrd = document.getElementById('esQuestionOrder'); if(qOrd) qOrd.value = data.questionOrder || 'random';
+            let navE = document.getElementById('esNavigation'); if(navE) navE.value = data.navigation || 'free';
+            let alSk = document.getElementById('esAllowSkip'); if(alSk) alSk.value = data.allowSkip ? 'true' : 'false';
+            let revB = document.getElementById('esReviewBeforeSubmit'); if(revB) revB.value = data.reviewBeforeSubmit ? 'true' : 'false';
+            let autS = document.getElementById('esAutoSubmit'); if(autS) autS.value = data.autoSubmit ? 'true' : 'false';
+        },
+
+        populateTimer: function(data) {
+            if (!data) return;
+            let defT = document.getElementById('esDefaultTimer'); if(defT) defT.value = data.defaultTimer || 60;
+            let subT = document.getElementById('esSubjectTimers'); if(subT) subT.value = JSON.stringify(data.subjectTimers || {}, null, 2);
+            let qTim = document.getElementById('esQuestionTimers'); if(qTim) qTim.value = JSON.stringify(data.questionTimers || {}, null, 2);
+        },
+
+        populateRewards: function(data) {
+            if (!data) return;
+            let cnEn = document.getElementById('esCoinsEnabled'); if(cnEn) cnEn.value = data.coinsEnabled ? 'true' : 'false';
+            let xpEn = document.getElementById('esXPEnabled'); if(xpEn) xpEn.value = data.xpEnabled ? 'true' : 'false';
+            let bdRe = document.getElementById('esBadgeRewards'); if(bdRe) bdRe.value = data.badgeRewards ? 'true' : 'false';
+            let tlRe = document.getElementById('esTitleRewards'); if(tlRe) tlRe.value = data.titleRewards ? 'true' : 'false';
+            let rwMu = document.getElementById('esRewardMultiplier'); if(rwMu) rwMu.value = data.rewardMultiplier || 1.0;
+            let cPer = document.getElementById('esCoinsPerCorrect'); if(cPer) cPer.value = data.coinsPerCorrect || 5;
+            let xPer = document.getElementById('esXPPerCorrect'); if(xPer) xPer.value = data.xpPerCorrect || 10;
+            let rwFi = document.getElementById('esRewardFirstTime'); if(rwFi) rwFi.value = data.rewardFirstTime ? 'true' : 'false';
+        },
+
+        populateAntiCheat: function(data) {
+            if (!data) return;
+            let fsEn = document.getElementById('esFullScreen'); if(fsEn) fsEn.value = data.fullScreen ? 'true' : 'false';
+            let tsEn = document.getElementById('esTabSwitch'); if(tsEn) tsEn.value = data.tabSwitch ? 'true' : 'false';
+            let asEn = document.getElementById('esAppSwitch'); if(asEn) asEn.value = data.appSwitch ? 'true' : 'false';
+            let cpPr = document.getElementById('esCopyProtect'); if(cpPr) cpPr.value = data.copyProtect ? 'true' : 'false';
+            let ptPr = document.getElementById('esPasteProtect'); if(ptPr) ptPr.value = data.pasteProtect ? 'true' : 'false';
+            let rtCl = document.getElementById('esRightClick'); if(rtCl) rtCl.value = data.rightClick ? 'true' : 'false';
+            let txSe = document.getElementById('esTextSelection'); if(txSe) txSe.value = data.textSelection ? 'true' : 'false';
+            let scDe = document.getElementById('esScreenshotDetect'); if(scDe) scDe.value = data.screenshotDetect ? 'true' : 'false';
+            let mxWa = document.getElementById('esMaxWarnings'); if(mxWa) mxWa.value = data.maxWarnings || 3;
+            let auCh = document.getElementById('esAutoSubmitCheat'); if(auCh) auCh.value = data.autoSubmitCheat ? 'true' : 'false';
+        },
+
+        populateSecurity: function(data) {
+            if (!data) return;
+            let asIn = document.getElementById('esAutoSaveInterval'); if(asIn) asIn.value = data.autoSaveInterval || 10;
+            let lgAc = document.getElementById('esLogActions'); if(lgAc) lgAc.value = data.logActions ? 'true' : 'false';
+            let svVa = document.getElementById('esServerValidation'); if(svVa) svVa.value = data.serverValidation ? 'true' : 'false';
+        },
+
+        saveGeneralSettings: async function() {
+            const data = {
+                questionShuffle: document.getElementById('esQuestionShuffle').value === 'true',
+                optionShuffle: document.getElementById('esOptionShuffle').value === 'true',
+                randomSelection: document.getElementById('esRandomSelection').value === 'true',
+                questionLimit: parseInt(document.getElementById('esQuestionLimit').value) || 50,
+                questionOrder: document.getElementById('esQuestionOrder').value,
+                navigation: document.getElementById('esNavigation').value,
+                allowSkip: document.getElementById('esAllowSkip').value === 'true',
+                reviewBeforeSubmit: document.getElementById('esReviewBeforeSubmit').value === 'true',
+                autoSubmit: document.getElementById('esAutoSubmit').value === 'true',
+                updatedAt: esUtils.now()
+            };
+            const validation = esSecurity.validateGeneralSettings(data);
+            if (!validation.valid) { esUtils.toast(validation.error); return; }
+            await esUpdate('exam_settings/general', data);
+            await esSecurity.logAction(this.user.id, 'Update General Settings', JSON.stringify(data));
+            esUtils.toast('General settings saved.');
+        },
+
+        saveTimerSettings: async function() {
+            const subjectTimers = esUtils.parseJSON(document.getElementById('esSubjectTimers').value);
+            const questionTimers = esUtils.parseJSON(document.getElementById('esQuestionTimers').value);
+            const data = {
+                defaultTimer: parseInt(document.getElementById('esDefaultTimer').value) || 60,
+                subjectTimers, questionTimers,
+                updatedAt: esUtils.now()
+            };
+            const validation = esSecurity.validateTimerSettings(data);
+            if (!validation.valid) { esUtils.toast(validation.error); return; }
+            await esUpdate('exam_settings/timer', data);
+            await esSecurity.logAction(this.user.id, 'Update Timer Settings', JSON.stringify(data));
+            esUtils.toast('Timer settings saved.');
+        },
+
+        saveRewardSettings: async function() {
+            const data = {
+                coinsEnabled: document.getElementById('esCoinsEnabled').value === 'true',
+                xpEnabled: document.getElementById('esXPEnabled').value === 'true',
+                badgeRewards: document.getElementById('esBadgeRewards').value === 'true',
+                titleRewards: document.getElementById('esTitleRewards').value === 'true',
+                rewardMultiplier: parseFloat(document.getElementById('esRewardMultiplier').value) || 1.0,
+                coinsPerCorrect: parseInt(document.getElementById('esCoinsPerCorrect').value) || 0,
+                xpPerCorrect: parseInt(document.getElementById('esXPPerCorrect').value) || 0,
+                rewardFirstTime: document.getElementById('esRewardFirstTime').value === 'true',
+                updatedAt: esUtils.now()
+            };
+            const validation = esSecurity.validateRewardSettings(data);
+            if (!validation.valid) { esUtils.toast(validation.error); return; }
+            await esUpdate('exam_settings/rewards', data);
+            await esSecurity.logAction(this.user.id, 'Update Reward Settings', JSON.stringify(data));
+            esUtils.toast('Reward settings saved.');
+        },
+
+        saveAntiCheatSettings: async function() {
+            const data = {
+                fullScreen: document.getElementById('esFullScreen').value === 'true',
+                tabSwitch: document.getElementById('esTabSwitch').value === 'true',
+                appSwitch: document.getElementById('esAppSwitch').value === 'true',
+                copyProtect: document.getElementById('esCopyProtect').value === 'true',
+                pasteProtect: document.getElementById('esPasteProtect').value === 'true',
+                rightClick: document.getElementById('esRightClick').value === 'true',
+                textSelection: document.getElementById('esTextSelection').value === 'true',
+                screenshotDetect: document.getElementById('esScreenshotDetect').value === 'true',
+                maxWarnings: parseInt(document.getElementById('esMaxWarnings').value) || 3,
+                autoSubmitCheat: document.getElementById('esAutoSubmitCheat').value === 'true',
+                updatedAt: esUtils.now()
+            };
+            const validation = esSecurity.validateAntiCheatSettings(data);
+            if (!validation.valid) { esUtils.toast(validation.error); return; }
+            await esUpdate('exam_settings/antiCheat', data);
+            await esSecurity.logAction(this.user.id, 'Update Anti-Cheat Settings', JSON.stringify(data));
+            esUtils.toast('Anti-cheat settings saved.');
+        },
+
+        saveSecuritySettings: async function() {
+            const data = {
+                autoSaveInterval: parseInt(document.getElementById('esAutoSaveInterval').value) || 10,
+                logActions: document.getElementById('esLogActions').value === 'true',
+                serverValidation: document.getElementById('esServerValidation').value === 'true',
+                updatedAt: esUtils.now()
+            };
+            const validation = esSecurity.validateSecuritySettings(data);
+            if (!validation.valid) { esUtils.toast(validation.error); return; }
+            await esUpdate('exam_settings/security', data);
+            await esSecurity.logAction(this.user.id, 'Update Security Settings', JSON.stringify(data));
+            esUtils.toast('Security settings saved.');
+        },
+
+        loadLogs: async function() {
+            const snap = await esOnce('exam_settings_logs');
+            const logs = snap.val();
+            let html = `<table class="es-table w-full text-left" style="font-size:12px;"><thead><tr><th>Admin</th><th>Action</th><th>Details</th><th>Time</th></tr></thead><tbody>`;
+            if (logs) {
+                const entries = Object.values(logs).sort((a,b) => b.timestamp - a.timestamp);
+                entries.forEach(log => {
+                    html += `<tr><td>${log.adminId}</td><td>${log.action}</td><td>${log.details || ''}</td><td>${esUtils.formatDate(log.timestamp)}</td></tr>`;
+                });
+            } else {
+                html += `<tr><td colspan="4" class="text-center text-muted">No logs recorded.</td></tr>`;
+            }
+            html += '</tbody></table>';
+            let logList = document.getElementById('esLogList');
+            if(logList) logList.innerHTML = html;
+        },
+
+        logout: function() {
+            if(typeof esAuthSignOut === 'function') esAuthSignOut();
+            esUtils.toast('Logged out.');
+            window.location.reload();
+        }
+    };
+
+    // Expose Exam Settings public API
+    window.esMain = {
+        logout: () => esAdmin.logout()
+    };
+
+    // ================================================================
+    //  INITIALIZATION ENGINE (Merged System Entry)
+    // ================================================================
+    console.log("🚀 EduNexus Pro Ultimate loaded with ALL features!");
+    console.log("📚 HSC Syllabus • 🎮 Full Gamification • 🤖 AI Tutor • ⚔️ Multiplayer • 🛒 Shop • 🏆 Tournaments • 📜 Certificates • 🛡️ Admin Panel");
+    // ================================================================
+    //  SYSTEM INITIALIZATION ENTRY (Main Application Bootstrap)
+    // ================================================================
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Monitor authentication state changed for Admin Console
+        if (typeof esAuthOnAuthStateChanged === 'function') {
+            esAuthOnAuthStateChanged(user => {
+                if (user) {
+                    const uid = user.uid;
+                    esOnce(`users/${uid}`).then(snap => {
+                        const data = snap.val();
+                        if (data && esSecurity.checkAdmin(data)) {
+                            esState.user = { id: uid, ...data };
+                            esAdmin.init(esState.user);
+                        } else {
+                            let esMod = document.getElementById('es-module');
+                            if (esMod) esMod.innerHTML = '<div class="es-error">Access Denied. Admin only.</div>';
+                        }
+                    });
+                } else {
+                    let esMod = document.getElementById('es-module');
+                    if (esMod) esMod.innerHTML = '<div class="es-error">Please login as Admin.</div>';
+                }
+            });
+        }
+
+        // Exam Console Local Light/Dark Theme Switcher Listener
+        let themeToggleBtn = document.getElementById('esThemeToggle');
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', function() {
+                let esMod = document.getElementById('es-module');
+                if (esMod) {
+                    esMod.classList.toggle('es-light');
+                    const icon = themeToggleBtn.querySelector('i');
+                    if (icon) {
+                        icon.className = esMod.classList.contains('es-light') ? 'fas fa-sun' : 'fas fa-moon';
+                    }
+                }
+            });
+        }
+    });
+
+    // Expose Exam Settings public API endpoint
+    window.esMain = {
+        logout: function() {
+            if (typeof esAdmin !== 'undefined' && esAdmin.logout) {
+                esAdmin.logout();
+            }
+        }
+    };
+</script>
+
+</body>
+</html>
+        
