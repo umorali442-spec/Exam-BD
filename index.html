@@ -6679,6 +6679,70 @@
             }
         }
     };
+    // ================================================================
+    //  fetchDBData ফাংশন যোগ করুন (এই কোডটি পেস্ট করুন)
+    // ================================================================
+    function fetchDBData() {
+
+    // Load Questions
+    fetch(`${DB}/ultimate_questions.json`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+            allQuestions = data ? Object.keys(data).map(id => ({
+                id,
+                ...data[id]
+            })) : [];
+            console.log("Questions Loaded:", allQuestions.length);
+        })
+        .catch(err => console.error("Questions Error:", err));
+
+    // Load Notes
+    fetch(`${DB}/ultimate_notes.json`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+            allNotes = data ? Object.keys(data).map(id => ({
+                id,
+                ...data[id]
+            })) : [];
+            console.log("Notes Loaded:", allNotes.length);
+        })
+        .catch(err => console.error("Notes Error:", err));
+
+    // Load Users
+    fetch(`${DB}/ultimate_users.json`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+            allUsers = data ? Object.keys(data).map(id => ({
+                id,
+                ...data[id]
+            })) : [];
+            console.log("Users Loaded:", allUsers.length);
+        })
+        .catch(err => console.error("Users Error:", err));
+
+    // Load Results
+    fetch(`${DB}/ultimate_results.json`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+            allResults = data ? Object.keys(data).map(id => ({
+                id,
+                ...data[id]
+            })) : [];
+            console.log("Results Loaded:", allResults.length);
+        })
+        .catch(err => console.error("Results Error:", err));
+
+    // Load Settings
+    fetch(`${DB}/ultimate_settings.json`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+            appSettings = data || {};
+            console.log("Settings Loaded");
+        })
+        .catch(err => console.error("Settings Error:", err));
+
+    }
+    
 </script>
 
 </body>
