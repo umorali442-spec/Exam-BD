@@ -1519,74 +1519,100 @@
     }
 
     function handleLogin() {
-        let rawId = document.getElementById('authId').value.trim(),
-            pass = document.getElementById('authPass').value.trim();
-        // ===== 🔐 হার্ডকোডেড অ্যাডমিন লগইন =====
-if (rawId === "admin" && pass === "123456") {
-    currentUser = {
-        id: "admin",
-        name: "Super Admin",
-        role: "admin",
-        pass: "123456",
-        coins: 99999,
-        xp: 99999,
-        joinDate: new Date().toLocaleDateString(),
-        lastLogin: new Date().toLocaleDateString(),
-        batch: "HSC 27",
-        school: "EduNexus",
-        country: "Bangladesh"
-    };
-    
-    normalizeUser(); // ডিফল্ট ভ্যালু সেট করতে
-    updateUIHeader();
-    fetchDBData();
-    navTo('pageHome'); // অ্যাডমিন প্যানেলে চলে যাবে
-    showToast("🚀 Super Admin Logged In!");
-    return; // লগইন শেষ, নিচের কোড আর রান করবে না
-}
-// ======================================
-            
-        if (!rawId || !pass) return alert("Enter credentials!");
-        
-        let cleanId = rawId.replace(/\./g, '_');
-        document.getElementById('btnLogin').innerHTML = "Loading...";
-        
-        fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r => r.ok ? r.json() : null).then(data => {
-            document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`;
-            if (!data || data.error || data.pass !== pass) return alert("❌ Invalid credentials!");
+    let rawId = document.getElementById('authId').value.trim(),
+        pass = document.getElementById('authPass').value.trim();
 
-            currentUser = { id: cleanId, ...data };
-            normalizeUser();
-            let today = new Date().toLocaleDateString();
-            
-            if (currentUser.lastLogin !== today) {
-                let diff = 1;
-                if (currentUser.lastLogin) {
-                    diff = (new Date(today) - new Date(currentUser.lastLogin)) / (1000 * 60 * 60 * 24);
-                    if (diff === 1) currentUser.streak += 1;
-                    else if (diff > 1) currentUser.streak = 1;
-                } else currentUser.streak = 1;
-                
-                currentUser.lastLogin = today;
-                currentUser.coins += 50;
-                currentUser.xp += 20;
-                currentUser.gems += 1;
-                
-                if (currentUser.activityData.length > 0) currentUser.activityData.shift();
-                currentUser.activityData.push(0);
-                
-                saveUserDB({ 
-                    streak: currentUser.streak, 
-                    coins: currentUser.coins, 
-                    xp: currentUser.xp,
-                    gems: currentUser.gems, 
-                    lastLogin: today, 
-                    activityData: currentUser.activityData 
-                });
-                showToast(`🎁 Daily Login: +50 Coins, +20 XP, +1 Gem! Streak: ${currentUser.streak}🔥`);
-                checkAchievements();
-            }
+    // ===== 🔐 হার্ডকোডেড অ্যাডমিন লগইন =====
+    if (rawId === "admin" && pass === "123456") {
+        currentUser = {
+            id: "admin",
+            name: "Super Admin",
+            role: "admin",
+            pass: "123456",
+            coins: 99999,
+            xp: 99999,
+            joinDate: new Date().toLocaleDateString(),
+            lastLogin: new Date().toLocaleDateString(),
+            batch: "HSC 27",
+            school: "EduNexus",
+            country: "Bangladesh"
+        };
+        normalizeUser();
+        updateUIHeader();
+        fetchDBData();              // ✅ কাজ করবে (আপনি এটি যোগ করেছেন)
+        navTo('pageHome');
+        showToast("🚀 Super Admin Logged In!");
+        return; // লগইন শেষ, নিচের কোড রান করবে না
+    }
+    // ======================================
 
+    if (!rawId || !pass) return alert("Enter credentials!");
+
+    let cleanId = rawId.replace(/\./g, '_');
+    document.getElementById('btnLogin').innerHTML = "Loading...";
+
+    fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r => r.ok ? r.json() : null).then(data => {
+        document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`;
+        if (!data || data.error || data.pass !== pass) return alert("❌ Invalid credentials!");
+
+        currentUser = { id: cleanId, ...data };
+        normalizeUser();
+        let today = new Date().toLocaleDateString();
+
+        if (currentUser.lastLogin !== today) {
+            let diff = 1;
+            if (currentUser.lastLogin) {
+                diff = (new Date(today) - new Date(currentUser.lastLogin)) / (1000 * 60 * 60 * 24);
+                if (diff === 1) currentUser.streak += 1;
+                else if (diff > 1) currentUser.streak = 1;
+            } else currentUser.streak = 1;
+
+            currentUser.lastLogin = today;
+            currentUser.coins += 50;
+            currentUser.xp += 20;
+            currentUser.gems += 1;
+
+            if (currentUser.activityData.length > 0) currentUser.activityData.shift();
+            currentUser.activityData.push(0);
+
+            saveUserDB({
+                streak: currentUser.streak,
+                coins: currentUser.coins,
+                xp: currentUser.xp,
+                gems: currentUser.gems,
+                lastLogin: today,
+                activityData: currentUser.activityData
+            });
+            showToast(`🎁 Daily Login: +50 Coins, +20 XP, +1 Gem! Streak: ${currentUser.streak}🔥`);
+            checkAchievements();
+        }
+
+        // ===== 🔥 সব মডিউলে ইউজার সেট করা =====
+        if (typeof scState !== 'undefined') scState.user = currentUser;
+        if (typeof ntState !== 'undefined') ntState.user = currentUser;
+        if (typeof fcState !== 'undefined') fcState.user = currentUser;
+        if (typeof mtState !== 'undefined') mtState.user = currentUser;
+        if (typeof esState !== 'undefined') esState.user = currentUser;
+        if (typeof qbState !== 'undefined') qbState.user = currentUser;
+        // ========================================
+
+        updateUIHeader();
+        fetchDBData();
+        fetchFlashcards();
+        fetchEvents();
+
+        // ✅ এই ৩টি লাইন কমেন্ট করে দিন (ভবিষ্যতে ব্যবহার করতে চাইলে কমেন্ট খুলবেন)
+        // loadFriends();
+        // loadClan();
+        // loadQuestProgress();
+
+        navTo('pageHome');
+    }).catch(err => {
+        console.error("Login Error:", err);
+        alert("Login Error: " + err.message);
+        document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`;
+    });
+    }
             // =============== 🔥 FIX: SYNC SUB-MODULE STATES 🔥 ===============
             if (typeof scState !== 'undefined') scState.user = currentUser;
             if (typeof ntState !== 'undefined') ntState.user = currentUser;
