@@ -1613,27 +1613,7 @@
         document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`;
     });
     }
-            // =============== 🔥 FIX: SYNC SUB-MODULE STATES 🔥 ===============
-            if (typeof scState !== 'undefined') scState.user = currentUser;
-            if (typeof ntState !== 'undefined') ntState.user = currentUser;
-            if (typeof fcState !== 'undefined') fcState.user = currentUser;
-            if (typeof mtState !== 'undefined') mtState.user = currentUser;
-            if (typeof esState !== 'undefined') esState.user = currentUser;
-            if (typeof qbState !== 'undefined') qbState.user = currentUser;
-            // ===============================================================
             
-            updateUIHeader();
-            fetchDBData();
-            fetchFlashcards();
-            fetchEvents();
-            
-            navTo('pageHome');
-        }).catch(err => { 
-            console.error("Login Error:", err);
-            alert("Login Error: " + err.message);
-            document.getElementById('btnLogin').innerHTML = `Login <i class="fa-solid fa-arrow-right"></i>`; 
-        });
-    }
 
     function normalizeUser() {
         const defaults = {
