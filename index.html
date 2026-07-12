@@ -72,6 +72,7 @@
             --shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
         }
 
+        /* ===== Global Reset & Layout ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font); -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg-main); color: var(--text-main); overflow-x: hidden; transition: var(--transition); min-height: 100vh; padding-bottom: 90px; }
         ::-webkit-scrollbar { width: 4px; }
@@ -100,6 +101,7 @@
         .w-full { width: 100%; }
         .relative { position: relative; }
 
+        /* ===== Cards & Buttons ===== */
         .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); transition: var(--transition); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
         .card:hover { border-color: rgba(108, 92, 231, 0.2); }
         .glass-card { background: var(--card-glass); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.06); }
@@ -148,7 +150,48 @@
         .nav-item.active i { background: rgba(108, 92, 231, 0.12); transform: translateY(-4px); box-shadow: 0 4px 20px var(--primary-glow); color: var(--primary); }
         .nav-item .nav-badge { position: absolute; top: -2px; right: -4px; background: var(--danger); color: #fff; width: 16px; height: 16px; border-radius: 50%; font-size: 8px; display: flex; justify-content: center; align-items: center; font-weight: 800; border: 2px solid var(--bg-main); }
 
-        /* Tournament Module Styles */
+        /* ===== Admin Panel Base Styles ===== */
+        .admin-panel { display: flex; min-height: 100vh; background: var(--bg-main); }
+        .admin-sidebar { width: 220px; background: var(--card-glass); backdrop-filter: blur(12px); border-right: 1px solid var(--border); padding: 16px; flex-shrink: 0; }
+        .admin-sidebar .brand { font-size: 18px; font-weight: 900; color: var(--primary); padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+        .admin-sidebar .menu { display: flex; flex-direction: column; gap: 4px; }
+        .admin-sidebar .menu button { width: 100%; padding: 10px 12px; font-size: 12px; border-radius: 12px; background: transparent; color: var(--text-main); text-align: left; text-transform: none; justify-content: flex-start; }
+        .admin-sidebar .menu button:hover { background: var(--surface); }
+        .admin-sidebar .menu button.active { background: rgba(108,92,231,0.1); color: var(--primary); }
+        .admin-main { flex: 1; padding: 16px; overflow-y: auto; }
+        .admin-topbar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+        .admin-topbar .breadcrumb { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+        .admin-topbar .breadcrumb span { color: var(--text-main); }
+        .admin-topbar .right { display: flex; align-items: center; gap: 12px; }
+        .admin-topbar .right .search-box { display: flex; align-items: center; background: var(--surface); border-radius: 30px; padding: 4px 12px; border: 1px solid var(--border); }
+        .admin-topbar .right .search-box input { background: transparent; border: none; padding: 6px 8px; font-size: 12px; width: 120px; margin: 0; }
+        .admin-topbar .right .search-box i { color: var(--text-muted); font-size: 12px; }
+        .admin-topbar .right .icon-btn { width: auto; padding: 6px 10px; border-radius: 50%; background: var(--surface); }
+        .admin-module { display: none; }
+        .admin-module.active { display: block; }
+        .admin-toggle-sidebar { width: auto; padding: 6px 12px; background: var(--surface); border-radius: 8px; }
+
+        /* ===== New Admin Module Styles ===== */
+        .admin-module .card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+        .admin-module table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .admin-module th, .admin-module td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        .admin-module th { background: var(--surface); font-weight: 700; }
+        .admin-filter-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .admin-filter-bar select, .admin-filter-bar input { padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); }
+        .admin-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .admin-modal.active { display: flex; }
+        .admin-modal-content { background: var(--card-bg); max-width: 600px; width: 90%; padding: 24px; border-radius: var(--radius); max-height: 80vh; overflow-y: auto; }
+        .admin-modal-content .form-group { margin-bottom: 12px; }
+        .admin-modal-content label { display: block; font-weight: 600; margin-bottom: 4px; }
+        .admin-modal-content input, .admin-modal-content select, .admin-modal-content textarea { width: 100%; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); }
+        .admin-modal-content .btn-group { display: flex; gap: 12px; margin-top: 16px; justify-content: flex-end; }
+        .admin-modal-content .btn-group button { width: auto; padding: 8px 20px; }
+
+        .badge-easy { background: #00b894; color: #fff; }
+        .badge-medium { background: #fdcb6e; color: #000; }
+        .badge-hard { background: #e17055; color: #fff; }
+
+        /* ===== Tournament Module Styles ===== */
         .t-create-card { background: var(--t-card); border: 1px solid var(--t-border); border-radius: var(--t-radius); padding: 20px; max-width: 100%; }
         .t-create-card h2 { margin-bottom: 16px; font-size: 20px; }
         .t-form-group { margin-bottom: 12px; }
@@ -194,228 +237,7 @@
         .t-profile-badges .t-badge-item { background: var(--t-surface); padding: 4px 12px; border-radius: 30px; border: 1px solid var(--t-border); font-size: 12px; font-weight: 700; }
         .t-toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--t-card-glass); backdrop-filter: blur(20px); padding: 12px 24px; border-radius: 30px; border: 1px solid var(--t-border); color: var(--t-text); font-weight: 700; font-size: 14px; z-index: 300; box-shadow: var(--t-shadow); animation: tSlideUp 0.4s ease; max-width: 90%; text-align: center; }
         @keyframes tSlideUp { from { opacity: 0; transform: translateX(-50%) translateY(30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-        .t-admin-panel { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--t-bg); z-index: 500; overflow-y: auto; }
-        .t-admin-header { padding: 16px 20px; background: var(--t-card-glass); backdrop-filter: blur(24px); border-bottom: 1px solid var(--t-border); display: flex; justify-content: space-between; align-items: center; }
-        .t-admin-header h2 { font-size: 20px; font-weight: 900; }
-        .t-admin-content { padding: 16px; }
-        .t-admin-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-        .t-admin-tabs .t-btn { font-size: 12px; padding: 8px 16px; }
-        .t-admin-content-area { background: var(--t-card); border: 1px solid var(--t-border); border-radius: var(--t-radius); padding: 16px; min-height: 200px; }
-        @media (max-width: 400px) { .t-form-row { grid-template-columns: 1fr; } .t-header-left span { font-size: 16px; } .t-user-info span { display: none; } }
-        @media (min-width: 481px) { #tournament-module { padding: 0 20px; } .t-bottom-nav { border-radius: 32px 32px 0 0; } }
-
-        /* Event Module Styles */
-        .e-light { --e-bg: #f0f0f5; --e-bg-secondary: #ffffff; --e-card: rgba(255,255,255,0.92); --e-card-glass: rgba(255,255,255,0.85); --e-text: #1a1a2e; --e-text-muted: #666688; --e-border: rgba(0,0,0,0.06); --e-surface: rgba(0,0,0,0.03); --e-shadow: 0 12px 48px rgba(0,0,0,0.08); }
-        #event-module { font-family: var(--e-font); background: var(--e-bg); color: var(--e-text); min-height: 100vh; padding-bottom: 80px; position: relative; transition: var(--e-transition); max-width: 480px; margin: 0 auto; overflow-x: hidden; }
-        #event-module::-webkit-scrollbar { width: 4px; }
-        #event-module::-webkit-scrollbar-track { background: var(--e-bg); }
-        #event-module::-webkit-scrollbar-thumb { background: var(--e-primary); border-radius: 10px; }
-        .e-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--e-card-glass); backdrop-filter: blur(24px); border-bottom: 1px solid var(--e-border); position: sticky; top: 0; z-index: 50; }
-        .e-header-left { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; }
-        .e-header-left i { font-size: 24px; }
-        .e-header-right { display: flex; align-items: center; gap: 12px; }
-        .e-header-right .e-btn-icon { background: var(--e-surface); border: none; color: var(--e-text-muted); font-size: 18px; padding: 6px; border-radius: 50%; cursor: pointer; transition: var(--e-transition); position: relative; }
-        .e-header-right .e-btn-icon:hover { background: var(--e-border); color: var(--e-text); }
-        .e-notif-badge { position: absolute; top: -4px; right: -4px; background: var(--e-danger); color: #fff; width: 16px; height: 16px; border-radius: 50%; font-size: 8px; display: flex; justify-content: center; align-items: center; font-weight: 800; border: 2px solid var(--e-bg); }
-        .e-user-info { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
-        .e-user-info i { font-size: 20px; color: var(--e-primary); }
-        .e-bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: var(--e-card-glass); backdrop-filter: blur(30px); border-top: 1px solid var(--e-border); display: flex; justify-content: space-around; padding: 8px 0 14px; z-index: 100; border-radius: 28px 28px 0 0; box-shadow: 0 -8px 40px rgba(0,0,0,0.3); }
-        .e-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--e-text-muted); cursor: pointer; font-size: 9px; font-weight: 700; transition: var(--e-transition); }
-        .e-nav-item i { font-size: 20px; padding: 6px; border-radius: 12px; transition: var(--e-transition); }
-        .e-nav-item.active { color: var(--e-primary); }
-        .e-nav-item.active i { background: rgba(108,92,231,0.12); transform: translateY(-4px); box-shadow: 0 4px 20px var(--e-primary-glow); color: var(--e-primary); }
-        .e-main { padding: 16px; }
-        .e-tab-content { display: none; animation: eFadeIn 0.3s ease; }
-        .e-tab-content.active { display: block; }
-        @keyframes eFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .e-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border: none; border-radius: 14px; font-weight: 700; font-size: 14px; cursor: pointer; transition: var(--e-transition); text-transform: uppercase; letter-spacing: 0.5px; }
-        .e-btn:active { transform: scale(0.96); }
-        .e-btn-primary { background: linear-gradient(135deg, var(--e-primary), #a29bfe); color: #fff; box-shadow: 0 6px 30px var(--e-primary-glow); }
-        .e-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px var(--e-primary-glow); }
-        .e-btn-secondary { background: linear-gradient(135deg, var(--e-secondary), #81ecec); color: #0a0a1a; box-shadow: 0 6px 30px var(--e-secondary-glow); }
-        .e-btn-accent { background: linear-gradient(135deg, var(--e-accent), #e17055); color: #fff; }
-        .e-btn-gold { background: linear-gradient(135deg, var(--e-gold), #f39c12); color: #0a0a1a; box-shadow: 0 6px 30px var(--e-gold-glow); }
-        .e-btn-danger { background: linear-gradient(135deg, #e17055, #d63031); color: #fff; }
-        .e-btn-success { background: linear-gradient(135deg, var(--e-success), #00a381); color: #fff; }
-        .e-btn-outline { background: transparent; border: 2px solid var(--e-border); color: var(--e-text); }
-        .e-btn-outline:hover { border-color: var(--e-primary); background: rgba(108,92,231,0.05); }
-        .e-btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 12px; }
-        .e-btn-xs { padding: 4px 10px; font-size: 10px; border-radius: 10px; }
-        .e-btn-icon { width: auto; padding: 6px 10px; border-radius: 50%; }
-        .e-card { background: var(--e-card); border: 1px solid var(--e-border); border-radius: var(--e-radius); padding: 16px; box-shadow: var(--e-shadow); backdrop-filter: blur(12px); transition: var(--e-transition); }
-        .e-card:hover { border-color: rgba(108,92,231,0.2); }
-        .e-lobby-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .e-lobby-header h2 { font-size: 22px; font-weight: 900; }
-        .e-lobby-filters { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; margin-top: 8px; }
-        .e-lobby-filters select, .e-lobby-filters input { padding: 8px 12px; background: var(--e-surface); border: 1px solid var(--e-border); border-radius: 12px; color: var(--e-text); font-weight: 600; font-size: 12px; flex: 1; min-width: 60px; }
-        .e-lobby-filters select option { background: var(--e-bg); }
-        .e-event-grid { display: grid; gap: 16px; }
-        .e-event-card { background: var(--e-card); border: 1px solid var(--e-border); border-radius: var(--e-radius); padding: 16px; transition: var(--e-transition); cursor: pointer; position: relative; }
-        .e-event-card:hover { border-color: var(--e-primary); transform: translateY(-4px); box-shadow: 0 12px 40px var(--e-primary-glow); }
-        .e-event-card .e-title { font-size: 17px; font-weight: 800; }
-        .e-event-card .e-meta { display: flex; gap: 12px; font-size: 12px; color: var(--e-text-muted); margin: 6px 0; flex-wrap: wrap; }
-        .e-event-card .e-meta span { display: flex; align-items: center; gap: 4px; }
-        .e-event-card .e-status { display: inline-block; padding: 2px 12px; border-radius: 30px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        .e-status-upcoming { background: rgba(0,206,201,0.12); color: var(--e-secondary); animation: ePulse 1.5s infinite; }
-        .e-status-live { background: rgba(225,112,85,0.12); color: var(--e-danger); animation: ePulse 1.5s infinite; }
-        .e-status-ongoing { background: rgba(108,92,231,0.12); color: var(--e-primary); }
-        .e-status-completed { background: rgba(255,255,255,0.06); color: var(--e-text-muted); }
-        .e-status-cancelled { background: rgba(225,112,85,0.12); color: var(--e-danger); }
-        .e-status-draft { background: rgba(253,203,110,0.12); color: var(--e-gold); }
-        @keyframes ePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .e-event-card .e-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 13px; }
-        .e-event-card .e-footer .e-btn { font-size: 12px; padding: 6px 16px; }
-        .e-event-card .e-banner { width: 100%; height: 120px; object-fit: cover; border-radius: 12px; margin-bottom: 8px; }
-        .e-event-card .e-badge { position: absolute; top: 12px; right: 12px; background: var(--e-gold); color: #0a0a1a; padding: 2px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; }
-        .e-event-card .e-pinned { border-color: var(--e-gold); box-shadow: 0 0 20px var(--e-gold-glow); }
-        .e-event-card .e-featured { border-color: var(--e-primary); }
-        .e-create-card { background: var(--e-card); border: 1px solid var(--e-border); border-radius: var(--e-radius); padding: 20px; max-width: 100%; }
-        .e-create-card h2 { margin-bottom: 16px; font-size: 20px; }
-        .e-form-group { margin-bottom: 12px; }
-        .e-form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--e-text-muted); margin-bottom: 4px; }
-        .e-form-group input, .e-form-group select, .e-form-group textarea { width: 100%; padding: 10px 12px; background: var(--e-surface); border: 2px solid var(--e-border); border-radius: 12px; color: var(--e-text); font-weight: 600; font-size: 14px; outline: none; transition: var(--e-transition); }
-        .e-form-group input:focus, .e-form-group select:focus, .e-form-group textarea:focus { border-color: var(--e-primary); background: var(--e-card); box-shadow: 0 0 30px var(--e-primary-glow); }
-        .e-form-group textarea { resize: vertical; }
-        .e-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .e-form-actions { display: flex; gap: 12px; margin-top: 16px; }
-        .e-form-actions .e-btn { flex: 1; }
-        .e-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 200; justify-content: center; align-items: center; padding: 16px; }
-        .e-modal.active { display: flex; }
-        .e-modal-content { background: var(--e-card); border: 1px solid var(--e-border); border-radius: var(--e-radius); max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: var(--e-shadow); position: relative; }
-        .e-modal-close { position: absolute; top: 12px; right: 16px; font-size: 28px; cursor: pointer; color: var(--e-danger); background: none; border: none; padding: 0 4px; }
-        .e-live-modal .e-modal-content { max-width: 600px; }
-        .e-live-area { padding: 16px 0; }
-        .e-live-area .e-live-header { display: flex; justify-content: space-between; align-items: center; }
-        .e-live-area .e-live-header .e-count { font-size: 14px; font-weight: 700; }
-        .e-live-area .e-live-chat { max-height: 200px; overflow-y: auto; background: var(--e-surface); border-radius: 12px; padding: 10px; margin: 12px 0; }
-        .e-live-area .e-live-chat .e-msg { padding: 4px 0; font-size: 13px; border-bottom: 1px solid var(--e-border); }
-        .e-live-area .e-live-chat .e-msg .e-name { font-weight: 700; color: var(--e-primary); }
-        .e-live-area .e-live-input { display: flex; gap: 8px; }
-        .e-live-area .e-live-input input { flex: 1; padding: 8px 12px; border-radius: 20px; border: 1px solid var(--e-border); background: var(--e-surface); color: var(--e-text); }
-        .e-live-area .e-live-emoji { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
-        .e-live-area .e-live-emoji button { font-size: 20px; background: none; border: none; cursor: pointer; }
-        .e-analytics-content { margin-top: 16px; }
-        .e-analytics-chart-container { margin: 16px 0; }
-        .e-profile-card { text-align: center; padding: 20px; }
-        .e-profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--e-primary); color: #fff; display: flex; justify-content: center; align-items: center; font-size: 40px; margin: 0 auto 12px; box-shadow: 0 0 30px var(--e-primary-glow); }
-        .e-profile-card h2 { font-size: 24px; font-weight: 900; }
-        .e-profile-badges { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 12px 0; }
-        .e-profile-badges .e-badge-item { background: var(--e-surface); padding: 4px 12px; border-radius: 30px; border: 1px solid var(--e-border); font-size: 12px; font-weight: 700; }
-        .e-toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--e-card-glass); backdrop-filter: blur(20px); padding: 12px 24px; border-radius: 30px; border: 1px solid var(--e-border); color: var(--e-text); font-weight: 700; font-size: 14px; z-index: 300; box-shadow: var(--e-shadow); animation: eSlideUp 0.4s ease; max-width: 90%; text-align: center; }
-        @keyframes eSlideUp { from { opacity: 0; transform: translateX(-50%) translateY(30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-        .e-admin-panel { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--e-bg); z-index: 500; overflow-y: auto; }
-        .e-admin-header { padding: 16px 20px; background: var(--e-card-glass); backdrop-filter: blur(24px); border-bottom: 1px solid var(--e-border); display: flex; justify-content: space-between; align-items: center; }
-        .e-admin-header h2 { font-size: 20px; font-weight: 900; }
-        .e-admin-content { padding: 16px; }
-        .e-admin-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-        .e-admin-tabs .e-btn { font-size: 12px; padding: 8px 16px; }
-        .e-admin-content-area { background: var(--e-card); border: 1px solid var(--e-border); border-radius: var(--e-radius); padding: 16px; min-height: 200px; }
-        .e-loading { text-align: center; padding: 40px; color: var(--e-text-muted); font-size: 14px; font-weight: 700; }
-        .e-loading i { margin-right: 8px; }
-        @media (max-width: 400px) { .e-form-row { grid-template-columns: 1fr; } .e-header-left span { font-size: 16px; } .e-user-info span { display: none; } }
-        @media (min-width: 481px) { #event-module { padding: 0 20px; } .e-bottom-nav { border-radius: 32px 32px 0 0; } }
-
-        /* Clan Module Styles */
-        .c-light { --c-bg: #f0f0f5; --c-bg-secondary: #ffffff; --c-card: rgba(255,255,255,0.92); --c-card-glass: rgba(255,255,255,0.85); --c-text: #1a1a2e; --c-text-muted: #666688; --c-border: rgba(0,0,0,0.06); --c-surface: rgba(0,0,0,0.03); --c-shadow: 0 12px 48px rgba(0,0,0,0.08); }
-        #clan-module { font-family: var(--c-font); background: var(--c-bg); color: var(--c-text); min-height: 100vh; padding-bottom: 80px; position: relative; transition: var(--c-transition); max-width: 480px; margin: 0 auto; overflow-x: hidden; }
-        #clan-module::-webkit-scrollbar { width: 4px; }
-        #clan-module::-webkit-scrollbar-track { background: var(--c-bg); }
-        #clan-module::-webkit-scrollbar-thumb { background: var(--c-primary); border-radius: 10px; }
-        .c-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--c-card-glass); backdrop-filter: blur(24px); border-bottom: 1px solid var(--c-border); position: sticky; top: 0; z-index: 50; }
-        .c-header-left { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; }
-        .c-header-left i { font-size: 24px; }
-        .c-header-right { display: flex; align-items: center; gap: 12px; }
-        .c-header-right .c-btn-icon { background: var(--c-surface); border: none; color: var(--c-text-muted); font-size: 18px; padding: 6px; border-radius: 50%; cursor: pointer; transition: var(--c-transition); position: relative; }
-        .c-header-right .c-btn-icon:hover { background: var(--c-border); color: var(--c-text); }
-        .c-notif-badge { position: absolute; top: -4px; right: -4px; background: var(--c-danger); color: #fff; width: 16px; height: 16px; border-radius: 50%; font-size: 8px; display: flex; justify-content: center; align-items: center; font-weight: 800; border: 2px solid var(--c-bg); }
-        .c-user-info { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
-        .c-user-info i { font-size: 20px; color: var(--c-primary); }
-        .c-bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: var(--c-card-glass); backdrop-filter: blur(30px); border-top: 1px solid var(--c-border); display: flex; justify-content: space-around; padding: 8px 0 14px; z-index: 100; border-radius: 28px 28px 0 0; box-shadow: 0 -8px 40px rgba(0,0,0,0.3); }
-        .c-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--c-text-muted); cursor: pointer; font-size: 9px; font-weight: 700; transition: var(--c-transition); }
-        .c-nav-item i { font-size: 20px; padding: 6px; border-radius: 12px; transition: var(--c-transition); }
-        .c-nav-item.active { color: var(--c-primary); }
-        .c-nav-item.active i { background: rgba(108,92,231,0.12); transform: translateY(-4px); box-shadow: 0 4px 20px var(--c-primary-glow); color: var(--c-primary); }
-        .c-main { padding: 16px; }
-        .c-tab-content { display: none; animation: cFadeIn 0.3s ease; }
-        .c-tab-content.active { display: block; }
-        @keyframes cFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .c-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border: none; border-radius: 14px; font-weight: 700; font-size: 14px; cursor: pointer; transition: var(--c-transition); text-transform: uppercase; letter-spacing: 0.5px; }
-        .c-btn:active { transform: scale(0.96); }
-        .c-btn-primary { background: linear-gradient(135deg, var(--c-primary), #a29bfe); color: #fff; box-shadow: 0 6px 30px var(--c-primary-glow); }
-        .c-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px var(--c-primary-glow); }
-        .c-btn-secondary { background: linear-gradient(135deg, var(--c-secondary), #81ecec); color: #0a0a1a; box-shadow: 0 6px 30px var(--c-secondary-glow); }
-        .c-btn-accent { background: linear-gradient(135deg, var(--c-accent), #e17055); color: #fff; }
-        .c-btn-gold { background: linear-gradient(135deg, var(--c-gold), #f39c12); color: #0a0a1a; box-shadow: 0 6px 30px var(--c-gold-glow); }
-        .c-btn-danger { background: linear-gradient(135deg, #e17055, #d63031); color: #fff; }
-        .c-btn-success { background: linear-gradient(135deg, var(--c-success), #00a381); color: #fff; }
-        .c-btn-outline { background: transparent; border: 2px solid var(--c-border); color: var(--c-text); }
-        .c-btn-outline:hover { border-color: var(--c-primary); background: rgba(108,92,231,0.05); }
-        .c-btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 12px; }
-        .c-btn-xs { padding: 4px 10px; font-size: 10px; border-radius: 10px; }
-        .c-btn-icon { width: auto; padding: 6px 10px; border-radius: 50%; }
-        .c-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--c-radius); padding: 16px; box-shadow: var(--c-shadow); backdrop-filter: blur(12px); transition: var(--c-transition); }
-        .c-card:hover { border-color: rgba(108,92,231,0.2); }
-        .c-lobby-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .c-lobby-header h2 { font-size: 22px; font-weight: 900; }
-        .c-lobby-filters { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; margin-top: 8px; }
-        .c-lobby-filters select, .c-lobby-filters input { padding: 8px 12px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 12px; color: var(--c-text); font-weight: 600; font-size: 12px; flex: 1; min-width: 60px; }
-        .c-lobby-filters select option { background: var(--c-bg); }
-        .c-clan-grid { display: grid; gap: 16px; }
-        .c-clan-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--c-radius); padding: 16px; transition: var(--c-transition); cursor: pointer; position: relative; }
-        .c-clan-card:hover { border-color: var(--c-primary); transform: translateY(-4px); box-shadow: 0 12px 40px var(--c-primary-glow); }
-        .c-clan-card .c-title { font-size: 17px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-        .c-clan-card .c-title .c-tag { background: var(--c-primary); color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 12px; }
-        .c-clan-card .c-meta { display: flex; gap: 12px; font-size: 12px; color: var(--c-text-muted); margin: 6px 0; flex-wrap: wrap; }
-        .c-clan-card .c-meta span { display: flex; align-items: center; gap: 4px; }
-        .c-clan-card .c-status { display: inline-block; padding: 2px 12px; border-radius: 30px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        .c-status-open { background: rgba(0,184,148,0.12); color: var(--c-success); }
-        .c-status-full { background: rgba(225,112,85,0.12); color: var(--c-danger); }
-        .c-status-private { background: rgba(108,92,231,0.12); color: var(--c-primary); }
-        .c-status-invite { background: rgba(0,206,201,0.12); color: var(--c-secondary); }
-        .c-clan-card .c-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 13px; }
-        .c-clan-card .c-footer .c-btn { font-size: 12px; padding: 6px 16px; }
-        .c-clan-card .c-logo { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; margin-right: 12px; }
-        .c-clan-card .c-verified { color: var(--c-gold); font-size: 14px; }
-        .c-create-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--c-radius); padding: 20px; max-width: 100%; }
-        .c-create-card h2 { margin-bottom: 16px; font-size: 20px; }
-        .c-form-group { margin-bottom: 12px; }
-        .c-form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--c-text-muted); margin-bottom: 4px; }
-        .c-form-group input, .c-form-group select, .c-form-group textarea { width: 100%; padding: 10px 12px; background: var(--c-surface); border: 2px solid var(--c-border); border-radius: 12px; color: var(--c-text); font-weight: 600; font-size: 14px; outline: none; transition: var(--c-transition); }
-        .c-form-group input:focus, .c-form-group select:focus, .c-form-group textarea:focus { border-color: var(--c-primary); background: var(--c-card); box-shadow: 0 0 30px var(--c-primary-glow); }
-        .c-form-group textarea { resize: vertical; }
-        .c-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .c-form-actions { display: flex; gap: 12px; margin-top: 16px; }
-        .c-form-actions .c-btn { flex: 1; }
-        .c-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 200; justify-content: center; align-items: center; padding: 16px; }
-        .c-modal.active { display: flex; }
-        .c-modal-content { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--c-radius); max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: var(--c-shadow); position: relative; }
-        .c-modal-close { position: absolute; top: 12px; right: 16px; font-size: 28px; cursor: pointer; color: var(--c-danger); background: none; border: none; padding: 0 4px; }
-        .c-chat-modal .c-modal-content { max-width: 600px; }
-        .c-war-modal .c-modal-content { max-width: 600px; }
-        .c-chat-area { padding: 16px 0; }
-        .c-chat-area .c-chat-messages { max-height: 300px; overflow-y: auto; background: var(--c-surface); border-radius: 12px; padding: 10px; margin: 12px 0; }
-        .c-chat-area .c-chat-messages .c-msg { padding: 4px 0; font-size: 13px; border-bottom: 1px solid var(--c-border); }
-        .c-chat-area .c-chat-messages .c-msg .c-name { font-weight: 700; color: var(--c-primary); }
-        .c-chat-area .c-chat-input { display: flex; gap: 8px; }
-        .c-chat-area .c-chat-input input { flex: 1; padding: 8px 12px; border-radius: 20px; border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-text); }
-        .c-chat-area .c-chat-emoji { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
-        .c-chat-area .c-chat-emoji button { font-size: 20px; background: none; border: none; cursor: pointer; }
-        .c-leaderboard-list .c-rank-row { display: flex; align-items: center; padding: 10px 12px; background: var(--c-surface); border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--c-border); transition: var(--c-transition); }
-        .c-leaderboard-list .c-rank-row:hover { border-color: var(--c-primary); transform: translateX(4px); }
-        .c-leaderboard-list .c-rank-num { font-weight: 900; width: 28px; font-size: 15px; }
-        .c-leaderboard-list .c-rank-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 14px; background: var(--c-card); border: 2px solid var(--c-border); flex-shrink: 0; }
-        .c-leaderboard-list .c-rank-info { flex: 1; margin-left: 10px; }
-        .c-leaderboard-list .c-rank-info .name { font-weight: 700; font-size: 14px; }
-        .c-leaderboard-list .c-rank-info .detail { font-size: 10px; color: var(--c-text-muted); font-weight: 600; }
-        .c-leaderboard-list .c-rank-score { font-weight: 800; font-size: 13px; color: var(--c-primary); }
-        .c-profile-card { text-align: center; padding: 20px; }
-        .c-profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--c-primary); color: #fff; display: flex; justify-content: center; align-items: center; font-size: 40px; margin: 0 auto 12px; box-shadow: 0 0 30px var(--c-primary-glow); }
-        .c-profile-card h2 { font-size: 24px; font-weight: 900; }
-        .c-profile-badges { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 12px 0; }
-        .c-profile-badges .c-badge-item { background: var(--c-surface); padding: 4px 12px; border-radius: 30px; border: 1px solid var(--c-border); font-size: 12px; font-weight: 700; }
-        .c-toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--c-card-glass); backdrop-filter: blur(20px); padding: 12px 24px; border-radius: 30px; border: 1px solid var(--c-border); color: var(--c-text); font-weight: 700; font-size: 14px; z-index: 300; box-shadow: var(--c-shadow); animation: cSlideUp 0.4s ease; max-width: 90%; text-align: center; }
-        @keyframes cSlideUp { from { opacity: 0; transform: translateX(-50%) translateY(30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-        .c-admin-panel { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--c-bg); z-index: 500; overflow-y: auto; }
+         .c-admin-panel { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--c-bg); z-index: 500; overflow-y: auto; }
         .c-admin-header { padding: 16px 20px; background: var(--c-card-glass); backdrop-filter: blur(24px); border-bottom: 1px solid var(--c-border); display: flex; justify-content: space-between; align-items: center; }
         .c-admin-header h2 { font-size: 20px; font-weight: 900; }
         .c-admin-content { padding: 16px; }
@@ -427,7 +249,7 @@
         @media (max-width: 400px) { .c-form-row { grid-template-columns: 1fr; } .c-header-left span { font-size: 16px; } .c-user-info span { display: none; } }
         @media (min-width: 481px) { #clan-module { padding: 0 20px; } .c-bottom-nav { border-radius: 32px 32px 0 0; } }
 
-        /* Exam Mode Cards & Misc */
+        /* ===== Exam Mode Cards & Misc ===== */
         .exam-mode-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 16px 8px; text-align: center; cursor: pointer; transition: var(--transition); }
         .exam-mode-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: var(--shadow); }
         .exam-mode-card .icon { font-size: 24px; display: block; margin-bottom: 4px; }
@@ -491,27 +313,7 @@
         .spinner { width: 24px; height: 24px; border: 3px solid var(--surface); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .admin-panel { display: flex; min-height: 100vh; background: var(--bg-main); }
-        .admin-sidebar { width: 220px; background: var(--card-glass); backdrop-filter: blur(12px); border-right: 1px solid var(--border); padding: 16px; flex-shrink: 0; }
-        .admin-sidebar .brand { font-size: 18px; font-weight: 900; color: var(--primary); padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
-        .admin-sidebar .menu { display: flex; flex-direction: column; gap: 4px; }
-        .admin-sidebar .menu button { width: 100%; padding: 10px 12px; font-size: 12px; border-radius: 12px; background: transparent; color: var(--text-main); text-align: left; text-transform: none; justify-content: flex-start; }
-        .admin-sidebar .menu button:hover { background: var(--surface); }
-        .admin-sidebar .menu button.active { background: rgba(108,92,231,0.1); color: var(--primary); }
-        .admin-main { flex: 1; padding: 16px; overflow-y: auto; }
-        .admin-topbar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
-        .admin-topbar .breadcrumb { font-size: 13px; color: var(--text-muted); font-weight: 600; }
-        .admin-topbar .breadcrumb span { color: var(--text-main); }
-        .admin-topbar .right { display: flex; align-items: center; gap: 12px; }
-        .admin-topbar .right .search-box { display: flex; align-items: center; background: var(--surface); border-radius: 30px; padding: 4px 12px; border: 1px solid var(--border); }
-        .admin-topbar .right .search-box input { background: transparent; border: none; padding: 6px 8px; font-size: 12px; width: 120px; margin: 0; }
-        .admin-topbar .right .search-box i { color: var(--text-muted); font-size: 12px; }
-        .admin-topbar .right .icon-btn { width: auto; padding: 6px 10px; border-radius: 50%; background: var(--surface); }
-        .admin-module { display: none; }
-        .admin-module.active { display: block; }
-        .admin-toggle-sidebar { width: auto; padding: 6px 12px; background: var(--surface); border-radius: 8px; }
-
-        /* Battle Module Styles */
+        /* ===== Battle Module Styles ===== */
         .battle-module .player-chip { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 6px; }
         .battle-module .player-chip .avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 12px; }
         .battle-module .player-chip .status { font-size: 10px; font-weight: 700; }
@@ -532,7 +334,6 @@
         .battle-history-item .right .result.lose { color: var(--danger); }
         .battle-history-item .right .score { font-size: 14px; font-weight: 900; }
 
-        /* Responsible Grid */
         @media (max-width: 400px) { .grid-3 { grid-template-columns: 1fr 1fr; } .grid-4 { grid-template-columns: 1fr 1fr; } }
         @media (min-width: 481px) { .container { padding: 0 20px; } }
     </style>
@@ -1086,61 +887,117 @@
         </div>
     </div>
 
-    <div id="pageAdmin" class="hidden">
-        <div class="admin-panel">
-            <div class="admin-sidebar" id="adminSidebar">
-                <div class="brand"><i class="fa-solid fa-shield-halved"></i> EduNexus Admin</div>
-                <div class="menu" id="adminMenu"></div>
-            </div>
-            <div class="admin-main">
-                <div class="admin-topbar">
-                    <div style="display:flex;align-items:center;gap:12px;">
-                        <button class="admin-toggle-sidebar" onclick="document.getElementById('adminSidebar').classList.toggle('open')">
-                             <i class="fa-solid fa-bars"></i>
-                        </button>
-                        <div class="breadcrumb">Dashboard / <span id="adminBreadcrumb">Dashboard</span></div>
-                    </div>
-                    <div class="right">
-                        <div class="search-box">
-                            <i class="fa-solid fa-search"></i>
-                            <input placeholder="Search..." onkeyup="if(event.key==='Enter') adminGlobalSearch(this.value)">
-                        </div>
-                        <button class="icon-btn" onclick="toggleTheme()" id="adminThemeIcon"><i class="fa-solid fa-moon"></i></button>
-                        <span id="adminUserName" style="font-weight:700;font-size:13px;">Admin</span>
-                     </div>
+<div id="pageAdmin" class="hidden">
+    <div class="admin-panel">
+        <div class="admin-sidebar" id="adminSidebar">
+            <div class="brand"><i class="fa-solid fa-shield-halved"></i> EduNexus Admin</div>
+            <div class="menu" id="adminMenu"></div>
+        </div>
+        <div class="admin-main">
+            <div class="admin-topbar">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <button class="admin-toggle-sidebar" onclick="document.getElementById('adminSidebar').classList.toggle('open')">
+                         <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="breadcrumb">Dashboard / <span id="adminBreadcrumb">Dashboard</span></div>
                 </div>
-                <div class="admin-content">
-                    <div id="adminDashboard" class="admin-module active">
-                        <canvas id="adminRegChart" style="max-height:150px;"></canvas>
-                        <canvas id="adminPerfChart" style="max-height:150px;"></canvas>
+                <div class="right">
+                    <div class="search-box">
+                        <i class="fa-solid fa-search"></i>
+                        <input placeholder="Search..." onkeyup="if(event.key==='Enter') adminGlobalSearch(this.value)">
                     </div>
-                    <div id="adminUsers" class="admin-module"></div>
-                    <div id="adminQuestions" class="admin-module"></div>
-                    <div id="adminExams" class="admin-module"></div>
-                    <div id="adminTournaments" class="admin-module"></div>
-                    <div id="adminEvents" class="admin-module"></div>
-                    <div id="adminCertificates" class="admin-module"></div>
-                    <div id="adminAnnouncements" class="admin-module"></div>
-                    <div id="adminSecurity" class="admin-module"></div>
-                    <div id="adminRewards" class="admin-module"></div>
-                    <div id="adminReports" class="admin-module"></div>
-                    <div id="adminSettings" class="admin-module"></div>
-                    <div id="adminAI" class="admin-module"></div>
+                    <button class="icon-btn" onclick="toggleTheme()" id="adminThemeIcon"><i class="fa-solid fa-moon"></i></button>
+                    <span id="adminUserName" style="font-weight:700;font-size:13px;">Admin</span>
+                 </div>
+            </div>
+            <div class="admin-content">
+                <div id="adminDashboard" class="admin-module active">
+                    <canvas id="adminRegChart" style="max-height:150px;"></canvas>
+                    <canvas id="adminPerfChart" style="max-height:150px;"></canvas>
+                </div>
+                <div id="adminUsers" class="admin-module"></div>
+
+                <!-- 📚 প্রশ্ন ব্যাংক মডিউল (সম্পূর্ণ কন্টেন্টসহ) -->
+                <div id="adminQuestions" class="admin-module">
+                    <h3>📚 Question Bank</h3>
+                    <div class="admin-filter-bar">
+                        <input id="adminQSearch" placeholder="Search questions...">
+                        <select id="adminQSubject"><option value="all">All Subjects</option></select>
+                        <select id="adminQStatus"><option value="all">All Status</option></select>
+                        <button class="btn-primary btn-sm" onclick="adminOpenQuestionModal()"><i class="fas fa-plus"></i> Add Question</button>
+                        <button class="btn-success btn-sm" onclick="document.getElementById('adminBulkInput').click()"><i class="fas fa-upload"></i> Bulk Import JSON</button>
+                        <input type="file" id="adminBulkInput" accept=".json" style="display:none" onchange="adminBulkUpload(this.files[0])">
+                    </div>
+                    <div id="adminQTable"></div>
+                    <div id="adminQPagination" class="flex-center gap-1 mt-1"></div>
+                </div>
+
+                <div id="adminExams" class="admin-module"></div>
+
+                <!-- 🏆 টুর্নামেন্ট মডিউল -->
+                <div id="adminTournaments" class="admin-module">
+                    <div class="flex-between"><h3>🏆 Tournaments</h3><button class="btn-gold btn-sm" onclick="adminOpenTournamentModal()"><i class="fas fa-plus"></i> Create</button></div>
+                    <div id="adminTournamentList"></div>
+                </div>
+
+                <!-- 📅 ইভেন্ট মডিউল -->
+                <div id="adminEvents" class="admin-module">
+                    <div class="flex-between"><h3>📅 Events</h3><button class="btn-accent btn-sm" onclick="adminOpenEventModal()"><i class="fas fa-plus"></i> Create</button></div>
+                    <div id="adminEventList"></div>
+                </div>
+
+                <div id="adminCertificates" class="admin-module"></div>
+                <div id="adminAnnouncements" class="admin-module"></div>
+                <div id="adminSecurity" class="admin-module"></div>
+                <div id="adminRewards" class="admin-module"></div>
+                <div id="adminReports" class="admin-module"></div>
+                <div id="adminSettings" class="admin-module"></div>
+                <div id="adminAI" class="admin-module"></div>
+
+                <!-- ⚔️ ব্যাটল সেটিংস মডিউল -->
+                <div id="adminBattles" class="admin-module">
+                    <h3>⚔️ Battle Settings</h3>
+                    <div class="card">
+                        <div class="form-group"><label>Time per Question (seconds)</label><input id="battleTimePerQ" type="number" value="20"></div>
+                        <div class="form-group"><label>Wrong Answer Penalty (points)</label><input id="battlePenalty" type="number" value="0"></div>
+                        <div class="form-group"><label>Max Players</label><input id="battleMaxPlayers" type="number" value="2"></div>
+                        <div class="form-group"><label><input id="battleRanked" type="checkbox"> Ranked Mode</label></div>
+                        <button class="btn-primary btn-sm" onclick="adminSaveBattleSettings()">Save Settings</button>
+                    </div>
+                </div>
+
+                <!-- 📋 ডেইলি মিশন মডিউল -->
+                <div id="adminMissions" class="admin-module">
+                    <div class="flex-between"><h3>📋 Daily Missions</h3><button class="btn-secondary btn-sm" onclick="adminOpenMissionModal()"><i class="fas fa-plus"></i> Add Mission</button></div>
+                    <div id="adminMissionList"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="bottom-nav" id="bottomNav" style="display:none;">
-        <div class="nav-item active" onclick="navTo('pageHome')"><i class="fa-solid fa-house"></i><span>Home</span></div>
-        <div class="nav-item" onclick="navTo('pageNotes')"><i class="fa-solid fa-book-open"></i><span>Learn</span></div>
-        <div class="nav-item" onclick="navTo('pageTimer')"><i class="fa-solid fa-stopwatch"></i><span>Timer</span></div>
-        <div class="nav-item" onclick="navTo('pageLeaderboard')"><i class="fa-solid fa-ranking-star"></i><span>Rank</span></div>
-        <div class="nav-item" onclick="navTo('pageProfile')"><i class="fa-solid fa-user"></i><span>Profile</span></div>
+    <!-- 🟢 মডাল (পপআপ) ফর্ম - প্রশ্ন যুক্ত/সম্পাদনার জন্য -->
+    <div id="adminQModal" class="admin-modal">
+        <div class="admin-modal-content">
+            <h3>Add / Edit Question</h3>
+            <form id="adminQForm">
+                <div class="form-group"><label>Question</label><textarea id="qText" rows="2"></textarea></div>
+                <div class="form-group"><label>Type</label><select id="qType"><option value="mcq">MCQ</option><option value="truefalse">True/False</option><option value="short">Short Answer</option></select></div>
+                <div class="form-group"><label>Options (comma separated for MCQ)</label><input id="qOptions" placeholder="A, B, C, D"></div>
+                <div class="form-group"><label>Correct Answer Index (0-3)</label><input id="qCorrect" type="number" min="0" max="3" value="0"></div>
+                <div class="form-group"><label>Subject</label><input id="qSubject"></div>
+                <div class="form-group"><label>Chapter</label><input id="qChapter"></div>
+                <div class="form-group"><label>Topic</label><input id="qTopic"></div>
+                <div class="form-group"><label>Explanation</label><textarea id="qExplanation" rows="2"></textarea></div>
+                <div class="form-group"><label>Image URL</label><input id="qImageUrl" placeholder="https://..."></div>
+                <div class="form-group"><label>Difficulty</label><select id="qDifficulty"><option value="Easy">Easy</option><option value="Medium">Medium</option><option value="Hard">Hard</option></select></div>
+                <div class="btn-group">
+                    <button type="button" class="btn-outline btn-sm" onclick="document.getElementById('adminQModal').classList.remove('active')">Cancel</button>
+                    <button type="submit" class="btn-primary btn-sm">Save</button>
+                </div>
+            </form>
+        </div>
     </div>
-
 </div>
-
 <script>
     // ================================================================
     //  FIREBASE CONFIG & INIT
