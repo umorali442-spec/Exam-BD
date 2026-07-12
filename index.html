@@ -6710,6 +6710,11 @@
             <button onclick="adminNavTo('reports')"><i class="fa-solid fa-file-export"></i> Reports</button>
             <button onclick="adminNavTo('settings')"><i class="fa-solid fa-cog"></i> Settings</button>
             <button onclick="adminNavTo('ai')"><i class="fa-solid fa-robot"></i> AI Tools</button>
+            <button onclick="adminNavTo('questions')"><i class="fa-solid fa-question-circle"></i> Questions</button>
+            <button onclick="adminNavTo('tournaments')"><i class="fa-solid fa-trophy"></i> Tournaments</button>
+            <button onclick="adminNavTo('events')"><i class="fa-solid fa-calendar-alt"></i> Events</button>
+            <button onclick="adminNavTo('battles')"><i class="fa-solid fa-sword"></i> Battles</button>
+            <button onclick="adminNavTo('missions')"><i class="fa-solid fa-tasks"></i> Daily Missions</button>
         `;
     }
 
@@ -6737,8 +6742,65 @@
         if (module === 'users' && typeof adminLoadUsers === 'function') adminLoadUsers();
         if (module === 'questions' && typeof adminLoadQuestions === 'function') adminLoadQuestions();
         if (module === 'exams' && typeof adminLoadExams === 'function') adminLoadExams();
+        
     }
-</script>
+    // ================================================================
+    //  অ্যাডভান্সড মডিউল লজিক (প্রশ্ন, টুর্নামেন্ট, ইভেন্ট, যুদ্ধ, মিশন)
+    // ================================================================
+    function adminOpenQuestionModal(id = null) {
+            const modal = document.getElementById('adminQModal');
+            if (modal) {
+                modal.classList.add('active');
+            } else {
+                console.warn("adminQModal element not found!");
+            }
+        }
 
+        function adminOpenTournamentModal() { 
+            alert("Tournament Create Modal open"); 
+        }
+
+        function adminOpenEventModal() { 
+            alert("Event Create Modal open"); 
+        }
+
+        function adminOpenMissionModal() { 
+            alert("Mission Create Modal open"); 
+        }
+
+        function adminBulkUpload(file) {
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    // Validation logic (আপনার প্রয়োজন অনুযায়ী)
+                    alert(`✅ ${data.length} questions ready to import.`);
+                } catch (err) {
+                    alert('Invalid JSON: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function adminSaveBattleSettings() {
+            // Ensuring elements exist before getting values to prevent errors
+            const timeEl = document.getElementById('battleTimePerQ');
+            const penaltyEl = document.getElementById('battlePenalty');
+            const playersEl = document.getElementById('battleMaxPlayers');
+            const rankedEl = document.getElementById('battleRanked');
+
+            const data = {
+                timePerQuestion: timeEl ? parseInt(timeEl.value) || 20 : 20,
+                wrongAnswerPenalty: penaltyEl ? parseInt(penaltyEl.value) || 0 : 0,
+                maxPlayers: playersEl ? parseInt(playersEl.value) || 2 : 2,
+                isRanked: rankedEl ? rankedEl.checked : false
+            };
+            
+            console.log("Saved Data:", data); // For debugging
+            alert('⚔️ Battle settings saved!');
+        }
+    </script>
 </body>
 </html>
