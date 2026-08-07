@@ -4836,6 +4836,36 @@
                 display: inline-flex !important;
             }
         }
+        /* Admin Dashboard stats */
+.admin-dashboard .stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.admin-dashboard .stat-card {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 12px 8px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.admin-dashboard .stat-card i {
+  font-size: 20px;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+.admin-dashboard .stat-card .num {
+  font-size: 20px;
+  font-weight: 900;
+}
+.admin-dashboard .stat-card .label {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+        
     </style>
 </head>
 <body>
@@ -5612,7 +5642,7 @@
         </div>
 
     </div>
-
+    
     <script>
         // ================================================================
         //  FIREBASE CONFIG
@@ -9200,23 +9230,39 @@
         // ================================================================
         //  ADMIN PANEL (Fully Functional)
         // ================================================================
-        function teacherLogin() {
-            if (document.getElementById('adminUser').value === 'admin' && document.getElementById('adminPass').value ===
-                '1234') {
-                navTo('pageAdmin');
-                adminSwitchModule('adminDashboard');
-                adminLoadDashboard();
-                adminLoadUsers();
-                adminLoadQuestions();
-                adminLoadExams();
-                adminLoadTournaments();
-                adminLoadEvents();
-                adminLoadCertificates();
-                adminLoadAnnouncements();
-                adminLoadSecurity();
-                adminLoadRewards();
-                document.getElementById('adminUserName').textContent = 'Admin';
-            } else alert("Invalid admin credentials!");
+        function adminLogin() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const password = document.getElementById('adminPass').value.trim();
+  if (!email || !password) return alert('Enter credentials');
+
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      const user = userCredential.user;
+      return user.getIdTokenResult().then(idTokenResult => {
+        if (idTokenResult.claims.admin) {
+          currentUser = { id: user.uid, name: 'Admin', email: user.email };
+          navTo('pageAdmin');
+          adminSwitchModule('adminDashboard');
+          adminLoadDashboard();
+          adminLoadUsers();
+          adminLoadQuestions();
+          adminLoadExams();
+          adminLoadTournaments();
+          adminLoadEvents();
+          adminLoadCertificates();
+          adminLoadAnnouncements();
+          adminLoadSecurity();
+          adminLoadRewards();
+          document.getElementById('adminUserName').textContent = 'Admin';
+        } else {
+          firebase.auth().signOut();
+          alert('You are not authorized as admin.');
+        }
+      });
+    })
+    .catch(err => {
+      alert('Login failed: ' + err.message);
+    });
         }
 
         // ---- Admin modules ----
