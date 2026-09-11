@@ -1335,9 +1335,7 @@ const hscData={"Physics 1st Paper":["Chapter 1","Chapter 2","Chapter 3","Chapter
 let dynamicSubjects={};
 
 function initDropdowns(){db.ref('subjects').once('value',snap=>{const data=snap.val();if(data){dynamicSubjects=data;populateDropdowns()}else populateDropdownsFallback()})}
-function populateDropdowns(){let subHtml='<option value="">-- Subject --</option>';Object.keys(dynamicSubjects).forEach(sid=>{const s=dynamicSubjects[sid];subHtml+=`<option value="${s.name}">${s.name}</option>`});['readSub','qbSub','battleSubSelect'].forEach(id=>{let el=document.getElementById(id);if(el)el.innerHTML=subHtml})}
-function populateDropdownsFallback(){let subHtml='<option value="">-- Subject --</option>';for(let s in hscData)subHtml+=`<option value="${s}">${s}</option>`;['readSub','qbSub','battleSubSelect'].forEach(id=>{let el=document.getElementById(id);if(el&&el.innerHTML.length<30)el.innerHTML=subHtml})}
-function updateChapDropdown(subId,chapId){let sub=document.getElementById(subId).value;let html='<option value="All">All</option>';let found=false;Object.keys(dynamicSubjects).forEach(sid=>{const s=dynamicSubjects[sid];if(s.name===sub&&s.chapters){Object.keys(s.chapters).forEach(cid=>{html+=`<option value="${s.chapters[cid].name}">${s.chapters[cid].name}</option>`});found=true}});if(!found&&hscData[sub]){hscData[sub].forEach(c=>html+=`<option value="${c}">${c}</option>`)}let target=document.getElementById(chapId);if(target)target.innerHTML=html}
+
 function updateReadChaps(){updateChapDropdown('readSub','readChap')}
 function battleUpdateChaps(){updateChapDropdown('battleSubSelect','battleChapSelect')}
 
