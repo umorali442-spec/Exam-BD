@@ -2016,7 +2016,9 @@ function advBattleChatOpen(roomId){if(!roomId){showToast('No active room');retur
 console.log('✅ TEST 2E loaded');
 function advBattleChatOpen(roomId){if(!roomId){showToast('No active room');return}if(!document.getElementById('advBattleChatModal')){let m=document.createElement('div');m.id='advBattleChatModal';m.className='modal-overlay hidden';m.innerHTML='<div class="modal-content" style="max-width:400px;height:70vh;display:flex;flex-direction:column;"><div class="flex-between mb-1"><h3 style="font-size:15px;">💬 Battle Chat</h3><button class="btn-danger btn-sm" onclick="document.getElementById(\'advBattleChatModal\').classList.add(\'hidden\')">✕</button></div><div id="advBattleChatBody" style="flex:1;overflow-y:auto;background:var(--surface);border-radius:12px;padding:10px;border:1px solid var(--border);"></div><div style="display:flex;gap:6px;margin-top:8px;"><input id="advBattleChatInput" placeholder="Type..." style="flex:1;margin:0;"><button class="btn-primary" onclick="advBattleChatSend(\''+roomId+'\')" style="width:auto;padding:12px 16px;">📤</button></div></div></div>';document.getElementById('appRoot').appendChild(m)}document.getElementById('advBattleChatModal').classList.remove('hidden');if(_battleChatRef)_battleChatRef.off();_battleChatRef=db.ref('battleChats/'+roomId);_battleChatRef.limitToLast(30).on('child_added',snap=>{let msg=snap.val();let body=document.getElementById('advBattleChatBody');if(!body)return;let mine=msg.uid===getUserId();body.innerHTML+='<div style="margin-bottom:6px;text-align:'+(mine?'right':'left')+';"><div style="font-size:9px;color:var(--text-muted);">'+msg.name+'</div><div style="display:inline-block;background:'+(mine?'var(--primary)':'var(--card-bg)')+';color:'+(mine?'#fff':'var(--text-main)')+';padding:6px 10px;border-radius:10px;font-size:12px;">'+msg.text+'</div></div>';body.scrollTop=body.scrollHeight})}
 console.log('✅ TEST 2F loaded');
-
+let _advTQ={qs:[],idx:0,score:0,timeLeft:30,timer:null};
+function advTQClose(){clearInterval(_advTQ.timer);document.getElementById('advTQModal').classList.add('hidden')}
+console.log('✅ TEST 3-1 loaded');
   
 </script>
 </body>
