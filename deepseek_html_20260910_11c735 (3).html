@@ -2005,7 +2005,10 @@ function advSpectatorOpen(roomId){if(!roomId){showToast('No match to spectate');
 function advSpectatorClose(){document.getElementById('advSpectatorModal').classList.add('hidden')}
 function advSpectatorReact(emoji){let el=document.createElement('div');el.className='emoji-float';el.textContent=emoji;el.style.left=(30+Math.random()*40)+'%';el.style.top='50%';document.body.appendChild(el);setTimeout(()=>el.remove(),2000)}
 console.log('✅ TEST 1 loaded — Spectator');    
-
+function advBattleChatSend(roomId){let input=document.getElementById('advBattleChatInput');if(!input)return;let text=input.value.trim();if(!text)return;db.ref('battleChats/'+roomId).push({uid:getUserId(),name:getUserName(),text:text,ts:now()});input.value=''}
+function advBattleChatQuick(text,roomId){db.ref('battleChats/'+roomId).push({uid:getUserId(),name:getUserName(),text:text,ts:now()})}
+console.log('✅ TEST 2B loaded');
+  
 </script>
 </body>
 </html>
