@@ -2008,6 +2008,8 @@ console.log('✅ TEST 1 loaded — Spectator');
 function advBattleChatSend(roomId){let input=document.getElementById('advBattleChatInput');if(!input)return;let text=input.value.trim();if(!text)return;db.ref('battleChats/'+roomId).push({uid:getUserId(),name:getUserName(),text:text,ts:now()});input.value=''}
 function advBattleChatQuick(text,roomId){db.ref('battleChats/'+roomId).push({uid:getUserId(),name:getUserName(),text:text,ts:now()})}
 console.log('✅ TEST 2B loaded');
+function advBattleChatOpen(roomId){if(!roomId){showToast('No active room');return}if(!document.getElementById('advBattleChatModal')){let m=document.createElement('div');m.id='advBattleChatModal';m.className='modal-overlay hidden';m.innerHTML='<div class="modal-content" style="max-width:400px;height:70vh;display:flex;flex-direction:column;"><div class="flex-between mb-1"><h3 style="font-size:15px;">💬 Battle Chat</h3><button class="btn-danger btn-sm" onclick="document.getElementById(\'advBattleChatModal\').classList.add(\'hidden\')">✕</button></div><div id="advBattleChatBody" style="flex:1;overflow-y:auto;background:var(--surface);border-radius:12px;padding:10px;border:1px solid var(--border);"></div></div></div>';document.getElementById('appRoot').appendChild(m)}document.getElementById('advBattleChatModal').classList.remove('hidden')}
+console.log('✅ TEST 2C loaded');
   
 </script>
 </body>
