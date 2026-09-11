@@ -342,6 +342,227 @@ button:active{transform:scale(0.96)}
 .compare-row .cr-mid{font-size:10px;color:var(--text-muted);font-weight:700;text-align:center}
 .compare-row .cr-right{text-align:left;font-weight:800;font-size:13px}
 .compare-row .cr-winner{color:var(--gold)}
+/* ══════════════════════════════════════════════════════════
+   PART 1: NEW CSS — Target, Calendar, Activity, Friend, Export
+   ══════════════════════════════════════════════════════════ */
+
+/* ═══ TARGET SETTING ═══ */
+.target-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px;transition:all .3s ease}
+.target-card:hover{border-color:rgba(108,92,231,.3);transform:translateY(-2px)}
+.target-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.target-title{font-size:13px;font-weight:800;display:flex;align-items:center;gap:8px}
+.target-value{font-size:18px;font-weight:900;color:var(--gold)}
+.target-progress{height:8px;background:var(--surface);border-radius:10px;overflow:hidden;margin:8px 0}
+.target-progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--secondary));border-radius:10px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.target-progress-fill.done{background:linear-gradient(90deg,var(--success),var(--secondary))}
+.target-slider{width:100%;-webkit-appearance:none;height:6px;border-radius:10px;background:var(--surface);outline:none;margin:12px 0}
+.target-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));cursor:pointer;box-shadow:0 4px 12px var(--primary-glow);border:3px solid var(--bg-main)}
+.target-slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--primary);cursor:pointer;border:3px solid var(--bg-main)}
+.target-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.target-preset{padding:8px 4px;text-align:center;font-size:11px;font-weight:800;background:var(--surface);border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:var(--transition);color:var(--text-muted)}
+.target-preset:hover{border-color:var(--primary);color:var(--primary)}
+.target-preset.active{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;border-color:transparent;box-shadow:0 4px 12px var(--primary-glow)}
+.target-level{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface);border-radius:10px;margin-top:6px;font-size:11px;font-weight:700}
+.target-level .lvl-name{color:var(--text-muted)}
+.target-level .lvl-val{color:var(--text-main);font-weight:800}
+.target-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:9px;font-weight:800;text-transform:uppercase;margin-left:6px}
+.target-badge.min{background:rgba(0,206,201,.15);color:var(--secondary)}
+.target-badge.good{background:rgba(253,203,110,.15);color:var(--gold)}
+.target-badge.excellent{background:rgba(0,184,148,.15);color:var(--success)}
+
+/* ═══ STREAK CALENDAR ═══ */
+.str-cal-wrap{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px}
+.str-cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.str-cal-nav{width:36px;height:36px;border-radius:12px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-main);font-size:14px;transition:var(--transition)}
+.str-cal-nav:hover{border-color:var(--primary);color:var(--primary);transform:scale(1.08)}
+.str-cal-nav:active{transform:scale(0.95)}
+.str-cal-title{font-size:15px;font-weight:900;color:var(--primary);letter-spacing:.5px}
+.str-cal-title small{display:block;font-size:9px;color:var(--text-muted);font-weight:700;margin-top:2px;letter-spacing:.5px}
+.str-cal-dow-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px}
+.str-cal-dow{text-align:center;font-size:9px;font-weight:800;color:var(--text-muted);padding:4px 0;text-transform:uppercase;letter-spacing:.3px}
+.str-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.str-cal-day{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--surface);transition:all .2s ease;position:relative;color:var(--text-main)}
+.str-cal-day:hover{transform:scale(1.1);border-color:var(--primary);z-index:2;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.str-cal-day.empty{visibility:hidden;cursor:default;border:none;background:transparent}
+.str-cal-day.today{border-color:var(--gold);border-width:2px;box-shadow:0 0 12px rgba(253,203,110,.5);animation:pulse 2s infinite}
+.str-cal-day.future{opacity:.4;cursor:not-allowed}
+.str-cal-day.future:hover{transform:none;border-color:var(--border)}
+.str-cal-day.lv0{background:var(--surface)}
+.str-cal-day.lv1{background:rgba(108,92,231,.2);border-color:rgba(108,92,231,.4)}
+.str-cal-day.lv2{background:rgba(108,92,231,.4);border-color:rgba(108,92,231,.6);color:#fff}
+.str-cal-day.lv3{background:rgba(108,92,231,.65);border-color:var(--primary);color:#fff}
+.str-cal-day.lv4{background:linear-gradient(135deg,var(--primary),var(--secondary));border-color:var(--primary);color:#fff;box-shadow:0 0 12px var(--primary-glow)}
+.str-cal-day .day-num{font-size:12px;font-weight:800;line-height:1}
+.str-cal-day .day-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);margin-top:3px;box-shadow:0 0 6px var(--gold)}
+.str-cal-day .day-icon{position:absolute;top:2px;right:3px;font-size:8px}
+.str-cal-legend{display:flex;justify-content:center;gap:14px;font-size:9px;color:var(--text-muted);font-weight:700;margin-top:14px;flex-wrap:wrap}
+.str-cal-legend-item{display:flex;align-items:center;gap:5px}
+.str-cal-legend-box{width:12px;height:12px;border-radius:4px;border:1px solid var(--border)}
+.str-cal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.str-cal-stat{text-align:center}
+.str-cal-stat .s-num{font-size:16px;font-weight:900;color:var(--primary)}
+.str-cal-stat .s-lbl{font-size:9px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-top:2px}
+
+/* ═══ DAY ACTIVITY MODAL ═══ */
+.day-activity-header{text-align:center;padding:14px 0;border-bottom:1px solid var(--border);margin-bottom:14px}
+.day-activity-date{font-size:22px;font-weight:900;color:var(--primary);letter-spacing:-.5px}
+.day-activity-day{font-size:11px;color:var(--text-muted);font-weight:700;margin-top:2px}
+.day-activity-rings{display:flex;justify-content:center;gap:14px;margin:16px 0}
+.day-ring{text-align:center}
+.day-ring-circle{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;border:3px solid var(--border);margin-bottom:6px}
+.day-ring-circle.blue{border-color:var(--primary);color:var(--primary)}
+.day-ring-circle.green{border-color:var(--success);color:var(--success)}
+.day-ring-circle.gold{border-color:var(--gold);color:var(--gold)}
+.day-ring-label{font-size:9px;color:var(--text-muted);font-weight:700;text-transform:uppercase}
+.activity-list-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;transition:var(--transition)}
+.activity-list-item:hover{border-color:var(--primary)}
+.activity-list-item .ali-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.activity-list-item .ali-icon.success{background:rgba(0,184,148,.12);color:var(--success)}
+.activity-list-item .ali-icon.danger{background:rgba(225,112,85,.12);color:var(--danger)}
+.activity-list-item .ali-icon.warn{background:rgba(253,203,110,.12);color:var(--gold)}
+.activity-list-item .ali-icon.info{background:rgba(108,92,231,.12);color:var(--primary)}
+.activity-list-item .ali-info{flex:1;min-width:0}
+.activity-list-item .ali-title{font-weight:800;font-size:13px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.activity-list-item .ali-sub{font-size:10px;color:var(--text-muted);font-weight:600}
+.activity-list-item .ali-badge{font-size:11px;font-weight:900;flex-shrink:0}
+.activity-empty{text-align:center;padding:40px 20px;color:var(--text-muted)}
+.activity-empty .ae-icon{font-size:48px;margin-bottom:10px;opacity:.4}
+.activity-empty .ae-title{font-size:15px;font-weight:800;color:var(--text-main);margin-bottom:4px}
+.activity-empty .ae-sub{font-size:11px}
+.hour-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:10px;font-weight:700}
+.hour-bar .hb-label{width:36px;color:var(--text-muted);text-align:right}
+.hour-bar .hb-track{flex:1;height:14px;background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.hour-bar .hb-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--secondary));border-radius:10px;transition:width .6s ease}
+.hour-bar .hb-value{width:30px;color:var(--text-main);font-weight:800}
+
+/* ═══ FRIEND SYSTEM ═══ */
+.friend-list-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:8px;transition:var(--transition)}
+.friend-list-item:hover{border-color:var(--primary);transform:translateX(4px)}
+.friend-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex-shrink:0;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;box-shadow:0 4px 12px var(--primary-glow)}
+.friend-avatar.color-1{background:linear-gradient(135deg,#6c5ce7,#a29bfe)}
+.friend-avatar.color-2{background:linear-gradient(135deg,#00cec9,#81ecec)}
+.friend-avatar.color-3{background:linear-gradient(135deg,#fd79a8,#e17055)}
+.friend-avatar.color-4{background:linear-gradient(135deg,#fdcb6e,#f39c12)}
+.friend-avatar.color-5{background:linear-gradient(135deg,#00b894,#55efc4)}
+.friend-info{flex:1;min-width:0}
+.friend-name{font-weight:800;font-size:14px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.friend-id{font-size:10px;color:var(--text-muted);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.friend-actions{display:flex;gap:6px;flex-shrink:0}
+.friend-empty{text-align:center;padding:30px 20px;color:var(--text-muted)}
+.friend-empty .fe-icon{font-size:44px;margin-bottom:10px;opacity:.4}
+.friend-empty .fe-title{font-size:14px;font-weight:800;color:var(--text-main);margin-bottom:4px}
+.friend-empty .fe-sub{font-size:11px}
+
+/* ═══ EXPORT SYSTEM ═══ */
+.export-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.export-card{display:flex;align-items:center;gap:14px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;cursor:pointer;transition:var(--transition)}
+.export-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,92,231,.15)}
+.export-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:rgba(108,92,231,.1);color:var(--primary)}
+.export-icon.json{background:rgba(108,92,231,.1);color:var(--primary)}
+.export-icon.pdf{background:rgba(225,112,85,.1);color:var(--danger)}
+.export-icon.csv{background:rgba(0,184,148,.1);color:var(--success)}
+.export-info{flex:1}
+.export-title{font-weight:800;font-size:14px;margin-bottom:2px}
+.export-sub{font-size:11px;color:var(--text-muted);font-weight:600}
+.export-arrow{color:var(--text-muted);font-size:14px}
+
+/* ═══ THEMES PICKER ═══ */
+.theme-picker-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.theme-option{padding:14px;border-radius:14px;border:2px solid var(--border);cursor:pointer;transition:var(--transition);text-align:center;position:relative;overflow:hidden}
+.theme-option:hover{border-color:var(--primary);transform:translateY(-2px)}
+.theme-option.active{border-color:var(--gold);box-shadow:0 0 16px var(--gold-glow)}
+.theme-option .t-preview{height:50px;border-radius:10px;margin-bottom:8px;display:flex;gap:4px;padding:6px;align-items:center;justify-content:center}
+.theme-option .t-preview .tp-box{width:12px;height:12px;border-radius:50%}
+.theme-option .t-name{font-weight:800;font-size:11px}
+.theme-option .t-check{position:absolute;top:8px;right:8px;font-size:14px;color:var(--gold)}
+.t-preview.dark{background:linear-gradient(135deg,#0a0a1a,#1a1a3e)}
+.t-preview.light{background:linear-gradient(135deg,#f0f0f5,#ffffff)}
+.t-preview.neon{background:linear-gradient(135deg,#0a0a1a,#00ffff22)}
+.t-preview.sunset{background:linear-gradient(135deg,#1a0a1a,#ff6b6b22)}
+.t-preview.ocean{background:linear-gradient(135deg,#0a1a2a,#00b4d822)}
+.t-preview.midnight{background:linear-gradient(135deg,#0a0a1a,#a29bfe22)}
+
+/* ═══ ADVANCED TARGET ═══ */
+.ai-target-box{background:linear-gradient(135deg,rgba(108,92,231,.1),rgba(0,206,201,.08));border:1px solid rgba(108,92,231,.25);border-radius:14px;padding:14px;margin-bottom:12px}
+.ai-target-header{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--primary);margin-bottom:10px}
+.ai-suggest-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.ai-suggest-row:last-child{border-bottom:none}
+.ai-suggest-row .asr-subject{font-weight:700}
+.ai-suggest-row .asr-change{color:var(--success);font-weight:800;font-size:11px}
+.deadline-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface);border-radius:10px;margin-bottom:6px;border:1px solid var(--border);font-size:12px}
+.deadline-row .dr-label{font-weight:700}
+.deadline-row .dr-value{font-weight:800;color:var(--gold)}
+
+/* ═══ MULTI-LEVEL TARGET ═══ */
+.multi-level{display:grid;grid-template-columns:1fr;gap:6px;margin-top:8px}
+.multi-level-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface);border-radius:10px;border-left:3px solid var(--border)}
+.multi-level-row.min{border-left-color:var(--secondary)}
+.multi-level-row.good{border-left-color:var(--gold)}
+.multi-level-row.excellent{border-left-color:var(--success)}
+.multi-level-row .mlr-label{flex:1;font-size:11px;font-weight:700}
+.multi-level-row .mlr-value{font-size:12px;font-weight:900}
+
+/* ═══ PROFILE HEADER COVER ═══ */
+.profile-cover{position:relative;height:120px;border-radius:16px;overflow:hidden;margin-bottom:-50px;background:linear-gradient(135deg,var(--primary),var(--secondary))}
+.profile-cover img{width:100%;height:100%;object-fit:cover}
+.profile-cover-empty{display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,.6);font-size:12px;font-weight:700}
+
+/* ═══ CARD COLLECTION ═══ */
+.card-collection-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.collect-card{aspect-ratio:3/4;border-radius:12px;border:2px solid var(--border);padding:10px;text-align:center;cursor:pointer;transition:var(--transition);position:relative;overflow:hidden;background:var(--surface)}
+.collect-card:hover{transform:translateY(-4px) scale(1.02);border-color:var(--primary)}
+.collect-card.rare{border-color:var(--primary);background:linear-gradient(135deg,rgba(108,92,231,.15),var(--surface))}
+.collect-card.epic{border-color:var(--accent);background:linear-gradient(135deg,rgba(253,121,168,.15),var(--surface))}
+.collect-card.legendary{border-color:var(--gold);background:linear-gradient(135deg,rgba(253,203,110,.15),var(--surface));box-shadow:0 0 20px var(--gold-glow)}
+.collect-card .cc-icon{font-size:36px;margin:14px 0 8px}
+.collect-card .cc-name{font-size:10px;font-weight:800}
+.collect-card .cc-rarity{position:absolute;top:6px;right:6px;font-size:8px;font-weight:800;padding:2px 6px;border-radius:8px;background:var(--gold);color:#0a0a1a}
+
+/* ═══ EXAM CALENDAR ═══ */
+.exam-cal-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;border-left:4px solid var(--border)}
+.exam-cal-item.upcoming{border-left-color:var(--primary)}
+.exam-cal-item.today{border-left-color:var(--gold);background:linear-gradient(135deg,rgba(253,203,110,.05),var(--surface))}
+.exam-cal-item.done{border-left-color:var(--success);opacity:.7}
+.exam-cal-date{text-align:center;flex-shrink:0;width:50px}
+.exam-cal-date .ecd-day{font-size:20px;font-weight:900;color:var(--primary);line-height:1}
+.exam-cal-date .ecd-month{font-size:9px;font-weight:800;color:var(--text-muted);text-transform:uppercase;margin-top:2px}
+.exam-cal-info{flex:1;min-width:0}
+.exam-cal-title{font-weight:800;font-size:13px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exam-cal-sub{font-size:10px;color:var(--text-muted);font-weight:600}
+.exam-cal-badge{font-size:10px;font-weight:800;padding:3px 10px;border-radius:12px;flex-shrink:0}
+.exam-cal-badge.upcoming{background:rgba(108,92,231,.15);color:var(--primary)}
+.exam-cal-badge.today{background:rgba(253,203,110,.2);color:var(--gold)}
+.exam-cal-badge.done{background:rgba(0,184,148,.15);color:var(--success)}
+
+/* ═══ GLOBAL SEARCH ═══ */
+.global-search-input{padding:16px 18px;font-size:15px;padding-left:50px;border-radius:16px}
+.global-search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:16px}
+.search-result-group{margin-bottom:16px}
+.search-group-title{font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-left:4px}
+.search-result-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;cursor:pointer;transition:var(--transition)}
+.search-result-item:hover{border-color:var(--primary);transform:translateX(4px)}
+.search-result-item .sri-icon{font-size:18px;flex-shrink:0}
+.search-result-item .sri-info{flex:1;min-width:0}
+.search-result-item .sri-title{font-weight:700;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.search-result-item .sri-sub{font-size:10px;color:var(--text-muted);font-weight:600}
+
+/* ═══ TARGET HOME BADGE ═══ */
+.home-target-badge{display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(135deg,rgba(108,92,231,.1),rgba(0,206,201,.08));border:1px solid rgba(108,92,231,.2);border-radius:14px;margin-bottom:10px}
+.home-target-badge .htb-icon{font-size:22px}
+.home-target-badge .htb-info{flex:1}
+.home-target-badge .htb-title{font-size:11px;color:var(--text-muted);font-weight:700}
+.home-target-badge .htb-value{font-size:14px;font-weight:900;color:var(--primary)}
+.home-target-badge .htb-progress{font-size:11px;font-weight:800;color:var(--gold)}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width:400px){
+  .str-cal-day .day-num{font-size:11px}
+  .target-presets{grid-template-columns:repeat(2,1fr)}
+  .card-collection-grid{grid-template-columns:repeat(2,1fr)}
+  .theme-picker-grid{grid-template-columns:1fr}
+  .day-activity-rings{gap:8px}
+  .day-ring-circle{width:50px;height:50px;font-size:14px}
+             }
 </style>
 </head>
 <body>
@@ -403,6 +624,14 @@ button:active{transform:scale(0.96)}
 <div id="notiModal" class="card hidden" style="position:absolute;top:10px;left:16px;right:16px;z-index:200;border-color:var(--primary);">
 <div class="flex-between mb-1"><h3 style="color:var(--primary);font-size:17px;">🔔 Notifications</h3><i class="fa-solid fa-times" onclick="closeNotifications()" style="cursor:pointer;font-size:20px;color:var(--danger);"></i></div>
 <div id="notiList" style="max-height:300px;overflow-y:auto;"></div>
+</div>
+<div class="home-target-badge" id="homeTargetBadge" style="display:none;">
+<div class="htb-icon">🎯</div>
+<div class="htb-info">
+<div class="htb-title">Today's Target</div>
+<div class="htb-value" id="homeTargetValue">0/0</div>
+</div>
+<div class="htb-progress" id="homeTargetPercent">0%</div>
 </div>
 
 <div class="daily-box" id="advDailyBox" onclick="advDailyBoxOpen()"><div class="db-icon">🎁</div><div class="db-info"><div class="db-title">Daily Reward</div><div class="db-sub">Tap to claim!</div></div><div class="db-status pending">CLAIM</div></div>
@@ -583,7 +812,10 @@ button:active{transform:scale(0.96)}
 
 <!-- PROFILE -->
 <div id="pageProfile" class="hidden p-2">
-<div class="card premium-card" style="padding:22px 18px;">
+<div class="profile-cover" id="profCover">
+<div class="profile-cover-empty">📷 Tap to add cover</div>
+</div>
+<div class="card premium-card" style="padding:22px 18px;margin-top:60px;position:relative;">
 <div class="flex-between">
 <div>
 <h2 id="profName" style="font-size:22px;font-weight:900;">Name</h2>
@@ -650,6 +882,110 @@ button:active{transform:scale(0.96)}
 <div id="profSocialCard" class="card glass-card" style="display:none;">
 <h4 style="font-size:13px;color:var(--text-muted);">🔗 Connect</h4>
 <div id="profSocialList"></div>
+</div>
+<!-- ═══ NEW: My Targets ═══ -->
+<div class="card glass-card" style="cursor:pointer;" onclick="advOpenTargetSet()">
+<div class="flex-between">
+<div>
+<h4 style="font-size:14px;">🎯 My Targets</h4>
+<div style="font-size:10px;color:var(--text-muted);">Set accuracy goals</div>
+</div>
+<i class="fa-solid fa-chevron-right" style="color:var(--text-muted);"></i>
+</div>
+<div id="profTargetsPreview" style="margin-top:10px;"></div>
+</div>
+
+<!-- ═══ NEW: Streak Calendar ═══ -->
+<div class="str-cal-wrap" id="profStreakCalendar">
+<div class="str-cal-header">
+<div class="str-cal-nav" onclick="advPrevMonth()"><i class="fa-solid fa-chevron-left"></i></div>
+<div class="str-cal-title" id="strCalTitle">Month</div>
+<div class="str-cal-nav" onclick="advNextMonth()"><i class="fa-solid fa-chevron-right"></i></div>
+</div>
+<div class="str-cal-dow-grid">
+<div class="str-cal-dow">S</div>
+<div class="str-cal-dow">M</div>
+<div class="str-cal-dow">T</div>
+<div class="str-cal-dow">W</div>
+<div class="str-cal-dow">T</div>
+<div class="str-cal-dow">F</div>
+<div class="str-cal-dow">S</div>
+</div>
+<div class="str-cal-grid" id="strCalGrid"></div>
+<div class="str-cal-legend">
+<div class="str-cal-legend-item"><div class="str-cal-legend-box" style="background:var(--surface)"></div>None</div>
+<div class="str-cal-legend-item"><div class="str-cal-legend-box" style="background:rgba(108,92,231,.3)"></div>1-4</div>
+<div class="str-cal-legend-item"><div class="str-cal-legend-box" style="background:rgba(108,92,231,.6)"></div>5-9</div>
+<div class="str-cal-legend-item"><div class="str-cal-legend-box" style="background:linear-gradient(135deg,var(--primary),var(--secondary))"></div>10+</div>
+</div>
+<div class="str-cal-stats">
+<div class="str-cal-stat"><div class="s-num" id="strCalActive">0</div><div class="s-lbl">Active</div></div>
+<div class="str-cal-stat"><div class="s-num" id="strCalExams">0</div><div class="s-lbl">Exams</div></div>
+<div class="str-cal-stat"><div class="s-num" id="strCalStreak">0</div><div class="s-lbl">Streak</div></div>
+</div>
+</div>
+
+<!-- ═══ NEW: Friends Section ═══ -->
+<div class="card glass-card">
+<div class="flex-between mb-1">
+<div>
+<h4 style="font-size:14px;">👥 Friends</h4>
+<div style="font-size:10px;color:var(--text-muted);">Manage your study buddies</div>
+</div>
+<button class="btn-primary btn-xs" onclick="advOpenFriendAdd()" style="width:auto;padding:6px 12px;">+ Add</button>
+</div>
+<div id="profFriendList"></div>
+</div>
+
+<!-- ═══ NEW: Export Data ═══ -->
+<div class="card glass-card" style="cursor:pointer;" onclick="advOpenExport()">
+<div class="flex-between">
+<div>
+<h4 style="font-size:14px;">📤 Export Data</h4>
+<div style="font-size:10px;color:var(--text-muted);">Download your data</div>
+</div>
+<i class="fa-solid fa-chevron-right" style="color:var(--text-muted);"></i>
+</div>
+</div>
+
+<!-- ═══ NEW: Themes ═══ -->
+<div class="card glass-card" style="cursor:pointer;" onclick="advOpenThemePicker()">
+<div class="flex-between">
+<div>
+<h4 style="font-size:14px;">🌈 Themes</h4>
+<div style="font-size:10px;color:var(--text-muted);">Customize your app</div>
+</div>
+<i class="fa-solid fa-chevron-right" style="color:var(--text-muted);"></i>
+</div>
+</div>
+<!-- ═══ NEW: Quick Access Buttons ═══ -->
+<div id="advExtraBtns" class="grid-3 mb-1" style="gap:8px;">
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="advOpenCardCollection()">
+<div style="font-size:22px;">🎴</div>
+<div style="font-weight:800;font-size:10px;">Cards</div>
+</div>
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="advOpenExamCalendar()">
+<div style="font-size:22px;">📅</div>
+<div style="font-weight:800;font-size:10px;">Calendar</div>
+</div>
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="advOpenGlobalSearch()">
+<div style="font-size:22px;">🔍</div>
+<div style="font-weight:800;font-size:10px;">Search</div>
+</div>
+</div>
+
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="advOpenCardCollection()">
+<div style="font-size:22px;">🎴</div>
+<div style="font-weight:800;font-size:10px;">Cards</div>
+</div>
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="advOpenExamCalendar()">
+<div style="font-size:22px;">📅</div>
+<div style="font-weight:800;font-size:10px;">Calendar</div>
+</div>
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="advOpenGlobalSearch()">
+<div style="font-size:22px;">🔍</div>
+<div style="font-weight:800;font-size:10px;">Search</div>
+</div>
 </div>
 </div>
 
@@ -840,6 +1176,110 @@ button:active{transform:scale(0.96)}
 <div id="qbPracticeModal" class="modal-overlay hidden"><div class="modal-content"><div class="flex-between mb-1"><h3 id="qbPracticeTitle">Question</h3><button class="btn-danger btn-sm" onclick="closeQBPractice()">X</button></div><div id="qbPracticeBody"></div></div></div>
 <div id="profHistoryModal" class="modal-overlay hidden"><div class="modal-content"><div class="flex-between mb-1"><h3>History</h3><button class="btn-danger btn-sm" onclick="document.getElementById('profHistoryModal').classList.add('hidden')">X</button></div><div id="profHistoryList"></div></div></div>
 <div id="profMistakesModal" class="modal-overlay hidden"><div class="modal-content"><div class="flex-between mb-1"><h3>Mistakes</h3><button class="btn-danger btn-sm" onclick="document.getElementById('profMistakesModal').classList.add('hidden')">X</button></div><div id="profMistakesList"></div></div></div>
+<!-- MODALS -->
+<div id="chapterModal" class="modal-overlay hidden"><div class="modal-content"><div class="flex-between mb-1"><h3 id="chapterModalTitle">Chapter</h3><button class="btn-danger btn-sm" onclick="closeChapterModal()">X</button></div><div id="chapterModalBody"></div></div></div>
+<div id="videoModal" class="modal-overlay hidden"><div class="modal-content"><div class="flex-between mb-1"><h3 id="videoModalTitle">Video</h3><button class="btn-danger btn-sm" onclick="closeVideoModal()">X</button></div><div id="videoFrame" style="aspect-ratio:16/9;background:#000;"></div></div></div>
+<div id="qbPracticeModal" class="modal-overlay hidden"><div class="modal-content"><div class="flex-between mb-1"><h3 id="qbPracticeTitle">Question</h3><button class="btn-danger btn-sm" onclick="closeQBPractice()">X</button></div><div id="qbPracticeBody"></div></div></div>
+<div id="profHistoryModal" class="modal-overlay hidden"><div class="modal-content"><div class="flex-between mb-1"><h3>History</h3><button class="btn-danger btn-sm" onclick="document.getElementById('profHistoryModal').classList.add('hidden')">X</button></div><div id="profHistoryList"></div></div></div>
+<div id="profMistakesModal" class="modal-overlay hidden"><div class="modal-content"><div class="flex-between mb-1"><h3>Mistakes</h3><button class="btn-danger btn-sm" onclick="document.getElementById('profMistakesModal').classList.add('hidden')">X</button></div><div id="profMistakesList"></div></div></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     JAYGA 5: NEW MODALS (Target, Day, Friend, Export, Theme, Search)
+     ═══════════════════════════════════════════════════════ -->
+
+<div id="targetSetModal" class="modal-overlay hidden">
+<div class="modal-content" style="max-width:480px;">
+<div class="flex-between mb-1">
+<h3 style="font-size:16px;">🎯 Set Targets</h3>
+<button class="btn-danger btn-sm" onclick="document.getElementById('targetSetModal').classList.add('hidden')">✕</button>
+</div>
+<p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;font-weight:600;">Set your accuracy goal for each subject</p>
+<div id="targetSetBody"></div>
+</div>
+</div>
+
+<div id="dayActivityModal" class="modal-overlay hidden">
+<div class="modal-content" style="max-width:480px;">
+<div class="flex-between mb-1">
+<h3 style="font-size:16px;">📅 Day Activity</h3>
+<button class="btn-danger btn-sm" onclick="document.getElementById('dayActivityModal').classList.add('hidden')">✕</button>
+</div>
+<div id="dayActivityBody"></div>
+</div>
+</div>
+
+<div id="friendAddModal" class="modal-overlay hidden">
+<div class="modal-content" style="max-width:400px;">
+<div class="flex-between mb-1">
+<h3 style="font-size:16px;">👥 Add Friend</h3>
+<button class="btn-danger btn-sm" onclick="document.getElementById('friendAddModal').classList.add('hidden')">✕</button>
+</div>
+<p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;font-weight:600;">Add your study buddies (saved locally)</p>
+<input id="friendNameInput" placeholder="Friend's name" style="margin-bottom:8px;">
+<input id="friendIdInput" placeholder="Friend's ID (optional)" style="margin-bottom:8px;">
+<button class="btn-primary" onclick="advSaveFriend()" style="width:100%;">➕ Add Friend</button>
+</div>
+</div>
+
+<div id="exportModal" class="modal-overlay hidden">
+<div class="modal-content" style="max-width:440px;">
+<div class="flex-between mb-1">
+<h3 style="font-size:16px;">📤 Export Data</h3>
+<button class="btn-danger btn-sm" onclick="document.getElementById('exportModal').classList.add('hidden')">✕</button>
+</div>
+<div class="export-grid">
+<div class="export-card" onclick="advExportJSON()">
+<div class="export-icon json">📦</div>
+<div class="export-info">
+<div class="export-title">Full Backup (JSON)</div>
+<div class="export-sub">All your data in one file</div>
+</div>
+<i class="fa-solid fa-download export-arrow"></i>
+</div>
+<div class="export-card" onclick="advExportPDF()">
+<div class="export-icon pdf">📄</div>
+<div class="export-info">
+<div class="export-title">Progress Report (PDF)</div>
+<div class="export-sub">Beautiful formatted report</div>
+</div>
+<i class="fa-solid fa-download export-arrow"></i>
+</div>
+<div class="export-card" onclick="advExportCSV()">
+<div class="export-icon csv">📊</div>
+<div class="export-info">
+<div class="export-title">Activity Log (CSV)</div>
+<div class="export-sub">Excel-compatible data</div>
+</div>
+<i class="fa-solid fa-download export-arrow"></i>
+</div>
+</div>
+<p style="font-size:10px;color:var(--text-muted);margin-top:12px;text-align:center;">💡 Backup regularly to save your data</p>
+</div>
+</div>
+
+<div id="themePickerModal" class="modal-overlay hidden">
+<div class="modal-content" style="max-width:440px;">
+<div class="flex-between mb-1">
+<h3 style="font-size:16px;">🌈 Pick Your Theme</h3>
+<button class="btn-danger btn-sm" onclick="document.getElementById('themePickerModal').classList.add('hidden')">✕</button>
+</div>
+<div class="theme-picker-grid" id="themePickerGrid"></div>
+</div>
+</div>
+
+<div id="globalSearchModal" class="modal-overlay hidden">
+<div class="modal-content" style="max-width:520px;max-height:85vh;">
+<div class="flex-between mb-1">
+<h3 style="font-size:16px;">🔍 Search Everything</h3>
+<button class="btn-danger btn-sm" onclick="document.getElementById('globalSearchModal').classList.add('hidden')">✕</button>
+</div>
+<div style="position:relative;margin-bottom:12px;">
+<i class="fa-solid fa-magnifying-glass global-search-icon"></i>
+<input id="globalSearchInput" class="global-search-input" placeholder="Search questions, notes, users..." oninput="advRunGlobalSearch()">
+</div>
+<div id="globalSearchResults" style="max-height:60vh;overflow-y:auto;"></div>
+</div>
+</div>
 
 </div>
 <!-- /appRoot -->
@@ -1166,10 +1606,9 @@ function advQotdLoad(){if(!allQuestions||allQuestions.length===0)return;let home
 function advQotdAnswer(isCorrect,el){let today=new Date().toLocaleDateString();if(currentUser.qotdDate===today)return;document.querySelectorAll('#advQotdBody .opt-btn').forEach(o=>o.classList.add('locked'));if(isCorrect){el.classList.add('correct');currentUser.coins=(currentUser.coins||0)+15;currentUser.xp=(currentUser.xp||0)+10;showToast('✅ +15 🪙 +10 XP');triggerConfetti()}else el.classList.add('wrong');currentUser.qotdDate=today;currentUser.qotdCorrect=isCorrect;saveUserDB({coins:currentUser.coins,xp:currentUser.xp,qotdDate:today,qotdCorrect:isCorrect});updateUIHeader()}
 
 function advAchievementOpen(){if(!document.getElementById('advAchievementModal')){let html=`<div class="modal-overlay hidden" id="advAchievementModal"><div class="modal-content" style="max-width:480px;"><div class="flex-between mb-1"><h3 style="font-size:16px;">🏅 Achievements</h3><button class="btn-danger btn-sm" onclick="document.getElementById('advAchievementModal').classList.add('hidden')">✕</button></div><div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Unlocked: <b id="advAchCount" style="color:var(--gold);">0</b> / <span id="advAchTotal">0</span></div><div class="badge-grid" id="advAchievementGrid"></div></div></div>`;document.body.insertAdjacentHTML('beforeend',html)}document.getElementById('advAchievementModal').classList.remove('hidden');let unlocked=currentUser.badges||[];document.getElementById('advAchCount').innerText=unlocked.length;document.getElementById('advAchTotal').innerText=BADGES.length;document.getElementById('advAchievementGrid').innerHTML=BADGES.map(b=>`<div class="badge-item ${unlocked.includes(b.id)?'earned':'locked'}"><div class="bi-icon">${b.icon}</div><div class="bi-name">${b.name}</div></div>`).join('')}
-
-function advRouletteOpen(){if(!document.getElementById('advRouletteModal')){let html=`<div class="modal-overlay hidden" id="advRouletteModal"><div class="modal-content" style="max-width:400px;text-align:center;"><div class="flex-between mb-1"><h3 style="font-size:16px;">🎰 Roulette</h3><button class="btn-danger btn-sm" onclick="document.getElementById('advRouletteModal').classList.add('hidden')">✕</button></div><div class="roulette-wheel" id="advRouletteWheel">🎰</div><button class="btn-gold mt-1" id="advSpinBtn" onclick="advRouletteSpin()">🎲 SPIN</button><div id="advRouletteResult" style="margin-top:14px;font-size:14px;font-weight:800;"></div></div></div>`;document.body.insertAdjacentHTML('beforeend',html)}document.getElementById('advRouletteModal').classList.remove('hidden');document.getElementById('advRouletteResult').innerHTML=''}
-function advRouletteSpin(){let w=document.getElementById('advRouletteWheel');w.classList.add('spinning');document.getElementById('advSpinBtn').disabled=true;setTimeout(()=>{let picks=['Easy','Medium','Hard','Advanced','Legendary','BONUS'];let p=picks[Math.floor(Math.random()*picks.length)];let r=p==='BONUS'?{c:50,x:100}:p==='Legendary'?{c:30,x:60}:{c:10,x:20};document.getElementById('advRouletteResult').innerHTML=`<div style="color:var(--gold);">🎯 ${p}!</div><div style="font-size:12px;color:var(--text-muted);">+${r.c} 🪙 +${r.x} XP</div>`;currentUser.coins=(currentUser.coins||0)+r.c;currentUser.xp=(currentUser.xp||0)+r.x;saveUserDB({coins:currentUser.coins,xp:currentUser.xp});w.classList.remove('spinning');document.getElementById('advSpinBtn').disabled=false;triggerConfetti();updateUIHeader()},3000)}
-
+function advRouletteOpen(){if(!document.getElementById('advRouletteModal')){let m=document.createElement('div');m.id='advRouletteModal';m.className='modal-overlay hidden';m.innerHTML='<div class="modal-content" style="max-width:420px;text-align:center;"><div class="flex-between mb-1"><h3 style="font-size:16px;">🎰 Roulette</h3><button class="btn-danger btn-sm" onclick="document.getElementById(\'advRouletteModal\').classList.add(\'hidden\')">✕</button></div><div style="position:relative;margin:20px auto;width:220px;height:220px;"><div class="roulette-wheel" id="advRouletteWheel" style="width:220px;height:220px;position:relative;background:conic-gradient(#6c5ce7 0deg 60deg,#00cec9 60deg 120deg,#fd79a8 120deg 180deg,#fdcb6e 180deg 240deg,#e17055 240deg 300deg,#00b894 300deg 360deg);"><div style="position:absolute;top:16px;left:50%;transform:translateX(-50%);font-size:22px;">🎁</div><div style="position:absolute;top:50%;right:16px;transform:translateY(-50%);font-size:22px;">💎</div><div style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:22px;">⭐</div><div style="position:absolute;top:50%;left:16px;transform:translateY(-50%);font-size:22px;">🏆</div><div style="position:absolute;top:38px;right:38px;font-size:16px;">💰</div><div style="position:absolute;bottom:38px;left:38px;font-size:16px;">🎯</div></div></div><button class="btn-gold mt-1" id="advSpinBtn" onclick="advRouletteSpin()" style="width:100%;">🎲 SPIN</button><div id="advRouletteResult" style="margin-top:14px;font-size:14px;font-weight:800;"></div><div id="advRouletteTimer" style="margin-top:10px;font-size:11px;color:var(--text-muted);font-weight:700;"></div></div>';document.getElementById('appRoot').appendChild(m)}document.getElementById('advRouletteModal').classList.remove('hidden');advRouletteCheckCooldown()}
+function advRouletteCheckCooldown(){let lastSpin=currentUser.lastRouletteSpin||0;let diff=Date.now()-lastSpin;let cooldown=24*60*60*1000;let btn=document.getElementById('advSpinBtn');let timerEl=document.getElementById('advRouletteTimer');if(!btn||!timerEl)return;if(window._rouletteTimerInt)clearInterval(window._rouletteTimerInt);if(diff>=cooldown){btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.innerHTML='🎲 SPIN';timerEl.innerHTML='✅ Ready to spin!';timerEl.style.color='var(--success)'}else{btn.disabled=true;btn.style.opacity='0.4';btn.style.cursor='not-allowed';let updateTimer=function(){let l=cooldown-(Date.now()-lastSpin);if(l<=0){clearInterval(window._rouletteTimerInt);advRouletteCheckCooldown();return}let hh=Math.floor(l/(60*60*1000));let mm=Math.floor((l%(60*60*1000))/(60*1000));let ss=Math.floor((l%(60*1000))/1000);let t=document.getElementById('advRouletteTimer');if(t)t.innerHTML='⏳ Next spin in: <b style="color:var(--gold);">'+hh+'h '+mm+'m '+ss+'s</b>'};btn.innerHTML='⏳ WAIT';updateTimer();window._rouletteTimerInt=setInterval(updateTimer,1000)}}
+function advRouletteSpin(){let lastSpin=currentUser.lastRouletteSpin||0;let diff=Date.now()-lastSpin;let cooldown=24*60*60*1000;if(diff<cooldown){showToast('⏳ Come back later!');return}let w=document.getElementById('advRouletteWheel');if(w)w.classList.add('spinning');let btn=document.getElementById('advSpinBtn');if(btn)btn.disabled=true;setTimeout(()=>{let picks=['Easy','Medium','Hard','Advanced','Legendary','BONUS'];let p=picks[Math.floor(Math.random()*picks.length)];let r=p==='BONUS'?{c:50,x:100}:p==='Legendary'?{c:30,x:60}:p==='Hard'?{c:20,x:40}:p==='Advanced'?{c:25,x:50}:{c:10,x:20};let res=document.getElementById('advRouletteResult');if(res)res.innerHTML='<div style="color:var(--gold);font-size:16px;">🎯 '+p+'!</div><div style="font-size:12px;color:var(--text-muted);margin-top:4px;">+'+r.c+' 🪙 +'+r.x+' XP</div>';currentUser.coins=(currentUser.coins||0)+r.c;currentUser.xp=(currentUser.xp||0)+r.x;currentUser.lastRouletteSpin=Date.now();saveUserDB({coins:currentUser.coins,xp:currentUser.xp,lastRouletteSpin:currentUser.lastRouletteSpin});if(w)w.classList.remove('spinning');triggerConfetti();updateUIHeader();setTimeout(advRouletteCheckCooldown,1000)},3000)}
 let _advBoss={hp:100,qi:0,qs:[],correct:0};
 function advBossOpen(){if(!document.getElementById('advBossModal')){let html=`<div class="modal-overlay hidden" id="advBossModal"><div class="modal-content" style="max-width:480px;"><div class="flex-between mb-1"><h3 style="font-size:16px;">👹 Boss Battle</h3><button class="btn-danger btn-sm" onclick="document.getElementById('advBossModal').classList.add('hidden')">✕</button></div><div id="advBossBody"></div></div></div>`;document.body.insertAdjacentHTML('beforeend',html)}document.getElementById('advBossModal').classList.remove('hidden');let qs=(allQuestions||[]).filter(q=>q.difficulty==='hard'||q.difficulty==='advanced');if(qs.length<10)qs=allQuestions;_advBoss.qs=shuffleArray([...qs]).slice(0,10);_advBoss.hp=100;_advBoss.qi=0;_advBoss.correct=0;advBossRender()}
 function advBossRender(){let b=document.getElementById('advBossBody');if(_advBoss.qi>=_advBoss.qs.length){advBossEnd();return}let q=_advBoss.qs[_advBoss.qi];let opts=shuffleArray((q.a||q.options||[]).map((t,i)=>({t,i,c:i===q.correct})));b.innerHTML=`<div class="boss-avatar">👹</div><div style="text-align:center;font-weight:800;margin-bottom:8px;">Chapter Boss</div><div class="boss-hp"><div class="boss-hp-fill" style="width:${_advBoss.hp}%;"></div></div><div style="text-align:center;font-size:11px;color:var(--text-muted);">HP: ${_advBoss.hp}% · Q${_advBoss.qi+1}/10</div><div class="card mt-1" style="padding:14px;"><div style="font-weight:700;font-size:14px;margin-bottom:8px;">${q.q}</div>${opts.map((o,i)=>`<div class="opt-btn" onclick="advBossAnswer(${o.c},this)"><span style="font-weight:bold;">${String.fromCharCode(65+i)}.</span> ${o.t}</div>`).join('')}</div>`}
@@ -1216,7 +1655,11 @@ function advFcRender(){let body=document.getElementById('advFcBody');if(!body)re
 function advFcFlip(){_advFc.flipped=!_advFc.flipped;advFcRender()}
 function advFcNext(){_advFc.idx++;_advFc.flipped=false;advFcRender()}
 function advFcPrev(){if(_advFc.idx>0)_advFc.idx--;_advFc.flipped=false;advFcRender()}
-function advCalcOpen(){let e=prompt('Calculator:');if(!e)return;try{let r=Function('"use strict";return ('+e+')')();alert('= '+r)}catch(err){alert('Invalid')}}
+function advCalcOpen(){if(!document.getElementById('advCalcModal')){let m=document.createElement('div');m.id='advCalcModal';m.className='modal-overlay hidden';m.innerHTML='<div class="modal-content" style="max-width:360px;"><div class="flex-between mb-1"><h3 style="font-size:16px;">🔢 Calculator</h3><button class="btn-danger btn-sm" onclick="document.getElementById(\'advCalcModal\').classList.add(\'hidden\')">✕</button></div><input id="advCalcInput" placeholder="0" style="font-size:20px;text-align:right;font-family:monospace;padding:14px;font-weight:800;margin-bottom:8px;"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"><button class="btn-outline" onclick="advCalcPress(\'7\')" style="padding:14px 6px;font-size:16px;">7</button><button class="btn-outline" onclick="advCalcPress(\'8\')" style="padding:14px 6px;font-size:16px;">8</button><button class="btn-outline" onclick="advCalcPress(\'9\')" style="padding:14px 6px;font-size:16px;">9</button><button class="btn-outline" onclick="advCalcPress(\'/\')" style="padding:14px 6px;font-size:16px;">÷</button><button class="btn-outline" onclick="advCalcPress(\'4\')" style="padding:14px 6px;font-size:16px;">4</button><button class="btn-outline" onclick="advCalcPress(\'5\')" style="padding:14px 6px;font-size:16px;">5</button><button class="btn-outline" onclick="advCalcPress(\'6\')" style="padding:14px 6px;font-size:16px;">6</button><button class="btn-outline" onclick="advCalcPress(\'*\')" style="padding:14px 6px;font-size:16px;">×</button><button class="btn-outline" onclick="advCalcPress(\'1\')" style="padding:14px 6px;font-size:16px;">1</button><button class="btn-outline" onclick="advCalcPress(\'2\')" style="padding:14px 6px;font-size:16px;">2</button><button class="btn-outline" onclick="advCalcPress(\'3\')" style="padding:14px 6px;font-size:16px;">3</button><button class="btn-outline" onclick="advCalcPress(\'-\')" style="padding:14px 6px;font-size:16px;">−</button><button class="btn-outline" onclick="advCalcPress(\'0\')" style="padding:14px 6px;font-size:16px;">0</button><button class="btn-outline" onclick="advCalcPress(\'.\')" style="padding:14px 6px;font-size:16px;">.</button><button class="btn-outline" onclick="advCalcPress(\'+\')" style="padding:14px 6px;font-size:16px;">+</button><button class="btn-gold" onclick="advCalcEqual()" style="padding:14px 6px;font-size:16px;">=</button><button class="btn-danger" onclick="advCalcClear()" style="padding:14px 6px;font-size:13px;grid-column:span 2;">C</button><button class="btn-accent" onclick="advCalcBack()" style="padding:14px 6px;font-size:14px;grid-column:span 2;">⌫</button></div><div id="advCalcResult" style="margin-top:12px;font-size:22px;font-weight:900;text-align:right;color:var(--primary);min-height:32px;padding:10px;background:var(--surface);border-radius:10px;font-family:monospace;"></div></div>';document.getElementById('appRoot').appendChild(m)}document.getElementById('advCalcModal').classList.remove('hidden');setTimeout(()=>{let i=document.getElementById('advCalcInput');if(i)i.focus()},100)}
+function advCalcPress(v){let i=document.getElementById('advCalcInput');if(i)i.value+=v}
+function advCalcClear(){let i=document.getElementById('advCalcInput');if(i)i.value='';let r=document.getElementById('advCalcResult');if(r){r.innerText='';r.style.color='var(--primary)'}}
+function advCalcBack(){let i=document.getElementById('advCalcInput');if(i)i.value=i.value.slice(0,-1)}
+function advCalcEqual(){let i=document.getElementById('advCalcInput');if(!i||!i.value)return;let r=document.getElementById('advCalcResult');try{let res=Function('"use strict";return ('+i.value+')')();r.innerText='= '+res;r.style.color='var(--primary)'}catch(e){r.innerText='❌ Invalid';r.style.color='var(--danger)'}}
 function advExamFlag(idx){let flags=currentUser.flaggedQuestions||[];if(flags.includes(idx)){flags=flags.filter(i=>i!==idx);showToast('Flag removed')}else{flags.push(idx);showToast('🚩 Flagged')}currentUser.flaggedQuestions=flags;saveUserDB({flaggedQuestions:flags});if(typeof exRenderQ==='function')exRenderQ()}
 if(!window._examEnhPatch){window._examEnhPatch=true;const _oER=exRenderQ;exRenderQ=function(){_oER.apply(this,arguments);let q=document.getElementById('exQArea');if(q&&!q.querySelector('.q-flag-btn')){let i=FE.ex.current;let f=(currentUser.flaggedQuestions||[]).includes(i);let c=q.querySelector('.card');if(c){c.style.position='relative';let b=document.createElement('div');b.className='q-flag-btn'+(f?' flagged':'');b.innerHTML=f?'🚩':'🏳️';b.onclick=function(e){e.stopPropagation();advExamFlag(i)};c.appendChild(b)}}}}
 if(!window._fcGhostPatch){window._fcGhostPatch=true;const _oeS=exSubmit;exSubmit=function(){_oeS.apply(this,arguments);setTimeout(()=>{let pct=parseInt((document.getElementById('exPct')||{}).innerText)||0;if(window._isDailyChallenge){window._isDailyChallenge=false;let t=new Date().toLocaleDateString();currentUser.dailyChallengeDate=t;currentUser.coins=(currentUser.coins||0)+50;currentUser.xp=(currentUser.xp||0)+80;saveUserDB({coins:currentUser.coins,xp:currentUser.xp,dailyChallengeDate:t});showToast('🎯 +50🪙 +80XP');triggerConfetti()}if(window._isGhostMode){window._isGhostMode=false;if(pct>(window._ghostBest||0)){currentUser.ghostBestScore=pct;currentUser.coins=(currentUser.coins||0)+30;currentUser.xp=(currentUser.xp||0)+50;saveUserDB({ghostBestScore:pct,coins:currentUser.coins,xp:currentUser.xp});showToast(`👻 Beat! ${pct}%`);triggerConfetti()}}},500)}}
@@ -1302,7 +1745,180 @@ setTimeout(()=>{let p=document.getElementById('pageProfile');if(p&&!document.get
 setTimeout(()=>{if(currentUser&&currentUser.id){advReferralInit();if(currentUser.language)advSetLang(currentUser.language)}},3000);
 console.log('🎉 PART 7 loaded!');
 console.log('🏆 HSC SMART EXAM — PRODUCTION READY');
+/* ═══════════════════════════════════════════════════════════
+   PART 3B: TARGET SETTING + STREAK CALENDAR + DAY ACTIVITY
+   ═══════════════════════════════════════════════════════════ */
 
+/* ═══════ TARGET SETTING ═══════ */
+function advOpenTargetSet(){document.getElementById('targetSetModal').classList.remove('hidden');advRenderTargetSet()}
+function advRenderTargetSet(){let targets=currentUser.subjectTargets||{};let subjects=[{name:'Physics',key:'physics',icon:'⚛️'},{name:'Chemistry',key:'chemistry',icon:'⚗️'},{name:'Biology',key:'biology',icon:'🧬'},{name:'Higher Math',key:'math',icon:'📐'},{name:'English',key:'english',icon:'📝'},{name:'Bangla',key:'bangla',icon:'📖'}];let html='';subjects.forEach(s=>{let cur=targets[s.key]||0;html+='<div class="target-card"><div class="target-header"><div class="target-title"><span style="font-size:20px;">'+s.icon+'</span>'+s.name+'</div><div class="target-value" id="tgtVal_'+s.key+'">'+cur+'%</div></div><input type="range" class="target-slider" min="0" max="100" step="5" value="'+cur+'" oninput="document.getElementById(\'tgtVal_'+s.key+'\').innerText=this.value+\'%\'" onchange="advUpdateTarget(\''+s.key+'\',this.value)"><div class="target-presets">';[50,70,80,90].forEach(v=>{html+='<div class="target-preset '+(cur==v?'active':'')+'" onclick="advSetPreset(\''+s.key+'\','+v+')">'+v+'%</div>'});html+='</div></div>'});html+='<button class="btn-primary mt-1" onclick="advSaveAllTargets()" style="width:100%;">💾 Save All Targets</button>';document.getElementById('targetSetBody').innerHTML=html}
+function advUpdateTarget(key,val){currentUser.subjectTargets=currentUser.subjectTargets||{};currentUser.subjectTargets[key]=parseInt(val)}
+function advSetPreset(key,val){currentUser.subjectTargets=currentUser.subjectTargets||{};currentUser.subjectTargets[key]=val;advRenderTargetSet()}
+function advSaveAllTargets(){saveUserDB({subjectTargets:currentUser.subjectTargets});showToast('🎯 Targets saved!');document.getElementById('targetSetModal').classList.add('hidden');advRenderTargetsPreview();advRenderHomeTargetBadge()}
+function advRenderTargetsPreview(){let el=document.getElementById('profTargetsPreview');if(!el)return;let targets=currentUser.subjectTargets||{};let subjProg=currentUser.subjProg||{};let subjects=[{name:'Physics',key:'physics',icon:'⚛️'},{name:'Chemistry',key:'chemistry',icon:'⚗️'},{name:'Biology',key:'biology',icon:'🧬'}];let html='';let hasTarget=false;subjects.forEach(s=>{let target=targets[s.key]||0;if(target===0)return;hasTarget=true;let key=Object.keys(subjProg).find(k=>k.toLowerCase().includes(s.key));let acc=0;if(key&&subjProg[key]){let p=subjProg[key];let tot=(p.c||0)+(p.w||0);acc=tot>0?Math.round((p.c/tot)*100):0}let pct=target>0?Math.min(100,Math.round((acc/target)*100)):0;let done=acc>=target;html+='<div class="target-level" style="margin-top:10px;"><span class="lvl-name">'+s.icon+' '+s.name+'</span><span class="lvl-val" style="color:'+(done?'var(--success)':'var(--text-main)')+';">'+acc+'/'+target+'%</span></div><div class="target-progress"><div class="target-progress-fill'+(done?' done':'')+'" style="width:'+pct+'%;"></div></div>'});el.innerHTML=hasTarget?html:'<div style="font-size:11px;color:var(--text-muted);text-align:center;padding:8px;">No targets set yet. Tap to add.</div>'}
+
+/* ═══════ STREAK CALENDAR ═══════ */
+let _calDate=new Date();
+function advRenderStreakCalendar(){let title=document.getElementById('strCalTitle');if(!title)return;let y=_calDate.getFullYear(),m=_calDate.getMonth();let monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];title.innerHTML=monthNames[m]+'<small>'+y+'</small>';let first=new Date(y,m,1).getDay();let daysInMonth=new Date(y,m+1,0).getDate();let grid=document.getElementById('strCalGrid');let html='';for(let i=0;i<first;i++)html+='<div class="str-cal-day empty"></div>';let today=new Date();let todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');let activeCount=0,totalExams=0;for(let d=1;d<=daysInMonth;d++){let dateStr=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');let activity=(currentUser.dailyActivity||{})[dateStr]||{};let exams=activity.exams||0;let qs=activity.questions||0;let level=qs===0?'lv0':qs<5?'lv1':qs<10?'lv2':qs<20?'lv3':'lv4';if(qs>0)activeCount++;totalExams+=exams;let isToday=dateStr===todayStr;let isFuture=new Date(y,m,d)>today;let cls='str-cal-day '+level+(isToday?' today':'')+(isFuture?' future':'');html+='<div class="'+cls+'" onclick="'+(isFuture?'':'advOpenDayActivity(\''+dateStr+'\')')+'"><span class="day-num">'+d+'</span>'+(exams>0?'<span class="day-dot"></span>':'')+'</div>'}grid.innerHTML=html;let aEl=document.getElementById('strCalActive');if(aEl)aEl.innerText=activeCount;let eEl=document.getElementById('strCalExams');if(eEl)eEl.innerText=totalExams;let sEl=document.getElementById('strCalStreak');if(sEl)sEl.innerText=currentUser.streak||0}
+function advPrevMonth(){_calDate.setMonth(_calDate.getMonth()-1);advRenderStreakCalendar()}
+function advNextMonth(){_calDate.setMonth(_calDate.getMonth()+1);advRenderStreakCalendar()}
+
+/* ═══════ DAY ACTIVITY ═══════ */
+function advOpenDayActivity(dateStr){document.getElementById('dayActivityModal').classList.remove('hidden');advRenderDayActivity(dateStr)}
+function advRenderDayActivity(dateStr){let body=document.getElementById('dayActivityBody');let activity=(currentUser.dailyActivity||{})[dateStr]||{};let dObj=new Date(dateStr);let dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];let monthShort=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];let dateDisplay=dObj.getDate()+' '+monthShort[dObj.getMonth()]+' '+dObj.getFullYear();let exams=activity.exams||0;let qs=activity.questions||0;let correct=activity.correct||0;let wrong=activity.wrong||0;let acc=qs>0?Math.round((correct/qs)*100):0;let timeSpent=activity.timeSpent||0;let xpEarned=activity.xpEarned||0;let html='<div class="day-activity-header"><div class="day-activity-date">'+dateDisplay+'</div><div class="day-activity-day">'+dayNames[dObj.getDay()]+'</div></div>';if(qs===0&&exams===0){html+='<div class="activity-empty"><div class="ae-icon">😴</div><div class="ae-title">No Activity</div><div class="ae-sub">You didn\'t practice this day</div></div>';body.innerHTML=html;return}html+='<div class="day-activity-rings"><div class="day-ring"><div class="day-ring-circle blue">'+exams+'</div><div class="day-ring-label">Exams</div></div><div class="day-ring"><div class="day-ring-circle green">'+acc+'%</div><div class="day-ring-label">Accuracy</div></div><div class="day-ring"><div class="day-ring-circle gold">'+timeSpent+'m</div><div class="day-ring-label">Time</div></div></div>';html+='<div class="grid-2 mb-1" style="gap:8px;"><div class="stat-box card" style="padding:12px;margin:0;"><div class="num" style="color:var(--primary);">'+qs+'</div><div class="label">Questions</div></div><div class="stat-box card" style="padding:12px;margin:0;"><div class="num" style="color:var(--success);">'+correct+'</div><div class="label">Correct</div></div><div class="stat-box card" style="padding:12px;margin:0;"><div class="num" style="color:var(--danger);">'+wrong+'</div><div class="label">Wrong</div></div><div class="stat-box card" style="padding:12px;margin:0;"><div class="num" style="color:var(--gold);">'+xpEarned+'</div><div class="label">XP</div></div></div>';let subjects=activity.subjects||{};let subjKeys=Object.keys(subjects);if(subjKeys.length>0){html+='<h4 style="font-size:12px;color:var(--text-muted);font-weight:800;text-transform:uppercase;margin:14px 0 8px;">📚 Subjects</h4>';subjKeys.forEach(k=>{let s=subjects[k];let sAcc=s.questions>0?Math.round((s.correct/s.questions)*100):0;html+='<div class="activity-list-item"><div class="ali-icon info">📘</div><div class="ali-info"><div class="ali-title">'+k.charAt(0).toUpperCase()+k.slice(1)+'</div><div class="ali-sub">'+s.questions+' Qs · '+s.correct+' correct</div></div><div class="ali-badge" style="color:'+(sAcc>=70?'var(--success)':sAcc>=40?'var(--gold)':'var(--danger)')+';">'+sAcc+'%</div></div>'})}let examList=activity.examList||[];if(examList.length>0){html+='<h4 style="font-size:12px;color:var(--text-muted);font-weight:800;text-transform:uppercase;margin:14px 0 8px;">📝 Exams Taken</h4>';examList.forEach(e=>{let icon=e.percent>=70?'success':e.percent>=50?'warn':'danger';let emoji=e.percent>=70?'✅':e.percent>=50?'⚠️':'❌';html+='<div class="activity-list-item"><div class="ali-icon '+icon+'">'+emoji+'</div><div class="ali-info"><div class="ali-title">'+(e.name||'Exam')+'</div><div class="ali-sub">'+(e.time||'')+(e.duration?' · '+e.duration+'m':'')+'</div></div><div class="ali-badge" style="color:var(--primary);">'+e.percent+'%</div></div>'})}body.innerHTML=html}
+
+/* ═══════ HOME TARGET BADGE ═══════ */
+function advRenderHomeTargetBadge(){let badge=document.getElementById('homeTargetBadge');if(!badge)return;let targets=currentUser.subjectTargets||{};let subjProg=currentUser.subjProg||{};let totalTarget=0,totalAcc=0,count=0;Object.keys(targets).forEach(k=>{if(targets[k]>0){totalTarget+=targets[k];let key=Object.keys(subjProg).find(x=>x.toLowerCase().includes(k));let acc=0;if(key&&subjProg[key]){let p=subjProg[key];let tot=(p.c||0)+(p.w||0);acc=tot>0?Math.round((p.c/tot)*100):0}totalAcc+=acc;count++}});if(count===0){badge.style.display='none';return}let avgTarget=Math.round(totalTarget/count);let avgAcc=Math.round(totalAcc/count);let pct=avgTarget>0?Math.min(100,Math.round((avgAcc/avgTarget)*100)):0;badge.style.display='flex';let v=document.getElementById('homeTargetValue');if(v)v.innerText=avgAcc+'/'+avgTarget+'%';let p=document.getElementById('homeTargetPercent');if(p)p.innerText=pct+'%'}
+
+/* ═══════ AUTO-LOAD ON PROFILE NAVIGATION ═══════ */
+let _origNav_P3B=navTo;
+navTo=function(pageId){_origNav_P3B.apply(this,arguments);if(pageId==='pageProfile'){setTimeout(()=>{advRenderTargetsPreview();advRenderStreakCalendar();advRenderHomeTargetBadge()},200)}if(pageId==='pageHome'){setTimeout(advRenderHomeTargetBadge,200)}}
+
+console.log('✅ PART 3B loaded — Target, Calendar, Day Activity');
+/* ═══════════════════════════════════════════════════════════
+   PART 3C: FRIEND + EXPORT + THEMES + GLOBAL SEARCH
+   ═══════════════════════════════════════════════════════════ */
+
+/* ═══════ FRIEND SYSTEM (LOCAL STORAGE) ═══════ */
+function advLoadFriendsLocal(){try{let data=localStorage.getItem('hscFriends');return data?JSON.parse(data):[]}catch(e){return[]}}
+function advSaveFriendsLocal(list){try{localStorage.setItem('hscFriends',JSON.stringify(list))}catch(e){}}
+function advOpenFriendAdd(){document.getElementById('friendAddModal').classList.remove('hidden');document.getElementById('friendNameInput').value='';document.getElementById('friendIdInput').value='';setTimeout(()=>{let i=document.getElementById('friendNameInput');if(i)i.focus()},100)}
+function advSaveFriend(){let name=document.getElementById('friendNameInput').value.trim();let id=document.getElementById('friendIdInput').value.trim();if(!name){showToast('❌ Enter friend\'s name');return}let list=advLoadFriendsLocal();let exists=list.find(f=>f.name.toLowerCase()===name.toLowerCase());if(exists){showToast('⚠️ Friend already added');return}let newFriend={id:id||'local_'+Date.now(),name:name,addedAt:Date.now(),color:list.length%5+1};list.push(newFriend);advSaveFriendsLocal(list);showToast('✅ '+name+' added!');document.getElementById('friendAddModal').classList.add('hidden');advRenderFriends()}
+function advRemoveFriend(id){if(!confirm('Remove this friend?'))return;let list=advLoadFriendsLocal();list=list.filter(f=>f.id!==id);advSaveFriendsLocal(list);showToast('🗑️ Friend removed');advRenderFriends()}
+function advRenderFriends(){let el=document.getElementById('profFriendList');if(!el)return;let list=advLoadFriendsLocal();if(list.length===0){el.innerHTML='<div class="friend-empty"><div class="fe-icon">👥</div><div class="fe-title">No Friends Yet</div><div class="fe-sub">Tap + to add your study buddies</div></div>';return}let html='';list.forEach(f=>{let initial=(f.name||'U').charAt(0).toUpperCase();html+='<div class="friend-list-item"><div class="friend-avatar color-'+f.color+'">'+initial+'</div><div class="friend-info"><div class="friend-name">'+f.name+'</div><div class="friend-id">'+(f.id.startsWith('local_')?'ID: '+f.id.slice(-6):'ID: '+f.id)+'</div></div><div class="friend-actions"><button class="btn-danger btn-xs" onclick="advRemoveFriend(\''+f.id+'\')" style="width:auto;padding:6px 10px;">❌</button></div></div>'});el.innerHTML=html}
+
+/* ═══════ EXPORT SYSTEM ═══════ */
+function advOpenExport(){document.getElementById('exportModal').classList.remove('hidden')}
+function advExportJSON(){let data={user:{name:currentUser.name,batch:currentUser.batch,coins:currentUser.coins,xp:currentUser.xp,level:currentUser.level,streak:currentUser.streak,gems:currentUser.gems,joinDate:currentUser.joinDate},exportDate:new Date().toISOString(),subjProg:currentUser.subjProg||{},qbProgress:currentUser.qbProgress||{},chapterProgress:currentUser.chapterProgress||{},dailyActivity:currentUser.dailyActivity||{},subjectTargets:currentUser.subjectTargets||{},streakData:currentUser.streakData||{},friends:advLoadFriendsLocal(),badges:currentUser.badges||[],mistakes:currentUser.mistakes||[],bookmarks:currentUser.bookmarks||[]};let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='HSC_Backup_'+currentUser.name+'_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showToast('📦 JSON exported!')}
+function advExportCSV(){let rows=[['Date','Exams','Questions','Correct','Wrong','Accuracy','Time (min)','XP']];let activity=currentUser.dailyActivity||{};Object.keys(activity).sort().forEach(date=>{let a=activity[date];let acc=a.questions>0?Math.round((a.correct/a.questions)*100):0;rows.push([date,a.exams||0,a.questions||0,a.correct||0,a.wrong||0,acc+'%',a.timeSpent||0,a.xpEarned||0])});let csv=rows.map(r=>r.join(',')).join('\n');let blob=new Blob([csv],{type:'text/csv'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='HSC_Activity_'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showToast('📊 CSV exported!')}
+function advExportPDF(){if(typeof html2pdf==='undefined'){showToast('❌ PDF library not loaded');return}let totalQ=currentUser.totalQ||0;let correct=currentUser.totalCorrect||0;let wrong=currentUser.totalWrong||0;let acc=totalQ>0?Math.round((correct/totalQ)*100):0;let html='<div style="padding:30px;background:#fff;color:#1a1a2e;font-family:sans-serif;max-width:800px;"><div style="text-align:center;border-bottom:3px solid #6c5ce7;padding-bottom:20px;margin-bottom:20px;"><h1 style="color:#6c5ce7;font-size:28px;margin:0;">HSC Smart Exam</h1><p style="color:#666;margin:5px 0;font-size:12px;">Progress Report</p></div><div style="margin-bottom:20px;"><h2 style="font-size:18px;color:#333;">👤 Student Info</h2><table style="width:100%;font-size:13px;"><tr><td style="padding:6px 0;"><b>Name:</b></td><td>'+currentUser.name+'</td></tr><tr><td style="padding:6px 0;"><b>Batch:</b></td><td>'+currentUser.batch+'</td></tr><tr><td style="padding:6px 0;"><b>Level:</b></td><td>'+currentUser.level+'</td></tr><tr><td style="padding:6px 0;"><b>XP:</b></td><td>'+Math.round(currentUser.xp||0)+'</td></tr><tr><td style="padding:6px 0;"><b>Coins:</b></td><td>'+currentUser.coins+'</td></tr><tr><td style="padding:6px 0;"><b>Streak:</b></td><td>'+currentUser.streak+' days 🔥</td></tr></table></div><div style="margin-bottom:20px;"><h2 style="font-size:18px;color:#333;">📊 Overall Stats</h2><table style="width:100%;font-size:13px;"><tr><td style="padding:6px 0;"><b>Total Questions:</b></td><td>'+totalQ+'</td></tr><tr><td style="padding:6px 0;"><b>Correct:</b></td><td style="color:#00b894;">'+correct+'</td></tr><tr><td style="padding:6px 0;"><b>Wrong:</b></td><td style="color:#e17055;">'+wrong+'</td></tr><tr><td style="padding:6px 0;"><b>Accuracy:</b></td><td><b>'+acc+'%</b></td></tr></table></div><div style="margin-top:30px;padding-top:15px;border-top:1px solid #ddd;text-align:center;font-size:10px;color:#999;">Generated by HSC Smart Exam • '+new Date().toLocaleString()+'</div></div>';let opt={margin:10,filename:'HSC_Report_'+currentUser.name+'_'+new Date().toISOString().slice(0,10)+'.pdf',image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};html2pdf().set(opt).from(html).save();showToast('📄 PDF generating...')}
+
+/* ═══════ THEMES PICKER ═══════ */
+const ADV_THEMES=[{id:'dark',name:'Dark',preview:'dark'},{id:'light',name:'Light',preview:'light'},{id:'neon',name:'Neon',preview:'neon'},{id:'sunset',name:'Sunset',preview:'sunset'},{id:'ocean',name:'Ocean',preview:'ocean'},{id:'midnight',name:'Midnight',preview:'midnight'}];
+function advOpenThemePicker(){document.getElementById('themePickerModal').classList.remove('hidden');advRenderThemes()}
+function advRenderThemes(){let el=document.getElementById('themePickerGrid');if(!el)return;let cur=currentUser.theme||'dark';let html='';ADV_THEMES.forEach(t=>{let active=t.id===cur;html+='<div class="theme-option '+(active?'active':'')+'" onclick="advApplyThemeChoice(\''+t.id+'\')"><div class="t-preview '+t.preview+'"><div class="tp-box" style="background:#6c5ce7"></div><div class="tp-box" style="background:#00cec9"></div><div class="tp-box" style="background:#fdcb6e"></div></div><div class="t-name">'+t.name+'</div>'+(active?'<div class="t-check">✓</div>':'')+'</div>'});el.innerHTML=html}
+function advApplyThemeChoice(tid){currentUser.theme=tid;saveUserDB({theme:tid});if(typeof advApplyTheme==='function')advApplyTheme(tid);advRenderThemes();showToast('🎨 '+tid.charAt(0).toUpperCase()+tid.slice(1)+' applied!')}
+
+/* ═══════ GLOBAL SEARCH ═══════ */
+function advOpenGlobalSearch(){document.getElementById('globalSearchModal').classList.remove('hidden');document.getElementById('globalSearchInput').value='';document.getElementById('globalSearchResults').innerHTML='<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Type to search...</div>';setTimeout(()=>{let i=document.getElementById('globalSearchInput');if(i)i.focus()},100)}
+function advRunGlobalSearch(){let q=document.getElementById('globalSearchInput').value.trim().toLowerCase();let el=document.getElementById('globalSearchResults');if(!el)return;if(q.length<2){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Type at least 2 characters</div>';return}let html='';let qs=(allQuestions||[]).filter(x=>x.q&&x.q.toLowerCase().includes(q)).slice(0,10);if(qs.length>0){html+='<div class="search-result-group"><div class="search-group-title">📚 Questions ('+qs.length+')</div>';qs.forEach(x=>{html+='<div class="search-result-item" onclick="document.getElementById(\'globalSearchModal\').classList.add(\'hidden\');openQBPractice(\''+x.id+'\')"><div class="sri-icon">📖</div><div class="sri-info"><div class="sri-title">'+x.q.substring(0,70)+'...</div><div class="sri-sub">'+(x.subject||'')+' · '+(x.chapter||'')+'</div></div></div>'});html+='</div>'}let us=(allUsers||[]).filter(x=>x.name&&x.name.toLowerCase().includes(q)).slice(0,10);if(us.length>0){html+='<div class="search-result-group"><div class="search-group-title">👥 Users ('+us.length+')</div>';us.forEach(u=>{html+='<div class="search-result-item" onclick="document.getElementById(\'globalSearchModal\').classList.add(\'hidden\')"><div class="sri-icon">👤</div><div class="sri-info"><div class="sri-title">'+u.name+'</div><div class="sri-sub">Level '+getLevel(u.xp||0).level+' · '+Math.round(u.xp||0)+' XP</div></div></div>'});html+='</div>'}let ns=(allNotes||[]).filter(x=>(x.title&&x.title.toLowerCase().includes(q))||(x.content&&x.content.toLowerCase().includes(q))).slice(0,10);if(ns.length>0){html+='<div class="search-result-group"><div class="search-group-title">📝 Notes ('+ns.length+')</div>';ns.forEach(n=>{html+='<div class="search-result-item" onclick="document.getElementById(\'globalSearchModal\').classList.add(\'hidden\');navTo(\'pageNotes\')"><div class="sri-icon">📄</div><div class="sri-info"><div class="sri-title">'+(n.title||'Note')+'</div><div class="sri-sub">'+(n.subject||'')+'</div></div></div>'});html+='</div>'}let friends=advLoadFriendsLocal().filter(f=>f.name.toLowerCase().includes(q)).slice(0,5);if(friends.length>0){html+='<div class="search-result-group"><div class="search-group-title">👥 My Friends ('+friends.length+')</div>';friends.forEach(f=>{html+='<div class="search-result-item"><div class="sri-icon">⭐</div><div class="sri-info"><div class="sri-title">'+f.name+'</div><div class="sri-sub">Local friend</div></div></div>'});html+='</div>'}el.innerHTML=html||'<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">No results found</div>'}
+
+/* ═══════ INJECT SEARCH BUTTON TO HEADER ═══════ */
+setTimeout(()=>{let header=document.querySelector('.header');if(header&&!document.getElementById('advSearchBtn')){let rightSide=header.querySelector('div[style*="display:flex"]');if(rightSide){let searchBtn=document.createElement('i');searchBtn.id='advSearchBtn';searchBtn.className='fa-solid fa-magnifying-glass';searchBtn.style.cssText='font-size:18px;color:var(--text-muted);cursor:pointer;';searchBtn.onclick=advOpenGlobalSearch;rightSide.insertBefore(searchBtn,rightSide.firstChild)}}},3000);
+
+/* ═══════ UPDATE PROFILE HOOK ═══════ */
+let _origNav_P3C=navTo;
+navTo=function(pageId){_origNav_P3C.apply(this,arguments);if(pageId==='pageProfile'){setTimeout(advRenderFriends,200)}}
+
+console.log('✅ PART 3C loaded — Friends, Export, Themes, Search');
+/* ═══════════════════════════════════════════════════════════
+   PART 4A: AI TARGET + ADAPTIVE + MULTI-LEVEL + DEADLINE
+   ═══════════════════════════════════════════════════════════ */
+
+/* ═══════ AI SMART TARGET ═══════ */
+function advAISmartTarget(){let subjProg=currentUser.subjProg||{};let suggestions=[];let subjects=[{name:'Physics',key:'physics'},{name:'Chemistry',key:'chemistry'},{name:'Biology',key:'biology'},{name:'Higher Math',key:'math'},{name:'English',key:'english'},{name:'Bangla',key:'bangla'}];subjects.forEach(s=>{let key=Object.keys(subjProg).find(k=>k.toLowerCase().includes(s.key));let acc=0,total=0;if(key&&subjProg[key]){let p=subjProg[key];total=(p.c||0)+(p.w||0);acc=total>0?Math.round((p.c/total)*100):0}if(total<5)return;let suggested=Math.min(95,acc+15);if(acc>=90)suggested=95;else if(acc>=80)suggested=Math.min(95,acc+5);else if(acc>=60)suggested=Math.min(90,acc+10);else if(acc>=40)suggested=Math.min(85,acc+15);else suggested=Math.min(80,acc+20);suggestions.push({name:s.name,key:s.key,current:acc,suggested:suggested})});if(suggestions.length===0){showToast('📊 Complete more exams first');return}suggestions.sort((a,b)=>a.current-b.current);let html='<div class="ai-target-box"><div class="ai-target-header"><span style="font-size:18px;">🤖</span> AI RECOMMENDS</div>';suggestions.slice(0,6).forEach(s=>{html+='<div class="ai-suggest-row"><span class="asr-subject">'+s.name+'</span><span class="asr-change">'+s.current+'% → '+s.suggested+'%</span></div>'});html+='<div style="font-size:10px;color:var(--text-muted);margin-top:10px;text-align:center;">Realistic goals based on your pace</div><button class="btn-primary mt-1" onclick="advAcceptAllAITargets()" style="width:100%;padding:10px;font-size:12px;">✅ Accept All</button></div>';let body=document.getElementById('targetSetBody');if(!body)return;body.innerHTML=html+body.innerHTML;window._aiSuggestions=suggestions}
+function advAcceptAllAITargets(){let s=window._aiSuggestions||[];if(s.length===0)return;currentUser.subjectTargets=currentUser.subjectTargets||{};s.forEach(x=>{currentUser.subjectTargets[x.key]=x.suggested});saveUserDB({subjectTargets:currentUser.subjectTargets});showToast('🤖 AI targets applied!');advRenderTargetSet();advRenderTargetsPreview();advRenderHomeTargetBadge()}
+
+/* ═══════ ADAPTIVE DAILY TARGET ═══════ */
+function advCalculateAdaptiveTarget(){let activity=currentUser.dailyActivity||{};let dates=Object.keys(activity).sort().slice(-7);if(dates.length<3)return null;let totalQs=0;dates.forEach(d=>{totalQs+=activity[d].questions||0});let avgPerDay=Math.round(totalQs/dates.length);let yesterday=activity[dates[dates.length-1]];let yQs=yesterday?yesterday.questions||0:0;let adaptive=avgPerDay;if(yQs>avgPerDay*1.5)adaptive=Math.round(avgPerDay*1.2);else if(yQs<avgPerDay*0.5)adaptive=Math.round(avgPerDay*0.8);adaptive=Math.max(5,Math.min(50,adaptive));return{avg:avgPerDay,today:adaptive,yesterday:yQs}}
+
+/* ═══════ MULTI-LEVEL TARGET ═══════ */
+function advGetSubjectStats(subKey){let subjProg=currentUser.subjProg||{};let key=Object.keys(subjProg).find(k=>k.toLowerCase().includes(subKey));if(!key)return null;let p=subjProg[key];let total=(p.c||0)+(p.w||0);let acc=total>0?Math.round((p.c/total)*100):0;return{acc:acc,total:total,correct:p.c||0,wrong:p.w||0}}
+function advRenderMultiLevelTarget(subKey){let st=advGetSubjectStats(subKey);if(!st)return'';let acc=st.acc;let min=Math.max(40,acc+5);let good=Math.max(60,acc+10);let excellent=Math.max(80,acc+15);let html='<div class="multi-level">';let levels=[{name:'Minimum',icon:'🥉',val:min,cls:'min'},{name:'Good',icon:'🥈',val:good,cls:'good'},{name:'Excellent',icon:'🥇',val:excellent,cls:'excellent'}];levels.forEach(l=>{let done=acc>=l.val;let color=done?'var(--success)':l.cls==='excellent'?'var(--success)':l.cls==='good'?'var(--gold)':'var(--secondary)';html+='<div class="multi-level-row '+l.cls+'"><span style="font-size:16px;">'+l.icon+'</span><span class="mlr-label">'+l.name+'</span><span class="mlr-value" style="color:'+color+';">'+(done?'✅ ':'')+l.val+'%</span></div>'});html+='</div>';return html}
+
+/* ═══════ DEADLINE TARGET ═══════ */
+function advOpenDeadlineSet(){if(!document.getElementById('deadlineModal')){let m=document.createElement('div');m.id='deadlineModal';m.className='modal-overlay hidden';m.innerHTML='<div class="modal-content" style="max-width:440px;"><div class="flex-between mb-1"><h3 style="font-size:16px;">⏰ Set Deadline</h3><button class="btn-danger btn-sm" onclick="document.getElementById(\'deadlineModal\').classList.add(\'hidden\')">✕</button></div><div id="deadlineBody"></div></div>';document.getElementById('appRoot').appendChild(m)}document.getElementById('deadlineModal').classList.remove('hidden');advRenderDeadlineSet()}
+function advRenderDeadlineSet(){let deadlines=currentUser.deadlineTargets||{};let subjects=[{name:'Physics',key:'physics'},{name:'Chemistry',key:'chemistry'},{name:'Biology',key:'biology'},{name:'Higher Math',key:'math'}];let html='<p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;font-weight:600;">Set accuracy goal with deadline</p>';subjects.forEach(s=>{let d=deadlines[s.key]||{};let todayStr=new Date().toISOString().slice(0,10);html+='<div class="card glass-card" style="padding:12px;margin-bottom:8px;"><div class="flex-between mb-1"><b style="font-size:13px;">'+s.name+'</b></div><div class="grid-2" style="gap:8px;"><div><label class="builder-label">Target %</label><input type="number" id="dlTarget_'+s.key+'" value="'+(d.target||90)+'" min="0" max="100" style="padding:8px;"></div><div><label class="builder-label">Deadline</label><input type="date" id="dlDate_'+s.key+'" value="'+(d.date||todayStr)+'" style="padding:8px;"></div></div><button class="btn-outline btn-xs mt-1" onclick="advSaveDeadline(\''+s.key+'\')" style="width:100%;padding:6px;">💾 Save</button>'+(d.target?'<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">Current: '+d.target+'% by '+d.date+'</div>':'')+'</div>'});document.getElementById('deadlineBody').innerHTML=html}
+function advSaveDeadline(key){let target=document.getElementById('dlTarget_'+key).value;let date=document.getElementById('dlDate_'+key).value;if(!target||!date){showToast('❌ Fill both fields');return}currentUser.deadlineTargets=currentUser.deadlineTargets||{};currentUser.deadlineTargets[key]={target:parseInt(target),date:date};saveUserDB({deadlineTargets:currentUser.deadlineTargets});showToast('⏰ Deadline saved!');advRenderDeadlineSet()}
+
+/* ═══════ INJECT AI + DEADLINE BUTTONS TO TARGET MODAL ═══════ */
+let _origAdvRenderTargetSet_P4A=advRenderTargetSet;
+advRenderTargetSet=function(){_origAdvRenderTargetSet_P4A.apply(this,arguments);let body=document.getElementById('targetSetBody');if(!body)return;let extra='<div class="grid-2 mt-1" style="gap:8px;"><button class="btn-outline" onclick="advAISmartTarget()" style="padding:10px;font-size:11px;">🤖 AI Suggest</button><button class="btn-outline" onclick="document.getElementById(\'targetSetModal\').classList.add(\'hidden\');advOpenDeadlineSet()" style="padding:10px;font-size:11px;">⏰ Deadlines</button></div>';body.insertAdjacentHTML('beforeend',extra)};
+
+console.log('✅ PART 4A loaded — AI Target, Adaptive, Multi-Level, Deadline');
+/* ═══════════════════════════════════════════════════════════
+   PART 4B: CARD COLLECTION + EXAM CALENDAR + COVER PHOTO
+   ═══════════════════════════════════════════════════════════ */
+
+/* ═══════ CARD COLLECTION ═══════ */
+const ADV_CARDS=[{id:'physics_master',name:'Physics Master',icon:'⚛️',rarity:'epic',req:'90% in Physics'},{id:'chem_wizard',name:'Chemistry Wizard',icon:'⚗️',rarity:'rare',req:'80% in Chemistry'},{id:'bio_expert',name:'Biology Expert',icon:'🧬',rarity:'rare',req:'80% in Biology'},{id:'math_genius',name:'Math Genius',icon:'📐',rarity:'epic',req:'90% in Math'},{id:'streak_7',name:'7-Day Streak',icon:'🔥',rarity:'rare',req:'7 days streak'},{id:'streak_30',name:'30-Day Streak',icon:'⚡',rarity:'legendary',req:'30 days streak'},{id:'first_exam',name:'First Exam',icon:'🎯',rarity:'common',req:'Complete 1 exam'},{id:'perfect_score',name:'Perfect Score',icon:'💯',rarity:'epic',req:'100% in exam'},{id:'battle_10',name:'Battle Warrior',icon:'⚔️',rarity:'rare',req:'Win 10 battles'},{id:'legend',name:'Legend',icon:'👑',rarity:'legendary',req:'Reach Level 10'}];
+function advOpenCardCollection(){if(!document.getElementById('cardCollectionModal')){let m=document.createElement('div');m.id='cardCollectionModal';m.className='modal-overlay hidden';m.innerHTML='<div class="modal-content" style="max-width:500px;"><div class="flex-between mb-1"><h3 style="font-size:16px;">🎴 Card Collection</h3><button class="btn-danger btn-sm" onclick="document.getElementById(\'cardCollectionModal\').classList.add(\'hidden\')">✕</button></div><div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;font-weight:600;">Collected: <b id="ccCount" style="color:var(--gold);">0</b> / '+ADV_CARDS.length+'</div><div class="card-collection-grid" id="cardCollectionGrid"></div></div></div>';document.getElementById('appRoot').appendChild(m)}document.getElementById('cardCollectionModal').classList.remove('hidden');advCheckAndRenderCards()}
+function advCheckAndRenderCards(){let unlocked=currentUser.collectedCards||[];ADV_CARDS.forEach(c=>{if(unlocked.includes(c.id))return;let earned=false;if(c.id==='physics_master'){let s=advGetSubjectStats('physics');if(s&&s.acc>=90&&s.total>=10)earned=true}if(c.id==='chem_wizard'){let s=advGetSubjectStats('chemistry');if(s&&s.acc>=80&&s.total>=10)earned=true}if(c.id==='bio_expert'){let s=advGetSubjectStats('biology');if(s&&s.acc>=80&&s.total>=10)earned=true}if(c.id==='math_genius'){let s=advGetSubjectStats('math');if(s&&s.acc>=90&&s.total>=10)earned=true}if(c.id==='streak_7'&&(currentUser.streak||0)>=7)earned=true;if(c.id==='streak_30'&&(currentUser.streak||0)>=30)earned=true;if(c.id==='first_exam'&&(currentUser.examsGiven||0)>=1)earned=true;if(c.id==='perfect_score'&&(currentUser.perfectScores||0)>=1)earned=true;if(c.id==='battle_10'&&(currentUser.battleWins||0)>=10)earned=true;if(c.id==='legend'&&(currentUser.level||1)>=10)earned=true;if(earned){unlocked.push(c.id);showToast('🎴 New Card: '+c.icon+' '+c.name);triggerConfetti()}});if(unlocked.length!==(currentUser.collectedCards||[]).length){currentUser.collectedCards=unlocked;saveUserDB({collectedCards:unlocked})}let el=document.getElementById('cardCollectionGrid');let countEl=document.getElementById('ccCount');if(countEl)countEl.innerText=unlocked.length;if(!el)return;let html='';ADV_CARDS.forEach(c=>{let has=unlocked.includes(c.id);let rarityClass=c.rarity==='legendary'?'legendary':c.rarity==='epic'?'epic':c.rarity==='rare'?'rare':'';html+='<div class="collect-card '+rarityClass+'" style="'+(has?'':'opacity:.35;filter:grayscale(1)')+'"><div class="cc-rarity" style="'+(c.rarity==='legendary'?'background:var(--gold)':c.rarity==='epic'?'background:var(--accent);color:#fff':c.rarity==='rare'?'background:var(--primary);color:#fff':'background:var(--surface);color:var(--text-muted)')+'">'+c.rarity+'</div><div class="cc-icon">'+c.icon+'</div><div class="cc-name">'+c.name+'</div><div style="font-size:8px;color:var(--text-muted);margin-top:4px;">'+(has?'✅ Collected':c.req)+'</div></div>'});el.innerHTML=html}
+
+/* ═══════ EXAM CALENDAR ═══════ */
+function advOpenExamCalendar(){if(!document.getElementById('examCalModal')){let m=document.createElement('div');m.id='examCalModal';m.className='modal-overlay hidden';m.innerHTML='<div class="modal-content" style="max-width:480px;"><div class="flex-between mb-1"><h3 style="font-size:16px;">📅 Exam Calendar</h3><button class="btn-danger btn-sm" onclick="document.getElementById(\'examCalModal\').classList.add(\'hidden\')">✕</button></div><div id="examCalBody"></div></div></div>';document.getElementById('appRoot').appendChild(m)}document.getElementById('examCalModal').classList.remove('hidden');advRenderExamCalendar()}
+function advRenderExamCalendar(){let body=document.getElementById('examCalBody');if(!body)return;let today=new Date();let monthShort=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];let html='';html+='<div class="ai-target-box"><div class="ai-target-header"><span>📅</span> TODAY</div>';let todayExams=(examsData||[]).filter(e=>e.category==='daily'||e.status==='available').slice(0,3);if(todayExams.length===0){let dailyExams=[{title:'Daily Challenge - Physics',subject:'Physics',questionCount:15},{title:'Daily Challenge - Chemistry',subject:'Chemistry',questionCount:15},{title:'Quick Math Quiz',subject:'Math',questionCount:10}];dailyExams.forEach(e=>{html+='<div class="exam-cal-item today"><div class="exam-cal-date"><div class="ecd-day">'+today.getDate()+'</div><div class="ecd-month">'+monthShort[today.getMonth()]+'</div></div><div class="exam-cal-info"><div class="exam-cal-title">'+e.title+'</div><div class="exam-cal-sub">'+e.subject+' · '+e.questionCount+' Qs</div></div><span class="exam-cal-badge today">TODAY</span></div>'})}else{todayExams.forEach(e=>{html+='<div class="exam-cal-item today"><div class="exam-cal-date"><div class="ecd-day">'+today.getDate()+'</div><div class="ecd-month">'+monthShort[today.getMonth()]+'</div></div><div class="exam-cal-info"><div class="exam-cal-title">'+(e.title||'Exam')+'</div><div class="exam-cal-sub">'+(e.subject||'Mixed')+' · '+(e.questionCount||0)+' Qs</div></div><span class="exam-cal-badge today">TODAY</span></div>'})}html+='</div>';let upcomingNames=['Weekly Assessment','Model Test','Monthly Mega Test','Chapter Test','Mock Exam'];html+='<h4 style="font-size:12px;color:var(--text-muted);font-weight:800;text-transform:uppercase;margin:14px 0 8px;">📆 Upcoming</h4>';for(let i=1;i<=5;i++){let d=new Date(today);d.setDate(d.getDate()+i);let name=upcomingNames[(i-1)%upcomingNames.length];html+='<div class="exam-cal-item upcoming"><div class="exam-cal-date"><div class="ecd-day">'+d.getDate()+'</div><div class="ecd-month">'+monthShort[d.getMonth()]+'</div></div><div class="exam-cal-info"><div class="exam-cal-title">'+name+'</div><div class="exam-cal-sub">Scheduled</div></div><span class="exam-cal-badge upcoming">'+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+'</span></div>'}let recent=(historyData||[]).filter(h=>h.name===currentUser.name).slice(0,5);if(recent.length>0){html+='<h4 style="font-size:12px;color:var(--text-muted);font-weight:800;text-transform:uppercase;margin:14px 0 8px;">✅ Recent Exams</h4>';recent.forEach(h=>{html+='<div class="exam-cal-item done"><div class="exam-cal-date"><div class="ecd-day" style="color:var(--success);">'+h.percent+'</div><div class="ecd-month">%</div></div><div class="exam-cal-info"><div class="exam-cal-title">'+(h.subject||'Exam')+'</div><div class="exam-cal-sub">'+(h.time||'')+'</div></div><span class="exam-cal-badge done">DONE</span></div>'})}body.innerHTML=html}
+
+/* ═══════ PROFILE COVER PHOTO ═══════ */
+function advOpenCoverPicker(){let input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=function(e){let file=e.target.files[0];if(!file)return;if(file.size>3*1024*1024){showToast('❌ Image must be under 3 MB');return}let reader=new FileReader();reader.onload=function(ev){let url=ev.target.result;currentUser.coverURL=url;saveUserDB({coverURL:url});advRenderCover();showToast('🖼️ Cover updated!')};reader.readAsDataURL(file)};input.click()}
+function advRenderCover(){let cover=document.getElementById('profCover');if(!cover)return;if(currentUser.coverURL){cover.innerHTML='<img src="'+currentUser.coverURL+'" alt="cover">'}else{cover.innerHTML='<div class="profile-cover-empty">📷 Tap to add cover</div>'}cover.style.cursor='pointer';cover.onclick=advOpenCoverPicker}
+
+/* ═══════ HOOK COVER ON PROFILE ═══════ */
+let _origNav_P4B=navTo;
+navTo=function(pageId){_origNav_P4B.apply(this,arguments);if(pageId==='pageProfile'){setTimeout(advRenderCover,200)}}
+
+console.log('✅ PART 4B loaded — Cards, Exam Calendar, Cover Photo');
+/* ═══════════════════════════════════════════════════════════
+   PART 4C: FINAL INIT + AUTO-SYNC + INTEGRATION
+   ═══════════════════════════════════════════════════════════ */
+
+/* ═══════ AUTO-LOAD ALL FEATURES ON LOGIN ═══════ */
+function advInitAfterLogin(){if(!currentUser||!currentUser.id)return;setTimeout(()=>{advRenderHomeTargetBadge();advRenderTargetsPreview();advRenderStreakCalendar();advRenderFriends();advRenderCover();if(typeof advDailyBoxLoad==='function')advDailyBoxLoad()},500)}
+
+/* ═══════ HOOK INTO LOGIN ═══════ */
+let _origHandleLogin_P4C=handleLogin;
+handleLogin=function(){_origHandleLogin_P4C.apply(this,arguments);setTimeout(advInitAfterLogin,1500)};
+
+/* ═══════ HOOK INTO AUTO-LOGIN ═══════ */
+let _origNav_P4C=navTo;
+navTo=function(pageId){_origNav_P4C.apply(this,arguments);if(pageId==='pageHome'&&currentUser&&currentUser.id){setTimeout(()=>{advRenderHomeTargetBadge();advRenderCover();advRenderFriends()},300)}if(pageId==='pageProfile'&&currentUser&&currentUser.id){setTimeout(()=>{advRenderTargetsPreview();advRenderStreakCalendar();advRenderFriends();advRenderCover()},300)}};
+
+/* ═══════ DAILY ACTIVITY TRACKER ═══════ */
+function advTrackDailyActivity(type,data){if(!currentUser||!currentUser.id)return;let today=new Date();let dateStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');let activity=currentUser.dailyActivity||{};if(!activity[dateStr])activity[dateStr]={exams:0,questions:0,correct:0,wrong:0,timeSpent:0,xpEarned:0,coinsEarned:0,subjects:{},examList:[]};let day=activity[dateStr];if(type==='exam'){day.exams=(day.exams||0)+1;day.questions=(day.questions||0)+(data.questions||0);day.correct=(day.correct||0)+(data.correct||0);day.wrong=(day.wrong||0)+(data.wrong||0);day.timeSpent=(day.timeSpent||0)+(data.duration||0);day.xpEarned=(day.xpEarned||0)+(data.xp||0);day.coinsEarned=(day.coinsEarned||0)+(data.coins||0);if(!day.examList)day.examList=[];day.examList.push({name:data.name||'Exam',percent:data.percent||0,time:new Date().toLocaleTimeString(),duration:data.duration||0});if(data.subject){let sk=data.subject.toLowerCase();if(!day.subjects)day.subjects={};if(!day.subjects[sk])day.subjects[sk]={questions:0,correct:0,wrong:0};day.subjects[sk].questions+=data.questions||0;day.subjects[sk].correct+=data.correct||0;day.subjects[sk].wrong+=data.wrong||0}}else if(type==='question'){day.questions=(day.questions||0)+1;if(data.correct)day.correct=(day.correct||0)+1;else day.wrong=(day.wrong||0)+1;if(data.subject){let sk=data.subject.toLowerCase();if(!day.subjects)day.subjects={};if(!day.subjects[sk])day.subjects[sk]={questions:0,correct:0,wrong:0};day.subjects[sk].questions+=1;if(data.correct)day.subjects[sk].correct+=1;else day.subjects[sk].wrong+=1}}if(Object.keys(activity).length>30){let keys=Object.keys(activity).sort();while(keys.length>30){delete activity[keys.shift()]}}currentUser.dailyActivity=activity;saveUserDB({dailyActivity:activity})}
+
+/* ═══════ HOOK INTO EXAM SUBMIT ═══════ */
+if(!window._advExamTrackPatch){window._advExamTrackPatch=true;let _origExSubmit_P4C=exSubmit;exSubmit=function(){let questions=FE.ex?FE.ex.questions.length:0;let correct=0;let wrong=0;if(FE.ex&&FE.ex.answers&&FE.ex.shuffleOpts){Object.keys(FE.ex.answers).forEach(i=>{let ans=FE.ex.answers[i];let opts=FE.ex.shuffleOpts[i]||[];if(ans!==undefined&&opts[ans]&&opts[ans].isCorrect)correct++;else if(ans!==undefined)wrong++})}let subject=FE.ex&&FE.ex.config?FE.ex.config.subject:'Exam';let duration=FE.ex&&FE.ex.config?FE.ex.config.duration:0;let xpEarned=correct*2;let coinsEarned=correct*3;_origExSubmit_P4C.apply(this,arguments);setTimeout(()=>{let pct=questions>0?Math.round((correct/questions)*100):0;advTrackDailyActivity('exam',{questions:questions,correct:correct,wrong:wrong,duration:duration,xp:xpEarned,coins:coinsEarned,name:subject,percent:pct,subject:subject});advRenderStreakCalendar()},500)}}
+
+/* ═══════ HOOK INTO QB PRACTICE ═══════ */
+if(!window._advQbTrackPatch){window._advQbTrackPatch=true;let _origQbSelectOpt_P4C=qbSelectOpt;qbSelectOpt=function(qid,optIdx,isCorrect,el){_origQbSelectOpt_P4C.apply(this,arguments);let q=allQuestions.find(x=>x.id===qid);let subj=q?(q.subject||'').toLowerCase():'';advTrackDailyActivity('question',{correct:isCorrect,subject:subj})}}
+
+/* ═══════ UPDATE STREAK DATA ON LOGIN ═══════ */
+function advUpdateStreak(){if(!currentUser||!currentUser.id)return;let today=new Date().toLocaleDateString();let lastActive=currentUser.streakData?currentUser.streakData.lastActive:'';if(lastActive===today)return;let streakData=currentUser.streakData||{current:0,best:0,lastActive:'',freezeCount:2};let diff=0;if(lastActive){let last=new Date(lastActive);let now=new Date(today);diff=Math.floor((now-last)/(1000*60*60*24))}if(diff===1||!lastActive){streakData.current=(streakData.current||0)+1}else if(diff>1){streakData.current=1}if(streakData.current>streakData.best)streakData.best=streakData.current;streakData.lastActive=today;currentUser.streakData=streakData;currentUser.streak=streakData.current;saveUserDB({streakData:streakData,streak:streakData.current})}
+
+/* ═══════ AUTO STREAK CHECK ON INIT ═══════ */
+setTimeout(()=>{if(currentUser&&currentUser.id)advUpdateStreak()},2000);
+
+/* ═══════ INJECT MENU BUTTONS TO HOME ═══════ */
+setTimeout(()=>{let home=document.getElementById('pageHome');if(home&&!document.getElementById('advHomeExtra')){let div=document.createElement('div');div.id='advHomeExtra';div.className='grid-3 mb-1';div.style.marginTop='10px';div.innerHTML='<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="advOpenGlobalSearch()"><div style="font-size:20px;">🔍</div><div style="font-weight:800;font-size:9px;">Search</div></div><div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="advOpenCardCollection()"><div style="font-size:20px;">🎴</div><div style="font-weight:800;font-size:9px;">Cards</div></div><div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="advOpenExamCalendar()"><div style="font-size:20px;">📅</div><div style="font-weight:800;font-size:9px;">Calendar</div></div>';let ref=home.querySelector('.grid-2:last-child');if(ref&&ref.parentNode)ref.parentNode.insertBefore(div,ref);else home.appendChild(div)}},4000);
+
+/* ═══════ INIT ON PAGE LOAD ═══════ */
+setTimeout(()=>{if(currentUser&&currentUser.id){advInitAfterLogin()}},3000);
+
+/* ═══════ CONSOLE SUMMARY ═══════ */
+console.log('');
+console.log('╔══════════════════════════════════════════════════════════╗');
+console.log('║                                                          ║');
+console.log('║   🎉 HSC SMART EXAM — PART 1-4 COMPLETE! 🎉             ║');
+console.log('║                                                          ║');
+console.log('║   ✅ CSS: Target, Calendar, Friend, Export, Themes       ║');
+console.log('║   ✅ HTML: 5 Jayga sections added                        ║');
+console.log('║   ✅ JS: 15+ New Features Integrated                     ║');
+console.log('║                                                          ║');
+console.log('║   🎯 Target Setting + AI + Adaptive + Deadline          ║');
+console.log('║   📅 Streak Calendar + Day Activity Detail               ║');
+console.log('║   👥 Friend System (Local Storage)                       ║');
+console.log('║   📤 Export (JSON, PDF, CSV)                             ║');
+console.log('║   🌈 6 Themes Picker                                     ║');
+console.log('║   🔍 Global Search                                       ║');
+console.log('║   🎴 Card Collection                                     ║');
+console.log('║   📅 Exam Calendar                                       ║');
+console.log('║   🖼️ Cover Photo Upload                                  ║');
+console.log('║   ⏰ Auto Daily Activity Tracking                        ║');
+console.log('║                                                          ║');
+console.log('╚══════════════════════════════════════════════════════════╝');
+console.log('');
+
+console.log('✅ PART 4C loaded — Final Init Complete!');
   
 </script>
 </body>
