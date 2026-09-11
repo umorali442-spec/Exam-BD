@@ -2017,8 +2017,8 @@ function advTQAnswer(isCorrect,el){document.querySelectorAll('#advTQBody .opt-bt
 function advTQEnd(){clearInterval(_advTQ.timer);let b=document.getElementById('advTQBody');if(!b)return;let coins=_advTQ.score;currentUser.coins=(currentUser.coins||0)+coins;currentUser.xp=(currentUser.xp||0)+_advTQ.score;saveUserDB({coins:currentUser.coins,xp:currentUser.xp});b.innerHTML='<div class="text-center"><div style="font-size:48px;">⚡</div><h3 style="font-size:20px;">Time\'s Up!</h3><div style="font-size:28px;font-weight:900;color:var(--primary);margin:10px 0;">'+_advTQ.score+' pts</div><div style="font-size:13px;color:var(--text-muted);">+'+coins+' 🪙 +'+coins+' XP</div><button class="btn-primary mt-1" onclick="advTimedQuizStart()">🔄 Again</button></div>';if(_advTQ.score>=40)triggerConfetti()}
 function advTQClose(){clearInterval(_advTQ.timer);document.getElementById('advTQModal').classList.add('hidden')}
 console.log('✅ TEST 3 loaded — Timed Quiz');
-function advLearningPathOpen(){if(!document.getElementById('advLPathModal')){let m=document.createElement('div');m.id='advLPathModal';m.className='modal-overlay hidden';m.innerHTML='<div class="modal-content" style="max-width:480px;max-height:85vh;overflow-y:auto;"><div class="flex-between mb-1"><h3 style="font-size:16px;">🗺️ Learning Path</h3><button class="btn-danger btn-sm" onclick="document.getElementById(\'advLPathModal\').classList.add(\'hidden\')">✕</button></div><div id="advLPathBody"></div></div>';document.getElementById('appRoot').appendChild(m)}document.getElementById('advLPathModal').classList.remove('hidden');advLPathRender()}
-console.log('✅ TEST 4A loaded');
+function advLearningPathOpen(){console.log('called');}
+console.log('✅ TEST 4B loaded');
   
 </script>
 </body>
