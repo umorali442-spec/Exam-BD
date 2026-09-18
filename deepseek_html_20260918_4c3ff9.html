@@ -1539,6 +1539,7 @@ window.navTo=function(p){if(p==='pageInsights'){insRender();document.getElementB
 setTimeout(()=>{const h=document.getElementById('pageHome');if(h&&!document.getElementById('insightBtns')){const d=document.createElement('div');d.id='insightBtns';d.className='grid-3';d.style.cssText='gap:8px;margin-bottom:10px;';d.innerHTML=`<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="navTo('pageHabit')"><div style="font-size:22px;">✅</div><div style="font-weight:800;font-size:10px;">Habits</div></div><div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="navTo('pageMood')"><div style="font-size:22px;">😊</div><div style="font-weight:800;font-size:10px;">Mood</div></div><div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="navTo('pageInsights')"><div style="font-size:22px;">💡</div><div style="font-weight:800;font-size:10px;">Insights</div></div>`;const ref=h.querySelector('.grid-2');if(ref&&ref.parentNode)ref.parentNode.insertBefore(d,ref);else h.appendChild(d)}},5500);
 console.log('✅ F30 — Smart Insights + Prediction (NEW) loaded');
 </script>
-
+</script>
+     
 </body>
 </html>
