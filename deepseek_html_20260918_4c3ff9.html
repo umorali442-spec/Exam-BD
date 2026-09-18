@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta name="theme-color" content="#0a0a1a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+<link rel="preconnect" href="https://www.gstatic.com"/>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com"/>
+<link rel="preconnect" href="https://cdn.jsdelivr.net"/>
+<title>HSC Smart Exam — Student</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+:root{--bg-main:#0a0a1a;--bg2:#111128;--card-bg:rgba(20,20,50,.85);--card-glass:rgba(20,20,50,.75);--text:#f0f0ff;--text-muted:#8888bb;--primary:#6c5ce7;--primary-glow:rgba(108,92,231,.35);--secondary:#00cec9;--secondary-glow:rgba(0,206,201,.25);--accent:#fd79a8;--accent-glow:rgba(253,121,168,.25);--gold:#fdcb6e;--gold-glow:rgba(253,203,110,.25);--danger:#e17055;--success:#00b894;--border:rgba(255,255,255,.06);--surface:rgba(255,255,255,.04);--radius:18px;--shadow:0 12px 48px rgba(0,0,0,.5);--t:all .3s cubic-bezier(.4,0,.2,1)}
+.light-mode{--bg-main:#f0f0f5;--bg2:#fff;--card-bg:rgba(255,255,255,.92);--card-glass:rgba(255,255,255,.85);--text:#1a1a2e;--text-muted:#666688;--border:rgba(0,0,0,.06);--surface:rgba(0,0,0,.03);--shadow:0 12px 48px rgba(0,0,0,.08)}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg-main);color:var(--text);overflow-x:hidden;transition:var(--t);min-height:100vh;padding-bottom:90px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--primary);border-radius:10px}
+.hidden{display:none!important}
+.container{max-width:480px;margin:0 auto;position:relative}
+.p-2{padding:16px}.p-1{padding:12px}
+.mt-1{margin-top:12px}.mt-2{margin-top:20px}.mb-1{margin-bottom:12px}.mb-2{margin-bottom:20px}
+.text-center{text-align:center}.text-muted{color:var(--text-muted)}
+.flex{display:flex}.flex-between{display:flex;justify-content:space-between;align-items:center}
+.flex-center{display:flex;justify-content:center;align-items:center}.flex-col{flex-direction:column}
+.gap-1{gap:10px}.gap-2{gap:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.w-full{width:100%}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow);transition:var(--t);backdrop-filter:blur(12px)}
+.card:hover{border-color:rgba(108,92,231,.2)}
+.glass-card{background:var(--card-glass);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.06)}
+.premium-card{background:linear-gradient(145deg,var(--card-bg),rgba(108,92,231,.08));border:1px solid rgba(108,92,231,.15);box-shadow:0 8px 32px rgba(108,92,231,.08)}
+input,select,textarea{width:100%;padding:14px 16px;margin:6px 0;background:var(--surface);border:2px solid var(--border);border-radius:14px;color:var(--text);font-size:14px;font-weight:600;outline:none;transition:var(--t);font-family:inherit}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);background:var(--card-bg);box-shadow:0 0 30px var(--primary-glow)}
+select option{background:var(--bg-main);color:var(--text)}
+button{width:100%;padding:14px 20px;border:none;border-radius:14px;font-weight:700;font-size:14px;cursor:pointer;transition:var(--t);display:flex;justify-content:center;align-items:center;gap:10px;text-transform:uppercase;letter-spacing:.5px;position:relative;overflow:hidden;font-family:inherit}
+button:active{transform:scale(.96)}
+.btn-primary{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;box-shadow:0 6px 30px var(--primary-glow)}
+.btn-secondary{background:linear-gradient(135deg,#00cec9,#81ecec);color:#0a0a1a;box-shadow:0 6px 30px var(--secondary-glow)}
+.btn-accent{background:linear-gradient(135deg,#fd79a8,#e17055);color:#fff;box-shadow:0 6px 30px var(--accent-glow)}
+.btn-gold{background:linear-gradient(135deg,#fdcb6e,#f39c12);color:#0a0a1a;box-shadow:0 6px 30px var(--gold-glow)}
+.btn-danger{background:linear-gradient(135deg,#e17055,#d63031);color:#fff}
+.btn-success{background:linear-gradient(135deg,#00b894,#00a381);color:#fff}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--primary);background:rgba(108,92,231,.05)}
+.btn-sm{width:auto;padding:8px 16px;font-size:11px;border-radius:12px}
+.btn-xs{width:auto;padding:4px 12px;font-size:10px;border-radius:10px}
+.badge{display:inline-block;padding:4px 14px;border-radius:30px;font-size:10px;font-weight:800;text-transform:uppercase;background:var(--surface);border:1px solid var(--border)}
+.badge-gold{background:var(--gold);color:#0a0a1a}.badge-success{background:var(--success);color:#fff}
+.badge-danger{background:var(--danger);color:#fff}.badge-primary{background:var(--primary);color:#fff}
+.badge-secondary{background:var(--secondary);color:#0a0a1a}
+.header{position:sticky;top:0;z-index:50;background:var(--card-glass);backdrop-filter:blur(24px);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.header-left{display:flex;align-items:center;gap:12px;cursor:pointer}
+.header-center .back-btn{background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;padding:4px 8px;width:auto}
+.avatar-circle{width:44px;height:44px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-weight:800;font-size:18px;border:2px solid var(--primary);box-shadow:0 0 20px var(--primary-glow);background:var(--surface);color:var(--primary);flex-shrink:0;overflow:hidden}
+.avatar-circle img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.avatar-circle.sm{width:34px;height:34px;font-size:14px}
+.avatar-circle.lg{width:72px;height:72px;font-size:28px;border-width:3px}
+.bottom-nav{position:fixed;bottom:0;width:100%;max-width:480px;left:50%;transform:translateX(-50%);background:var(--card-glass);backdrop-filter:blur(30px);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0 18px;z-index:100;border-radius:28px 28px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,.3)}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--text-muted);cursor:pointer;font-size:9px;font-weight:700;width:20%;transition:var(--t);position:relative}
+.nav-item i{font-size:20px;padding:8px;border-radius:14px;transition:var(--t)}
+.nav-item.active{color:var(--primary)}
+.nav-item.active i{background:rgba(108,92,231,.12);transform:translateY(-4px);box-shadow:0 4px 20px var(--primary-glow);color:var(--primary)}
+.progress-bar{height:6px;background:var(--surface);border-radius:10px;overflow:hidden;margin:6px 0}
+.progress-fill{height:100%;border-radius:10px;transition:width .8s;background:linear-gradient(90deg,var(--primary),var(--secondary))}
+.opt-btn{background:var(--surface);padding:14px 16px;border:2px solid var(--border);border-radius:14px;margin-bottom:10px;cursor:pointer;color:var(--text);font-weight:600;transition:var(--t);display:flex;align-items:center;gap:10px;font-size:14px}
+.opt-btn.selected{border-color:var(--primary);background:rgba(108,92,231,.1);color:var(--primary)}
+.opt-btn.correct{background:rgba(0,184,148,.12);border-color:var(--success);color:var(--success)}
+.opt-btn.wrong{background:rgba(225,112,85,.12);border-color:var(--danger);color:var(--danger);text-decoration:line-through}
+.opt-btn.locked{pointer-events:none;opacity:.85;cursor:default}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--card-glass);backdrop-filter:blur(20px);padding:14px 24px;border-radius:30px;border:1px solid var(--border);color:var(--text);font-weight:700;font-size:14px;z-index:300;box-shadow:var(--shadow);animation:slideUp .4s ease;max-width:90%;text-align:center}
+@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(30px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:200;display:flex;justify-content:center;align-items:center;padding:20px}
+.modal-content{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);max-width:480px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:var(--shadow);animation:popIn .3s ease}
+@keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.spinner{width:30px;height:30px;border:3px solid var(--border);border-top:3px solid var(--primary);border-radius:50%;animation:spin .8s linear infinite;margin:20px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.splash-screen{position:fixed;inset:0;background:var(--bg-main);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;transition:opacity .5s ease}
+.splash-screen.hidden{opacity:0;pointer-events:none}
+.splash-screen .logo{width:120px;height:120px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:30px;display:flex;justify-content:center;align-items:center;box-shadow:0 20px 60px var(--primary-glow)}
+.splash-screen .logo i{font-size:60px;color:#fff}
+.splash-screen h1{margin-top:20px;font-size:28px;font-weight:900}
+.splash-screen p{color:var(--text-muted);font-size:14px;margin-top:6px}
+.empty-state{text-align:center;padding:36px 20px;color:var(--text-muted)}
+.empty-state i{font-size:42px;margin-bottom:10px;opacity:.35}
+.empty-state .es-title{font-weight:800;font-size:14px;color:var(--text);margin-bottom:4px}
+.empty-state .es-sub{font-size:11px}
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:400;opacity:0;pointer-events:none;transition:opacity .3s}
+.drawer-overlay.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:280px;max-width:82%;background:var(--card-bg);backdrop-filter:blur(24px);border-right:1px solid var(--border);z-index:401;transform:translateX(-100%);transition:transform .35s cubic-bezier(.4,0,.2,1);overflow-y:auto;display:flex;flex-direction:column}
+.drawer.open{transform:translateX(0)}
+.drawer-header{padding:20px 18px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(108,92,231,.1),rgba(0,206,201,.05))}
+.drawer-user{display:flex;align-items:center;gap:12px}
+.drawer-user .avatar-circle{width:48px;height:48px;font-size:20px}
+.drawer-user-info .du-name{font-weight:800;font-size:15px}
+.drawer-user-info .du-meta{font-size:11px;color:var(--text-muted);font-weight:600}
+.drawer-nav{padding:12px 8px;flex:1}
+.drawer-item{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:12px;cursor:pointer;transition:var(--t);margin-bottom:2px}
+.drawer-item:hover{background:var(--surface)}
+.drawer-item i{width:22px;font-size:16px;color:var(--text-muted);text-align:center}
+.drawer-item span{font-size:13px;font-weight:700}
+.drawer-section{padding:14px 18px 6px;font-size:10px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:1px}
+.drawer-social{padding:0 12px 20px}
+.hamburger-btn{width:40px;height:40px;border-radius:12px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);font-size:18px}
+.stat-box{text-align:center;padding:8px}
+.stat-box .num{font-size:20px;font-weight:900}
+.stat-box .label{font-size:9px;color:var(--text-muted);font-weight:700;text-transform:uppercase}
+.folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.folder-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:14px;cursor:pointer;transition:var(--t);display:flex;flex-direction:column;gap:8px}
+.folder-card:hover{transform:translateY(-3px);border-color:rgba(108,92,231,.35)}
+.folder-card .fc-top{display:flex;align-items:center;justify-content:space-between}
+.folder-card .fc-icon{font-size:22px}
+.folder-card .fc-name{font-weight:800;font-size:13px;line-height:1.3}
+.folder-card .fc-meta{font-size:10px;color:var(--text-muted);font-weight:600}
+.mastery{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:9px;font-weight:800;text-transform:uppercase}
+.mastery-mastered{background:rgba(0,184,148,.15);color:var(--success)}
+.mastery-strong{background:rgba(0,206,201,.15);color:var(--secondary)}
+.mastery-improving{background:rgba(253,203,110,.15);color:var(--gold)}
+.mastery-weak{background:rgba(225,112,85,.15);color:var(--danger)}
+.tabs-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:14px;scrollbar-width:none}
+.tabs-row::-webkit-scrollbar{display:none}
+.tabs-row button{width:auto;flex-shrink:0;padding:8px 16px;font-size:12px;border-radius:12px;background:transparent;color:var(--text-muted);border:1px solid transparent;text-transform:none;letter-spacing:0;font-weight:700}
+.tabs-row button.active{background:var(--surface);color:var(--primary);border-color:var(--primary)}
+.filter-bar{display:flex;gap:8px;overflow-x:auto;padding:10px 0;margin-bottom:10px;scrollbar-width:none}
+.filter-bar::-webkit-scrollbar{display:none}
+.filter-chip{width:auto;flex-shrink:0;padding:8px 14px;font-size:11px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text-muted);font-weight:700;text-transform:none;letter-spacing:0}
+.filter-chip.active{background:rgba(108,92,231,.15);color:var(--primary);border-color:var(--primary)}
+.search-row{position:relative;margin-bottom:10px}
+.search-row input{padding-left:40px;font-size:13px}
+.search-row i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted)}
+.builder-label{font-size:10px;color:var(--text-muted);font-weight:800;text-transform:uppercase;margin-bottom:4px;display:block}
+.builder-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface);border-radius:12px;border:1px solid var(--border);margin-bottom:8px}
+.toggle-row .t-label{font-size:12px;font-weight:700}
+.switch{position:relative;width:44px;height:24px}
+.switch input{opacity:0;width:0;height:0}
+.switch .slider{position:absolute;cursor:pointer;inset:0;background:var(--surface);border:1px solid var(--border);border-radius:20px;transition:var(--t)}
+.switch .slider:before{content:'';position:absolute;height:16px;width:16px;left:3px;top:3px;background:var(--text-muted);border-radius:50%;transition:var(--t)}
+.switch input:checked+.slider{background:var(--primary);border-color:var(--primary)}
+.switch input:checked+.slider:before{transform:translateX(20px);background:#fff}
+.cprog-ring{position:relative;width:64px;height:64px;flex-shrink:0}
+.cprog-ring svg{transform:rotate(-90deg)}
+.cprog-ring circle{fill:none;stroke-width:6;stroke-linecap:round}
+.cprog-ring .track{stroke:var(--surface)}
+.cprog-ring .bar{stroke:url(#gradRing);transition:stroke-dashoffset .8s}
+.cprog-ring .lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900}
+.profile-cover{position:relative;height:120px;border-radius:16px;overflow:hidden;margin-bottom:-50px;background:linear-gradient(135deg,var(--primary),var(--secondary))}
+.profile-cover img{width:100%;height:100%;object-fit:cover}
+.profile-cover-empty{display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,.6);font-size:12px;font-weight:700}
+.social-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:10px}
+.social-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:var(--surface);border:1px solid var(--border);border-radius:14px;cursor:pointer;text-decoration:none;transition:var(--t)}
+.social-btn:hover{transform:translateY(-2px);border-color:var(--primary)}
+.social-btn .s-icon{font-size:26px}
+.social-btn .s-name{font-size:10px;font-weight:800;color:var(--text);text-transform:uppercase}
+.social-list-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border-radius:12px;border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:var(--t)}
+.social-list-item:hover{border-color:var(--primary)}
+.social-list-item .sl-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.social-list-item .sl-info{flex:1;min-width:0}
+.social-list-item .sl-title{font-weight:800;font-size:13px}
+.social-list-item .sl-sub{font-size:10px;color:var(--text-muted);font-weight:600}
+.badge-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.badge-item{aspect-ratio:1;border-radius:14px;background:var(--surface);border:2px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;text-align:center}
+.badge-item.earned{border-color:var(--gold);background:rgba(253,203,110,.06)}
+.badge-item.locked{opacity:.35;filter:grayscale(1)}
+.badge-item .bi-icon{font-size:24px}
+.badge-item .bi-name{font-size:8px;font-weight:800;text-transform:uppercase;line-height:1.1}
+.tier-badge-lg{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:900;text-transform:uppercase;border:2px solid}
+.tier-bronze{color:#cd7f32;border-color:#cd7f32;background:rgba(205,127,50,.1)}
+.tier-silver{color:#c0c0c0;border-color:#c0c0c0;background:rgba(192,192,192,.1)}
+.tier-gold{color:var(--gold);border-color:var(--gold);background:rgba(253,203,110,.1)}
+.tier-platinum{color:var(--secondary);border-color:var(--secondary);background:rgba(0,206,201,.1)}
+.tier-diamond{color:var(--primary);border-color:var(--primary);background:rgba(108,92,231,.1)}
+.tier-master{color:var(--accent);border-color:var(--accent);background:rgba(253,121,168,.1)}
+.tier-grandmaster{color:var(--danger);border-color:var(--danger);background:rgba(225,112,85,.1)}
+.pdf-card{display:flex;align-items:center;gap:12px;background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px}
+.pdf-card .pdf-icon{width:44px;height:44px;border-radius:12px;background:rgba(225,112,85,.12);color:var(--danger);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.pdf-card .pdf-info{flex:1}
+.pdf-card .pdf-info .p-title{font-weight:800;font-size:13px}
+.pdf-card .pdf-info .p-meta{font-size:10px;color:var(--text-muted);font-weight:600}
+.qb-question-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;cursor:pointer;transition:var(--t)}
+.qb-question-card:hover{border-color:rgba(108,92,231,.2);transform:translateY(-2px)}
+.qb-question-card .q-text{font-weight:700;font-size:14px;margin:6px 0;line-height:1.5}
+.qb-question-card .q-meta{display:flex;gap:12px;font-size:11px;color:var(--text-muted);font-weight:600;flex-wrap:wrap;margin-top:6px}
+@media(max-width:400px){.grid-2{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr 1fr}.folder-grid{grid-template-columns:1fr 1fr}.social-grid{grid-template-columns:repeat(3,1fr)}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;"><defs><linearGradient id="gradRing" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6c5ce7"/><stop offset="100%" stop-color="#00cec9"/></linearGradient></defs></svg>
+
+<!-- SPLASH -->
+<div class="splash-screen" id="splashScreen">
+<div class="logo"><i class="fa-solid fa-rocket"></i></div>
+<h1>HSC Smart Exam</h1>
+<p>Loading...</p>
+</div>
+
+<div class="container" id="appRoot">
+
+<!-- ═══════════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════════ -->
+<div id="appHeader" class="header hidden">
+<div class="header-left" onclick="navTo('pageProfile')">
+<div class="avatar-circle sm" id="headAvatar">U</div>
+<div><div style="font-weight:800;font-size:14px;" id="headName">User</div><div style="font-size:10px;color:var(--text-muted);font-weight:600;" id="headBatch">HSC</div></div>
+</div>
+<div class="header-center"><button class="back-btn" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i></button></div>
+<div style="display:flex;gap:12px;align-items:center;">
+<i class="fa-solid fa-bars hamburger-btn" style="width:auto;height:auto;background:none;border:none;padding:4px;font-size:18px;color:var(--text-muted);cursor:pointer;" onclick="openDrawer()"></i>
+<i class="fa-solid fa-moon" id="themeToggleBtn" style="font-size:18px;color:var(--text-muted);cursor:pointer;" onclick="toggleTheme()"></i>
+<div style="position:relative;" onclick="openNotifications()"><i class="fa-solid fa-bell" style="font-size:18px;color:var(--text-muted);cursor:pointer;"></i>
+<div id="notiCount" class="hidden" style="position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;width:16px;height:16px;border-radius:50%;font-size:8px;display:flex;justify-content:center;align-items:center;font-weight:800;">0</div>
+</div>
+<div style="background:rgba(253,203,110,.08);padding:4px 12px;border-radius:20px;color:var(--gold);font-size:13px;font-weight:800;"><i class="fa-solid fa-coins"></i> <span id="headCoins">0</span></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     AUTH PAGE
+     ═══════════════════════════════════════════════════════ -->
+<div id="pageAuth" class="p-2">
+<div class="text-center" style="margin:40px 0 30px;">
+<div style="width:90px;height:90px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:28px;display:flex;justify-content:center;align-items:center;margin:0 auto 20px;"><i class="fa-solid fa-rocket" style="font-size:42px;color:#fff;"></i></div>
+<h1 style="font-size:32px;font-weight:900;">HSC <span style="color:var(--primary);">Smart</span></h1>
+<p style="color:var(--text-muted);font-size:12px;">HSC SMART EXAM SYSTEM</p>
+</div>
+<div class="card glass-card" style="padding:28px 20px;">
+<h3 id="authTitle" class="text-center mb-1">Welcome Back</h3>
+<div id="regFields" class="hidden">
+<input id="regName" placeholder="Full Name">
+<select id="regBatch"><option value="">-- Batch --</option><option value="HSC 27">HSC 27</option><option value="HSC 28">HSC 28</option><option value="HSC 29">HSC 29</option><option value="HSC 30">HSC 30</option></select>
+<input id="regCountry" placeholder="Country (optional)">
+<input id="regSchool" placeholder="School (optional)">
+</div>
+<input id="authId" placeholder="Email or Phone">
+<input type="password" id="authPass" placeholder="Password">
+<button id="btnLogin" class="btn-primary mt-1" onclick="handleLogin()">Login <i class="fa-solid fa-arrow-right"></i></button>
+<button id="btnReg" class="btn-accent mt-1 hidden" onclick="handleRegister()">Create Account</button>
+<div class="text-center mt-1"><span id="toggleAuth" onclick="toggleAuth()" style="cursor:pointer;color:var(--text-muted);font-size:13px;text-decoration:underline;">Create new account</span></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     HOME PAGE
+     ═══════════════════════════════════════════════════════ -->
+<div id="pageHome" class="hidden p-2">
+<div class="card premium-card" style="padding:16px;">
+<div class="flex-between">
+<div>
+<div style="font-size:12px;color:var(--text-muted);font-weight:700;">WELCOME BACK</div>
+<div style="font-size:20px;font-weight:900;margin-top:2px;" id="homeName">Student</div>
+<div style="font-size:11px;color:var(--text-muted);" id="homeBatch">HSC 27</div>
+</div>
+<div class="avatar-circle lg" id="homeAvatar">U</div>
+</div>
+<div class="grid-4" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+<div><div style="font-size:18px;font-weight:900;color:var(--gold);" id="hLevel">1</div><div style="font-size:8px;color:var(--text-muted);">LEVEL</div></div>
+<div><div style="font-size:18px;font-weight:900;color:var(--primary);" id="hXp">0</div><div style="font-size:8px;color:var(--text-muted);">XP</div></div>
+<div><div style="font-size:18px;font-weight:900;color:var(--gold);" id="hCoins">0</div><div style="font-size:8px;color:var(--text-muted);">COINS</div></div>
+<div><div style="font-size:18px;font-weight:900;color:var(--secondary);" id="hStreak">0</div><div style="font-size:8px;color:var(--text-muted);">STREAK</div></div>
+</div>
+</div>
+
+<div class="grid-2 mb-1">
+<div class="card glass-card text-center" style="padding:14px 8px;margin:0;cursor:pointer;" onclick="navTo('pageQuestionBank')"><div style="font-size:24px;">📖</div><div style="font-weight:800;font-size:12px;">Question Bank</div></div>
+<div class="card glass-card text-center" style="padding:14px 8px;margin:0;cursor:pointer;" onclick="navTo('pageExams')"><div style="font-size:24px;">📝</div><div style="font-weight:800;font-size:12px;">Exams</div></div>
+</div>
+<div class="grid-2 mb-1">
+<div class="card glass-card text-center" style="padding:14px 8px;margin:0;cursor:pointer;" onclick="navTo('pageSyllabus')"><div style="font-size:24px;">📚</div><div style="font-weight:800;font-size:12px;">Syllabus</div></div>
+<div class="card glass-card text-center" style="padding:14px 8px;margin:0;cursor:pointer;" onclick="navTo('pageClass')"><div style="font-size:24px;">📺</div><div style="font-weight:800;font-size:12px;">Class & Slide</div></div>
+</div>
+<div class="grid-2 mb-1">
+<div class="card glass-card text-center" style="padding:14px 8px;margin:0;cursor:pointer;" onclick="navTo('pageBattle')"><div style="font-size:24px;">⚔️</div><div style="font-weight:800;font-size:12px;">Battle</div></div>
+<div class="card glass-card text-center" style="padding:14px 8px;margin:0;cursor:pointer;" onclick="navTo('pageTournament')"><div style="font-size:24px;">🏆</div><div style="font-weight:800;font-size:12px;">Tournament</div></div>
+</div>
+
+<div class="grid-3 mb-1">
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="navTo('pageEvents')"><div style="font-size:22px;">🎉</div><div style="font-weight:800;font-size:10px;">Events</div></div>
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="navTo('pageFormula')"><div style="font-size:22px;">📐</div><div style="font-weight:800;font-size:10px;">Formulas</div></div>
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="navTo('pageMindMap')"><div style="font-size:22px;">🧠</div><div style="font-weight:800;font-size:10px;">Mind Map</div></div>
+</div>
+
+<div class="grid-3 mb-1">
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="navTo('pageLeaderboard')"><div style="font-size:22px;">🏅</div><div style="font-weight:800;font-size:10px;">Rank</div></div>
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="navTo('pageSocial')"><div style="font-size:22px;">👥</div><div style="font-weight:800;font-size:10px;">Social</div></div>
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="navTo('pageShop')"><div style="font-size:22px;">🛒</div><div style="font-weight:800;font-size:10px;">Shop</div></div>
+</div>
+
+<div class="grid-3 mb-1">
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="navTo('pageHistory')"><div style="font-size:22px;">🕐</div><div style="font-weight:800;font-size:10px;">History</div></div>
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="navTo('pageCertificates')"><div style="font-size:22px;">📜</div><div style="font-weight:800;font-size:10px;">Certificates</div></div>
+<div class="card glass-card text-center" style="padding:12px 6px;margin:0;cursor:pointer;" onclick="installPWA()"><div style="font-size:22px;">📱</div><div style="font-weight:800;font-size:10px;">Install</div></div>
+</div>
+
+<!-- ═══ SOCIAL LINKS — HOME ═══ -->
+<div class="card glass-card" id="homeSocialCard" style="display:none;">
+<h4 style="font-size:12px;color:var(--text-muted);font-weight:800;margin-bottom:10px;">🔗 Follow Us</h4>
+<div class="social-grid" id="homeSocialGrid"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     FEATURE PAGES — সব JS দিয়ে dynamic তৈরি হবে
+     ═══════════════════════════════════════════════════════ -->
+
+<!-- ═══ [SLOT F2: Question Bank] ═══ -->
+<div id="pageQuestionBank" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F3: Exams] ═══ -->
+<div id="pageExams" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F4: Syllabus] ═══ -->
+<div id="pageSyllabus" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F5: Tournament] ═══ -->
+<div id="pageTournament" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F6: Events] ═══ -->
+<div id="pageEvents" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F7: Battle] ═══ -->
+<div id="pageBattle" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F8: Progress] ═══ -->
+<div id="pageProgress" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F9: Profile] ═══ -->
+<div id="pageProfile" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F10: Social] ═══ -->
+<div id="pageSocial" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F11: Mind Map] ═══ -->
+<div id="pageMindMap" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F12: Formula Vault] ═══ -->
+<div id="pageFormula" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F13: Leaderboard] ═══ -->
+<div id="pageLeaderboard" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F16: Class & Slide] ═══ -->
+<div id="pageClass" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F17: History] ═══ -->
+<div id="pageHistory" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F18: Shop] ═══ -->
+<div id="pageShop" class="hidden p-2"></div>
+
+<!-- ═══ [SLOT F19: Certificates] ═══ -->
+<div id="pageCertificates" class="hidden p-2"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     BOTTOM NAV
+     ═══════════════════════════════════════════════════════ -->
+<div class="bottom-nav" id="bottomNav" style="display:none;">
+<div class="nav-item active" onclick="navTo('pageHome')"><i class="fa-solid fa-house"></i><span>Home</span></div>
+<div class="nav-item" onclick="navTo('pageQuestionBank')"><i class="fa-solid fa-book"></i><span>Learn</span></div>
+<div class="nav-item" onclick="navTo('pageProgress')"><i class="fa-solid fa-chart-line"></i><span>Progress</span></div>
+<div class="nav-item" onclick="navTo('pageLeaderboard')"><i class="fa-solid fa-ranking-star"></i><span>Rank</span></div>
+<div class="nav-item" onclick="navTo('pageProfile')"><i class="fa-solid fa-user"></i><span>Profile</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     DRAWER
+     ═══════════════════════════════════════════════════════ -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawerMenu">
+<div class="drawer-header">
+<div class="drawer-user">
+<div class="avatar-circle" id="drawerAvatar">U</div>
+<div class="drawer-user-info">
+<div class="du-name" id="drawerName">User</div>
+<div class="du-meta" id="drawerMeta">Level 1</div>
+</div>
+</div>
+</div>
+<div class="drawer-nav">
+<div class="drawer-section">Main</div>
+<div class="drawer-item" onclick="navTo('pageHome');closeDrawer()"><i class="fa-solid fa-house"></i><span>Home</span></div>
+<div class="drawer-item" onclick="navTo('pageProfile');closeDrawer()"><i class="fa-solid fa-user"></i><span>Profile</span></div>
+<div class="drawer-section">Learn</div>
+<div class="drawer-item" onclick="navTo('pageQuestionBank');closeDrawer()"><i class="fa-solid fa-book-open"></i><span>Question Bank</span></div>
+<div class="drawer-item" onclick="navTo('pageExams');closeDrawer()"><i class="fa-solid fa-pen-ruler"></i><span>Exams</span></div>
+<div class="drawer-item" onclick="navTo('pageSyllabus');closeDrawer()"><i class="fa-solid fa-book"></i><span>Syllabus</span></div>
+<div class="drawer-item" onclick="navTo('pageClass');closeDrawer()"><i class="fa-solid fa-chalkboard-user"></i><span>Class & Slide</span></div>
+<div class="drawer-item" onclick="navTo('pageMindMap');closeDrawer()"><i class="fa-solid fa-brain"></i><span>Mind Map</span></div>
+<div class="drawer-item" onclick="navTo('pageFormula');closeDrawer()"><i class="fa-solid fa-square-root-variable"></i><span>Formulas</span></div>
+<div class="drawer-section">Compete</div>
+<div class="drawer-item" onclick="navTo('pageBattle');closeDrawer()"><i class="fa-solid fa-shield"></i><span>Battle</span></div>
+<div class="drawer-item" onclick="navTo('pageTournament');closeDrawer()"><i class="fa-solid fa-trophy"></i><span>Tournament</span></div>
+<div class="drawer-item" onclick="navTo('pageLeaderboard');closeDrawer()"><i class="fa-solid fa-ranking-star"></i><span>Leaderboard</span></div>
+<div class="drawer-section">Social</div>
+<div class="drawer-item" onclick="navTo('pageSocial');closeDrawer()"><i class="fa-solid fa-users"></i><span>Friends</span></div>
+<div class="drawer-item" onclick="navTo('pageEvents');closeDrawer()"><i class="fa-solid fa-calendar-star"></i><span>Events</span></div>
+<div class="drawer-section">Achievements</div>
+<div class="drawer-item" onclick="navTo('pageProgress');closeDrawer()"><i class="fa-solid fa-chart-line"></i><span>Progress</span></div>
+<div class="drawer-item" onclick="navTo('pageHistory');closeDrawer()"><i class="fa-solid fa-clock-rotate-left"></i><span>History</span></div>
+<div class="drawer-item" onclick="navTo('pageCertificates');closeDrawer()"><i class="fa-solid fa-certificate"></i><span>Certificates</span></div>
+<div class="drawer-item" onclick="navTo('pageShop');closeDrawer()"><i class="fa-solid fa-store"></i><span>Shop</span></div>
+<div class="drawer-section">App</div>
+<div class="drawer-item" onclick="installPWA();closeDrawer()"><i class="fa-solid fa-download"></i><span>Install App</span></div>
+</div>
+<div class="drawer-section">🔗 Follow Us</div>
+<div class="drawer-social">
+<div class="social-grid" id="drawerSocialGrid"></div>
+</div>
+</div>
+
+<!-- MODALS CONTAINER -->
+<div id="modalsContainer"></div>
+
+</div><!-- /appRoot -->
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPT 1: BASE — Firebase + Helpers
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ═══ [SLOT BASE-1: FIREBASE + HELPERS] ═══ */
+/* 📌 এখানে paste: firebaseConfig, DB, currentUser, allQuestions,
+   allUsers, allNotes, showToast, saveUserDB, getLevel, getLevelName,
+   esc, shuffleArray, triggerConfetti, checkAchievements, getUserId,
+   getUserName, now, normalizeUser, BADGES, loadAllUserData */
+/* ═══ [SLOT BASE-1 END] ═══ */
+console.log('✅ BASE-1 (Firebase + Helpers) — Ready for paste');
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPT 2: BASE — Auth System
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ═══ [SLOT BASE-2: AUTH] ═══ */
+/* 📌 এখানে paste: handleLogin, handleRegister, logout, toggleAuth,
+   updateUIHeader, updateHomeStats, toggleTheme, openNotifications,
+   closeNotifications, fetchNotifications, autoLogin */
+/* ═══ [SLOT BASE-2 END] ═══ */
+console.log('✅ BASE-2 (Auth) — Ready for paste');
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPT 3: BASE — Navigation + Drawer
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ═══ [SLOT BASE-3: NAVIGATION] ═══ */
+/* 📌 এখানে paste: navTo, goBack, pageHistory, openDrawer, closeDrawer,
+   updateHomeStats */
+/* ═══ [SLOT BASE-3 END] ═══ */
+console.log('✅ BASE-3 (Navigation) — Ready for paste');
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPT 4: BASE — Social Links
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ═══ [SLOT BASE-4: SOCIAL LINKS] ═══ */
+/* 📌 এখানে paste: loadSocialLinks, renderHomeSocial,
+   renderProfileSocial, renderDrawerSocial, getSocialIcon,
+   getSocialColor, claimSocialReward */
+/* ═══ [SLOT BASE-4 END] ═══ */
+console.log('✅ BASE-4 (Social Links) — Ready for paste');
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     ═════════ FEATURE SLOTS (F2 - F19) ═════════
+     ═══════════════════════════════════════════════════════ -->
+
+<!-- ═══ [SLOT F2: QUESTION BANK] ═══ -->
+<script>
+/* 📌 Feature 2 code here */
+console.log('✅ SLOT F2 ready — Question Bank');
+</script>
+
+<!-- ═══ [SLOT F3: EXAM SYSTEM] ═══ -->
+<script>
+/* 📌 Feature 3 code here */
+console.log('✅ SLOT F3 ready — Exam System');
+</script>
+
+<!-- ═══ [SLOT F4: SYLLABUS TRACKER] ═══ -->
+<script>
+/* 📌 Feature 4 code here */
+console.log('✅ SLOT F4 ready — Syllabus Tracker');
+</script>
+
+<!-- ═══ [SLOT F5: TOURNAMENT] ═══ -->
+<script>
+/* 📌 Feature 5 code here */
+console.log('✅ SLOT F5 ready — Tournament');
+</script>
+
+<!-- ═══ [SLOT F6: EVENT] ═══ -->
+<script>
+/* 📌 Feature 6 code here */
+console.log('✅ SLOT F6 ready — Event');
+</script>
+
+<!-- ═══ [SLOT F7: BATTLE] ═══ -->
+<script>
+/* 📌 Feature 7 code here */
+console.log('✅ SLOT F7 ready — Battle');
+</script>
+
+<!-- ═══ [SLOT F8: PROGRESS] ═══ -->
+<script>
+/* 📌 Feature 8 code here */
+console.log('✅ SLOT F8 ready — Progress');
+</script>
+
+<!-- ═══ [SLOT F9: PROFILE] ═══ -->
+<script>
+/* 📌 Feature 9 code here */
+console.log('✅ SLOT F9 ready — Profile');
+</script>
+
+<!-- ═══ [SLOT F10: SOCIAL / FRIEND] ═══ -->
+<script>
+/* 📌 Feature 10 code here */
+console.log('✅ SLOT F10 ready — Social');
+</script>
+
+<!-- ═══ [SLOT F11: MIND MAP] ═══ -->
+<script>
+/* 📌 Feature 11 code here */
+console.log('✅ SLOT F11 ready — Mind Map');
+</script>
+
+<!-- ═══ [SLOT F12: FORMULA VAULT] ═══ -->
+<script>
+/* 📌 Feature 12 code here */
+console.log('✅ SLOT F12 ready — Formula Vault');
+</script>
+
+<!-- ═══ [SLOT F13: LEADERBOARD] ═══ -->
+<script>
+/* 📌 Feature 13 code here */
+console.log('✅ SLOT F13 ready — Leaderboard');
+</script>
+
+<!-- ═══ [SLOT F14: BATTLE CHAT] ═══ -->
+<script>
+/* 📌 Feature 14 code here */
+console.log('✅ SLOT F14 ready — Battle Chat');
+</script>
+
+<!-- ═══ [SLOT F15: PWA INSTALL] ═══ -->
+<script>
+/* 📌 Feature 15 code here */
+console.log('✅ SLOT F15 ready — PWA');
+</script>
+
+<!-- ═══ [SLOT F16: CLASS & SLIDE] ═══ -->
+<script>
+/* 📌 Feature 16 code here */
+console.log('✅ SLOT F16 ready — Class & Slide');
+</script>
+
+<!-- ═══ [SLOT F17: HISTORY] ═══ -->
+<script>
+/* 📌 Feature 17 code here */
+console.log('✅ SLOT F17 ready — History');
+</script>
+
+<!-- ═══ [SLOT F18: SHOP] ═══ -->
+<script>
+/* 📌 Feature 18 code here */
+console.log('✅ SLOT F18 ready — Shop');
+</script>
+
+<!-- ═══ [SLOT F19: CERTIFICATES] ═══ -->
+<script>
+/* 📌 Feature 19 code here */
+console.log('✅ SLOT F19 ready — Certificates');
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     INIT
+     ═══════════════════════════════════════════════════════ -->
+<script>
+setTimeout(()=>{let s=document.getElementById('splashScreen');if(s)s.classList.add('hidden')},1200);
+console.log('');
+console.log('╔══════════════════════════════════════════╗');
+console.log('║  🎓 HSC Student Panel — Base Ready!     ║');
+console.log('║                                          ║');
+console.log('║  Total 23 Slots:                         ║');
+console.log('║  • BASE 1-4 (4 scripts)                  ║');
+console.log('║  • F2-F15 (14 features)                  ║');
+console.log('║  • F16-F19 (4 more features)             ║');
+console.log('║                                          ║');
+console.log('║  Paste code into each SLOT marker        ║');
+console.log('╚══════════════════════════════════════════╝');
+</script>
+
+</body>
+</html>
