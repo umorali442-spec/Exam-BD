@@ -434,35 +434,73 @@ button:active{transform:scale(.96)}
      ═══════════════════════════════════════════════════════ -->
 <script>
 /* ═══ [SLOT BASE-1: FIREBASE + HELPERS] ═══ */
-/* 📌 এখানে paste: firebaseConfig, DB, currentUser, allQuestions,
-   allUsers, allNotes, showToast, saveUserDB, getLevel, getLevelName,
-   esc, shuffleArray, triggerConfetti, checkAchievements, getUserId,
-   getUserName, now, normalizeUser, BADGES, loadAllUserData */
+const firebaseConfig={apiKey:"AIzaSyAJp1DEwhJyXvDK3HPdmxo85kqJp8ZaUrY",authDomain:"exam-bd-b9668.firebaseapp.com",databaseURL:"https://exam-bd-b9668-default-rtdb.firebaseio.com",projectId:"exam-bd-b9668",storageBucket:"exam-bd-b9668.firebasestorage.app",messagingSenderId:"413763649533",appId:"1:413763649533:web:872459d6c08a5f50a82394"};
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.database();
+const DB="https://exam-bd-b9668-default-rtdb.firebaseio.com";
+let currentUser={};
+let allQuestions=[];
+let allUsers=[];
+let allNotes=[];
+let socialLinks=[];
+let pageHistory=[];
+const LEVEL_NAMES=["🌱 Beginner","📘 Learner","🥉 Bronze","🥈 Silver","🥇 Gold","💎 Diamond","⚡ Elite","👑 Master","🔥 Grandmaster","🏆 Legend"];
+const BADGES=[{id:'first_exam',name:'First Exam',icon:'🎯',req:{exams:1}},{id:'xp_100',name:'100 XP',icon:'⭐',req:{xp:100}},{id:'xp_500',name:'500 XP',icon:'🌟',req:{xp:500}},{id:'xp_1000',name:'1000 XP',icon:'💫',req:{xp:1000}},{id:'streak_7',name:'7-Day',icon:'🔥',req:{streak:7}},{id:'correct_100',name:'100 Correct',icon:'✅',req:{correct:100}}];
+function getLevel(xp){let lv=1,needed=100;while(xp>=needed){xp-=needed;lv++;needed=Math.floor(needed*1.4)+50}return{level:lv,xpInLevel:xp,needed:needed,progress:Math.round((xp/needed)*100)}}
+function getLevelName(level){let idx=Math.min(level-1,LEVEL_NAMES.length-1);return LEVEL_NAMES[idx]}
+function showToast(msg){let e=document.querySelector('.toast');if(e)e.remove();let d=document.createElement('div');d.className='toast';d.innerText=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),3000)}
+function triggerConfetti(){if(typeof confetti!=='undefined')confetti({particleCount:80,spread:60,origin:{y:.5}})}
+function shuffleArray(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+function now(){return Date.now()}
+function esc(s){return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;')}
+function getUserId(){return currentUser&&currentUser.id?currentUser.id:null}
+function getUserName(){return currentUser&&currentUser.name?currentUser.name:'You'}
+function saveUserDB(updates){Object.assign(currentUser,updates);fetch(`${DB}/ultimate_users/${currentUser.id}.json`,{method:"PATCH",body:JSON.stringify(updates)}).catch(e=>console.warn(e));if(typeof updateUIHeader==='function')updateUIHeader()}
+function normalizeUser(){const d={tracker:{},xp:0,coins:0,gems:0,studyMins:0,streak:1,activityData:[0,0,0,0,0,0,0],bookmarks:[],mistakes:[],subjProg:{},badges:[],totalCorrect:0,totalWrong:0,totalQ:0,examsGiven:0,perfectScores:0,level:1,theme:'dark',avatar:'default',nameColor:'#ffffff',bio:'',school:'',country:'',joinDate:new Date().toLocaleDateString(),lastLogin:new Date().toLocaleDateString(),batch:'HSC 27',friends:[],followers:[],following:[],battleElo:1000,battleWins:0,battleLosses:0,totalBattles:0,battleStreak:0,qbProgress:{},chapterProgress:{},eventClaims:{},dailyActivity:{},questionNotes:{},formulaFavorites:[]};for(let k in d){if(currentUser[k]===undefined)currentUser[k]=d[k]}}
+function checkAchievements(){let u=currentUser;let unlocked=u.badges||[];let newBadges=[];BADGES.forEach(b=>{if(unlocked.includes(b.id))return;let earned=false;let r=b.req;if(r.exams&&(u.examsGiven||0)>=r.exams)earned=true;if(r.xp&&(u.xp||0)>=r.xp)earned=true;if(r.correct&&(u.totalCorrect||0)>=r.correct)earned=true;if(r.streak&&(u.streak||0)>=r.streak)earned=true;if(earned){newBadges.push(b.id);showToast(`🏅 ${b.icon} ${b.name}!`)}});if(newBadges.length>0){saveUserDB({badges:[...unlocked,...newBadges]});setTimeout(()=>triggerConfetti(),300)}}
+function loadAllUserData(){fetch(`${DB}/ultimate_questions.json`).then(r=>r.ok?r.json():null).then(d=>{if(d&&!d.error)allQuestions=Object.keys(d).map(k=>({id:k,...d[k]}))}).catch(()=>{});fetch(`${DB}/ultimate_users.json`).then(r=>r.ok?r.json():null).then(d=>{if(d&&!d.error)allUsers=Object.keys(d).map(k=>({id:k,...d[k]}))}).catch(()=>{});fetch(`${DB}/ultimate_notes.json`).then(r=>r.ok?r.json():null).then(d=>{if(d&&!d.error)allNotes=Object.keys(d).map(k=>({id:k,...d[k]}))}).catch(()=>{})}
+window.addEventListener('online',()=>showToast('✅ Online'));
+window.addEventListener('offline',()=>showToast('📴 Offline'));
+console.log('✅ BASE-1 loaded — Firebase + Helpers ready');
 /* ═══ [SLOT BASE-1 END] ═══ */
-console.log('✅ BASE-1 (Firebase + Helpers) — Ready for paste');
 </script>
+
 
 <!-- ═══════════════════════════════════════════════════════
      SCRIPT 2: BASE — Auth System
      ═══════════════════════════════════════════════════════ -->
 <script>
-/* ═══ [SLOT BASE-2: AUTH] ═══ */
-/* 📌 এখানে paste: handleLogin, handleRegister, logout, toggleAuth,
-   updateUIHeader, updateHomeStats, toggleTheme, openNotifications,
-   closeNotifications, fetchNotifications, autoLogin */
+/* ═══ [SLOT BASE-2: AUTH SYSTEM] ═══ */
+let isRegMode=false;
+function toggleAuth(){isRegMode=!isRegMode;document.getElementById('regFields').classList.toggle('hidden',!isRegMode);document.getElementById('btnLogin').classList.toggle('hidden',isRegMode);document.getElementById('btnReg').classList.toggle('hidden',!isRegMode);document.getElementById('authTitle').innerText=isRegMode?"Create Account":"Welcome Back";document.getElementById('toggleAuth').innerText=isRegMode?"Login instead":"Create new account"}
+function handleRegister(){let name=document.getElementById('regName').value.trim();let batch=document.getElementById('regBatch').value;let rawId=document.getElementById('authId').value.trim();let pass=document.getElementById('authPass').value.trim();if(!name||!batch||!rawId||!pass)return alert("Fill all!");let cleanId=rawId.replace(/\./g,'_');document.getElementById('btnReg').innerHTML="Registering...";fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r=>r.ok?r.json():null).then(data=>{if(data&&!data.error){alert("Exists!");document.getElementById('btnReg').innerHTML="Create Account";return}let newUser={name,batch,pass,joinDate:new Date().toLocaleDateString(),coins:100,xp:0,studyMins:0,streak:1,gems:0,lastLogin:new Date().toLocaleDateString(),activityData:[0,0,0,0,0,0,0],bookmarks:[],mistakes:[],subjProg:{},badges:[],bio:'',school:document.getElementById('regSchool').value.trim(),country:document.getElementById('regCountry').value.trim(),totalCorrect:0,totalWrong:0,totalQ:0,examsGiven:0,perfectScores:0,level:1,theme:'dark',avatar:'default',nameColor:'#ffffff',friends:[],followers:[],following:[],battleElo:1000,battleWins:0,battleLosses:0,totalBattles:0,battleStreak:0,qbProgress:{},chapterProgress:{},eventClaims:{},dailyActivity:{},questionNotes:{}};return fetch(`${DB}/ultimate_users/${cleanId}.json`,{method:"PUT",body:JSON.stringify(newUser)}).then(res=>{alert("✅ +100 Coins!");document.getElementById('btnReg').innerHTML="Create Account";toggleAuth()})}).catch(()=>{alert("Error");document.getElementById('btnReg').innerHTML="Create Account"})}
+function handleLogin(){let rawId=document.getElementById('authId').value.trim();let pass=document.getElementById('authPass').value.trim();if(!rawId||!pass)return alert("Enter credentials!");let cleanId=rawId.replace(/\./g,'_');document.getElementById('btnLogin').innerHTML="Loading...";fetch(`${DB}/ultimate_users/${cleanId}.json`).then(r=>r.ok?r.json():null).then(data=>{document.getElementById('btnLogin').innerHTML=`Login`;if(!data||data.error||data.pass!==pass)return alert("❌ Invalid!");currentUser={id:cleanId,...data};normalizeUser();let today=new Date().toLocaleDateString();if(currentUser.lastLogin!==today){let diff=1;if(currentUser.lastLogin){diff=(new Date(today)-new Date(currentUser.lastLogin))/(1000*60*60*24);if(diff===1)currentUser.streak+=1;else if(diff>1)currentUser.streak=1}else currentUser.streak=1;currentUser.lastLogin=today;currentUser.coins+=50;currentUser.xp+=20;currentUser.gems+=1;if(currentUser.activityData.length>0)currentUser.activityData.shift();currentUser.activityData.push(0);saveUserDB({streak:currentUser.streak,coins:currentUser.coins,xp:currentUser.xp,gems:currentUser.gems,lastLogin:today,activityData:currentUser.activityData});showToast(`🎁 Daily Login! Streak: ${currentUser.streak}🔥`);checkAchievements()}try{localStorage.setItem('hscUser',JSON.stringify({id:cleanId}))}catch(e){}updateUIHeader();loadAllUserData();navTo('pageHome')}).catch(()=>{alert("Error");document.getElementById('btnLogin').innerHTML=`Login`})}
+function logout(){if(!confirm('Logout?'))return;try{localStorage.removeItem('hscUser')}catch(e){}currentUser={};pageHistory=[];location.reload()}
+function updateUIHeader(){let u=currentUser;if(!u||!u.id)return;let fn=(u.name||"User").split(" ")[0];let fl=fn.charAt(0).toUpperCase();let headName=document.getElementById('headName');if(headName)headName.innerText=fn;let headAvatar=document.getElementById('headAvatar');if(headAvatar){if(u.avatar&&u.avatar!=='default'&&u.avatar.startsWith('http'))headAvatar.innerHTML=`<img src="${u.avatar}">`;else headAvatar.innerText=fl}let headBatch=document.getElementById('headBatch');if(headBatch)headBatch.innerText=u.batch||"HSC";let headCoins=document.getElementById('headCoins');if(headCoins)headCoins.innerText=u.coins||0;let homeName=document.getElementById('homeName');if(homeName)homeName.innerText=fn;let homeBatch=document.getElementById('homeBatch');if(homeBatch)homeBatch.innerText=u.batch||"HSC";let homeAvatar=document.getElementById('homeAvatar');if(homeAvatar){if(u.avatar&&u.avatar!=='default'&&u.avatar.startsWith('http'))homeAvatar.innerHTML=`<img src="${u.avatar}">`;else homeAvatar.innerText=fl}let hLevel=document.getElementById('hLevel');if(hLevel)hLevel.innerText=getLevel(u.xp||0).level;let hXp=document.getElementById('hXp');if(hXp)hXp.innerText=Math.round(u.xp||0);let hCoins=document.getElementById('hCoins');if(hCoins)hCoins.innerText=u.coins||0;let hStreak=document.getElementById('hStreak');if(hStreak)hStreak.innerText=u.streak||0;let drawerAvatar=document.getElementById('drawerAvatar');if(drawerAvatar)drawerAvatar.innerText=fl;let drawerName=document.getElementById('drawerName');if(drawerName)drawerName.innerText=u.name||'User';let drawerMeta=document.getElementById('drawerMeta');if(drawerMeta){let lv=getLevel(u.xp||0);drawerMeta.innerText=`${getLevelName(lv.level)} · ${Math.round(u.xp||0)} XP`}}
+function toggleTheme(){document.body.classList.toggle('light-mode');let icon=document.getElementById('themeToggleBtn');if(icon)icon.className=document.body.classList.contains('light-mode')?'fa-solid fa-sun':'fa-solid fa-moon';currentUser.theme=document.body.classList.contains('light-mode')?'light':'dark';if(currentUser.id)saveUserDB({theme:currentUser.theme})}
+function openNotifications(){let m=document.getElementById('notiModal');if(!m){m=document.createElement('div');m.id='notiModal';m.className='card hidden';m.style.cssText='position:fixed;top:70px;left:16px;right:16px;max-width:440px;margin:0 auto;z-index:200;border-color:var(--primary);';m.innerHTML=`<div class="flex-between mb-1"><h3 style="color:var(--primary);font-size:17px;">🔔 Notifications</h3><i class="fa-solid fa-times" onclick="closeNotifications()" style="cursor:pointer;font-size:20px;color:var(--danger);"></i></div><div id="notiList" style="max-height:300px;overflow-y:auto;"></div>`;document.getElementById('appRoot').appendChild(m)}m.classList.remove('hidden');let c=document.getElementById('notiCount');if(c)c.classList.add('hidden');fetch(`${DB}/ultimate_notifications.json`).then(r=>r.ok?r.json():null).then(data=>{let html='';if(data&&!data.error){let arr=Object.values(data).reverse().slice(0,20);arr.forEach(n=>{html+=`<div style="background:var(--surface);padding:10px;margin-bottom:8px;border-radius:12px;border-left:3px solid var(--primary);"><b style="color:var(--primary);">${n.title||''}</b><div style="font-size:12px;">${n.body||''}</div></div>`})}let nl=document.getElementById('notiList');if(nl)nl.innerHTML=html||"<div class='text-muted text-center' style='padding:14px;font-size:12px;'>No notifications</div>"}).catch(()=>{})}
+function closeNotifications(){let m=document.getElementById('notiModal');if(m)m.classList.add('hidden')}
+function fetchNotifications(){fetch(`${DB}/ultimate_notifications.json`).then(r=>r.ok?r.json():null).then(data=>{if(data&&!data.error){let count=Object.keys(data).length;let c=document.getElementById('notiCount');if(c&&count>0){c.innerText=count>9?'9+':count;c.classList.remove('hidden')}}}).catch(()=>{})}
+function autoLogin(){try{let saved=localStorage.getItem('hscUser');if(!saved)return false;let parsed=JSON.parse(saved);if(!parsed.id)return false;document.getElementById('splashScreen').classList.remove('hidden');fetch(`${DB}/ultimate_users/${parsed.id}.json`).then(r=>r.ok?r.json():null).then(data=>{if(data&&data.name){currentUser={id:parsed.id,...data};normalizeUser();if(currentUser.theme==='light')document.body.classList.add('light-mode');updateUIHeader();loadAllUserData();fetchNotifications();navTo('pageHome');let s=document.getElementById('splashScreen');if(s)s.classList.add('hidden')}else{let s=document.getElementById('splashScreen');if(s)s.classList.add('hidden');navTo('pageAuth')}}).catch(()=>{let s=document.getElementById('splashScreen');if(s)s.classList.add('hidden');navTo('pageAuth')});return true}catch(e){return false}}
+console.log('✅ BASE-2 loaded — Auth System ready');
 /* ═══ [SLOT BASE-2 END] ═══ */
-console.log('✅ BASE-2 (Auth) — Ready for paste');
 </script>
 
 <!-- ═══════════════════════════════════════════════════════
      SCRIPT 3: BASE — Navigation + Drawer
      ═══════════════════════════════════════════════════════ -->
 <script>
-/* ═══ [SLOT BASE-3: NAVIGATION] ═══ */
-/* 📌 এখানে paste: navTo, goBack, pageHistory, openDrawer, closeDrawer,
-   updateHomeStats */
+/* ═══ [SLOT BASE-3: NAVIGATION + DRAWER] ═══ */
+function navTo(pageId){const pages=['pageAuth','pageHome','pageQuestionBank','pageExams','pageSyllabus','pageProgress','pageProfile','pageBattle','pageTournament','pageEvents','pageMindMap','pageFormula','pageLeaderboard','pageSocial'];pages.forEach(p=>{let el=document.getElementById(p);if(el)el.classList.add('hidden')});let target=document.getElementById(pageId);if(target)target.classList.remove('hidden');const mainPages=['pageHome','pageQuestionBank','pageProgress','pageLeaderboard','pageProfile'];if(mainPages.includes(pageId)){document.getElementById('bottomNav').style.display='flex';document.getElementById('appHeader').classList.remove('hidden');const map={pageHome:0,pageQuestionBank:1,pageProgress:2,pageLeaderboard:3,pageProfile:4};if(map[pageId]!==undefined){document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',i===map[pageId]))}}else{document.getElementById('bottomNav').style.display='none';if(pageId!=='pageAuth'){document.getElementById('appHeader').classList.remove('hidden')}else{document.getElementById('appHeader').classList.add('hidden')}}if(pageId==='pageHome'&&typeof updateHomeStats==='function')updateHomeStats();if(pageId==='pageProfile'&&typeof prfRender==='function')prfRender();if(pageId==='pageQuestionBank'&&typeof qbRender==='function')qbRender();if(pageId==='pageExams'&&typeof exRender==='function')exRender();if(pageId==='pageSyllabus'&&typeof sylRender==='function')sylRender();if(pageId==='pageProgress'&&typeof pgRender==='function')pgRender();if(pageId==='pageBattle'&&typeof btRender==='function')btRender();if(pageId==='pageTournament'&&typeof trnRender==='function')trnRender();if(pageId==='pageEvents'&&typeof evtRender==='function')evtRender();if(pageId==='pageMindMap'&&typeof mmRender==='function')mmRender();if(pageId==='pageFormula'&&typeof fvRender==='function')fvRender();if(pageId==='pageLeaderboard'&&typeof lbRender==='function')lbRender();if(pageId==='pageSocial'&&typeof socRender==='function')socRender();window.scrollTo(0,0)}
+function goBack(){if(pageHistory.length>0){const prev=pageHistory.pop();navTo(prev)}else navTo('pageHome')}
+function openDrawer(){document.getElementById('drawerMenu').classList.add('open');document.getElementById('drawerOverlay').classList.add('open')}
+function closeDrawer(){document.getElementById('drawerMenu').classList.remove('open');document.getElementById('drawerOverlay').classList.remove('open')}
+function updateHomeStats(){let u=currentUser;if(!u||!u.id)return;let hLevel=document.getElementById('hLevel');if(hLevel)hLevel.innerText=getLevel(u.xp||0).level;let hXp=document.getElementById('hXp');if(hXp)hXp.innerText=Math.round(u.xp||0);let hCoins=document.getElementById('hCoins');if(hCoins)hCoins.innerText=u.coins||0;let hStreak=document.getElementById('hStreak');if(hStreak)hStreak.innerText=u.streak||0;let headCoins=document.getElementById('headCoins');if(headCoins)headCoins.innerText=u.coins||0}
+const _origNavTo=window.navTo;
+window.navTo=function(p){if(!pageHistory.includes(p)&&p!=='pageHome'&&p!=='pageAuth')pageHistory.push(p);_origNavTo.apply(this,arguments)};
+console.log('✅ BASE-3 loaded — Navigation + Drawer ready');
 /* ═══ [SLOT BASE-3 END] ═══ */
-console.log('✅ BASE-3 (Navigation) — Ready for paste');
 </script>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -470,11 +508,17 @@ console.log('✅ BASE-3 (Navigation) — Ready for paste');
      ═══════════════════════════════════════════════════════ -->
 <script>
 /* ═══ [SLOT BASE-4: SOCIAL LINKS] ═══ */
-/* 📌 এখানে paste: loadSocialLinks, renderHomeSocial,
-   renderProfileSocial, renderDrawerSocial, getSocialIcon,
-   getSocialColor, claimSocialReward */
+const SOCIAL_ICONS={youtube:'fa-brands fa-youtube',facebook:'fa-brands fa-facebook',telegram:'fa-brands fa-telegram',whatsapp:'fa-brands fa-whatsapp',instagram:'fa-brands fa-instagram',website:'fa-solid fa-globe',twitter:'fa-brands fa-twitter',tiktok:'fa-brands fa-tiktok',linkedin:'fa-brands fa-linkedin'};
+const SOCIAL_COLORS={youtube:'#ff0000',facebook:'#1877f2',telegram:'#0088cc',whatsapp:'#25d366',instagram:'#e4405f',website:'#6c5ce7',twitter:'#1da1f2',tiktok:'#000000',linkedin:'#0a66c2'};
+function getSocialIcon(platform){return SOCIAL_ICONS[platform]||'fa-solid fa-link'}
+function getSocialColor(platform){return SOCIAL_COLORS[platform]||'#6c5ce7'}
+function loadSocialLinks(){fetch(`${DB}/admin_social_links/links.json`).then(r=>r.ok?r.json():null).then(data=>{if(data&&!data.error){socialLinks=Object.values(data).filter(l=>l.enabled!==false).sort((a,b)=>(a.order||0)-(b.order||0))}else{socialLinks=[{platform:'facebook',title:'Facebook',url:'#',showInHome:true,showInProfile:true,showInDrawer:true},{platform:'youtube',title:'YouTube',url:'#',showInHome:true,showInProfile:true,showInDrawer:true},{platform:'telegram',title:'Telegram',url:'#',showInHome:true,showInProfile:true,showInDrawer:true},{platform:'whatsapp',title:'WhatsApp',url:'#',showInHome:true,showInProfile:true,showInDrawer:true}]}renderHomeSocial();renderDrawerSocial();if(typeof renderProfileSocial==='function')renderProfileSocial()}).catch(()=>{})}
+function renderHomeSocial(){let card=document.getElementById('homeSocialCard');let grid=document.getElementById('homeSocialGrid');if(!card||!grid)return;let toShow=socialLinks.filter(l=>l.showInHome!==false);if(toShow.length===0){card.style.display='none';return}card.style.display='block';grid.innerHTML=toShow.map(l=>`<a class="social-btn" href="${l.url}" target="_blank" rel="noopener" onclick="claimSocialReward('${l.platform}')"><i class="${getSocialIcon(l.platform)} s-icon" style="color:${getSocialColor(l.platform)};"></i><span class="s-name">${l.title||l.platform}</span></a>`).join('')}
+function renderDrawerSocial(){let grid=document.getElementById('drawerSocialGrid');if(!grid)return;let toShow=socialLinks.filter(l=>l.showInDrawer!==false);if(toShow.length===0)return;grid.innerHTML=toShow.map(l=>`<a class="social-btn" href="${l.url}" target="_blank" rel="noopener" onclick="claimSocialReward('${l.platform}')"><i class="${getSocialIcon(l.platform)}" style="font-size:20px;color:${getSocialColor(l.platform)};"></i><span class="s-name" style="font-size:8px;">${l.title||l.platform}</span></a>`).join('')}
+function renderProfileSocial(){let card=document.getElementById('profSocialCard');let list=document.getElementById('profSocialList');if(!card||!list)return;let toShow=socialLinks.filter(l=>l.showInProfile!==false);if(toShow.length===0){card.style.display='none';return}card.style.display='block';list.innerHTML=toShow.map(l=>`<div class="social-list-item" onclick="window.open('${l.url}','_blank');claimSocialReward('${l.platform}')"><div class="sl-icon" style="background:${getSocialColor(l.platform)}22;color:${getSocialColor(l.platform)};"><i class="${getSocialIcon(l.platform)}"></i></div><div class="sl-info"><div class="sl-title">${l.title||l.platform}</div><div class="sl-sub">Tap to open</div></div><i class="fa-solid fa-chevron-right" style="color:var(--text-muted);"></i></div>`).join('')}
+function claimSocialReward(platform){if(!currentUser||!currentUser.id)return;let claims=currentUser.socialClaims||{};if(claims[platform])return;claims[platform]={claimed:true,date:Date.now(),reward:10};currentUser.socialClaims=claims;currentUser.coins=(currentUser.coins||0)+10;saveUserDB({socialClaims:claims,coins:currentUser.coins});showToast(`🎁 +10 Coins!`)}
+console.log('✅ BASE-4 loaded — Social Links ready');
 /* ═══ [SLOT BASE-4 END] ═══ */
-console.log('✅ BASE-4 (Social Links) — Ready for paste');
 </script>
 
 <!-- ═══════════════════════════════════════════════════════
