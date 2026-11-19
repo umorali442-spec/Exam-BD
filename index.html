@@ -434,9 +434,6 @@ button:active{transform:scale(.96)}
 <div class="nav-item" onclick="navTo('pageLeaderboard')"><i class="fa-solid fa-ranking-star"></i><span>Rank</span></div>
 <div class="nav-item" onclick="navTo('pageProfile')"><i class="fa-solid fa-user"></i><span>Profile</span></div>
 </div>
-<div id="pageChat" class="hidden p-2"></div>
-<div id="pageChatRoom" class="hidden"></div>
-<div id="pageFriends" class="hidden p-2"></div>
 
 <!-- ═══════════════════════════════════════════════════════
      DRAWER
@@ -1748,7 +1745,46 @@ function chatRenderFriendsPage(){const p=document.getElementById('pageFriends');
 function chatFriendTab(tab){document.querySelectorAll('#pageFriends .social-tab').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');const b=document.getElementById('chatFriendsBody');if(tab==='friends'){let h='';CHAT.friends.forEach(f=>{const u=allUsers.find(x=>x.id===f.uid)||{};h+=`<div class="friend-card"><div class="chat-avatar">${u.avatar&&u.avatar.startsWith('http')?`<img src="${u.avatar}">`:(u.name||'U').charAt(0)}</div><div style="flex:1;"><b style="font-size:14px;">${u.name||'User'}</b></div><button class="f-btn f-add" onclick="chatOpenWith('${f.uid}','${esc(u.name||'User')}','${esc(u.avatar||'')}')"><i class="fa-solid fa-message"></i></button></div>`});b.innerHTML=h||'<div class="empty-state">No friends</div>'}else{let h='';CHAT.requests.forEach(r=>{const u=allUsers.find(x=>x.id===r.uid)||{};h+=`<div class="friend-card"><div class="chat-avatar">${(u.name||'U').charAt(0)}</div><div style="flex:1;"><b style="font-size:14px;">${u.name||'User'}</b></div><button class="f-btn f-acc" onclick="chatAcceptReq('${r.uid}')">Accept</button><button class="f-btn f-pend" onclick="chatRejectReq('${r.uid}')">✕</button></div>`});b.innerHTML=h||'<div class="empty-state">No requests</div>'}}
 async function chatAcceptReq(uid){await db.ref(`ultimate_chats/friendships/${currentUser.id}/friends/${uid}`).set({since:Date.now()});await db.ref(`ultimate_chats/friendships/${uid}/friends/${currentUser.id}`).set({since:Date.now()});await db.ref(`ultimate_chats/friendships/${currentUser.id}/requests/incoming/${uid}`).remove();await db.ref(`ultimate_chats/friendships/${uid}/requests/outgoing/${currentUser.id}`).remove();showToast('✅ Friend added')}
 async function chatRejectReq(uid){await db.ref(`ultimate_chats/friendships/${currentUser.id}/requests/incoming/${uid}`).remove();await db.ref(`ultimate_chats/friendships/${uid}/requests/outgoing/${currentUser.id}`).remove();showToast('❌ Rejected')}
+function navTo(pageId) {
+  // ১. সব পেজ লুকানো
+  const pages = ['pageAuth','pageHome','pageQuestionBank','pageExams','pageSyllabus','pageProgress','pageProfile','pageBattle','pageTournament','pageEvents','pageMindMap','pageFormula','pageLeaderboard','pageSocial','pageChat','pageChatRoom','pageFriends'];
+  pages.forEach(p => { let el = document.getElementById(p); if(el) el.classList.add('hidden'); });
+  
+  // ২. টার্গেট পেজ দেখানো
+  let target = document.getElementById(pageId);
+  if(target) target.classList.remove('hidden');
 
+  // ৩. বটম নেভিগেশন হ্যান্ডেল করা
+  const mainPages = ['pageHome','pageQuestionBank','pageProgress','pageLeaderboard','pageProfile','pageChat'];
+  if(mainPages.includes(pageId)){
+    let bn = document.getElementById('bottomNav');
+    if(bn) bn.style.display = 'flex';
+    let ah = document.getElementById('appHeader');
+    if(ah) ah.classList.remove('hidden');
+    // আইকন অ্যাক্টিভ করা
+    const map = {pageHome:0,pageQuestionBank:1,pageChat:2,pageLeaderboard:3,pageProfile:4};
+    if(map[pageId] !== undefined){
+      document.querySelectorAll('.nav-item').forEach((el,i) => el.classList.toggle('active', i === map[pageId]));
+    }
+  } else {
+    let bn = document.getElementById('bottomNav');
+    if(bn) bn.style.display = 'none';
+    if(pageId !== 'pageAuth'){
+      let ah = document.getElementById('appHeader');
+      if(ah) ah.classList.remove('hidden');
+    }
+  }
+
+  // ৪. চ্যাট এবং ফ্রেন্ড পেজের ডাটা রেন্ডার করা
+  if(pageId === 'pageChat'){
+    if(typeof chatRenderListPage === 'function') chatRenderListPage();
+  }
+  if(pageId === 'pageFriends'){
+    if(typeof chatRenderFriendsPage === 'function') chatRenderFriendsPage();
+  }
+
+  window.scrollTo(0,0);
+}
 const _origNavTo=window.navTo;
 window.navTo=function(p){if(p==='pageChat'){chatRenderListPage();document.getElementById('bottomNav').style.display='flex';document.getElementById('appHeader').classList.remove('hidden');document.querySelectorAll('[id^="page"]').forEach(el=>{if(el.id!=='pageChat')el.classList.add('hidden')});document.getElementById('pageChat').classList.remove('hidden');return}if(p==='pageFriends'){chatRenderFriendsPage();document.getElementById('appHeader').classList.remove('hidden');document.querySelectorAll('[id^="page"]').forEach(el=>{if(el.id!=='pageFriends')el.classList.add('hidden')});document.getElementById('pageFriends').classList.remove('hidden');return}_origNavTo.apply(this,arguments)};
 chatInit();
