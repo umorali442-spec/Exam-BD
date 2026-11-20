@@ -1,0 +1,8 @@
+{
+  "appId": "com.umorali.exambd",
+  "appName": "Exam BD",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
