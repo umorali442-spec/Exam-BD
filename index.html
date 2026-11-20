@@ -1788,7 +1788,734 @@ function navTo(pageId) {
 const _origNavTo=window.navTo;
 window.navTo=function(p){if(p==='pageChat'){chatRenderListPage();document.getElementById('bottomNav').style.display='flex';document.getElementById('appHeader').classList.remove('hidden');document.querySelectorAll('[id^="page"]').forEach(el=>{if(el.id!=='pageChat')el.classList.add('hidden')});document.getElementById('pageChat').classList.remove('hidden');return}if(p==='pageFriends'){chatRenderFriendsPage();document.getElementById('appHeader').classList.remove('hidden');document.querySelectorAll('[id^="page"]').forEach(el=>{if(el.id!=='pageFriends')el.classList.add('hidden')});document.getElementById('pageFriends').classList.remove('hidden');return}_origNavTo.apply(this,arguments)};
 chatInit();
+<script>
+/* ═══════════════════════════════════════════════════════════
+   CHAT MODULE — PART 1/2
+   Nav + Chat list + Friends + Requests
+   ═══════════════════════════════════════════════════════════ */
 
+const CHAT = {
+  currentChatId: null, currentChatData: null,
+  replyTo: null, currentMsg: null,
+  tab: 'chats', reqTab: 'incoming',
+  chatsRef: null, chatsCb: null,
+  msgsRef: null, msgsCb: null,
+  typingRef: null, typingCb: null,
+  reqRef: null, reqCb: null
+};
+
+function cEsc(s) { return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function cFmtTime(ts) { if (!ts) return ''; return new Date(ts).toLocaleTimeString('en', {hour:'2-digit', minute:'2-digit'}); }
+function cFmtDate(ts) { if (!ts) return ''; return new Date(ts).toLocaleDateString('en', {month:'short', day:'numeric'}); }
+function cIsOnline(lastSeen) { return lastSeen && (Date.now() - lastSeen < 60000); }
+
+// ─── Nav override ───
+const _origNavTo_ChatM = window.navTo;
+window.navTo = function(p) {
+  if (p === 'pageChat' || p === 'pageFriends') {
+    document.querySelectorAll('[id^="page"]').forEach(el => el.classList.add('hidden'));
+    const bn = document.getElementById('bottomNav'); if (bn) bn.style.display = 'none';
+    const ah = document.getElementById('appHeader'); if (ah) ah.classList.remove('hidden');
+    const target = document.getElementById(p); if (target) target.classList.remove('hidden');
+    if (p === 'pageChat') renderChatPage(); else renderFriendsPage();
+    window.scrollTo(0, 0);
+    return;
+  }
+  ['pageChat','pageChatRoom','pageFriends'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
+  _origNavTo_ChatM.apply(this, arguments);
+};
+
+// ─── Main chat page ───
+function renderChatPage() {
+  const p = document.getElementById('pageChat');
+  if (!p) return;
+  if (!currentUser || !currentUser.id) {
+    p.innerHTML = '<div class="empty-state"><i class="fa-solid fa-lock"></i><div class="es-title">Login Required</div></div>';
+    return;
+  }
+  p.innerHTML = `
+    <div class="flex-between mb-1">
+      <h3 style="font-size:19px;">💬 Messages</h3>
+      <button class="btn-outline btn-sm" onclick="goBack()">Back</button>
+    </div>
+    <div class="social-tabs">
+      <div class="social-tab ${CHAT.tab==='chats'?'active':''}" data-tab="chats" onclick="chatSetTab('chats')">💬 Chats</div>
+      <div class="social-tab ${CHAT.tab==='friends'?'active':''}" data-tab="friends" onclick="chatSetTab('friends')">👥 Friends</div>
+      <div class="social-tab ${CHAT.tab==='requests'?'active':''}" data-tab="requests" onclick="chatSetTab('requests')">📬 Requests <span id="chatReqBadge" style="display:none;background:var(--danger);color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></div>
+    </div>
+    <div id="chatContent"></div>
+  `;
+  chatSetTab(CHAT.tab);
+  loadReqCount();
+}
+
+function chatSetTab(tab) {
+  CHAT.tab = tab;
+  document.querySelectorAll('#pageChat .social-tab[data-tab]').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+  if (tab === 'chats') renderChatList();
+  else if (tab === 'friends') renderChatFriends();
+  else renderChatRequests();
+}
+
+// ─── Chat List ───
+async function renderChatList() {
+  const c = document.getElementById('chatContent');
+  if (!c) return;
+  c.innerHTML = '<div class="spinner"></div>';
+  if (CHAT.chatsRef && CHAT.chatsCb) CHAT.chatsRef.off('value', CHAT.chatsCb);
+  CHAT.chatsRef = firebase.database().ref('ultimate_chats').orderByChild(`members/${currentUser.id}`).equalTo(true);
+  CHAT.chatsCb = CHAT.chatsRef.on('value', async (snap) => {
+    const chats = [];
+    snap.forEach(child => { if (child.val()) chats.push({ id: child.key, ...child.val() }); });
+    if (chats.length === 0) {
+      c.innerHTML = '<div class="empty-state"><i class="fa-solid fa-comments"></i><div class="es-title">No chats yet</div><div class="es-sub">Add friends to start chatting</div><br><button class="btn-primary btn-sm" onclick="chatSetTab(\'friends\')">Find Friends</button></div>';
+      return;
+    }
+    chats.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
+    const enriched = await Promise.all(chats.map(async ch => {
+      let title = ch.name || 'Chat', online = false;
+      if (ch.type === '1to1') {
+        const other = Object.keys(ch.members || {}).find(m => m !== currentUser.id);
+        if (other) {
+          const s = await firebase.database().ref(`ultimate_users/${other}`).once('value');
+          const od = s.val();
+          if (od) { title = od.name || 'User'; online = cIsOnline(od.lastSeen); }
+        }
+      }
+      return { ...ch, title, online };
+    }));
+    c.innerHTML = enriched.map(ch => `
+      <div class="chat-list-item" onclick="openChatRoom('${ch.id}')">
+        <div class="chat-avatar">${(ch.title[0]||'?').toUpperCase()}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cEsc(ch.title)} ${ch.online?'<span style="font-size:9px;color:var(--success)">●</span>':''}</div>
+          <div style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cEsc(ch.lastMessage || 'No messages yet')}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;font-size:10px;color:var(--text-muted)">${cFmtTime(ch.lastMessageTime)}</div>
+      </div>
+    `).join('');
+  });
+}
+
+// ─── Friends Tab ───
+async function renderChatFriends() {
+  const c = document.getElementById('chatContent');
+  if (!c) return;
+  c.innerHTML = `
+    <div class="search-row" style="margin-bottom:12px">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input id="chatUserSearch" placeholder="Search by name or phone..." oninput="chatSearchUsers(this.value)">
+    </div>
+    <div id="chatFriendsBody"><div class="spinner"></div></div>
+  `;
+  const friendIds = Object.keys(currentUser.friends || {});
+  const body = document.getElementById('chatFriendsBody');
+  if (friendIds.length === 0) {
+    body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-users"></i><div class="es-title">No friends yet</div><div class="es-sub">Search above to add</div></div>';
+    return;
+  }
+  const friends = await Promise.all(friendIds.map(async uid => {
+    const s = await firebase.database().ref(`ultimate_users/${uid}`).once('value');
+    return s.val() ? { uid, ...s.val() } : null;
+  }));
+  body.innerHTML = friends.filter(Boolean).map(f => {
+    const online = cIsOnline(f.lastSeen);
+    return `<div class="friend-card">
+      <div class="chat-avatar">${(f.name||'?')[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px">${cEsc(f.name||'User')}</div>
+        <div style="font-size:10px;color:var(--text-muted)">${cEsc(f.batch||'')} ${online?'· 🟢 Online':''}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="f-btn f-add" onclick="chatStartWithUser('${f.uid}')">💬</button>
+        <button class="f-btn f-add" style="background:var(--danger)" onclick="chatBlockUser('${f.uid}')">🚫</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function chatSearchUsers(term) {
+  term = (term || '').trim().toLowerCase();
+  const body = document.getElementById('chatFriendsBody');
+  if (!body) return;
+  if (!term) { renderChatFriends(); return; }
+  body.innerHTML = '<div class="spinner"></div>';
+  const snap = await firebase.database().ref('ultimate_users').once('value');
+  const all = snap.val() || {};
+  const found = [];
+  Object.entries(all).forEach(([uid, u]) => {
+    if (uid === currentUser.id || !u) return;
+    if ((u.name||'').toLowerCase().includes(term) || uid.toLowerCase().includes(term)) found.push({ uid, ...u });
+  });
+  if (found.length === 0) {
+    body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-search"></i><div class="es-title">No users found</div></div>';
+    return;
+  }
+  body.innerHTML = found.slice(0, 30).map(u => {
+    const isFriend = !!(currentUser.friends && currentUser.friends[u.uid]);
+    const nameSafe = cEsc(u.name||'User').replace(/'/g, '');
+    return `<div class="friend-card">
+      <div class="chat-avatar">${(u.name||'?')[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px">${cEsc(u.name||'User')} ${isFriend?'<span class="badge badge-success" style="font-size:8px">FRIEND</span>':''}</div>
+        <div style="font-size:10px;color:var(--text-muted)">${cEsc(u.batch||'')}</div>
+      </div>
+      <div>${isFriend
+        ? `<button class="f-btn f-add" onclick="chatStartWithUser('${u.uid}')">💬 Chat</button>`
+        : `<button class="f-btn f-add" onclick="chatSendFriendReq('${u.uid}','${nameSafe}')">➕ Add</button>`}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Requests Tab ───
+async function renderChatRequests() {
+  const c = document.getElementById('chatContent');
+  if (!c) return;
+  c.innerHTML = `
+    <div class="social-tabs" style="margin-bottom:14px">
+      <div class="social-tab ${CHAT.reqTab==='incoming'?'active':''}" onclick="CHAT.reqTab='incoming';renderChatRequests()">📥 Incoming</div>
+      <div class="social-tab ${CHAT.reqTab==='outgoing'?'active':''}" onclick="CHAT.reqTab='outgoing';renderChatRequests()">📤 Sent</div>
+    </div>
+    <div id="chatReqBody"><div class="spinner"></div></div>
+  `;
+  const body = document.getElementById('chatReqBody');
+  const field = CHAT.reqTab === 'incoming' ? 'to' : 'from';
+  const snap = await firebase.database().ref('ultimate_friend_requests').orderByChild(field).equalTo(currentUser.id).once('value');
+  const reqs = [];
+  snap.forEach(r => { if (r.val().status === 'pending') reqs.push({ id: r.key, ...r.val() }); });
+  if (reqs.length === 0) {
+    body.innerHTML = `<div class="empty-state"><i class="fa-solid fa-inbox"></i><div class="es-title">No ${CHAT.reqTab} requests</div></div>`;
+    return;
+  }
+  reqs.sort((a, b) => b.createdAt - a.createdAt);
+  body.innerHTML = reqs.map(r => {
+    const name = CHAT.reqTab === 'incoming' ? r.fromName : r.toName;
+    return `<div class="friend-card">
+      <div class="chat-avatar">${(name||'?')[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px">${cEsc(name||'User')}</div>
+        <div style="font-size:10px;color:var(--text-muted)">${cFmtDate(r.createdAt)}</div>
+      </div>
+      <div style="display:flex;gap:6px">${CHAT.reqTab==='incoming'
+        ? `<button class="f-btn f-acc" onclick="chatAcceptReq('${r.id}','${r.from}')">✅</button><button class="f-btn f-add" style="background:var(--danger)" onclick="chatRejectReq('${r.id}')">❌</button>`
+        : `<span class="badge badge-secondary" style="font-size:9px">PENDING</span>`}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Friends Page (separate) ───
+function renderFriendsPage() {
+  const p = document.getElementById('pageFriends');
+  if (!p) return;
+  if (!currentUser || !currentUser.id) {
+    p.innerHTML = '<div class="empty-state"><i class="fa-solid fa-lock"></i><div class="es-title">Login Required</div></div>';
+    return;
+  }
+  p.innerHTML = `
+    <div class="flex-between mb-1"><h3 style="font-size:19px;">👥 All Users</h3><button class="btn-outline btn-sm" onclick="goBack()">Back</button></div>
+    <div class="search-row" style="margin-bottom:12px"><i class="fa-solid fa-magnifying-glass"></i><input id="friendsPageSearch" placeholder="Search users..." oninput="friendsPageSearch(this.value)"></div>
+    <div id="friendsPageBody"><div class="spinner"></div></div>
+  `;
+  friendsPageSearch('');
+}
+
+async function friendsPageSearch(term) {
+  term = (term || '').trim().toLowerCase();
+  const body = document.getElementById('friendsPageBody');
+  if (!body) return;
+  body.innerHTML = '<div class="spinner"></div>';
+  const snap = await firebase.database().ref('ultimate_users').once('value');
+  const all = snap.val() || {};
+  const found = [];
+  Object.entries(all).forEach(([uid, u]) => {
+    if (uid === currentUser.id || !u) return;
+    if (!term || (u.name||'').toLowerCase().includes(term) || uid.toLowerCase().includes(term)) found.push({ uid, ...u });
+  });
+  if (found.length === 0) {
+    body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-users"></i><div class="es-title">No users found</div></div>';
+    return;
+  }
+  body.innerHTML = found.slice(0, 50).map(u => {
+    const isFriend = !!(currentUser.friends && currentUser.friends[u.uid]);
+    const nameSafe = cEsc(u.name||'User').replace(/'/g, '');
+    return `<div class="friend-card">
+      <div class="chat-avatar">${(u.name||'?')[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px">${cEsc(u.name||'User')} ${isFriend?'<span class="badge badge-success" style="font-size:8px">FRIEND</span>':''}</div>
+        <div style="font-size:10px;color:var(--text-muted)">${cEsc(u.batch||'')}</div>
+      </div>
+      <div>${isFriend
+        ? `<button class="f-btn f-add" onclick="chatStartWithUser('${u.uid}')">💬 Chat</button>`
+        : `<button class="f-btn f-add" onclick="chatSendFriendReq('${u.uid}','${nameSafe}')">➕ Add</button>`}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Friend actions ───
+async function chatSendFriendReq(toUid, toName) {
+  if (!toUid || toUid === currentUser.id) return;
+  const snap = await firebase.database().ref('ultimate_friend_requests').orderByChild('from').equalTo(currentUser.id).once('value');
+  let already = false;
+  snap.forEach(r => { const v = r.val(); if (v.to === toUid && v.status === 'pending') already = true; });
+  if (already) { showToast('Request already sent'); return; }
+  await firebase.database().ref('ultimate_friend_requests').push().set({
+    from: currentUser.id, fromName: currentUser.name || 'User',
+    to: toUid, toName, status: 'pending', createdAt: Date.now()
+  });
+  showToast('✅ Friend request sent');
+}
+
+async function chatAcceptReq(reqId, fromUid) {
+  try {
+    await firebase.database().ref(`ultimate_friend_requests/${reqId}`).update({ status: 'accepted', acceptedAt: Date.now() });
+    await firebase.database().ref(`ultimate_users/${currentUser.id}/friends/${fromUid}`).set(true);
+    await firebase.database().ref(`ultimate_users/${fromUid}/friends/${currentUser.id}`).set(true);
+    currentUser.friends = currentUser.friends || {};
+    currentUser.friends[fromUid] = true;
+    showToast('✅ Friend added');
+    renderChatRequests();
+    loadReqCount();
+  } catch (e) { showToast('Failed'); }
+}
+
+async function chatRejectReq(reqId) {
+  try {
+    await firebase.database().ref(`ultimate_friend_requests/${reqId}`).update({ status: 'rejected', rejectedAt: Date.now() });
+    showToast('Rejected');
+    renderChatRequests();
+    loadReqCount();
+  } catch (e) { showToast('Failed'); }
+}
+
+async function chatBlockUser(uid) {
+  if (!confirm('Block this user?')) return;
+  await firebase.database().ref(`ultimate_users/${currentUser.id}/blockedUsers/${uid}`).set(true);
+  await firebase.database().ref(`ultimate_users/${currentUser.id}/friends/${uid}`).remove();
+  currentUser.friends = currentUser.friends || {};
+  delete currentUser.friends[uid];
+  showToast('🚫 Blocked');
+  renderChatFriends();
+}
+
+function loadReqCount() {
+  if (!currentUser || !currentUser.id) return;
+  if (CHAT.reqRef && CHAT.reqCb) CHAT.reqRef.off('value', CHAT.reqCb);
+  CHAT.reqRef = firebase.database().ref('ultimate_friend_requests').orderByChild('to').equalTo(currentUser.id);
+  CHAT.reqCb = CHAT.reqRef.on('value', snap => {
+    let cnt = 0;
+    snap.forEach(r => { if (r.val().status === 'pending') cnt++; });
+    const b = document.getElementById('chatReqBadge');
+    if (b) { b.textContent = cnt; b.style.display = cnt > 0 ? 'inline-block' : 'none'; }
+  });
+}
+
+// ─── Start 1-to-1 chat ───
+async function chatStartWithUser(otherUid) {
+  if (!otherUid || otherUid === currentUser.id) return;
+  const snap = await firebase.database().ref('ultimate_chats').orderByChild('type').equalTo('1to1').once('value');
+  let existing = null;
+  snap.forEach(c => {
+    const v = c.val();
+    if (v.members && v.members[currentUser.id] && v.members[otherUid]) existing = c.key;
+  });
+  if (existing) { openChatRoom(existing); return; }
+  const ref = firebase.database().ref('ultimate_chats').push();
+  await ref.set({
+    type: '1to1',
+    members: { [currentUser.id]: true, [otherUid]: true },
+    name: '', lastMessage: '', lastMessageTime: Date.now(), createdAt: Date.now(), admins: {}
+  });
+  openChatRoom(ref.key);
+}
+
+// ─── Exports (Part 1) ───
+window.renderChatPage = renderChatPage;
+window.chatSetTab = chatSetTab;
+window.renderChatList = renderChatList;
+window.renderChatFriends = renderChatFriends;
+window.chatSearchUsers = chatSearchUsers;
+window.renderChatRequests = renderChatRequests;
+window.renderFriendsPage = renderFriendsPage;
+window.friendsPageSearch = friendsPageSearch;
+window.chatSendFriendReq = chatSendFriendReq;
+window.chatAcceptReq = chatAcceptReq;
+window.chatRejectReq = chatRejectReq;
+window.chatBlockUser = chatBlockUser;
+window.loadReqCount = loadReqCount;
+window.chatStartWithUser = chatStartWithUser;
+
+if (typeof currentUser !== 'undefined' && currentUser && currentUser.id) {
+  setTimeout(() => { try { loadReqCount(); } catch(e){} }, 2000);
+}
+
+console.log('✅ Chat PART 1/2 loaded');
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   CHAT MODULE — PART 1/2
+   Nav + Chat list + Friends + Requests
+   ═══════════════════════════════════════════════════════════ */
+
+const CHAT = {
+  currentChatId: null, currentChatData: null,
+  replyTo: null, currentMsg: null,
+  tab: 'chats', reqTab: 'incoming',
+  chatsRef: null, chatsCb: null,
+  msgsRef: null, msgsCb: null,
+  typingRef: null, typingCb: null,
+  reqRef: null, reqCb: null
+};
+
+function cEsc(s) { return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function cFmtTime(ts) { if (!ts) return ''; return new Date(ts).toLocaleTimeString('en', {hour:'2-digit', minute:'2-digit'}); }
+function cFmtDate(ts) { if (!ts) return ''; return new Date(ts).toLocaleDateString('en', {month:'short', day:'numeric'}); }
+function cIsOnline(lastSeen) { return lastSeen && (Date.now() - lastSeen < 60000); }
+
+// ─── Nav override ───
+const _origNavTo_ChatM = window.navTo;
+window.navTo = function(p) {
+  if (p === 'pageChat' || p === 'pageFriends') {
+    document.querySelectorAll('[id^="page"]').forEach(el => el.classList.add('hidden'));
+    const bn = document.getElementById('bottomNav'); if (bn) bn.style.display = 'none';
+    const ah = document.getElementById('appHeader'); if (ah) ah.classList.remove('hidden');
+    const target = document.getElementById(p); if (target) target.classList.remove('hidden');
+    if (p === 'pageChat') renderChatPage(); else renderFriendsPage();
+    window.scrollTo(0, 0);
+    return;
+  }
+  ['pageChat','pageChatRoom','pageFriends'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
+  _origNavTo_ChatM.apply(this, arguments);
+};
+
+// ─── Main chat page ───
+function renderChatPage() {
+  const p = document.getElementById('pageChat');
+  if (!p) return;
+  if (!currentUser || !currentUser.id) {
+    p.innerHTML = '<div class="empty-state"><i class="fa-solid fa-lock"></i><div class="es-title">Login Required</div></div>';
+    return;
+  }
+  p.innerHTML = `
+    <div class="flex-between mb-1">
+      <h3 style="font-size:19px;">💬 Messages</h3>
+      <button class="btn-outline btn-sm" onclick="goBack()">Back</button>
+    </div>
+    <div class="social-tabs">
+      <div class="social-tab ${CHAT.tab==='chats'?'active':''}" data-tab="chats" onclick="chatSetTab('chats')">💬 Chats</div>
+      <div class="social-tab ${CHAT.tab==='friends'?'active':''}" data-tab="friends" onclick="chatSetTab('friends')">👥 Friends</div>
+      <div class="social-tab ${CHAT.tab==='requests'?'active':''}" data-tab="requests" onclick="chatSetTab('requests')">📬 Requests <span id="chatReqBadge" style="display:none;background:var(--danger);color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></div>
+    </div>
+    <div id="chatContent"></div>
+  `;
+  chatSetTab(CHAT.tab);
+  loadReqCount();
+}
+
+function chatSetTab(tab) {
+  CHAT.tab = tab;
+  document.querySelectorAll('#pageChat .social-tab[data-tab]').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+  if (tab === 'chats') renderChatList();
+  else if (tab === 'friends') renderChatFriends();
+  else renderChatRequests();
+}
+
+// ─── Chat List ───
+async function renderChatList() {
+  const c = document.getElementById('chatContent');
+  if (!c) return;
+  c.innerHTML = '<div class="spinner"></div>';
+  if (CHAT.chatsRef && CHAT.chatsCb) CHAT.chatsRef.off('value', CHAT.chatsCb);
+  CHAT.chatsRef = firebase.database().ref('ultimate_chats').orderByChild(`members/${currentUser.id}`).equalTo(true);
+  CHAT.chatsCb = CHAT.chatsRef.on('value', async (snap) => {
+    const chats = [];
+    snap.forEach(child => { if (child.val()) chats.push({ id: child.key, ...child.val() }); });
+    if (chats.length === 0) {
+      c.innerHTML = '<div class="empty-state"><i class="fa-solid fa-comments"></i><div class="es-title">No chats yet</div><div class="es-sub">Add friends to start chatting</div><br><button class="btn-primary btn-sm" onclick="chatSetTab(\'friends\')">Find Friends</button></div>';
+      return;
+    }
+    chats.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
+    const enriched = await Promise.all(chats.map(async ch => {
+      let title = ch.name || 'Chat', online = false;
+      if (ch.type === '1to1') {
+        const other = Object.keys(ch.members || {}).find(m => m !== currentUser.id);
+        if (other) {
+          const s = await firebase.database().ref(`ultimate_users/${other}`).once('value');
+          const od = s.val();
+          if (od) { title = od.name || 'User'; online = cIsOnline(od.lastSeen); }
+        }
+      }
+      return { ...ch, title, online };
+    }));
+    c.innerHTML = enriched.map(ch => `
+      <div class="chat-list-item" onclick="openChatRoom('${ch.id}')">
+        <div class="chat-avatar">${(ch.title[0]||'?').toUpperCase()}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cEsc(ch.title)} ${ch.online?'<span style="font-size:9px;color:var(--success)">●</span>':''}</div>
+          <div style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cEsc(ch.lastMessage || 'No messages yet')}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;font-size:10px;color:var(--text-muted)">${cFmtTime(ch.lastMessageTime)}</div>
+      </div>
+    `).join('');
+  });
+}
+
+// ─── Friends Tab ───
+async function renderChatFriends() {
+  const c = document.getElementById('chatContent');
+  if (!c) return;
+  c.innerHTML = `
+    <div class="search-row" style="margin-bottom:12px">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input id="chatUserSearch" placeholder="Search by name or phone..." oninput="chatSearchUsers(this.value)">
+    </div>
+    <div id="chatFriendsBody"><div class="spinner"></div></div>
+  `;
+  const friendIds = Object.keys(currentUser.friends || {});
+  const body = document.getElementById('chatFriendsBody');
+  if (friendIds.length === 0) {
+    body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-users"></i><div class="es-title">No friends yet</div><div class="es-sub">Search above to add</div></div>';
+    return;
+  }
+  const friends = await Promise.all(friendIds.map(async uid => {
+    const s = await firebase.database().ref(`ultimate_users/${uid}`).once('value');
+    return s.val() ? { uid, ...s.val() } : null;
+  }));
+  body.innerHTML = friends.filter(Boolean).map(f => {
+    const online = cIsOnline(f.lastSeen);
+    return `<div class="friend-card">
+      <div class="chat-avatar">${(f.name||'?')[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px">${cEsc(f.name||'User')}</div>
+        <div style="font-size:10px;color:var(--text-muted)">${cEsc(f.batch||'')} ${online?'· 🟢 Online':''}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="f-btn f-add" onclick="chatStartWithUser('${f.uid}')">💬</button>
+        <button class="f-btn f-add" style="background:var(--danger)" onclick="chatBlockUser('${f.uid}')">🚫</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function chatSearchUsers(term) {
+  term = (term || '').trim().toLowerCase();
+  const body = document.getElementById('chatFriendsBody');
+  if (!body) return;
+  if (!term) { renderChatFriends(); return; }
+  body.innerHTML = '<div class="spinner"></div>';
+  const snap = await firebase.database().ref('ultimate_users').once('value');
+  const all = snap.val() || {};
+  const found = [];
+  Object.entries(all).forEach(([uid, u]) => {
+    if (uid === currentUser.id || !u) return;
+    if ((u.name||'').toLowerCase().includes(term) || uid.toLowerCase().includes(term)) found.push({ uid, ...u });
+  });
+  if (found.length === 0) {
+    body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-search"></i><div class="es-title">No users found</div></div>';
+    return;
+  }
+  body.innerHTML = found.slice(0, 30).map(u => {
+    const isFriend = !!(currentUser.friends && currentUser.friends[u.uid]);
+    const nameSafe = cEsc(u.name||'User').replace(/'/g, '');
+    return `<div class="friend-card">
+      <div class="chat-avatar">${(u.name||'?')[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px">${cEsc(u.name||'User')} ${isFriend?'<span class="badge badge-success" style="font-size:8px">FRIEND</span>':''}</div>
+        <div style="font-size:10px;color:var(--text-muted)">${cEsc(u.batch||'')}</div>
+      </div>
+      <div>${isFriend
+        ? `<button class="f-btn f-add" onclick="chatStartWithUser('${u.uid}')">💬 Chat</button>`
+        : `<button class="f-btn f-add" onclick="chatSendFriendReq('${u.uid}','${nameSafe}')">➕ Add</button>`}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Requests Tab ───
+async function renderChatRequests() {
+  const c = document.getElementById('chatContent');
+  if (!c) return;
+  c.innerHTML = `
+    <div class="social-tabs" style="margin-bottom:14px">
+      <div class="social-tab ${CHAT.reqTab==='incoming'?'active':''}" onclick="CHAT.reqTab='incoming';renderChatRequests()">📥 Incoming</div>
+      <div class="social-tab ${CHAT.reqTab==='outgoing'?'active':''}" onclick="CHAT.reqTab='outgoing';renderChatRequests()">📤 Sent</div>
+    </div>
+    <div id="chatReqBody"><div class="spinner"></div></div>
+  `;
+  const body = document.getElementById('chatReqBody');
+  const field = CHAT.reqTab === 'incoming' ? 'to' : 'from';
+  const snap = await firebase.database().ref('ultimate_friend_requests').orderByChild(field).equalTo(currentUser.id).once('value');
+  const reqs = [];
+  snap.forEach(r => { if (r.val().status === 'pending') reqs.push({ id: r.key, ...r.val() }); });
+  if (reqs.length === 0) {
+    body.innerHTML = `<div class="empty-state"><i class="fa-solid fa-inbox"></i><div class="es-title">No ${CHAT.reqTab} requests</div></div>`;
+    return;
+  }
+  reqs.sort((a, b) => b.createdAt - a.createdAt);
+  body.innerHTML = reqs.map(r => {
+    const name = CHAT.reqTab === 'incoming' ? r.fromName : r.toName;
+    return `<div class="friend-card">
+      <div class="chat-avatar">${(name||'?')[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px">${cEsc(name||'User')}</div>
+        <div style="font-size:10px;color:var(--text-muted)">${cFmtDate(r.createdAt)}</div>
+      </div>
+      <div style="display:flex;gap:6px">${CHAT.reqTab==='incoming'
+        ? `<button class="f-btn f-acc" onclick="chatAcceptReq('${r.id}','${r.from}')">✅</button><button class="f-btn f-add" style="background:var(--danger)" onclick="chatRejectReq('${r.id}')">❌</button>`
+        : `<span class="badge badge-secondary" style="font-size:9px">PENDING</span>`}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Friends Page (separate) ───
+function renderFriendsPage() {
+  const p = document.getElementById('pageFriends');
+  if (!p) return;
+  if (!currentUser || !currentUser.id) {
+    p.innerHTML = '<div class="empty-state"><i class="fa-solid fa-lock"></i><div class="es-title">Login Required</div></div>';
+    return;
+  }
+  p.innerHTML = `
+    <div class="flex-between mb-1"><h3 style="font-size:19px;">👥 All Users</h3><button class="btn-outline btn-sm" onclick="goBack()">Back</button></div>
+    <div class="search-row" style="margin-bottom:12px"><i class="fa-solid fa-magnifying-glass"></i><input id="friendsPageSearch" placeholder="Search users..." oninput="friendsPageSearch(this.value)"></div>
+    <div id="friendsPageBody"><div class="spinner"></div></div>
+  `;
+  friendsPageSearch('');
+}
+
+async function friendsPageSearch(term) {
+  term = (term || '').trim().toLowerCase();
+  const body = document.getElementById('friendsPageBody');
+  if (!body) return;
+  body.innerHTML = '<div class="spinner"></div>';
+  const snap = await firebase.database().ref('ultimate_users').once('value');
+  const all = snap.val() || {};
+  const found = [];
+  Object.entries(all).forEach(([uid, u]) => {
+    if (uid === currentUser.id || !u) return;
+    if (!term || (u.name||'').toLowerCase().includes(term) || uid.toLowerCase().includes(term)) found.push({ uid, ...u });
+  });
+  if (found.length === 0) {
+    body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-users"></i><div class="es-title">No users found</div></div>';
+    return;
+  }
+  body.innerHTML = found.slice(0, 50).map(u => {
+    const isFriend = !!(currentUser.friends && currentUser.friends[u.uid]);
+    const nameSafe = cEsc(u.name||'User').replace(/'/g, '');
+    return `<div class="friend-card">
+      <div class="chat-avatar">${(u.name||'?')[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px">${cEsc(u.name||'User')} ${isFriend?'<span class="badge badge-success" style="font-size:8px">FRIEND</span>':''}</div>
+        <div style="font-size:10px;color:var(--text-muted)">${cEsc(u.batch||'')}</div>
+      </div>
+      <div>${isFriend
+        ? `<button class="f-btn f-add" onclick="chatStartWithUser('${u.uid}')">💬 Chat</button>`
+        : `<button class="f-btn f-add" onclick="chatSendFriendReq('${u.uid}','${nameSafe}')">➕ Add</button>`}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Friend actions ───
+async function chatSendFriendReq(toUid, toName) {
+  if (!toUid || toUid === currentUser.id) return;
+  const snap = await firebase.database().ref('ultimate_friend_requests').orderByChild('from').equalTo(currentUser.id).once('value');
+  let already = false;
+  snap.forEach(r => { const v = r.val(); if (v.to === toUid && v.status === 'pending') already = true; });
+  if (already) { showToast('Request already sent'); return; }
+  await firebase.database().ref('ultimate_friend_requests').push().set({
+    from: currentUser.id, fromName: currentUser.name || 'User',
+    to: toUid, toName, status: 'pending', createdAt: Date.now()
+  });
+  showToast('✅ Friend request sent');
+}
+
+async function chatAcceptReq(reqId, fromUid) {
+  try {
+    await firebase.database().ref(`ultimate_friend_requests/${reqId}`).update({ status: 'accepted', acceptedAt: Date.now() });
+    await firebase.database().ref(`ultimate_users/${currentUser.id}/friends/${fromUid}`).set(true);
+    await firebase.database().ref(`ultimate_users/${fromUid}/friends/${currentUser.id}`).set(true);
+    currentUser.friends = currentUser.friends || {};
+    currentUser.friends[fromUid] = true;
+    showToast('✅ Friend added');
+    renderChatRequests();
+    loadReqCount();
+  } catch (e) { showToast('Failed'); }
+}
+
+async function chatRejectReq(reqId) {
+  try {
+    await firebase.database().ref(`ultimate_friend_requests/${reqId}`).update({ status: 'rejected', rejectedAt: Date.now() });
+    showToast('Rejected');
+    renderChatRequests();
+    loadReqCount();
+  } catch (e) { showToast('Failed'); }
+}
+
+async function chatBlockUser(uid) {
+  if (!confirm('Block this user?')) return;
+  await firebase.database().ref(`ultimate_users/${currentUser.id}/blockedUsers/${uid}`).set(true);
+  await firebase.database().ref(`ultimate_users/${currentUser.id}/friends/${uid}`).remove();
+  currentUser.friends = currentUser.friends || {};
+  delete currentUser.friends[uid];
+  showToast('🚫 Blocked');
+  renderChatFriends();
+}
+
+function loadReqCount() {
+  if (!currentUser || !currentUser.id) return;
+  if (CHAT.reqRef && CHAT.reqCb) CHAT.reqRef.off('value', CHAT.reqCb);
+  CHAT.reqRef = firebase.database().ref('ultimate_friend_requests').orderByChild('to').equalTo(currentUser.id);
+  CHAT.reqCb = CHAT.reqRef.on('value', snap => {
+    let cnt = 0;
+    snap.forEach(r => { if (r.val().status === 'pending') cnt++; });
+    const b = document.getElementById('chatReqBadge');
+    if (b) { b.textContent = cnt; b.style.display = cnt > 0 ? 'inline-block' : 'none'; }
+  });
+}
+
+// ─── Start 1-to-1 chat ───
+async function chatStartWithUser(otherUid) {
+  if (!otherUid || otherUid === currentUser.id) return;
+  const snap = await firebase.database().ref('ultimate_chats').orderByChild('type').equalTo('1to1').once('value');
+  let existing = null;
+  snap.forEach(c => {
+    const v = c.val();
+    if (v.members && v.members[currentUser.id] && v.members[otherUid]) existing = c.key;
+  });
+  if (existing) { openChatRoom(existing); return; }
+  const ref = firebase.database().ref('ultimate_chats').push();
+  await ref.set({
+    type: '1to1',
+    members: { [currentUser.id]: true, [otherUid]: true },
+    name: '', lastMessage: '', lastMessageTime: Date.now(), createdAt: Date.now(), admins: {}
+  });
+  openChatRoom(ref.key);
+}
+
+// ─── Exports (Part 1) ───
+window.renderChatPage = renderChatPage;
+window.chatSetTab = chatSetTab;
+window.renderChatList = renderChatList;
+window.renderChatFriends = renderChatFriends;
+window.chatSearchUsers = chatSearchUsers;
+window.renderChatRequests = renderChatRequests;
+window.renderFriendsPage = renderFriendsPage;
+window.friendsPageSearch = friendsPageSearch;
+window.chatSendFriendReq = chatSendFriendReq;
+window.chatAcceptReq = chatAcceptReq;
+window.chatRejectReq = chatRejectReq;
+window.chatBlockUser = chatBlockUser;
+window.loadReqCount = loadReqCount;
+window.chatStartWithUser = chatStartWithUser;
+
+if (typeof currentUser !== 'undefined' && currentUser && currentUser.id) {
+  setTimeout(() => { try { loadReqCount(); } catch(e){} }, 2000);
+}
+
+console.log('✅ Chat PART 1/2 loaded');
+          
 </script>
 </body>
 </html>
