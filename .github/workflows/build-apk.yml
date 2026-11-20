@@ -45,7 +45,8 @@ jobs:
 
       - name: Add Android platform
         run: npx cap add android
-
+      - name: Generate App Icon
+        run: npx capacitor-assets generate --android
       - name: Sync Android
         run: npx cap sync android
 
